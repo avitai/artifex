@@ -1,0 +1,14 @@
+name: vae_protein
+description: Variational Autoencoder for protein sequences
+model_class: artifex.generative_models.models.vae.VAE
+version: "1.0.0"
+input_dim: 1024
+hidden_dims: [512, 256, 128]
+output_dim: 32
+activation: gelu
+metadata:
+  tags: [protein, vae, sequence]
+  modality: protein
+  max_sequence_length: 1024
+  vocab_size: 20
+  embedding_dim: 128

@@ -1,0 +1,37 @@
+name: ebm_cifar
+model_class: artifex.generative_models.models.energy.EBM
+type: model
+description: Energy-based model for CIFAR-10
+version: 1.0.0
+
+# Model architecture
+input_dim: [3, 32, 32]
+hidden_dims: [128, 256, 512, 256, 128]
+output_dim: 1 # energy value
+activation: swish
+
+# Metadata
+metadata:
+  ebm_params:
+    mcmc_steps: 60
+    step_size: 10.0
+    noise_scale: 0.005
+    temperature: 1.0
+    buffer_size: 10000
+    replay_prob: 0.95
+
+  training_defaults:
+    batch_size: 64
+    learning_rate: 0.0001
+    epochs: 100
+
+  dataset_info:
+    name: CIFAR-10
+    type: image
+    classes: 10
+
+tags:
+  - vision
+  - cifar10
+  - ebm
+  - energy

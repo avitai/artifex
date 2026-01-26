@@ -1,0 +1,65 @@
+experiment_name: protein_diffusion_distributed
+seed: 42
+output_dir: ./outputs/protein_diffusion_distributed/
+
+# Reference to config files
+model_config: models/diffusion/point_cloud_diffusion.yaml
+data_config: data/protein_dataset.yaml
+training_config: training/protein_diffusion_training.yaml
+inference_config: inference/protein_diffusion_inference.yaml
+
+# Distributed training configuration
+distributed_config: distributed/multi_gpu_training.yaml
+
+# Hyperparameter search configuration (for tuning)
+hyperparam_config: hyperparam/diffusion_hyperparameter_search.yaml
+
+# Logging settings
+log_level: INFO
+use_wandb: true
+wandb_project: protein-diffusion-distributed
+
+# Override specific settings from default configs
+overrides:
+  # Model overrides
+  model:
+    model_dim: 256
+    num_layers: 12
+    num_heads: 8
+    dropout: 0.1
+    timesteps: 1000
+
+  # Data overrides
+  data:
+    train_dataset:
+      data_path: ./data/cath_dataset/
+      cache_dir: ./cache/cath_dataset/
+      max_seq_length: 256
+    validation_dataset:
+      data_path: ./data/cath_dataset/
+      cache_dir: ./cache/cath_dataset/
+      max_seq_length: 256
+
+  # Training overrides
+  training:
+    num_epochs: 100
+    batch_size: 32  # Per-GPU batch size
+    gradient_accumulation_steps: 2
+    eval_freq: 500
+    optimizer:
+      learning_rate: 5.0e-5
+      weight_decay: 1.0e-6
+    scheduler:
+      warmup_steps: 1000
+
+  # Inference overrides
+  inference:
+    num_samples: 20
+    target_seq_length: 256
+    save_intermediate_steps: true
+
+  # Distributed training overrides
+  distributed:
+    # These settings will be read from environment variables in production
+    tensor_parallel_size: 2  # Use tensor parallelism for larger models
+    mixed_precision: fp16    # Use mixed precision for faster training

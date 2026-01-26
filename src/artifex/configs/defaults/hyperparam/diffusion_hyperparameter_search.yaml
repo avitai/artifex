@@ -1,0 +1,57 @@
+name: diffusion_hyperparameter_search
+description: Default configuration for diffusion model hyperparameter search
+
+# Search type and trial settings
+search_type: random
+num_trials: 20
+max_parallel_trials: 2
+
+# Search space
+parameters:
+  - param_path: model.model_dim
+    distribution_type: choice
+    choices: [64, 128, 256, 512]
+
+  - param_path: model.num_layers
+    distribution_type: choice
+    choices: [4, 6, 8, 12]
+
+  - param_path: model.dropout
+    distribution_type: uniform
+    min_value: 0.0
+    max_value: 0.5
+
+  - param_path: model.timesteps
+    distribution_type: choice
+    choices: [500, 1000, 2000]
+
+  - param_path: training.optimizer.learning_rate
+    distribution_type: uniform
+    min_value: 1.0e-5
+    max_value: 5.0e-4
+    log_scale: true
+
+  - param_path: training.optimizer.weight_decay
+    distribution_type: uniform
+    min_value: 1.0e-6
+    max_value: 1.0e-3
+    log_scale: true
+
+  - param_path: training.scheduler.warmup_steps
+    distribution_type: choice
+    choices: [200, 500, 1000]
+
+# Early stopping
+early_stopping: true
+patience: 5
+
+# Pruning
+pruning: true
+pruning_interval: 1
+
+# Optimization direction
+direction: minimize
+metric: val_loss
+
+# Random seed for reproducibility
+seed: 42

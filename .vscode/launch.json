@@ -1,0 +1,286 @@
+{
+    "version": "0.2.0",
+    // ============================================================================
+    // PORTABLE DEBUG CONFIGURATIONS
+    // Works with any Python project structure and virtual environment
+    // ============================================================================
+    "configurations": [
+        // ========================================================================
+        // BASIC PYTHON DEBUGGING
+        // ========================================================================
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "envFile": "${workspaceFolder}/.env",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/src:${workspaceFolder}:${workspaceFolder}/lib",
+                "PYTHONDONTWRITEBYTECODE": "1"
+            },
+            "cwd": "${workspaceFolder}",
+            "stopOnEntry": false,
+            "redirectOutput": false
+        },
+        {
+            "name": "Python: Current File (Debug Mode)",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "envFile": "${workspaceFolder}/.env",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/src:${workspaceFolder}:${workspaceFolder}/lib",
+                "PYTHONDONTWRITEBYTECODE": "1",
+                "PYTHONDEVMODE": "1"
+            },
+            "cwd": "${workspaceFolder}",
+            "stopOnEntry": false,
+            "debugOptions": [
+                "RedirectOutput"
+            ],
+            "showReturnValue": true
+        },
+        // ========================================================================
+        // MODULE EXECUTION (Portable)
+        // ========================================================================
+        {
+            "name": "Python: Module (Enter Module Name)",
+            "type": "python",
+            "request": "launch",
+            "module": "${input:moduleName}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "envFile": "${workspaceFolder}/.env",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/src:${workspaceFolder}:${workspaceFolder}/lib",
+                "PYTHONDONTWRITEBYTECODE": "1"
+            },
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Python: Main Module",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/__main__.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "envFile": "${workspaceFolder}/.env",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/src:${workspaceFolder}:${workspaceFolder}/lib",
+                "PYTHONDONTWRITEBYTECODE": "1"
+            },
+            "cwd": "${workspaceFolder}"
+        },
+        // ========================================================================
+        // TESTING CONFIGURATIONS
+        // ========================================================================
+        {
+            "name": "Python: Pytest Current File",
+            "type": "python",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "${file}",
+                "-v",
+                "-s"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "envFile": "${workspaceFolder}/.env",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/src:${workspaceFolder}:${workspaceFolder}/lib",
+                "PYTHONDONTWRITEBYTECODE": "1"
+            },
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Python: Pytest All Tests",
+            "type": "python",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "-v",
+                "--tb=short"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "envFile": "${workspaceFolder}/.env",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/src:${workspaceFolder}:${workspaceFolder}/lib",
+                "PYTHONDONTWRITEBYTECODE": "1"
+            },
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Python: Pytest with Coverage",
+            "type": "python",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "--cov=.",
+                "--cov-report=html",
+                "--cov-report=term-missing",
+                "-v"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "envFile": "${workspaceFolder}/.env",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/src:${workspaceFolder}:${workspaceFolder}/lib",
+                "PYTHONDONTWRITEBYTECODE": "1"
+            },
+            "cwd": "${workspaceFolder}"
+        },
+        // ========================================================================
+        // JUPYTER NOTEBOOK DEBUGGING
+        // ========================================================================
+        {
+            "name": "Python: Jupyter Notebook",
+            "type": "python",
+            "request": "launch",
+            "module": "jupyter",
+            "args": [
+                "notebook",
+                "--no-browser",
+                "--port=8888"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "envFile": "${workspaceFolder}/.env",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/src:${workspaceFolder}:${workspaceFolder}/lib"
+            },
+            "cwd": "${workspaceFolder}"
+        },
+        // ========================================================================
+        // LINTING AND CODE QUALITY
+        // ========================================================================
+        {
+            "name": "Python: Run Ruff Check",
+            "type": "python",
+            "request": "launch",
+            "module": "ruff",
+            "args": [
+                "check",
+                ".",
+                "--fix"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/src:${workspaceFolder}:${workspaceFolder}/lib"
+            },
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Python: Run Pre-commit",
+            "type": "python",
+            "request": "launch",
+            "module": "pre_commit.main",
+            "args": [
+                "run",
+                "--all-files"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Python: Type Check with Pyright",
+            "type": "python",
+            "request": "launch",
+            "module": "pyright",
+            "args": [
+                "."
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/src:${workspaceFolder}:${workspaceFolder}/lib"
+            },
+            "cwd": "${workspaceFolder}"
+        },
+        // ========================================================================
+        // WEB DEVELOPMENT (FastAPI, Flask, etc.)
+        // ========================================================================
+        {
+            "name": "Python: FastAPI Server",
+            "type": "python",
+            "request": "launch",
+            "module": "uvicorn",
+            "args": [
+                "main:app",
+                "--reload",
+                "--host=0.0.0.0",
+                "--port=8000"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "envFile": "${workspaceFolder}/.env",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/src:${workspaceFolder}:${workspaceFolder}/lib"
+            },
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Python: Flask Server",
+            "type": "python",
+            "request": "launch",
+            "module": "flask",
+            "args": [
+                "run",
+                "--debug"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "envFile": "${workspaceFolder}/.env",
+            "env": {
+                "FLASK_APP": "app.py",
+                "FLASK_ENV": "development",
+                "PYTHONPATH": "${workspaceFolder}/src:${workspaceFolder}:${workspaceFolder}/lib"
+            },
+            "cwd": "${workspaceFolder}"
+        },
+        // ========================================================================
+        // ATTACH TO RUNNING PROCESS
+        // ========================================================================
+        {
+            "name": "Python: Attach to Local Process",
+            "type": "python",
+            "request": "attach",
+            "processId": "${command:pickProcess}",
+            "justMyCode": false
+        },
+        {
+            "name": "Python: Remote Attach",
+            "type": "python",
+            "request": "attach",
+            "connect": {
+                "host": "localhost",
+                "port": 5678
+            },
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}",
+                    "remoteRoot": "/app"
+                }
+            ],
+            "justMyCode": false
+        }
+    ],
+    // ============================================================================
+    // INPUT VARIABLES (For dynamic configurations)
+    // ============================================================================
+    "inputs": [
+        {
+            "id": "moduleName",
+            "description": "Enter the module name to run",
+            "default": "main",
+            "type": "promptString"
+        }
+    ]
+}

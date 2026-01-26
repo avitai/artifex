@@ -1,0 +1,60 @@
+{
+    // ============================================================================
+    // PORTABLE EXTENSIONS CONFIGURATION - VERIFIED SOURCES ONLY
+    // Only includes extensions from Microsoft and other verified publishers
+    // ============================================================================
+    "recommendations": [
+        // ========================================================================
+        // CORE PYTHON DEVELOPMENT (Microsoft - Verified)
+        // ========================================================================
+        "ms-python.python", // Python language support (Microsoft)
+        "ms-python.debugpy", // Python debugging (Microsoft)
+        "ms-toolsai.jupyter", // Jupyter notebook support (Microsoft)
+        "ms-toolsai.jupyter-keymap", // Jupyter keyboard shortcuts (Microsoft)
+        "ms-toolsai.jupyter-renderers", // Enhanced Jupyter rendering (Microsoft)
+        // ========================================================================
+        // LINTING AND FORMATTING (Verified Publishers)
+        // ========================================================================
+        "charliermarsh.ruff", // Ruff linter/formatter (Astral - Ruff creator)
+        "ms-pyright.pyright", // Pyright type checker (Microsoft)
+        "ms-python.mypy-type-checker", // MyPy type checker (Microsoft)
+        "ms-python.black-formatter", // Black formatter (Microsoft)
+        "ms-python.isort", // Import sorting (Microsoft)
+        // ========================================================================
+        // CONFIGURATION FILE SUPPORT (Verified Publishers)
+        // ========================================================================
+        "redhat.vscode-yaml", // YAML support (Red Hat - Verified)
+        "tamasfe.even-better-toml", // TOML support (Popular, well-maintained)
+        "ms-vscode.vscode-json", // JSON support (Microsoft)
+        // ========================================================================
+        // GIT AND VERSION CONTROL (Verified Publishers)
+        // ========================================================================
+        "eamodio.gitlens", // Enhanced Git integration (Popular, well-maintained)
+        "github.vscode-pull-request-github", // GitHub integration (GitHub Official)
+        // ========================================================================
+        // MICROSOFT PRODUCTIVITY ENHANCEMENTS
+        // ========================================================================
+        "visualstudioexptteam.vscodeintellicode", // AI-assisted development (Microsoft)
+        "ms-vscode.vscode-intellicode-completions", // AI completions (Microsoft)
+        // ========================================================================
+        // TESTING AND DEBUGGING (Microsoft Only)
+        // ========================================================================
+        "ms-vscode.test-adapter-converter", // Test adapter (Microsoft)
+        // ========================================================================
+        // SECURITY AND CODE QUALITY (Microsoft Only)
+        // ========================================================================
+        "ms-python.bandit", // Security linting (Microsoft)
+        // ========================================================================
+        // MICROSOFT PYTHON EXTENSION PACK (Includes many verified extensions)
+        // ========================================================================
+        "ms-python.python" // This includes most Python tools automatically
+    ],
+    // ============================================================================
+    // UNWANTED EXTENSIONS (Prevents conflicts)
+    // ============================================================================
+    "unwantedRecommendations": [
+        "ms-python.flake8", // Conflicts with Ruff
+        "ms-python.pylint", // Conflicts with Ruff
+        "esbenp.prettier-vscode" // Not needed for Python projects
+    ]
+}

@@ -1,0 +1,18 @@
+name: gan_cifar10
+description: DCGAN for CIFAR-10 dataset
+model_class: artifex.generative_models.models.gan.DCGAN
+version: "1.0.0"
+input_dim: [32, 32, 3]
+hidden_dims: [128, 256, 512, 256, 128]
+output_dim: [32, 32, 3]
+activation: leaky_relu
+metadata:
+  tags: [vision, gan, cifar10]
+  dataset: cifar10
+  pretrained: false
+  gan_params:
+    latent_dim: 100
+    generator_lr: 0.0002
+    discriminator_lr: 0.0002
+    beta1: 0.5
+    beta2: 0.999

@@ -1,0 +1,16 @@
+name: default_voxel_model
+description: Default configuration for voxel grid generation model
+
+model_type: voxel
+latent_dim: 256
+use_conditioning: false
+
+# Voxel specific parameters
+resolution: 32
+channels: [512, 256, 128, 64, 32, 1]
+kernel_size: 4
+use_batch_norm: true
+activation: leaky_relu
+
+# Loss function parameters
+loss_type: bce

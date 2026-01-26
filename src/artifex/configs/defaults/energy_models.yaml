@@ -1,0 +1,108 @@
+# Energy-Based Model Default Configurations
+# These provide starting points for different types of EBM applications
+
+# Simple MLP EBM for tabular data
+simple_mlp_ebm:
+  name: "simple_mlp_ebm"
+  description: "Simple MLP Energy-Based Model for tabular data"
+  energy_type: "mlp"
+  input_dim: 784  # Example: flattened MNIST
+  hidden_dims: [128, 128, 64]
+  activation: "gelu"
+  use_bias: true
+  dropout_rate: 0.1
+  mcmc_steps: 40
+  mcmc_step_size: 0.01
+  mcmc_noise_scale: 0.005
+  sample_buffer_capacity: 2048
+  sample_buffer_reinit_prob: 0.05
+  regularization_alpha: 0.01
+
+# CNN EBM for grayscale images (MNIST-like)
+cnn_ebm_mnist:
+  name: "cnn_ebm_mnist"
+  description: "CNN Energy-Based Model optimized for MNIST-like datasets"
+  energy_type: "cnn"
+  input_channels: 1
+  hidden_dims: [16, 32, 64]
+  activation: "silu"
+  use_bias: true
+  dropout_rate: 0.0
+  mcmc_steps: 60
+  mcmc_step_size: 0.01
+  mcmc_noise_scale: 0.005
+  sample_buffer_capacity: 4096
+  sample_buffer_reinit_prob: 0.05
+  regularization_alpha: 0.01
+
+# CNN EBM for color images (CIFAR-like)
+cnn_ebm_cifar:
+  name: "cnn_ebm_cifar"
+  description: "CNN Energy-Based Model optimized for CIFAR-like datasets"
+  energy_type: "cnn"
+  input_channels: 3
+  hidden_dims: [32, 64, 128]
+  activation: "silu"
+  use_bias: true
+  dropout_rate: 0.0
+  mcmc_steps: 60
+  mcmc_step_size: 0.008
+  mcmc_noise_scale: 0.003
+  sample_buffer_capacity: 8192
+  sample_buffer_reinit_prob: 0.05
+  regularization_alpha: 0.01
+
+# Deep EBM for complex image datasets
+deep_ebm:
+  name: "deep_ebm"
+  description: "Deep Energy-Based Model with residual connections for complex datasets"
+  energy_type: "deep_cnn"
+  input_channels: 3
+  hidden_dims: [32, 64, 128, 256]
+  activation: "silu"
+  use_bias: true
+  use_residual: true
+  use_spectral_norm: true
+  kernel_size: 3
+  mcmc_steps: 100
+  mcmc_step_size: 0.005
+  mcmc_noise_scale: 0.001
+  sample_buffer_capacity: 8192
+  sample_buffer_reinit_prob: 0.05
+  regularization_alpha: 0.001
+
+# Fast training configuration (fewer MCMC steps)
+fast_ebm:
+  name: "fast_ebm"
+  description: "Fast EBM configuration for quick prototyping"
+  energy_type: "cnn"
+  input_channels: 1
+  hidden_dims: [16, 32]
+  activation: "silu"
+  use_bias: true
+  dropout_rate: 0.0
+  mcmc_steps: 20  # Reduced for faster training
+  mcmc_step_size: 0.02
+  mcmc_noise_scale: 0.01
+  sample_buffer_capacity: 1024
+  sample_buffer_reinit_prob: 0.1
+  regularization_alpha: 0.01
+
+# High-quality sampling configuration
+hq_sampling_ebm:
+  name: "hq_sampling_ebm"
+  description: "EBM configuration optimized for high-quality sample generation"
+  energy_type: "cnn"
+  input_channels: 1
+  hidden_dims: [32, 64, 128]
+  activation: "silu"
+  use_bias: true
+  dropout_rate: 0.0
+  mcmc_steps: 200  # More steps for better samples
+  mcmc_step_size: 0.005
+  mcmc_noise_scale: 0.002
+  mcmc_clip_range: [-1.0, 1.0]
+  mcmc_grad_clip: 0.02
+  sample_buffer_capacity: 16384
+  sample_buffer_reinit_prob: 0.02  # Less reinitialization for stability
+  regularization_alpha: 0.005

@@ -1,0 +1,28 @@
+name: protein_diffusion_inference
+description: Default inference configuration for protein diffusion models
+
+# Basic inference settings
+checkpoint_path: ./outputs/protein_diffusion/checkpoint_best.pt
+output_dir: ./outputs/protein_diffusion/samples/
+batch_size: 1
+num_samples: 5
+device: cuda
+
+# Diffusion-specific settings
+sampler: ddpm
+timesteps: 1000
+temperature: 1.0
+sample_with_classifier_guidance: false
+guidance_scale: 7.5
+
+# Sampling settings
+save_intermediate_steps: true
+intermediate_step_interval: 50
+seed: 42
+
+# Protein-specific settings
+target_seq_length: 128
+backbone_atom_indices: [0, 1, 2, 4]  # N, CA, C, O indices
+calculate_metrics: true
+visualize_structures: true
+save_as_pdb: true

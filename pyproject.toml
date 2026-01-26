@@ -1,0 +1,426 @@
+[build-system]
+build-backend = "hatchling.build"
+requires = [
+  "hatchling>=1.18"
+]
+
+[dependency-groups]
+dev = [
+  "nbqa>=1.9.1",
+  "types-tqdm>=4.67.0.20250809"
+]
+
+[project]
+authors = [
+  {email = "mahdi@avitai.bio", name = "Mahdi Shafiei"}
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Natural Language :: English",
+  "Operating System :: POSIX :: Linux",
+  "Operating System :: MacOS",
+  "Operating System :: MacOS :: MacOS X",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Topic :: Scientific/Engineering :: Information Analysis",
+  "Topic :: Scientific/Engineering :: Mathematics"
+]
+dependencies = [
+  "blackjax>=1.2.5",
+  "dacite>=1.8.0",
+  "datasets>=2.14.0",
+  "datarax @ git+https://github.com/avitai/datarax",
+  "distrax>=0.1.7",
+  "flax>=0.12.0",
+  "grain>=0.1.0",
+  "graphviz>=0.20",
+  "huggingface-hub>=0.25.0",
+  "jax>=0.4.0",
+  "jaxlib>=0.4.0",
+  "jax-triton>=0.2.0; sys_platform == 'linux'",
+  "jaxtyping>=0.2.20",
+  "matplotlib>=3.8",
+  "mlflow>=2",
+  "mock>=5.2",
+  "nglview>=3",
+  "numpy<2.4.0,>=1.24",
+  "optax>=0.2.0",
+  "orbax-checkpoint>=0.11.0",
+  "pandas>=2.2.2",
+  "pre-commit>=4.2",
+  "py3dmol>=1",
+  "pydantic>=2",
+  "pytest>=8.3.5",
+  "pytest-benchmark>=5.1",
+  "pytest-cov>=6.1.1",
+  "pytest-xdist>=3.7",
+  "python-dotenv>=1.1",
+  "scikit-learn>=1.6.1",
+  "scipy>=1.12.1",
+  "tensorflow>=2.16.0",
+  "tensorflow-datasets>=4.9.0",
+  "tf-keras>=2.16.0",
+  "trimesh>=3.30.1",
+  "triton>=3.1; sys_platform == 'linux'",
+  "tqdm>=4.67",
+  "typer>=0.7",
+  "psutil>=5.9.5",
+  "types-psutil>=5.10.10",
+  "typing_extensions>=4.5",
+  "wandb>=0.15"
+]
+description = "ARTIFEX: Architectures + Generative + JAX - A modular generative modeling library"
+keywords = [
+  "deep-learning",
+  "flax",
+  "generative-models",
+  "jax"
+]
+license = {file = "LICENSE"}
+name = "artifex"
+readme = "README.md"
+requires-python = ">=3.11"
+version = "0.1.0"
+
+[project.optional-dependencies]
+# Platform-specific installation:
+# - Linux with GPU: pip install artifex[all]
+# - macOS (Apple Silicon): pip install artifex[all-macos]
+# - macOS/Linux CPU-only: pip install artifex[all-cpu]
+all = [
+  "artifex[dev,docs,gpu,test]"
+]
+all-cpu = [
+  # CPU-only installation (no GPU acceleration)
+  # Use this for macOS or Linux without CUDA
+  "artifex[dev,docs,test]"
+]
+all-macos = [
+  # macOS with Metal acceleration (Apple Silicon M1/M2/M3+)
+  "artifex[dev,docs,metal,test]"
+]
+cuda-dev = [
+  # Comprehensive CUDA development environment
+  # Includes all dev tools, testing, and GPU support
+  # Automatically configured via scripts/fresh_cuda_setup.sh
+  "artifex[dev,gpu]"
+]
+dev = [
+  "build>=1.0.3",
+  "coverage>=7",
+  "ipykernel>=6.29.5",
+  "jupyter>=1.1.1",
+  "jupytext>=1.16.6",
+  "nbconvert>=7.16.4",
+  "pydeps>=1.12.17",
+  "pyright>=1.1.336",
+  "pytest>=8.3.5",
+  "pytest-asyncio>=0.23",
+  "pytest-benchmark>=4",
+  "pytest-cov>=6.1.1",
+  "pytest-env>=1.0.1",
+  "pytest-json-report>=1.5.0",
+  "pytest-timeout>=2.1",
+  "pytest-xdist>=3.6",
+  "python-dotenv>=1",
+  "ruff>=0.1.5",
+  "twine>=4.0.2"
+]
+docs = [
+  "griffe>=1.7.3",
+  "hippogriffe>=0.2",
+  "mkdocs>=1.6.1",
+  "mkdocs-include-exclude-files>=0.1",
+  "mkdocs-ipynb>=0.1",
+  "mkdocs-jupyter>=0.24",
+  "mkdocs-material>=9.6.7",
+  "mkdocstrings>=0.28.3",
+  "mkdocstrings-python>=1.1.2",
+  "pymdown-extensions>=10.14.3"
+]
+gpu = [
+  # GPU dependencies - Complete CUDA stack installed locally in venv
+  # JAX with CUDA 12 support (uses venv CUDA libraries via LD_LIBRARY_PATH)
+  "jax-cuda12-plugin>=0.7.0",
+  "jax-cuda12-pjrt>=0.7.0",
+  # Individual CUDA libraries - installed in .venv for complete isolation
+  "nvidia-cublas-cu12>=12.6",
+  "nvidia-cuda-cupti-cu12>=12.6",
+  "nvidia-cuda-nvcc-cu12>=12.6", # CUDA compiler
+  "nvidia-cuda-nvrtc-cu12>=12.6", # CUDA runtime compiler
+  "nvidia-cuda-runtime-cu12>=12.6",
+  "nvidia-cudnn-cu12>=9.1",
+  "nvidia-cufft-cu12>=11.3", # Compatible with latest CUDA stack
+  "nvidia-curand-cu12>=10.3",
+  "nvidia-cusolver-cu12>=11.7",
+  "nvidia-cusparse-cu12>=12.3",
+  "nvidia-nccl-cu12>=2.20", # Additional CUDA ML libraries
+  "nvidia-nvjitlink-cu12>=12.6",
+  "nvidia-nvtx-cu12>=12.6"
+]
+metal = [
+  # Metal acceleration for Apple Silicon Macs (M1/M2/M3+)
+  # Provides GPU-like acceleration on macOS
+  "jax-metal>=0.1.0"
+]
+test = [
+  "beartype>=0.14.1",
+  "coverage>=7",
+  "pytest>=8.3.5",
+  "pytest-asyncio>=0.23",
+  "pytest-benchmark>=4",
+  "pytest-cov>=6.1.1",
+  "pytest-env>=1.0.1",
+  "pytest-json-report>=1.5.0",
+  "pytest-timeout>=2.1",
+  "pytest-xdist>=3.6"
+]
+
+[project.scripts]
+artifex-cuda-test = "scripts.run_tests_with_cuda:main"
+artifex-fresh-setup = "scripts.fresh_cuda_setup:main"
+artifex-setup-env = "scripts.setup_env:main"
+artifex-smart-test = "scripts.smart_test_runner:main"
+
+[project.urls]
+repository = "https://github.com/avitai/artifex"
+
+[tool.artifex.cuda]
+auto_detect = true
+documentation = "docs/setup/cuda-setup.md"
+environment_file = ".env"
+fallback_to_cpu = true
+setup_scripts = [
+  "scripts/fresh_cuda_setup.sh",
+  "scripts/setup_env.py",
+  "scripts/run_tests_with_cuda.sh"
+]
+
+[tool.bandit]
+exclude_dirs = ["tests", "examples", "notebooks", "scripts"]
+skips = ["B101", "B404", "B603", "B607", "B110"]
+
+[tool.coverage.html]
+directory = "htmlcov"
+skip_covered = false
+skip_empty = false
+
+[tool.coverage.report]
+exclude_lines = [
+  "pragma: no cover",
+  "def __repr__",
+  "if self.debug:",
+  "if settings.DEBUG",
+  "raise AssertionError",
+  "raise NotImplementedError",
+  "if 0:",
+  "if __name__ == .__main__.:",
+  "class .*\\bProtocol\\):",
+  "@(abc\\.)?abstractmethod",
+  "pass",
+  "raise ImportError"
+]
+# Adjusted for large codebase with focused testing approach
+fail_under = 20
+precision = 2
+show_missing = true
+skip_covered = false
+
+[tool.coverage.run]
+branch = true
+omit = [
+  "*/tests/*",
+  "*/conftest.py",
+  "*/__pycache__/*",
+  "*/scripts/*",
+  "*/examples/*",
+  "*/benchmark/*"
+]
+parallel = true
+source = ["src"]
+
+[tool.coverage.xml]
+output = "coverage.xml"
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "src/artifex",
+  "README.md",
+  "LICENSE",
+  "pyproject.toml"
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/artifex"]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.pydocstyle]
+add-ignore = [
+  "D100", # Missing docstring in public module
+  "D200", # One-line docstring should fit on one line with quotes
+  "D202", # No blank lines allowed after function docstring
+  "D203", # 1 blank line required before class docstring
+  "D204", # 1 blank line required after class docstring
+  "D205", # 1 blank line required between summary line and description
+  "D212", # Multi-line docstring summary should start at the first line
+  "D213", # Multi-line docstring summary should start at the second line
+  "D400", # First line should end with a period
+  "D401", # First line should be in imperative mood
+  "D404", # First word of the docstring should not be This
+  "D415" # First line should end with a period, question mark, or exclamation point
+]
+add-select = [
+  "D101", # Missing docstring in public class
+  "D102", # Missing docstring in public method
+  "D103", # Missing docstring in public function
+  "D104", # Missing docstring in public package
+  "D105", # Missing docstring in magic method
+  "D107" # Missing docstring in __init__
+]
+convention = "google"
+match = "(?!test_).*\\.py"
+match-dir = "(?!tests|scripts|examples|notebooks).*"
+
+[tool.pyright]
+exclude = ["tests", "src/artifex"]
+include = ["src"]
+pythonVersion = "3.11"
+reportFunctionMemberAccess = false
+reportIncompatibleMethodOverride = false
+reportIncompatibleVariableOverride = false # Incompatible with eqx.AbstractVar
+reportMissingImports = false
+reportMissingTypeStubs = false
+typeCheckingMode = "off"
+
+[tool.pytest.ini_options]
+# Configuration with smart parallel execution and coverage
+# Note: -n auto removed to prevent GPU conflicts. Removed --maxfail=1 to run all tests
+# Coverage threshold set to 30% with timeout and JSON reporting
+addopts = "--strict-markers --strict-config --verbose --tb=short --color=yes --durations=10 --disable-warnings --cov=artifex --cov-report=term-missing --cov-report=html --cov-fail-under=30 --timeout=300 --json-report --json-report-file=temp/test-results.json --json-report-indent=2"
+cache_dir = ".pytest_cache"
+# Additional settings
+console_output_style = "progress"
+filterwarnings = [
+  "ignore::DeprecationWarning:pkg_resources.*",
+  "ignore::DeprecationWarning:jax.*",
+  "ignore:jax.interpreters.xla.pytype_aval_mappings is deprecated:DeprecationWarning",
+  "ignore::pytest.PytestCollectionWarning:cannot collect test class 'TestFileAnalysis'",
+  "ignore::pytest.PytestCollectionWarning:cannot collect test class 'TestStructureAnalyzer'",
+  # CUDA-related warnings (automatically handled by conftest.py)
+  "ignore::UserWarning:jax._src.xla_bridge",
+  "ignore:.*cuSPARSE.*",
+  "ignore:.*CUDA-enabled jaxlib.*"
+]
+log_cli = true
+log_cli_level = "INFO"
+markers = [
+  "blackjax: marks tests that use BlackJAX integration (skipped by default unless ENABLE_BLACKJAX_TESTS is set)",
+  "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+  "gpu: marks tests that require GPU (deselect with '-m \"not gpu\"') - automatically detected via conftest.py",
+  "gpu_required: marks tests as requiring GPU (will fail if GPU unavailable)",
+  "cuda: marks tests that specifically test CUDA functionality",
+  "cpu: marks tests that should run on CPU only",
+  "integration: marks tests as integration tests",
+  "unit: marks tests as unit tests",
+  "e2e: marks tests as end-to-end tests",
+  "benchmark: marks tests as performance benchmarks (requires pytest-benchmark)",
+  "performance: marks tests as performance tests (alias for benchmark)",
+  "contract: marks tests as contract tests"
+]
+# Minimum version
+minversion = "6.0"
+python_classes = "Test*"
+python_files = "test_*.py"
+python_functions = "test_*"
+# Main pytest configuration
+testpaths = ["tests"]
+
+[tool.pytest-benchmark]
+compare = [
+  "last",
+  "base"
+]
+disable_gc = true
+histogram = "histogram.svg"
+min_rounds = 5
+min_time = 0.1
+save = "benchmark-results"
+save_data = true
+warmup = true
+warmup_iterations = 3
+
+[tool.pytest-env]
+JAX_ENABLE_X64 = "0"
+# JAX_SKIP_CUDA_CONSTRAINTS_CHECK = "1"  # Disabled to catch CUDA version mismatches
+# Use venv CUDA libraries instead of system ones
+# This path is relative to the project root where pytest runs
+LD_LIBRARY_PATH = ".venv/lib/python3.12/site-packages/nvidia/cublas/lib:.venv/lib/python3.12/site-packages/nvidia/cusolver/lib:.venv/lib/python3.12/site-packages/nvidia/cusparse/lib:.venv/lib/python3.12/site-packages/nvidia/cudnn/lib:.venv/lib/python3.12/site-packages/nvidia/cufft/lib:.venv/lib/python3.12/site-packages/nvidia/curand/lib:.venv/lib/python3.12/site-packages/nvidia/nccl/lib:.venv/lib/python3.12/site-packages/nvidia/nvjitlink/lib:.venv/lib/python3.12/site-packages/nvidia/cuda_runtime/lib:.venv/lib/python3.12/site-packages/nvidia/cuda_nvrtc/lib:.venv/lib/python3.12/site-packages/nvidia/cuda_cupti/lib:.venv/lib/python3.12/site-packages/nvidia/nvtx/lib"
+TF_CPP_MIN_LOG_LEVEL = "1"
+XLA_PYTHON_CLIENT_MEM_FRACTION = "0.75"
+XLA_PYTHON_CLIENT_PREALLOCATE = "false"
+
+[tool.ruff]
+extend-include = ["*.ipynb"]
+line-length = 100
+src = []
+target-version = "py311"
+
+[tool.ruff.format]
+indent-style = "space"
+line-ending = "auto"
+quote-style = "double"
+skip-magic-trailing-comma = false
+
+[tool.ruff.lint]
+# Add W291, W292, W293 to fixable to handle whitespace issues
+fixable = ["I001", "F401", "E", "W", "W291", "W292", "W293", "F841"]
+ignore = [
+  "E402", # Module level import not at top of file
+  "E721", # Do not compare types directly
+  "E731", # Do not assign a lambda expression, use a def (we can refactor these later)
+  "E741", # Ambiguous variable name
+  "F722", # Forward annotation syntax error
+  "W391", # Blank line at end of file
+  "E203", # Whitespace before ':'
+  # Typing modernization warnings - can be fixed later in a dedicated PR
+  "UP006", # Use `list` instead of `List` for type annotation
+  "UP007", # Use `X | Y` for type annotations
+  "UP015", # Unnecessary open mode parameters
+  "UP024", # Replace aliased errors with `OSError`
+  "UP035", # Import from `collections.abc` instead
+  "RUF005" # Consider using unpacked tuple instead of concatenation
+]
+# E: Pyflakes and pycodestyle errors
+# F: Pyflakes
+# I: isort
+# W: pycodestyle warnings
+select = ["E", "F", "I", "W", "F841"]
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+extra-standard-library = ["typing_extensions"]
+known-first-party = ["artifex"]
+lines-after-imports = 2
+order-by-type = false
+
+[tool.ruff.lint.per-file-ignores]
+"*.ipynb" = ["F821", "F541"] # Notebooks: undefined names (cross-cell context), f-strings without placeholders
+"tests/*" = ["E501"] # Line too long in tests
+"tests/artifex/generative_models/core/sampling/test_blackjax_samplers.py" = ["E501", "E402"] # Line too long and imports not at top for BlackJAX tests
+
+[tool.uv]
+dev-dependencies = [
+  "pytest-xdist>=3.8.0"
+]
+python-preference = "only-managed"
+
+# Configure for GPU package installation
+[tool.uv.pip]
+find-links = ["https://storage.googleapis.com/jax-releases/jax_cuda_releases.html"]
