@@ -1,0 +1,29 @@
+# Default configuration for protein extensions
+name: default_protein_extensions
+description: Default configuration for protein-specific extensions
+
+# Backbone constraints
+use_backbone_constraints: true
+bond_length_config:
+  name: default_bond_length
+  description: Bond length constraint for protein backbones
+  weight: 1.0
+  enabled: true
+  ideal_bond_lengths: [1.45, 1.52, 1.33]  # N-CA, CA-C, C-N+1 (Angstroms)
+
+bond_angle_config:
+  name: default_bond_angle
+  description: Bond angle constraint for protein backbones
+  weight: 0.5
+  enabled: true
+  ideal_bond_angles: [2.025, 2.11, 1.94]  # CA-C-N+1, C-N+1-CA+1, N-CA-C (radians)
+
+# Protein mixin
+use_aa_features: true
+protein_mixin_config:
+  name: default_protein_mixin
+  description: Amino acid features for protein models
+  weight: 1.0
+  enabled: true
+  num_aa_types: 20
+  # embedding_dim should be set to match the model dimension

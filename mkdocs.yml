@@ -1,0 +1,419 @@
+site_name: Artifex
+site_description: ARTIFEX - Architectures + Generative + JAX. A production-ready modular generative modeling library built on JAX/Flax, providing implementations of state-of-the-art generative models (VAEs, GANs, Diffusion Models, Flow Models, etc.) with multi-modal support
+site_author: Mahdi Shafiei
+site_url: https://docs.avitai.bio/artifex
+repo_url: https://github.com/avitai/artifex
+repo_name: avitai/artifex
+edit_uri: edit/main/docs/
+
+# Configuration for clean, scientific appearance
+theme:
+  name: material
+  language: en
+
+  palette:
+    # Light mode with automatic detection
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: amber
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Dark mode with automatic detection
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: amber
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+  features:
+    # Navigation features with collapsible sections
+    - navigation.path
+    - navigation.top
+    # Instant loading for better UX
+    - navigation.instant
+    - navigation.instant.prefetch
+    - navigation.instant.progress
+    # Enable navigation tracking
+    - navigation.tracking
+    # Table of contents
+    - toc.follow
+    # Search features
+    - search.highlight
+    - search.share
+    - search.suggest
+    # Content features
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+    - content.tooltips
+    # Enable Mermaid diagram support
+    - content.mermaid
+
+  icon:
+    repo: fontawesome/brands/github
+    logo: "material/flask-outline"  # Science/research icon for generative models
+
+  font:
+    text: Roboto
+    code: Roboto Mono
+
+  favicon: "_static/favicon.png"
+  custom_dir: "docs/_overrides"
+
+# Extra configuration
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/avitai/artifex
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/artifex/
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/mahdi_shafiei
+
+# Navigation structure for Artifex generative models library
+nav:
+  - Home: index.md
+
+  - Getting Started:
+      - Installation: getting-started/installation.md
+      - Hardware Setup Guide: getting-started/hardware-setup-guide.md
+      - Quick Start: getting-started/quickstart.md
+      - Core Concepts: getting-started/core-concepts.md
+
+  - User Guide:
+      - Concepts:
+          - VAE Explained: user-guide/concepts/vae-explained.md
+          - GAN Explained: user-guide/concepts/gan-explained.md
+          - Diffusion Explained: user-guide/concepts/diffusion-explained.md
+          - Flow Explained: user-guide/concepts/flow-explained.md
+          - EBM Explained: user-guide/concepts/ebm-explained.md
+          - Autoregressive Explained: user-guide/concepts/autoregressive-explained.md
+      - Models:
+          - VAE Guide: user-guide/models/vae-guide.md
+          - GAN Guide: user-guide/models/gan-guide.md
+          - Diffusion Guide: user-guide/models/diffusion-guide.md
+          - Flow Guide: user-guide/models/flow-guide.md
+          - EBM Guide: user-guide/models/ebm-guide.md
+          - Autoregressive Guide: user-guide/models/autoregressive-guide.md
+      - Training:
+          - Training Overview: user-guide/training/overview.md
+          - Training Guide: user-guide/training/training-guide.md
+          - Configuration System: user-guide/training/configuration.md
+          - Advanced Features: user-guide/training/advanced-features.md
+          - Logging & Experiment Tracking: user-guide/training/logging.md
+          - Performance Profiling: user-guide/training/profiling.md
+          - RL Training: user-guide/training/rl-training.md
+      - Data:
+          - Data Loading Overview: user-guide/data/overview.md
+          - Data Loading Guide: user-guide/data/data-guide.md
+      - Modalities:
+          - Image Modality: user-guide/modalities/image.md
+          - Text Modality: user-guide/modalities/text.md
+          - Audio Modality: user-guide/modalities/audio.md
+          - Multi-modal: user-guide/modalities/multimodal.md
+      - Inference:
+          - Inference Overview: user-guide/inference/overview.md
+          - Sampling Methods: user-guide/inference/sampling.md
+          - Optimization: user-guide/inference/optimization.md
+      - Advanced:
+          - Distributed Training: user-guide/advanced/distributed.md
+          - Model Parallelism: user-guide/advanced/parallelism.md
+          - Checkpointing: user-guide/advanced/checkpointing.md
+          - Custom Architectures: user-guide/advanced/architectures.md
+      - Integrations:
+          - Model Deployment: user-guide/integrations/deployment.md
+          - HuggingFace Hub: user-guide/integrations/huggingface.md
+          - Weights & Biases: user-guide/integrations/wandb.md
+          - TensorBoard: user-guide/integrations/tensorboard.md
+
+  - API Reference:
+      - Core:
+          - Base Classes: api/core/base.md
+          - Configuration: api/core/configuration.md
+          - Loss Functions: api/core/losses.md
+          - Device Management: api/core/device-manager.md
+          - Sampling: api/sampling.md
+      - Models:
+          - VAE: api/models/vae.md
+          - GAN: api/models/gan.md
+          - Diffusion: api/models/diffusion.md
+          - Flow: api/models/flow.md
+          - Autoregressive: api/models/autoregressive.md
+          - Energy-Based: api/models/ebm.md
+      - Training:
+          - Trainer: api/training/trainer.md
+          - Model-Specific Trainers:
+              - VAE Trainer: training/vae_trainer.md
+              - GAN Trainer: training/gan_trainer.md
+              - Diffusion Trainer: training/diffusion_trainer.md
+              - Flow Trainer: training/flow_trainer.md
+          - RL Trainers:
+              - REINFORCE: training/reinforce.md
+              - PPO: training/ppo.md
+              - GRPO: training/grpo.md
+              - DPO: training/dpo.md
+          - Callbacks:
+              - Base Classes: training/base.md
+              - Logging: training/logging.md
+              - Profiling: training/profiling.md
+              - Checkpointing: training/checkpoint.md
+              - Early Stopping: training/early_stopping.md
+          - Distributed:
+              - Device Mesh: training/mesh.md
+              - Data Parallel: training/data_parallel.md
+              - Device Placement: training/device_placement.md
+              - Distributed Metrics: training/distributed_metrics.md
+              - Model Parallel: training/model_parallel.md
+      - Data:
+          - Data Loaders: api/data/loaders.md
+
+  - Examples:
+      - Overview: examples/overview.md
+      - Diffusion Models:
+          - Simple Diffusion: examples/diffusion/simple-diffusion.md
+          - DiT Demo: examples/diffusion/dit-demo.md
+      - Energy-Based Models:
+          - Simple EBM: examples/energy/simple-ebm.md
+      - Basic Tutorials:
+          - VAE on MNIST: examples/basic/vae-mnist.md
+          - Simple GAN (2D): examples/basic/simple-gan.md
+          - Diffusion on MNIST: examples/basic/diffusion-mnist.md
+          - Diffusion MNIST Training: examples/basic/diffusion-mnist-demo.md
+          - Flow on MNIST: examples/basic/flow-mnist.md
+          - EBM on MNIST: examples/basic/ebm-mnist.md
+          - Autoregressive Text: examples/basic/ar-text.md
+          - Transformer Text: examples/basic/transformer-text.md
+      - Advanced Tutorials:
+          - Advanced Training: examples/advanced/advanced-training.md
+          - Advanced VAE: examples/advanced/advanced-vae.md
+          - Advanced GAN: examples/advanced/advanced-gan.md
+          - Advanced Diffusion: examples/advanced/advanced-diffusion.md
+          - Advanced Flow: examples/advanced/advanced-flow.md
+          - CLIP Models: examples/advanced/clip-models.md
+          - Visual QA: examples/advanced/visual-qa.md
+          - Image Captioning: examples/advanced/image-captioning.md
+          - Cross-Modal Retrieval: examples/advanced/cross-modal-retrieval.md
+          - Text Compression: examples/advanced/text-compression.md
+          - Seq2Seq Models: examples/advanced/seq2seq.md
+          - Multimodal Generation: examples/advanced/multimodal.md
+      - VAE Models:
+          - Multi-Beta VAE Benchmark: examples/vae/multi-beta-vae-benchmark-demo.md
+      - Protein Modeling:
+          - Protein Diffusion Example: examples/protein/protein-diffusion-example.md
+          - Protein Diffusion Tech Validation: examples/protein/protein-diffusion-tech-validation.md
+          - Protein Extensions Example: examples/protein/protein-extensions-example.md
+          - Protein Model Extension: examples/protein/protein-model-extension.md
+          - Protein Model with Modality: examples/protein/protein-model-with-modality.md
+          - Protein Point Cloud Example: examples/protein/protein-point-cloud-example.md
+          - Protein Extensions with Config: examples/protein/protein-extensions-with-config.md
+          - Protein Ligand Benchmark: examples/protein/protein-ligand-benchmark-demo.md
+      - Geometric Models:
+          - Geometric Models Demo: examples/geometric/geometric-models-demo.md
+          - Geometric Losses Demo: examples/geometric/geometric-losses-demo.md
+          - Simple Point Cloud: examples/geometric/simple-point-cloud-example.md
+          - Geometric Benchmark Demo: examples/geometric/geometric-benchmark-demo.md
+      - Audio Generation:
+          - Simple Audio Generation: examples/audio/simple-audio-generation.md
+      - Text Generation:
+          - Simple Text Generation: examples/text/simple-text-generation.md
+      - Multimodal Models:
+          - Simple Image-Text: examples/multimodal/simple-image-text.md
+      - Framework Features:
+          - Framework Features Demo: examples/framework/framework-features-demo.md
+          - Training Strategies: examples/framework/training-strategies.md
+          - Model Deployment: examples/framework/model-deployment.md
+      - Loss Functions:
+          - Loss Examples: examples/losses/loss-examples.md
+      - Sampling Methods:
+          - BlackJAX Integration: examples/sampling/blackjax-example.md
+          - BlackJAX Sampling Examples: examples/sampling/blackjax-sampling-examples.md
+          - BlackJAX Integration Examples: examples/sampling/blackjax-integration-examples.md
+      - All Examples: examples/index.md
+
+  - Generative Models:
+      - Model Zoo: zoo/index.md
+      - Model Implementations: models/index.md
+      - Model Factories: factory/index.md
+
+  - Training:
+      - Training Overview: user-guide/training/overview.md
+      - Training Guide: user-guide/training/training-guide.md
+      - Configuration System: user-guide/training/configuration.md
+      - Advanced Features: user-guide/training/advanced-features.md
+      - Logging & Experiment Tracking: user-guide/training/logging.md
+      - Performance Profiling: user-guide/training/profiling.md
+      - RL Training: user-guide/training/rl-training.md
+      - Trainer API: api/training/trainer.md
+      - Distributed Training: scaling/index.md
+      - Fine-Tuning: fine_tuning/index.md
+
+  - Data & Modalities:
+      - Data Loading Overview: user-guide/data/overview.md
+      - Data Loading Guide: user-guide/data/data-guide.md
+      - Image Modality: user-guide/modalities/image.md
+      - Text Modality: user-guide/modalities/text.md
+      - Audio Modality: user-guide/modalities/audio.md
+      - Multi-Modal: user-guide/modalities/multimodal.md
+      - Data API: api/data/loaders.md
+
+  - Inference & Generation:
+      - Inference Overview: user-guide/inference/overview.md
+      - Sampling Methods: user-guide/inference/sampling.md
+      - Optimization: user-guide/inference/optimization.md
+
+  - Evaluation:
+      - Benchmarks: benchmarks/index.md
+      - Metrics: core/metrics.md
+      - Visualization: visualization/index.md
+
+  - Guides:
+      - Extensions: guides/extensions.md
+      - Configuration: guides/configuration.md
+      - Factory Pattern: guides/factory.md
+      - Modalities: guides/modalities.md
+      - Custom Extensions: guides/custom-extensions.md
+      - Protein Modeling: guides/protein-modeling.md
+      - Protein Extensions: guides/protein-extensions.md
+      - Geometric Models: guides/geometric-models.md
+      - Point Clouds: guides/point-clouds.md
+
+  - Advanced Topics:
+      - Extensions: extensions/index.md
+      - Custom Losses: api/core/losses.md
+
+  - Development:
+      - Command Line Interface: cli/index.md
+      - Utilities: utils/index.md
+      - Testing Guide: development/testing.md
+      - BlackJAX Testing: development/blackjax-testing.md
+      - Development Philosophy: development/philosophy.md
+      - Roadmap: development/roadmap.md
+
+  - Community:
+      - Contributing: community/contributing.md
+      - FAQ: community/faq.md
+
+# Plugins configuration
+plugins:
+  - search:
+      separator: '[\s\-,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
+  - include_exclude_files:
+      exclude:
+        - "_overrides"
+        - "examples/.ipynb_checkpoints/"
+        - "*.tmp"
+        - "*.pyc"
+        - "__pycache__"
+        - "CNAME"  # Excluded: workflow creates it at correct location
+  - ipynb
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            # Docstring style
+            docstring_style: google
+            docstring_options:
+              ignore_init_summary: true
+            # Class/module display
+            merge_init_into_class: true
+            show_submodules: true
+            show_source: false
+            show_bases: true
+            show_inheritance_diagram: false
+            # Organization
+            group_by_category: true
+            heading_level: 2
+            members_order: source
+            # Signature display
+            separate_signature: true
+            show_signature_annotations: true
+            signature_crossrefs: true
+            # Control display
+            show_if_no_docstring: true
+            show_overloads: false
+            show_root_heading: true
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            # Member filtering
+            filters:
+              - "!^_"
+              - "^__init__$"
+          selection:
+            inherited_members: true
+            filters:
+              - "!^_"
+              - "^__"
+          inventories:
+            - https://docs.python.org/3/objects.inv
+            - https://jax.readthedocs.io/en/latest/objects.inv
+            - https://flax.readthedocs.io/en/latest/objects.inv
+
+# Markdown extensions for scientific/ML content
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: "¤"
+      title: "On this page"
+      toc_depth: 4
+  # PyMdown Extensions for enhanced formatting
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.snippets:
+      base_path: docs
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+# MathJax for scientific/ML equations
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+# Custom CSS
+extra_css:
+  - _static/extra.css
+
+# Build configuration
+strict: false
+docs_dir: docs
+site_dir: site
+
+# File watching configuration for development
+watch:
+  - src/artifex/
+  - docs/
+  - mkdocs.yml
+  - README.md

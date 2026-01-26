@@ -1,0 +1,66 @@
+name: multi_gpu_distributed
+description: Default configuration for multi-GPU distributed training (enhanced with SciML insights)
+
+# Distributed training settings
+enabled: true
+backend: nccl
+num_nodes: 1
+num_processes_per_node: 8
+local_rank: 0
+master_addr: localhost
+master_port: 29500
+
+# Model-specific distributed settings
+tensor_parallel_size: 1
+pipeline_parallel_size: 1
+
+# Communication settings
+find_unused_parameters: false
+gradient_as_bucket_view: true
+broadcast_buffers: true
+
+# Mixed precision settings (SciML optimized)
+mixed_precision: fp16
+gradient_clipping: 1.0
+loss_scaling: dynamic
+
+# Memory optimization (based on SciML insights)
+memory_fraction: 0.75  # Conservative memory usage per GPU
+enable_memory_efficient_attention: true
+checkpoint_activations: true  # Gradient checkpointing for large models
+
+# Performance optimization
+enable_compiled_autograd: true
+enable_x64: false  # Use float32 for better performance
+async_communication: true
+
+# Fault tolerance
+enable_elastic_training: false
+max_restarts: 3
+restart_timeout: 300
+
+# Monitoring and debugging
+log_frequency: 100
+profile_memory: false
+profile_communication: false
+debug_mode: false
+
+# JAX-specific distributed settings
+jax_distributed:
+  coordinator_address: null  # Auto-detect
+  num_processes: null  # Auto-detect from num_processes_per_node
+  process_id: null  # Auto-detect
+  local_device_ids: null  # Use all available GPUs
+
+# Sharding strategy for large models
+sharding:
+  parameter_sharding: true
+  optimizer_sharding: true
+  activation_sharding: false  # Can be enabled for very large models
+
+# Data loading optimization
+data_loading:
+  prefetch_factor: 2
+  num_workers_per_device: 2
+  pin_memory: true
+  persistent_workers: true

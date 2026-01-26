@@ -1,0 +1,55 @@
+name: Security
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    - cron: '0 0 * * 1'  # Weekly on Monday
+
+jobs:
+  security-audit:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v1
+      with:
+        enable-cache: true
+        cache-suffix: "security"
+
+    - name: Create virtual environment
+      run: |
+        uv venv
+
+    - name: Install dependencies
+      run: |
+        uv pip install -e ".[dev]"
+        uv pip install pip-audit bandit
+
+    - name: Run security audit
+      run: |
+        # Ignore known vulnerabilities without available fixes:
+        # - CVE-2025-53000: nbconvert Windows-only issue (no fix released)
+        # - CVE-2026-0994: protobuf recursion issue (fix in master, not released)
+        uv run pip-audit --ignore-vuln CVE-2025-53000 --ignore-vuln CVE-2026-0994
+
+    - name: Run Bandit security linter
+      run: |
+        uv run bandit -c pyproject.toml -r src/artifex/ -f json -o bandit-report.json
+      continue-on-error: true
+
+    - name: Upload Bandit report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: bandit-report
+        path: bandit-report.json

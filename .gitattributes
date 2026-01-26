@@ -1,0 +1,4 @@
+# Mark SVG files as binary to exclude them from pre-commit checks
+*.svg binary
+
+# Specific large files to skip checks

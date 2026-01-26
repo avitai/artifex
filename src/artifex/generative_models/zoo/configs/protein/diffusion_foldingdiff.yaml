@@ -1,0 +1,45 @@
+name: diffusion_foldingdiff
+model_class: artifex.generative_models.models.diffusion.DDPMModel
+type: model
+description: Diffusion model for protein structure generation (FoldingDiff style)
+version: 1.0.0
+
+# Model architecture
+input_dim: [1000, 3] # max_length, 3D coordinates
+hidden_dims: [256, 512, 1024, 512, 256]
+output_dim: 3 # 3D coordinates
+activation: gelu
+
+# Metadata
+metadata:
+  diffusion_params:
+    noise_steps: 1000
+    beta_start: 0.0001
+    beta_end: 0.02
+    beta_schedule: cosine
+    time_embedding_dim: 256
+    use_attention: true
+    attention_layers: [2, 3, 4]
+
+  protein_params:
+    max_sequence_length: 1000
+    coordinate_scale: 10.0
+    use_backbone_constraints: true
+
+  extensions:
+    backbone_constraints:
+      bond_length_weight: 1.0
+      bond_angle_weight: 0.5
+      ramachandran_weight: 0.3
+
+  training_defaults:
+    batch_size: 8
+    learning_rate: 0.0001
+    gradient_clip: 1.0
+    epochs: 500
+
+tags:
+  - protein
+  - diffusion
+  - structure
+  - foldingdiff

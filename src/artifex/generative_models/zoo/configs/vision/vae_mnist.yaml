@@ -1,0 +1,16 @@
+name: vae_mnist
+description: Variational Autoencoder for MNIST dataset
+model_class: artifex.generative_models.models.vae.VAE
+version: "1.0.0"
+input_dim: [28, 28, 1]
+hidden_dims: [512, 256]
+output_dim: 64
+activation: relu
+metadata:
+  tags: [vision, vae, mnist]
+  dataset: mnist
+  pretrained: false
+  training_params:
+    batch_size: 128
+    learning_rate: 0.001
+    epochs: 50

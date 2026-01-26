@@ -1,0 +1,31 @@
+# Default extension configurations
+
+# Protein extensions configuration
+protein:
+  # Whether to use backbone constraints
+  use_backbone_constraints: false
+
+  # Bond length constraint configuration
+  bond_length:
+    enabled: true
+    weight: 1.0
+    # Ideal bond lengths in Angstroms [N-CA, CA-C, C-N+1]
+    ideal_lengths: [1.45, 1.52, 1.33]
+
+  # Bond angle constraint configuration
+  bond_angle:
+    enabled: true
+    weight: 0.5
+    # Ideal bond angles in radians [N-CA-C, CA-C-O]
+    ideal_angles: [1.94, 2.10]
+
+  # Whether to use protein mixin
+  use_protein_mixin: false
+
+  # Protein mixin configuration
+  protein_mixin:
+    enabled: true
+    weight: 1.0
+    embedding_dim: 16
+    aa_one_hot: true
+    num_aa_types: 21

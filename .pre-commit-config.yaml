@@ -1,0 +1,213 @@
+# SciML Pre-commit Configuration
+# Enhanced for comprehensive code quality
+# Optimized for performance and reduced package installations
+
+repos:
+  # TOML formatting
+  - repo: local
+    hooks:
+      - id: sort_pyproject
+        name: sort_pyproject
+        entry: toml-sort
+        language: python
+        args: [-i, --sort-table-keys, --sort-inline-tables, pyproject.toml]
+        files: ^pyproject\.toml$
+        additional_dependencies: ["toml-sort==0.23.1"]
+
+  # Standard pre-commit hooks with scientific computing adaptations
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: ^(memory-bank|documents|custom_modes|.cursor|notebooks)/
+      - id: end-of-file-fixer
+        exclude: ^(memory-bank|documents|custom_modes|.cursor|notebooks)/
+      - id: check-yaml
+        exclude: ^(memory-bank|documents|custom_modes|.cursor)/(.*)|mkdocs\.yml$
+      - id: check-added-large-files
+        args: ["--maxkb=2000"] # Increased for scientific data files
+        exclude: ^(memory-bank|documents|custom_modes|.cursor|notebooks)/
+      - id: check-merge-conflict
+      - id: check-toml
+      - id: check-json
+        exclude: ^(memory-bank|documents|custom_modes|.cursor|notebooks|\.vscode)/
+      - id: debug-statements
+        exclude: ^(memory-bank|documents|custom_modes|.cursor|notebooks)/
+      - id: mixed-line-ending
+        exclude: ^(memory-bank|documents|custom_modes|.cursor|notebooks)/
+
+  # Artifex-inspired comprehensive Python linting and formatting with auto-fix
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.11.13
+    hooks:
+      - id: ruff # linter with automatic fixes including whitespace and unused variables
+        args: [--fix, --unsafe-fixes]
+        exclude: ^(memory-bank|documents|custom_modes|.cursor|notebooks)/
+        types_or: [python, pyi, jupyter, toml]
+      - id: ruff-format # formatter
+        types_or: [python, pyi, jupyter, toml]
+        exclude: ^(memory-bank|documents|custom_modes|.cursor|notebooks)/
+
+  # GitHub Actions simulation - exact mirror of CI checks
+  - repo: local
+    hooks:
+      - id: ruff-docstring-whitespace
+        name: ruff-docstring-whitespace (auto-fix whitespace)
+        entry: ruff check --select=W291,W292,W293,F841 --fix --unsafe-fixes
+        language: system
+        types: [python]
+        exclude: ^(memory-bank|documents|custom_modes|.cursor|notebooks)/
+        pass_filenames: true
+      - id: ruff-github-actions-check
+        name: ruff-github-actions-check (mirrors CI)
+        entry: uv run ruff check --output-format=github
+        language: system
+        types: [python]
+        exclude: ^(memory-bank|documents|custom_modes|.cursor|notebooks)/
+        pass_filenames: false
+        always_run: true
+      - id: ruff-critical-check
+        name: ruff-critical-check (fast CI-critical rules only)
+        entry: uv run ruff check --select=RUF005,B904,F821,F822,F823 --output-format=github
+        language: system
+        types: [python]
+        exclude: ^(memory-bank|documents|custom_modes|.cursor|notebooks)/
+        pass_filenames: false
+        always_run: true
+      - id: check-file-length
+        name: check-file-length (warn >1500, fail >2000 lines)
+        entry: bash
+        args:
+          - -c
+          - |
+            for file in "$@"; do
+              lines=$(wc -l < "$file" 2>/dev/null || echo 0)
+              if [ "$lines" -gt 2000 ]; then
+                echo "ERROR: $file has $lines lines (limit: 2000)"
+                exit 1
+              elif [ "$lines" -gt 1500 ]; then
+                echo "WARNING: $file has $lines lines (approaching limit of 2000)"
+              fi
+            done
+          - --
+        language: system
+        types: [python]
+        exclude: ^(memory-bank|documents|custom_modes|.cursor|notebooks|tests/)
+
+  # Artifex-inspired type checking with JAX ecosystem support
+  - repo: https://github.com/RobertCraigie/pyright-python
+    rev: v1.1.403
+    hooks:
+      - id: pyright # type checker optimized for scientific computing
+        args: ["--warnings"] # Fail on warnings to match GitHub Actions
+        exclude: ^(memory-bank|documents|custom_modes|.cursor|notebooks)/
+        additional_dependencies: [
+            # Core JAX ecosystem
+            beartype,
+            jax,
+            flax,
+            jaxtyping,
+            typing_extensions,
+            optax,
+            psutil,
+
+            # Scientific computing
+            diffrax,
+            optimistix,
+            blackjax,
+            orbax-checkpoint,
+            distrax,
+            lineax,
+
+            # Standard scientific libraries
+            numpy,
+            scipy,
+            matplotlib,
+            plotly,
+
+            # Development and validation
+            pytest,
+            pydantic,
+            typer,
+            tqdm,
+            types-tqdm,
+
+            # Deployment and serving
+            fastapi,
+            uvicorn,
+            redis,
+            prometheus-client,
+
+            # Database dependencies for Neural Functional Registry
+            sqlalchemy,
+            asyncpg,
+            alembic,
+
+            # Artifex-inspired additions
+            einops,
+            h5py,
+            netcdf4,
+          ]
+
+  # Artifex-inspired security scanning
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.8.6
+    hooks:
+      - id: bandit
+        args: ["-c", "pyproject.toml"]
+        exclude: ^(memory-bank|documents|custom_modes|.cursor|notebooks|tests/)/
+        additional_dependencies: ["bandit[toml]"]
+        log_file: /dev/null # Suppress stderr warnings
+
+  # Artifex-inspired documentation quality
+  - repo: https://github.com/pycqa/pydocstyle
+    rev: 6.3.0
+    hooks:
+      - id: pydocstyle
+        exclude: ^(memory-bank|documents|custom_modes|.cursor|notebooks|tests|examples/)/
+        additional_dependencies: ["pydocstyle[toml]"]
+        args: ["--config=pyproject.toml"]
+
+  # Artifex-inspired notebook quality
+  - repo: https://github.com/nbQA-dev/nbQA
+    rev: 1.9.1
+    hooks:
+      - id: nbqa-ruff
+        exclude: ^(memory-bank|documents|custom_modes|.cursor|notebooks)/
+        args: [--fix]
+
+  # Artifex-inspired shell script quality
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.10.0.1
+    hooks:
+      - id: shellcheck
+        exclude: ^(memory-bank|documents|custom_modes|.cursor|notebooks)/
+        args: ["-e", "SC1091"] # Allow sourcing files not found by shellcheck
+
+  # Markdown quality and formatting
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.45.0
+    hooks:
+      - id: markdownlint-fix
+        exclude: ^(memory-bank|documents|custom_modes|.cursor|notebooks)/
+
+  # Artifex-inspired Dockerfile quality (if we add Docker later)
+  # Temporarily disabled due to installation issues
+  # - repo: https://github.com/hadolint/hadolint
+  #   rev: v2.13.1-beta
+  #   hooks:
+  #     - id: hadolint-docker
+  #       exclude: ^(memory-bank|documents|custom_modes|.cursor|notebooks)/
+
+# CI Configuration - no autofix, manual testing before commits
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit.com hooks
+
+    for more information, see https://pre-commit.ci
+  autofix_prs: false           # No automatic commits - run tests manually first
+  autoupdate_branch: ""
+  autoupdate_commit_msg: "[pre-commit.ci] pre-commit autoupdate"
+  autoupdate_schedule: weekly  # Keep hooks up to date
+  skip: []
+  submodules: false

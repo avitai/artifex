@@ -1,0 +1,45 @@
+[
+    // ============================================================================
+    // PORTABLE KEYBOARD SHORTCUTS
+    // Enhanced shortcuts for Python development and notebook formatting
+    // Import organization matches pre-commit configuration exactly
+    // ============================================================================
+    // Import Organization (Pre-commit Style)
+    {
+        "key": "ctrl+shift+o",
+        "command": "workbench.action.tasks.runTask",
+        "args": "Organize Imports (Pre-commit Style)",
+        "when": "editorTextFocus && resourceExtname == '.py'"
+    },
+    // Notebook Formatting
+    {
+        "key": "ctrl+shift+i",
+        "command": "workbench.action.tasks.runTask",
+        "args": "Format Current Notebook",
+        "when": "notebookEditorFocused"
+    },
+    {
+        "key": "ctrl+alt+f",
+        "command": "workbench.action.tasks.runTask",
+        "args": "Format Current Notebook",
+        "when": "notebookEditorFocused"
+    },
+    // Enhanced Python Formatting
+    {
+        "key": "ctrl+shift+i",
+        "command": "editor.action.formatDocument",
+        "when": "editorHasDocumentFormattingProvider && !editorReadonly && resourceExtname == '.py'"
+    },
+    // Pre-commit shortcuts
+    {
+        "key": "ctrl+shift+p ctrl+r",
+        "command": "workbench.action.tasks.runTask",
+        "args": "Pre-commit: Run All Files"
+    },
+    // Quick linting
+    {
+        "key": "ctrl+shift+l",
+        "command": "workbench.action.tasks.runTask",
+        "args": "Ruff: Check Current File"
+    }
+]

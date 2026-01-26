@@ -1,0 +1,43 @@
+experiment_name: protein_diffusion_cath
+seed: 42
+output_dir: ./outputs/protein_diffusion_cath/
+
+# Reference to config files
+model_config: models/diffusion/point_cloud_diffusion.yaml
+data_config: data/protein_dataset.yaml
+training_config: training/protein_diffusion_training.yaml
+inference_config: inference/protein_diffusion_inference.yaml
+
+# Logging settings
+log_level: INFO
+use_wandb: true
+wandb_project: protein-diffusion
+
+# Override specific settings from default configs
+overrides:
+  # Model overrides
+  model:
+    max_seq_length: 256
+    timesteps: 200
+
+  # Data overrides
+  data:
+    train_dataset:
+      data_path: ./data/cath_dataset/
+      cache_dir: ./cache/cath_dataset/
+      splits_file: ./data/cath_dataset/chain_set_splits.json
+    validation_dataset:
+      data_path: ./data/cath_dataset/
+      cache_dir: ./cache/cath_dataset/
+      splits_file: ./data/cath_dataset/chain_set_splits.json
+
+  # Training overrides
+  training:
+    num_epochs: 50
+    batch_size: 64
+    eval_freq: 500
+
+  # Inference overrides
+  inference:
+    num_samples: 10
+    target_seq_length: 150

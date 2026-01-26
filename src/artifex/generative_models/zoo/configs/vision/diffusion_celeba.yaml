@@ -1,0 +1,20 @@
+name: diffusion_celeba
+description: DDPM Diffusion Model for CelebA dataset
+model_class: artifex.generative_models.models.diffusion.ddpm.DDPMModel
+version: "1.0.0"
+input_dim: [64, 64, 3]
+hidden_dims: [128, 256, 512, 1024, 512, 256, 128]
+output_dim: [64, 64, 3]
+activation: gelu
+metadata:
+  tags: [vision, diffusion, celeba]
+  dataset: celeba
+  pretrained: false
+  diffusion_params:
+    noise_steps: 1000
+    beta_start: 0.0001
+    beta_end: 0.02
+    beta_schedule: cosine
+    time_embedding_dim: 256
+    use_attention: true
+    attention_layers: [3, 4, 5]

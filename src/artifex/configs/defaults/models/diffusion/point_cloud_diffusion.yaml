@@ -1,0 +1,14 @@
+name: point_cloud_diffusion_base
+description: Base configuration for protein point cloud diffusion model
+
+# Model architecture
+model_dim: 128
+num_layers: 8
+num_heads: 8
+dropout: 0.1
+max_seq_length: 128
+backbone_atom_indices: [0, 1, 2, 4]  # N, CA, C, O indices
+
+# Diffusion parameters
+timesteps: 1000
+beta_schedule: linear

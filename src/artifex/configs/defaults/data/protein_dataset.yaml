@@ -1,0 +1,37 @@
+name: protein_dataset_default
+description: Default configuration for protein datasets
+
+# Training dataset
+train_dataset:
+  name: train_protein_dataset
+  dataset_type: protein
+  data_path: ./data/protein_dataset/
+  max_seq_length: 128
+  backbone_atom_indices: [0, 1, 2, 4]  # N, CA, C, O indices
+  precompute_statistics: true
+  cache_dir: ./cache/protein_dataset/
+  splits_file: ./data/protein_dataset/splits.json
+
+# Validation dataset (inherits most settings from training dataset)
+validation_dataset:
+  name: validation_protein_dataset
+  dataset_type: protein
+  data_path: ./data/protein_dataset/
+  max_seq_length: 128
+  backbone_atom_indices: [0, 1, 2, 4]
+  precompute_statistics: true
+  cache_dir: ./cache/protein_dataset/
+  splits_file: ./data/protein_dataset/splits.json
+
+# Data processing settings
+normalize_coordinates: true
+center_coordinates: true
+
+# Data augmentation settings
+augmentation_enabled: false
+random_rotation: false
+
+# Multiprocessing settings
+num_workers: 4
+prefetch_factor: 2
+persistent_workers: false

@@ -1,0 +1,17 @@
+name: default_mesh_model
+description: Default configuration for mesh generation model
+
+model_type: mesh
+latent_dim: 256
+use_conditioning: false
+
+# Mesh specific parameters
+hidden_dims: [512, 256, 128, 64]
+num_vertices: 1024
+template_type: sphere
+use_symmetry: false
+
+# Loss function parameters
+vertex_loss_weight: 1.0
+normal_loss_weight: 0.1
+edge_loss_weight: 0.1

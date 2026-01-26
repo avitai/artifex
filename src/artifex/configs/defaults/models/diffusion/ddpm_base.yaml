@@ -1,0 +1,380 @@
+# =============================================================================
+# Combined Configuration File
+# Contains multiple model and training configurations
+# =============================================================================
+
+configs:
+  # =============================================================================
+  # Base DDPM Configuration
+  # =============================================================================
+  ddpm_base:
+    name: ddpm_base
+    description: Base DDPM configuration for image generation
+
+    # Model type
+    model_type: diffusion
+
+    # Architecture
+    input_dim: [32, 32, 3]  # CIFAR-10 dimensions
+    hidden_dims: [128, 256, 512, 1024]
+
+    # Diffusion parameters
+    noise_steps: 1000
+    beta_start: 0.0001
+    beta_end: 0.02
+    beta_schedule: linear
+
+    # Training parameters
+    timestep_respacing: null
+    clip_denoised: true
+    learn_sigma: false
+    predict_xstart: false
+    rescale_timesteps: false
+
+  # =============================================================================
+  # Large DDPM Configuration
+  # =============================================================================
+  ddpm_large:
+    name: ddpm_large
+    description: Large DDPM configuration for high-resolution image generation
+
+    # Model type
+    model_type: diffusion
+
+    # Architecture - larger model
+    input_dim: [256, 256, 3]  # High resolution
+    hidden_dims: [256, 512, 1024, 2048]
+
+    # Diffusion parameters
+    noise_steps: 1000
+    beta_start: 0.0001
+    beta_end: 0.02
+    beta_schedule: linear
+
+    # Advanced features
+    timestep_respacing: null
+    clip_denoised: true
+    learn_sigma: true  # Learn noise variance
+    predict_xstart: false
+    rescale_timesteps: false
+
+    # Attention settings for large models
+    use_attention: true
+    attention_resolutions: [32, 16, 8]
+    num_attention_heads: 8
+
+  # =============================================================================
+  # Small DDPM Configuration
+  # =============================================================================
+  ddpm_small:
+    name: ddpm_small
+    description: Small DDPM configuration for testing and rapid prototyping
+
+    # Model type
+    model_type: diffusion
+
+    # Architecture - smaller model
+    input_dim: [28, 28, 1]  # MNIST dimensions
+    hidden_dims: [64, 128, 256]
+
+    # Diffusion parameters - fewer steps for faster training
+    noise_steps: 200
+    beta_start: 0.0001
+    beta_end: 0.02
+    beta_schedule: linear
+
+    # Simplified training
+    timestep_respacing: null
+    clip_denoised: true
+    learn_sigma: false
+    predict_xstart: false
+    rescale_timesteps: false
+
+  # =============================================================================
+  # Diffusion Training Configuration
+  # =============================================================================
+  diffusion_training:
+    name: diffusion_training
+    description: Default training configuration for diffusion models
+
+    # Batch size settings
+    batch_size: 64
+    eval_batch_size: 32
+    gradient_accumulation_steps: 1
+    use_effective_batch_size: true
+
+    # Training duration
+    num_epochs: 100
+    max_steps: null
+
+    # Optimizer configuration
+    optimizer:
+      name: diffusion_optimizer
+      optimizer_type: adamw
+      learning_rate: 2.0e-4
+      weight_decay: 1.0e-5
+      beta1: 0.9
+      beta2: 0.999
+      eps: 1.0e-8
+
+    # Scheduler configuration
+    scheduler:
+      name: diffusion_scheduler
+      scheduler_type: cosine
+      warmup_steps: 1000
+      warmup_ratio: 0.05
+      min_lr_ratio: 0.0001
+
+    # Checkpointing and logging
+    log_freq: 50
+    eval_freq: 500
+    save_freq: 1000
+    max_checkpoints: 5
+
+    # Dataloader settings
+    num_workers: 8
+
+    # Regularization
+    grad_clip_norm: 1.0
+
+    # Diffusion-specific training settings
+    loss_type: l2
+    sample_during_training: true
+    sample_freq: 2000
+    num_samples: 8
+
+  # =============================================================================
+  # GAN Training Configuration
+  # =============================================================================
+  gan_training:
+    name: gan_training
+    description: Default training configuration for GAN models
+
+    # Batch size settings
+    batch_size: 64
+    eval_batch_size: 32
+    gradient_accumulation_steps: 1
+
+    # Training duration
+    num_epochs: 200
+    max_steps: null
+
+    # Generator optimizer
+    generator_optimizer:
+      name: generator_optimizer
+      optimizer_type: adam
+      learning_rate: 2.0e-4
+      weight_decay: 0.0
+      beta1: 0.5
+      beta2: 0.999
+      eps: 1.0e-8
+
+    # Discriminator optimizer
+    discriminator_optimizer:
+      name: discriminator_optimizer
+      optimizer_type: adam
+      learning_rate: 2.0e-4
+      weight_decay: 0.0
+      beta1: 0.5
+      beta2: 0.999
+      eps: 1.0e-8
+
+    # GAN-specific training settings
+    discriminator_steps_per_generator_step: 1
+    generator_steps_per_discriminator_step: 1
+
+    # Checkpointing and logging
+    log_freq: 50
+    eval_freq: 500
+    save_freq: 1000
+    max_checkpoints: 5
+
+    # Dataloader settings
+    num_workers: 8
+
+    # Regularization
+    grad_clip_norm: null  # Usually not used for GANs
+    spectral_normalization: false
+    gradient_penalty: false
+    gradient_penalty_weight: 10.0
+
+  # =============================================================================
+  # Image Dataset Configuration
+  # =============================================================================
+  image_dataset_default:
+    name: image_dataset_default
+    description: Default configuration for image datasets
+
+    # Training dataset
+    train_dataset:
+      name: train_image_dataset
+      dataset_type: image
+      data_path: ./data/images/train/
+      image_size: [32, 32]
+      channels: 3
+      normalize: true
+      normalize_mean: [0.5, 0.5, 0.5]
+      normalize_std: [0.5, 0.5, 0.5]
+      cache_dir: ./cache/images/
+
+    # Validation dataset
+    validation_dataset:
+      name: validation_image_dataset
+      dataset_type: image
+      data_path: ./data/images/val/
+      image_size: [32, 32]
+      channels: 3
+      normalize: true
+      normalize_mean: [0.5, 0.5, 0.5]
+      normalize_std: [0.5, 0.5, 0.5]
+      cache_dir: ./cache/images/
+
+    # Data processing settings
+    resize_mode: center_crop
+    interpolation: bilinear
+
+    # Data augmentation settings
+    augmentation_enabled: true
+    random_flip: true
+    random_rotation: false
+    color_jitter: false
+
+    # Multiprocessing settings
+    num_workers: 8
+    prefetch_factor: 2
+    persistent_workers: true
+
+  # =============================================================================
+  # Text Dataset Configuration
+  # =============================================================================
+  text_dataset_default:
+    name: text_dataset_default
+    description: Default configuration for text datasets
+
+    # Training dataset
+    train_dataset:
+      name: train_text_dataset
+      dataset_type: text
+      data_path: ./data/text/train.txt
+      max_seq_length: 512
+      vocab_size: 50000
+      tokenizer_type: bpe
+      cache_dir: ./cache/text/
+
+    # Validation dataset
+    validation_dataset:
+      name: validation_text_dataset
+      dataset_type: text
+      data_path: ./data/text/val.txt
+      max_seq_length: 512
+      vocab_size: 50000
+      tokenizer_type: bpe
+      cache_dir: ./cache/text/
+
+    # Text processing settings
+    lowercase: true
+    remove_punctuation: false
+    min_word_frequency: 5
+
+    # Tokenization settings
+    use_pretrained_tokenizer: false
+    pretrained_tokenizer_name: null
+    special_tokens: ["<pad>", "<unk>", "<sos>", "<eos>"]
+
+    # Multiprocessing settings
+    num_workers: 4
+    prefetch_factor: 2
+    persistent_workers: false
+
+  # =============================================================================
+  # Diffusion Inference Configuration
+  # =============================================================================
+  diffusion_inference:
+    name: diffusion_inference
+    description: Default inference configuration for diffusion models
+
+    # Basic inference settings
+    checkpoint_path: ./outputs/diffusion/checkpoint_best.pt
+    output_dir: ./outputs/diffusion/samples/
+    batch_size: 16
+    num_samples: 64
+    device: cuda
+
+    # Diffusion-specific settings
+    sampler: ddpm
+    timesteps: 1000
+    temperature: 1.0
+    sample_with_classifier_guidance: false
+    guidance_scale: 7.5
+
+    # Sampling settings
+    save_intermediate_steps: false
+    intermediate_step_interval: 100
+    seed: 42
+
+    # Advanced sampling options
+    eta: 0.0  # DDIM parameter
+    clip_sample: true
+    clip_sample_range: 1.0
+
+    # Output settings
+    save_format: png
+    save_grid: true
+    grid_size: [8, 8]
+    individual_samples: false
+
+  # =============================================================================
+  # VAE Small Configuration
+  # =============================================================================
+  vae_small:
+    name: vae_small
+    description: Small VAE configuration for testing
+
+    # Model type
+    model_type: vae
+
+    # Architecture
+    input_dim: [28, 28, 1]  # MNIST
+    latent_dim: 32
+    hidden_dims: [64, 128]
+
+    # Model configuration
+    encoder_type: dense
+    decoder_type: dense
+
+    # Training parameters
+    kl_weight: 1.0
+    beta: 1.0  # Standard VAE
+
+    # Conditioning (disabled for basic VAE)
+    conditional: false
+    num_classes: null
+    embed_dim: null
+
+  # =============================================================================
+  # VQ-VAE Configuration
+  # =============================================================================
+  vqvae:
+    name: vqvae
+    description: Vector Quantized VAE configuration
+
+    # Model type
+    model_type: vq_vae
+
+    # Architecture
+    input_dim: [32, 32, 3]
+    latent_dim: 64
+    hidden_dims: [128, 256]
+
+    # VQ-VAE specific parameters
+    num_embeddings: 512
+    embedding_dim: 64
+    commitment_cost: 0.25
+
+    # Training parameters
+    kl_weight: 0.0  # No KL divergence in VQ-VAE
+    beta: 0.25  # Commitment loss weight
+
+    # Model configuration
+    encoder_type: cnn
+    decoder_type: cnn

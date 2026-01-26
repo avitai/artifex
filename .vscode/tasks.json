@@ -1,0 +1,544 @@
+{
+    "version": "2.0.0",
+    // ============================================================================
+    // PORTABLE TASKS CONFIGURATION
+    // Auto-detects tools from project's environment and configuration files
+    // Works with: uv, pip, conda, poetry, pipenv
+    // ============================================================================
+    "tasks": [
+        // ========================================================================
+        // PRE-COMMIT TASKS (Universal)
+        // ========================================================================
+        {
+            "label": "Pre-commit: Run All Files",
+            "type": "shell",
+            "command": "pre-commit",
+            "args": [
+                "run",
+                "--all-files"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": true
+            },
+            "problemMatcher": {
+                "owner": "pre-commit",
+                "fileLocation": [
+                    "relative",
+                    "${workspaceFolder}"
+                ],
+                "pattern": {
+                    "regexp": "^(.*):(\\d+):(\\d+): (.*) (.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "column": 3,
+                    "severity": 4,
+                    "message": 5
+                }
+            }
+        },
+        {
+            "label": "Pre-commit: Run Staged Files",
+            "type": "shell",
+            "command": "pre-commit",
+            "args": [
+                "run"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": true
+            },
+            "problemMatcher": {
+                "owner": "pre-commit",
+                "fileLocation": [
+                    "relative",
+                    "${workspaceFolder}"
+                ],
+                "pattern": {
+                    "regexp": "^(.*):(\\d+):(\\d+): (.*) (.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "column": 3,
+                    "severity": 4,
+                    "message": 5
+                }
+            }
+        },
+        {
+            "label": "Pre-commit: Install Hooks",
+            "type": "shell",
+            "command": "pre-commit",
+            "args": [
+                "install"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        // ========================================================================
+        // RUFF TASKS (Auto-detects from pyproject.toml)
+        // ========================================================================
+        {
+            "label": "Ruff: Check Current File",
+            "type": "shell",
+            "command": "ruff",
+            "args": [
+                "check",
+                "${file}",
+                "--fix",
+                "--unsafe-fixes"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "onProblem",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": {
+                "owner": "ruff",
+                "fileLocation": [
+                    "relative",
+                    "${workspaceFolder}"
+                ],
+                "pattern": {
+                    "regexp": "^(.*):(\\d+):(\\d+): (\\w+) (.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "column": 3,
+                    "code": 4,
+                    "message": 5
+                }
+            }
+        },
+        {
+            "label": "Ruff: Format Current File",
+            "type": "shell",
+            "command": "ruff",
+            "args": [
+                "format",
+                "${file}"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "Ruff: Check All Files",
+            "type": "shell",
+            "command": "ruff",
+            "args": [
+                "check",
+                ".",
+                "--fix",
+                "--unsafe-fixes"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": {
+                "owner": "ruff",
+                "fileLocation": [
+                    "relative",
+                    "${workspaceFolder}"
+                ],
+                "pattern": {
+                    "regexp": "^(.*):(\\d+):(\\d+): (\\w+) (.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "column": 3,
+                    "code": 4,
+                    "message": 5
+                }
+            }
+        },
+        // ========================================================================
+        // TYPE CHECKING TASKS (Auto-detects from pyproject.toml)
+        // ========================================================================
+        {
+            "label": "Pyright: Check Current File",
+            "type": "shell",
+            "command": "pyright",
+            "args": [
+                "${file}"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "onProblem",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": {
+                "owner": "pyright",
+                "fileLocation": [
+                    "relative",
+                    "${workspaceFolder}"
+                ],
+                "pattern": {
+                    "regexp": "^(.*):(\\d+):(\\d+) - (error|warning|info): (.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "column": 3,
+                    "severity": 4,
+                    "message": 5
+                }
+            }
+        },
+        {
+            "label": "MyPy: Check Current File",
+            "type": "shell",
+            "command": "mypy",
+            "args": [
+                "${file}"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "onProblem",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": {
+                "owner": "mypy",
+                "fileLocation": [
+                    "relative",
+                    "${workspaceFolder}"
+                ],
+                "pattern": {
+                    "regexp": "^(.*):(\\d+): (error|warning): (.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "severity": 3,
+                    "message": 4
+                }
+            }
+        },
+        // ========================================================================
+        // JUPYTER NOTEBOOK TASKS
+        // ========================================================================
+        {
+            "label": "NBQa: Ruff Check Notebook",
+            "type": "shell",
+            "command": "nbqa",
+            "args": [
+                "ruff",
+                "${file}",
+                "--fix"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "onProblem",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": {
+                "owner": "nbqa-ruff",
+                "fileLocation": [
+                    "relative",
+                    "${workspaceFolder}"
+                ],
+                "pattern": {
+                    "regexp": "^(.*):(\\d+):(\\d+): (\\w+) (.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "column": 3,
+                    "code": 4,
+                    "message": 5
+                }
+            }
+        },
+        {
+            "label": "NBQa: Ruff Format Notebook (Safe)",
+            "type": "shell",
+            "command": "nbqa",
+            "args": [
+                "ruff",
+                "${file}",
+                "--select=E,W",
+                "--fix"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "NBQa: Ruff Lint Notebook (Removes Unused Imports)",
+            "type": "shell",
+            "command": "nbqa",
+            "args": [
+                "ruff",
+                "${file}",
+                "--fix",
+                "--unsafe-fixes"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "Format Current Notebook",
+            "type": "shell",
+            "command": "nbqa",
+            "args": [
+                "ruff",
+                "${file}",
+                "--select=E,W,I",
+                "--fix"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        // ========================================================================
+        // TESTING TASKS (Auto-detects from pyproject.toml)
+        // ========================================================================
+        {
+            "label": "Pytest: Run Current File",
+            "type": "shell",
+            "command": "pytest",
+            "args": [
+                "${file}",
+                "-v"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": {
+                "owner": "pytest",
+                "fileLocation": [
+                    "relative",
+                    "${workspaceFolder}"
+                ],
+                "pattern": {
+                    "regexp": "^(.*):(\\d+): (.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "message": 3
+                }
+            }
+        },
+        {
+            "label": "Pytest: Run All Tests",
+            "type": "shell",
+            "command": "pytest",
+            "args": [
+                "-v"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        // ========================================================================
+        // IMPORT ORGANIZATION (Matches pre-commit exactly)
+        // ========================================================================
+        {
+            "label": "Organize Imports (Pre-commit Style)",
+            "type": "shell",
+            "command": "ruff",
+            "args": [
+                "check",
+                "${file}",
+                "--select=I",
+                "--fix",
+                "--unsafe-fixes"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        // ========================================================================
+        // COMBINED TASKS (Runs multiple tools)
+        // ========================================================================
+        {
+            "label": "Format & Lint: Current File",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "Ruff: Format Current File",
+                "Ruff: Check Current File"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "onProblem",
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "Full Check: Current File",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "Ruff: Format Current File",
+                "Ruff: Check Current File",
+                "Pyright: Check Current File"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "onProblem",
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "Full Project Check",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "Pre-commit: Run All Files",
+                "Pytest: Run All Tests"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "panel": "shared",
+                "clear": true
+            }
+        },
+        // ========================================================================
+        // PACKAGE MANAGEMENT TASKS (Universal)
+        // ========================================================================
+        {
+            "label": "Install: Pre-commit Hooks",
+            "type": "shell",
+            "command": "pre-commit",
+            "args": [
+                "install"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "Update: Pre-commit Hooks",
+            "type": "shell",
+            "command": "pre-commit",
+            "args": [
+                "autoupdate"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        }
+    ]
+}
