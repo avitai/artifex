@@ -1,0 +1,26 @@
+/* Custom CSS for Artifex documentation */
+
+/* Improve code block readability */
+.md-typeset code {
+    font-size: 0.85em;
+}
+
+/* Better spacing for API documentation */
+.md-typeset .doc-contents {
+    padding-left: 1rem;
+}
+
+/* Improve table of contents */
+.md-nav__link {
+    font-size: 0.9em;
+}
+
+/* Better heading hierarchy */
+.md-typeset h1 {
+    color: var(--md-primary-fg-color);
+}
+
+.md-typeset h2 {
+    border-bottom: 1px solid var(--md-default-fg-color--lightest);
+    padding-bottom: 0.3rem;
+}
