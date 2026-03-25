@@ -1,29 +1,29 @@
-# Main
+# CLI Entrypoint
 
-**Module:** `cli.__main__`
+**Status:** `Supported runtime CLI surface`
 
-**Source:** `cli/__main__.py`
+**Module:** `artifex.cli.__main__`
 
-## Overview
+**Source:** `src/artifex/cli/__main__.py`
 
-CLI entry point for artifex generative models.
+`artifex.cli.__main__` owns the Typer application bootstrap for the shipped CLI.
+The retained public surface is small: one `app`, one callback, and one
+`main()` entrypoint.
 
-## Functions
+## Current Runtime Members
 
-### main
+- `app`: the top-level `typer.Typer` application
+- `main_callback`: the callback that owns the `--version` option
+- `main`: the `python -m artifex.cli` entrypoint
+
+## Runtime Shape
 
 ```python
-def main()
+from artifex.cli.__main__ import app, main
+
+app()   # invoked by the CLI runtime
+main()  # module entrypoint wrapper
 ```
 
-### print_help
-
-```python
-def print_help()
-```
-
-## Module Statistics
-
-- **Classes:** 0
-- **Functions:** 2
-- **Imports:** 1
+The entrypoint currently mounts only the `config` sub-app from
+`artifex.cli.config`. No separate help helper is part of the shipped runtime.

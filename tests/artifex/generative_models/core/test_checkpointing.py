@@ -104,8 +104,8 @@ class TestCheckpointing:
         _ = model(x)
 
         # Create new parameters for step 10
-        w1 = model.dense1.kernel.value * 2
-        model.dense1.kernel.value = w1
+        w1 = model.dense1.kernel[...] * 2
+        model.dense1.kernel[...] = w1
 
         # Save at step 10
         save_checkpoint(manager, model, 10)
@@ -120,7 +120,7 @@ class TestCheckpointing:
         assert loaded_step == 10
 
         # Verify the loaded model has the updated parameters
-        assert jnp.allclose(loaded_model.dense1.kernel.value, w1)
+        assert jnp.allclose(loaded_model.dense1.kernel[...], w1)
 
     def test_load_specific_checkpoint(self, temp_dir, model, key):
         """Test loading a specific checkpoint step."""
@@ -135,8 +135,8 @@ class TestCheckpointing:
         save_checkpoint(manager, model, 0)
 
         # Update model (simulate training)
-        w1 = model.dense1.kernel.value * 2
-        model.dense1.kernel.value = w1
+        w1 = model.dense1.kernel[...] * 2
+        model.dense1.kernel[...] = w1
         y_updated = model(x)
 
         # Save at step 10
@@ -276,7 +276,7 @@ class TestOptimizerCheckpointing:
 
         # Update model and save at step 10
         jnp.ones((1, 10))
-        model.dense1.kernel.value = model.dense1.kernel.value * 2
+        model.dense1.kernel[...] = model.dense1.kernel[...] * 2
         save_checkpoint_with_optimizer(manager, model, optimizer, step=10)
 
         # Create new model and optimizer
@@ -394,7 +394,7 @@ class TestCorruptionRecovery:
         save_checkpoint(manager, model, step=5)
 
         # Update and save at step 10
-        model.dense1.kernel.value = model.dense1.kernel.value * 2
+        model.dense1.kernel[...] = model.dense1.kernel[...] * 2
         output_step_10 = model(x)
         save_checkpoint(manager, model, step=10)
 

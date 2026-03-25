@@ -1,70 +1,24 @@
 # Backbone
 
-**Module:** `generative_models.extensions.protein.backbone`
+**Status:** `Supported runtime extension owner`
 
-**Source:** `generative_models/extensions/protein/backbone.py`
+**Module:** `artifex.generative_models.extensions.protein.backbone`
 
-## Overview
+**Source:** `src/artifex/generative_models/extensions/protein/backbone.py`
 
-Protein backbone extensions for generative models.
+Protein backbone constraint owners shared by geometric model integrations.
 
-This module implements extensions for adding protein-specific backbone
-functionality to geometric models without modifying core implementations.
+## Top-Level Module Exports
 
-## Classes
+- `BondLengthExtension`
+- `BondAngleExtension`
 
-### BondAngleExtension
+## Class APIs
 
-```python
-class BondAngleExtension
-```
+### `BondLengthExtension`
 
-### BondLengthExtension
+- `loss_fn()`
 
-```python
-class BondLengthExtension
-```
+### `BondAngleExtension`
 
-## Functions
-
-### **call**
-
-```python
-def __call__()
-```
-
-### **call**
-
-```python
-def __call__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### loss_fn
-
-```python
-def loss_fn()
-```
-
-### loss_fn
-
-```python
-def loss_fn()
-```
-
-## Module Statistics
-
-- **Classes:** 2
-- **Functions:** 6
-- **Imports:** 5
+- `loss_fn()`

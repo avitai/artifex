@@ -5,7 +5,8 @@ using Flax NNX. EBMs learn a data distribution by modeling an energy function
 E(x) where p(x) ∝ exp(-E(x)).
 """
 
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 import jax
 import jax.numpy as jnp
@@ -199,7 +200,7 @@ class EnergyBasedModel(GenerativeModel):
         total_loss = cd_loss + reg_loss
 
         return {
-            "loss": total_loss,
+            "total_loss": total_loss,
             "contrastive_divergence": cd_loss,
             "regularization": reg_loss,
             "real_energy_mean": real_energy.mean(),

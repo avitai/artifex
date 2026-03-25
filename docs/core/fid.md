@@ -1,53 +1,20 @@
-# Fid
+# FID
 
-**Module:** `generative_models.core.evaluation.metrics.image.fid`
+`FrechetInceptionDistance` lives in
+`artifex.generative_models.core.evaluation.metrics.image.fid`.
 
-**Source:** `generative_models/core/evaluation/metrics/image/fid.py`
+## Current Contract
 
-## Overview
+- requires a caller-supplied callable `feature_extractor`
+- does not ship a built-in Inception-v3 checkpoint or placeholder default
+- computes FID from the statistics of extracted real and generated features
 
-Fréchet Inception Distance (FID) implementation using JAX and NNX.
-
-FID is a metric that calculates the distance between feature vectors
-of real and generated images. It uses the Inception-v3 network to extract features
-and then computes the Fréchet distance between distributions.
-
-## Classes
-
-### FrechetInceptionDistance
+## Example
 
 ```python
-class FrechetInceptionDistance
+metric = FrechetInceptionDistance(
+    feature_extractor=feature_extractor,
+    batch_size=32,
+    rngs=nnx.Rngs(0),
+)
 ```
-
-## Functions
-
-### **init**
-
-```python
-def __init__()
-```
-
-### calculate_frechet_distance
-
-```python
-def calculate_frechet_distance()
-```
-
-### compute
-
-```python
-def compute()
-```
-
-### feature_extractor
-
-```python
-def feature_extractor()
-```
-
-## Module Statistics
-
-- **Classes:** 1
-- **Functions:** 4
-- **Imports:** 6

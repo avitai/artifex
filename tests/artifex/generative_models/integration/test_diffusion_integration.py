@@ -1,308 +1,281 @@
 """Integration tests for diffusion models."""
 
+from dataclasses import replace
+
 import jax
 import jax.numpy as jnp
 import pytest
 from flax import nnx
 
+from artifex.generative_models.core.configuration import (
+    DDPMConfig,
+    LatentDiffusionConfig,
+    NoiseScheduleConfig,
+    ScoreDiffusionConfig,
+    UNetBackboneConfig,
+)
+from artifex.generative_models.core.configuration.network_configs import (
+    DecoderConfig,
+    EncoderConfig,
+)
 from artifex.generative_models.core.sampling.diffusion import DiffusionSampler
 from artifex.generative_models.models.diffusion import (
     DDPMModel,
     LDMModel,
     ScoreDiffusionModel,
 )
-from tests.utils.test_helpers import should_run_diffusion_tests
-
-
-DIFFUSION_SKIP_REASON = (
-    "Diffusion integration test skipped due to GroupNorm reshape issues in flax.nnx. "
-    "The error occurs when GroupNorm tries to reshape tensors with incompatible dimensions. "
-    "For example, reshaping (batch, height, width, 64) into (batch, height, width, 32, 1). "
-    "Set RUN_DIFFUSION_TESTS=1 to force execution of these tests."
-)
 
 
 @pytest.fixture
-def rng():
-    """Random number generator fixture."""
-    return jax.random.key(0)
+def rngs():
+    """Random number generators fixture with all needed streams."""
+    return nnx.Rngs(
+        params=jax.random.key(0),
+        dropout=jax.random.key(1),
+        sample=jax.random.key(2),
+        noise=jax.random.key(3),
+        timestep=jax.random.key(4),
+    )
 
 
 @pytest.fixture
-def diffusion_config():
-    """Create diffusion model configuration for testing."""
-    from artifex.generative_models.core.configuration import ModelConfig
-
-    return ModelConfig(
+def ddpm_config():
+    """Create DDPM configuration for testing."""
+    backbone = UNetBackboneConfig(
+        name="test_unet",
+        hidden_dims=(32, 64),
+        activation="relu",
+        in_channels=3,
+        out_channels=3,
+        channel_mult=(1, 2),
+        num_res_blocks=1,
+    )
+    noise_schedule = NoiseScheduleConfig(
+        name="test_schedule",
+        num_timesteps=20,
+        schedule_type="linear",
+        beta_start=1e-4,
+        beta_end=0.02,
+    )
+    return DDPMConfig(
         name="test_ddpm",
-        model_class="artifex.generative_models.models.diffusion.DDPMModel",
-        input_dim=(16, 16, 3),  # Small image size for testing
-        output_dim=(16, 16, 3),  # Same as input for diffusion
-        hidden_dims=[32, 64],  # Small network for testing
-        parameters={
-            "noise_steps": 20,  # Small number of steps for testing
-            "beta_start": 1e-4,
-            "beta_end": 0.02,
-            "beta_schedule": "linear",
-            "time_embedding_dim": 16,
-        },
+        backbone=backbone,
+        noise_schedule=noise_schedule,
+        input_shape=(16, 16, 3),
+        loss_type="mse",
+        clip_denoised=True,
     )
 
 
 @pytest.fixture
 def ldm_config():
     """Create latent diffusion model configuration for testing."""
-    from artifex.generative_models.core.configuration import ModelConfig
-
-    return ModelConfig(
+    backbone = UNetBackboneConfig(
+        name="test_unet_ldm",
+        hidden_dims=(32, 64),
+        activation="relu",
+        in_channels=8,
+        out_channels=8,
+        channel_mult=(1, 2),
+        num_res_blocks=1,
+    )
+    noise_schedule = NoiseScheduleConfig(
+        name="test_schedule",
+        num_timesteps=20,
+        schedule_type="linear",
+        beta_start=1e-4,
+        beta_end=0.02,
+    )
+    encoder = EncoderConfig(
+        name="test_encoder",
+        input_shape=(16, 16, 3),
+        hidden_dims=(16, 32),
+        latent_dim=8,
+        activation="relu",
+    )
+    decoder = DecoderConfig(
+        name="test_decoder",
+        latent_dim=8,
+        hidden_dims=(32, 16),
+        output_shape=(16, 16, 3),
+        activation="relu",
+    )
+    return LatentDiffusionConfig(
         name="test_ldm",
-        model_class="artifex.generative_models.models.diffusion.LDMModel",
-        input_dim=(16, 16, 3),  # Small image size for testing
-        output_dim=(16, 16, 3),  # Same as input for diffusion
-        hidden_dims=[32, 64],  # Small network for testing
-        parameters={
-            "noise_steps": 20,  # Small number of steps for testing
-            "beta_start": 1e-4,
-            "beta_end": 0.02,
-            "beta_schedule": "linear",
-            "time_embedding_dim": 16,
-            "latent_dim": 8,  # Small latent dimension for testing
-            "encoder_hidden_dims": [16, 32],  # Small encoder for testing
-            "decoder_hidden_dims": [32, 16],  # Small decoder for testing
-        },
+        backbone=backbone,
+        noise_schedule=noise_schedule,
+        input_shape=(16, 16, 3),
+        encoder=encoder,
+        decoder=decoder,
+        latent_scale_factor=1.0,
+    )
+
+
+@pytest.fixture
+def score_config():
+    """Create score diffusion configuration for testing."""
+    backbone = UNetBackboneConfig(
+        name="test_unet_score",
+        hidden_dims=(32, 64),
+        activation="relu",
+        in_channels=3,
+        out_channels=3,
+        channel_mult=(1, 2),
+        num_res_blocks=1,
+    )
+    noise_schedule = NoiseScheduleConfig(
+        name="test_schedule",
+        num_timesteps=20,
+        schedule_type="linear",
+        beta_start=1e-4,
+        beta_end=0.02,
+    )
+    return ScoreDiffusionConfig(
+        name="test_score",
+        backbone=backbone,
+        noise_schedule=noise_schedule,
+        input_shape=(16, 16, 3),
+        sigma_min=0.01,
+        sigma_max=50.0,
     )
 
 
 class TestDiffusionIntegration:
     """Integration tests for diffusion models."""
 
-    def test_ddpm_forward_process_reverse_process(self, rng, diffusion_config):
+    def test_ddpm_forward_process_reverse_process(self, rngs, ddpm_config):
         """Test DDPM forward and reverse processes."""
-        if not should_run_diffusion_tests():
-            pytest.skip(DIFFUSION_SKIP_REASON)
+        model = DDPMModel(ddpm_config, rngs=rngs)
 
-        # Initialize model
-        model = DDPMModel(diffusion_config, rngs=nnx.Rngs(params=rng))
-
-        # Generate clean sample
         batch_size = 2
-        x_0 = jnp.ones((batch_size, 16, 16, 3))  # Simple image for testing
-
-        # Select timestep
-        t = jnp.array([4, 6])  # Different timestep for each sample
+        x_0 = jnp.ones((batch_size, 16, 16, 3))
+        t = jnp.array([4, 6])
 
         # Apply forward process to add noise
-        noise = jnp.ones_like(x_0) * 0.5  # Fixed noise for testing
+        noise = jnp.ones_like(x_0) * 0.5
         noisy_x = model.q_sample(x_0, t, noise)
 
         # Model should predict the noise
         model_output = model(noisy_x, t)
-
-        # Extract predicted noise from model output dictionary
         pred_noise = model_output["predicted_noise"]
 
-        # Check outputs
         assert pred_noise.shape == noise.shape
-        # Ideally we'd check accuracy, but just ensure output is finite
         assert jnp.all(jnp.isfinite(pred_noise))
 
-    def test_ddpm_sampling_process(self, rng, diffusion_config):
+    def test_ddpm_sampling_process(self, rngs, ddpm_config):
         """Test DDPM sampling process."""
-        if not should_run_diffusion_tests():
-            pytest.skip(DIFFUSION_SKIP_REASON)
+        model = DDPMModel(ddpm_config, rngs=rngs)
 
-        # Initialize model
-        model = DDPMModel(diffusion_config, rngs=nnx.Rngs(params=rng))
-
-        # Sample from model
         n_samples = 2
-        sample_key = jax.random.key(1)
-        samples = model.sample(n_samples, rngs=nnx.Rngs(params=sample_key))
+        samples = model.sample(n_samples)
 
-        # Check output shape
         assert samples.shape == (n_samples, 16, 16, 3)
-        # Ensure outputs are finite
         assert jnp.all(jnp.isfinite(samples))
 
-    def test_ldm_latent_diffusion(self, rng, ldm_config):
+    def test_ldm_latent_diffusion(self, rngs, ldm_config):
         """Test latent diffusion model with encoder/decoder."""
-        if not should_run_diffusion_tests():
-            pytest.skip(DIFFUSION_SKIP_REASON)
+        model = LDMModel(ldm_config, rngs=rngs)
 
-        # Create model
-        model = LDMModel(ldm_config, rngs=nnx.Rngs(params=rng))
-
-        # Create dummy input
         batch_size = 2
-        input_shape = (batch_size,) + ldm_config["input_dim"]
-        x = jnp.ones(input_shape)
+        x = jnp.ones((batch_size, 16, 16, 3))
 
-        # Encode to latent space
-        latent = model.encode(x)
-
-        # Verify latent shape
-        # Assuming 4x downsampling for spatial dimensions
-        expected_height = ldm_config["input_dim"][0] // 4
-        expected_width = ldm_config["input_dim"][1] // 4
-        expected_latent_shape = (
-            batch_size,
-            expected_height,
-            expected_width,
-            ldm_config["latent_dim"],
-        )
-        assert latent.shape == expected_latent_shape
+        # Encode to latent space (returns mean, log_var)
+        mean, log_var = model.encode(x)
+        assert mean.ndim >= 2
+        assert mean.shape[0] == batch_size
+        assert mean.shape[1] == ldm_config.encoder.latent_dim
 
         # Test forward diffusion in latent space
-        t = jnp.array([5, 10])  # Different timesteps for each batch item
+        t = jnp.array([5, 10])
+        noisy_latent, noise = model.forward_diffusion(mean, t)
+        assert noisy_latent.shape == mean.shape
+        assert noise.shape == mean.shape
 
-        # Add noise through forward process
-        sample_key = jax.random.key(4)
-        noisy_latent, noise = model.forward_diffusion(latent, t, rngs=nnx.Rngs(params=sample_key))
-
-        # Verify shapes
-        assert noisy_latent.shape == latent.shape
-        assert noise.shape == latent.shape
-
-        # Test noise prediction in latent space
-        pred_noise = model(noisy_latent, t)
-        assert pred_noise.shape == noise.shape
+        # Test full forward pass (encode → diffuse → denoise → decode)
+        output = model(x)
+        assert "predicted_noise" in output
+        assert "reconstructed" in output
+        assert "mean" in output
+        assert "log_var" in output
 
         # Test decoding from latent space
-        decoded = model.decode(latent)
-        assert decoded.shape == input_shape
+        decoded = model.decode(mean)
+        assert decoded.shape == x.shape
 
         # Test end-to-end sampling
         n_samples = 2
-        key5 = jax.random.key(5)
-        samples = model.sample(n_samples, rngs=nnx.Rngs(params=key5))
-        assert samples.shape == (n_samples,) + ldm_config["input_dim"]
+        samples = model.sample(n_samples)
+        assert samples.shape[0] == n_samples
 
-    def test_score_diffusion_integration(self, rng, diffusion_config):
+    def test_score_diffusion_integration(self, rngs, score_config):
         """Test score-based diffusion model integration."""
-        if not should_run_diffusion_tests():
-            pytest.skip(DIFFUSION_SKIP_REASON)
+        model = ScoreDiffusionModel(score_config, rngs=rngs)
 
-        # Create config
-        config = diffusion_config.copy()
-        # Use different schedule for variety
-        config["beta_schedule"] = "cosine"
-        config["num_timesteps"] = 500
-
-        # Create model
-        model = ScoreDiffusionModel(config, rngs=nnx.Rngs(params=rng))
-
-        # Generate clean sample
         batch_size = 2
-        x_0 = jnp.ones((batch_size, 16, 16, 3))  # Simple image
-
-        # Sample timestep
-        t = jnp.array([250, 400])
+        x_0 = jnp.ones((batch_size, 16, 16, 3))
+        t = jnp.array([5, 10])
 
         # Add noise
         noise = jnp.ones_like(x_0) * 0.1
         noisy_x = model.q_sample(x_0, t, noise)
 
         # Get score
-        score = model(noisy_x, t)
+        output = model(noisy_x, t)
+        score = output["predicted_noise"]
 
-        # Check outputs
         assert score.shape == x_0.shape
         assert jnp.all(jnp.isfinite(score))
 
         # Test sampling
-        samples = model.sample(
-            n_samples=1,
-            steps=10,  # Fewer steps for testing
-            rngs=nnx.Rngs(params=jax.random.key(3)),
-        )
+        samples = model.sample(num_samples=1, num_steps=10)
         assert samples.shape[0] == 1
         assert samples.shape[1:] == x_0.shape[1:]
 
-    def test_diffusion_sampler_integration(self, rng, diffusion_config):
+    def test_diffusion_sampler_integration(self, rngs, ddpm_config):
         """Test integration with diffusion samplers."""
-        if not should_run_diffusion_tests():
-            pytest.skip(DIFFUSION_SKIP_REASON)
+        model = DDPMModel(ddpm_config, rngs=rngs)
+        sampler = DiffusionSampler(model=model)
 
-        # Create model
-        model = DDPMModel(diffusion_config, rngs=nnx.Rngs(params=rng))
-
-        # Create sampler
-        sampler = DiffusionSampler(model)
-
-        # Sample using the sampler with default parameters
         samples = sampler.sample(
             n_samples=2,
-            steps=10,  # Reduced for testing
-            rngs=nnx.Rngs(params=jax.random.key(4)),
+            steps=10,
+            rngs=rngs,
         )
 
-        # Check outputs
         assert samples.shape == (2, 16, 16, 3)
         assert jnp.all(jnp.isfinite(samples))
 
-    def test_conditional_diffusion(self, rng, diffusion_config):
-        """Test conditional diffusion."""
-        if not should_run_diffusion_tests():
-            pytest.skip(DIFFUSION_SKIP_REASON)
+    def test_ddpm_with_cosine_schedule(self, rngs, ddpm_config):
+        """Test DDPM with cosine noise schedule."""
+        cosine_schedule = replace(ddpm_config.noise_schedule, schedule_type="cosine")
+        config = replace(ddpm_config, noise_schedule=cosine_schedule)
 
-        # Create config with conditioning
-        config = diffusion_config.copy()
-        config["num_classes"] = 10
-        config["class_embed_dim"] = 8
+        model = DDPMModel(config, rngs=rngs)
 
-        # Create model
-        model = DDPMModel(config, rngs=nnx.Rngs(params=rng))
-
-        # Create dummy input and conditions
         batch_size = 2
-        input_shape = (batch_size,) + config["input_dim"]
-        x = jnp.ones(input_shape)
-        # Two different classes
-        conditions = jnp.array([0, 1], dtype=jnp.int32)
+        x_0 = jnp.ones((batch_size, 16, 16, 3))
+        t = jnp.array([4, 6])
 
-        # Test forward process with conditions
-        t = jnp.array([5, 10])
-        noisy_x, noise = model.forward_diffusion(x, t, rngs=nnx.Rngs(params=jax.random.key(20)))
+        model_output = model(x_0, t)
+        pred_noise = model_output["predicted_noise"]
 
-        # Test conditional denoising
-        pred_noise = model(noisy_x, t, conditions)
-        assert pred_noise.shape == noise.shape
+        assert pred_noise.shape == x_0.shape
+        assert jnp.all(jnp.isfinite(pred_noise))
 
-        # Test conditional sampling
-        n_samples = 3
-        class_labels = jnp.array([2, 3, 4], dtype=jnp.int32)
-
-        samples = model.sample(
-            n_samples,
-            conditions=class_labels,
-            rngs=nnx.Rngs(params=jax.random.key(21)),
-        )
-
-        # Verify conditional sample shape
-        assert samples.shape == (n_samples,) + config["input_dim"]
-
-    def test_noise_prediction_loss(self, rng, diffusion_config):
+    def test_noise_prediction_loss(self, rngs, ddpm_config):
         """Test noise prediction loss computation."""
-        if not should_run_diffusion_tests():
-            pytest.skip(DIFFUSION_SKIP_REASON)
+        model = DDPMModel(ddpm_config, rngs=rngs)
 
-        # Create model
-        model = DDPMModel(diffusion_config, rngs=nnx.Rngs(params=rng))
-
-        # Create dummy input
         batch_size = 2
-        input_shape = (batch_size,) + diffusion_config["input_dim"]
-        x = jnp.ones(input_shape)
+        x = jnp.ones((batch_size, 16, 16, 3))
+        t = jnp.array([5, 10])
 
-        # Compute loss
-        key30 = jax.random.key(30)
-        loss, metrics = model.loss_fn(x, rngs=nnx.Rngs(params=key30))
+        # Forward pass to get model outputs
+        model_output = model(x, t)
 
-        # Check loss is finite and reasonable
-        assert jnp.isfinite(loss)
-        assert loss > 0.0  # Loss should be positive
+        # Compute loss using model outputs
+        loss_dict = model.loss_fn({"x": x}, model_output)
 
-        # Check metrics
-        assert "loss" in metrics
-        assert jnp.isfinite(metrics["loss"])
-        assert jnp.allclose(loss, metrics["loss"])
+        assert "total_loss" in loss_dict
+        assert jnp.isfinite(loss_dict["total_loss"])
+        assert loss_dict["total_loss"] > 0.0

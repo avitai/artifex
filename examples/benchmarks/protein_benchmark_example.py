@@ -193,6 +193,7 @@ def main():
             "num_atoms": 4,
             "seed": seed,
             "batch_size": 32,
+            "demo_mode": True,
         },
     )
 
@@ -215,7 +216,11 @@ def main():
     ]
 
     # Initialize the benchmark suite
-    benchmark_suite = ProteinBenchmarkSuite(num_samples=args.num_samples, random_seed=seed)
+    benchmark_suite = ProteinBenchmarkSuite(
+        num_samples=args.num_samples,
+        random_seed=seed,
+        demo_mode=True,
+    )
 
     # Run benchmarks for each model configuration
     for config in model_configs:

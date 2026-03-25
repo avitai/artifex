@@ -1,6 +1,6 @@
 """Tests for text embeddings extension.
 
-This module contains comprehensive tests for the TextEmbeddings extension
+This module contains complete tests for the TextEmbeddings extension
 that provides text embedding utilities for generative models.
 """
 

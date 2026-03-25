@@ -4,7 +4,7 @@ Based on the paper "Improved Variational Inference with Inverse Autoregressive F
 by Kingma et al. Reference implementations from benchmark_VAE and other sources are used.
 """
 
-from typing import Sequence
+from collections.abc import Sequence
 
 import jax
 import jax.numpy as jnp

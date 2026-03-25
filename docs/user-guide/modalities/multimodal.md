@@ -1,10 +1,19 @@
 # Multi-Modal Guide
 
-This guide covers working with multi-modal data in Artifex, including aligned datasets, modality fusion, cross-modal generation, and best practices for multi-modal generative models.
+This guide covers working with the experimental multi-modal helper package in
+Artifex, including aligned datasets, modality fusion, cross-modal generation,
+and best practices for multi-modal generative models.
 
 ## Overview
 
-Artifex's multi-modal system enables working with multiple data modalities (image, text, audio) simultaneously, supporting alignment, fusion, and cross-modal generation tasks.
+Artifex's multi-modal helper system enables working with image, text, and audio
+simultaneously, supporting alignment, fusion, and cross-modal generation
+tasks.
+
+These helpers are not part of the shared modality registry. Use direct imports
+from `artifex.generative_models.modalities.multi_modal`; do not expect
+`get_modality(...)` or `create_model(..., modality=...)` to expose
+`multi_modal` as a registry-backed public modality.
 
 <div class="grid cards" markdown>
 
@@ -121,53 +130,45 @@ strong_dataset = create_synthetic_multi_modal_dataset(
 perfect_dataset = create_synthetic_multi_modal_dataset(
     modalities=["image", "text"],
     num_samples=1000,
-    alignment_strength=1.0,  # 100% alignment
+    alignment_strength=1.0,  # full alignment
     rngs=rngs
 )
 ```
 
 ### Paired Multi-Modal Dataset
 
-For explicitly paired data:
+For explicitly paired data, use `create_paired_multi_modal_dataset`:
 
 ```python
 from artifex.generative_models.modalities.multi_modal.datasets import (
-    MultiModalPairedDataset
+    create_paired_multi_modal_dataset,
 )
+from flax import nnx
 
 # Prepare paired data
-image_data = jnp.array([...])  # (N, H, W, C)
-text_data = jnp.array([...])  # (N, max_length)
-audio_data = jnp.array([...])  # (N, n_samples)
+image_data = jnp.ones((100, 32, 32, 3))
+text_data = jnp.ones((100, 50), dtype=jnp.int32)
+audio_data = jnp.ones((100, 16000))
 
-# Define modality pairs
-pairs = [
-    ("image", "text"),
-    ("image", "audio"),
-    ("text", "audio")
-]
+# Optional alignment scores
+alignments = jnp.ones((100,))
 
-# Optional alignment scores for each pair
-alignments = jnp.ones((len(image_data),))  # All perfectly aligned
-
-# Create paired dataset
-paired_dataset = MultiModalPairedDataset(
-    pairs=pairs,
+# Create paired dataset (returns MemorySource)
+paired_dataset = create_paired_multi_modal_dataset(
     data={
         "image": image_data,
         "text": text_data,
-        "audio": audio_data
+        "audio": audio_data,
     },
-    alignments=alignments
+    alignments=alignments,
+    rngs=nnx.Rngs(0),
 )
 
 # Access paired sample
 sample = paired_dataset[0]
-print(sample["image"].shape)  # (H, W, C)
-print(sample["text"].shape)  # (max_length,)
-print(sample["audio"].shape)  # (n_samples,)
-print(sample["alignment_scores"])  # 1.0
-print(sample["pairs"])  # [('image', 'text'), ('image', 'audio'), ('text', 'audio')]
+print(sample["image"].shape)  # (32, 32, 3)
+print(sample["text"].shape)   # (50,)
+print(sample["audio"].shape)  # (16000,)
 ```
 
 ### Batching Multi-Modal Data

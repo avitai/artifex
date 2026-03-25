@@ -113,10 +113,10 @@ Use distributed training when:
 
 ## Distributed Configuration
 
-Artifex provides a comprehensive configuration system for distributed training:
+Artifex provides a complete configuration system for distributed training:
 
 ```python
-from artifex.configs.schema.distributed import DistributedConfig
+from artifex.configs import DistributedConfig
 
 # Basic distributed configuration
 config = DistributedConfig(
@@ -436,7 +436,7 @@ class ShardedVAEEncoder(nnx.Module):
         mean = self.mean_layer(h)
         logvar = self.logvar_layer(h)
 
-        return {"mean": mean, "logvar": logvar}
+        return {"mean": mean, "log_var": logvar}
 
 # Create model with mesh
 devices = jax.devices()
@@ -818,7 +818,7 @@ with mesh:
 ### Distributed Training Script
 
 ```python
-from artifex.configs.schema.distributed import DistributedConfig
+from artifex.configs import DistributedConfig
 from artifex.generative_models.training.trainer import Trainer
 import jax
 
@@ -846,18 +846,25 @@ def main():
 
     # Create model and training config
     model_config = create_model_config()
+    model = create_model(model_config)
     training_config = create_training_config()
+    loss_fn = task_loss_fn
 
     # Create trainer
     trainer = Trainer(
-        model_config=model_config,
+        model=model,
         training_config=training_config,
-        distributed_config=dist_config,
+        loss_fn=loss_fn,
     )
 
     # Train with automatic distribution
     with mesh:
-        trainer.train(train_dataset, val_dataset)
+        trainer.train(
+            train_data=train_dataset,
+            num_epochs=training_config.num_epochs,
+            batch_size=training_config.batch_size,
+            val_data=val_dataset,
+        )
 
 if __name__ == "__main__":
     main()
@@ -1207,7 +1214,7 @@ Key APIs:
 
     ---
 
-    Return to the comprehensive training documentation
+    Return to the complete training documentation
 
     [:octicons-arrow-right-24: Training guide](../training/training-guide.md)
 

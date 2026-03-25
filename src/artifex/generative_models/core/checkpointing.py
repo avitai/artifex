@@ -1,6 +1,7 @@
 """Checkpointing utilities for model persistence via Orbax."""
 
 import logging
+from collections.abc import Callable, Mapping
 from pathlib import Path
 from typing import Any
 
@@ -13,6 +14,10 @@ logger = logging.getLogger(__name__)
 
 def setup_checkpoint_manager(
     base_dir: str | Path,
+    *,
+    max_to_keep: int | None = 5,
+    best_fn: Callable[[Any], float] | None = None,
+    best_mode: str = "max",
 ) -> tuple[ocp.CheckpointManager, str]:
     """Set up an Orbax checkpoint manager.
 
@@ -36,7 +41,9 @@ def setup_checkpoint_manager(
         Path(base_dir_abs).mkdir(parents=True, exist_ok=True)
 
         options = ocp.CheckpointManagerOptions(
-            max_to_keep=5,
+            max_to_keep=max_to_keep,
+            best_fn=best_fn,
+            best_mode=best_mode,
             create=True,
         )
 
@@ -59,6 +66,8 @@ def save_checkpoint(
     checkpoint_manager: ocp.CheckpointManager,
     model: nnx.Module | nnx.GraphDef,
     step: int,
+    *,
+    metrics: Mapping[str, float] | None = None,
 ) -> ocp.CheckpointManager:
     """Save model checkpoint using Orbax.
 
@@ -92,7 +101,7 @@ def save_checkpoint(
             model=ocp.args.StandardSave(model_state),
         )
 
-        checkpoint_manager.save(step, args=save_args)
+        checkpoint_manager.save(step, args=save_args, metrics=metrics)
         checkpoint_manager.wait_until_finished()
 
         logger.info(

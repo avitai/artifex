@@ -1,13 +1,4 @@
-"""Tests for production optimization infrastructure.
-
-This module tests production optimization capabilities including:
-- Automatic optimization pipeline selection
-- Production-ready inference optimization
-- Model monitoring and debugging tools
-- Hardware-aware optimization strategies
-
-All tests follow TDD principles and use Flax NNX exclusively.
-"""
+"""Tests for the retained experimental production optimization surface."""
 
 import flax.nnx as nnx
 import jax
@@ -113,7 +104,7 @@ class TestOptimizationResult:
         """Test creating optimization result."""
         result = OptimizationResult(
             optimized_model=simple_model,
-            optimization_techniques=["jit_compilation", "quantization"],
+            optimization_techniques=["jit_compilation"],
             performance_metrics={"latency_ms": 25.0, "throughput_qps": 200.0},
             memory_usage_gb=4.0,
             latency_ms=25.0,
@@ -122,8 +113,7 @@ class TestOptimizationResult:
         )
 
         assert result.optimized_model == simple_model
-        assert len(result.optimization_techniques) == 2
-        assert "jit_compilation" in result.optimization_techniques
+        assert result.optimization_techniques == ["jit_compilation"]
         assert result.latency_ms == 25.0
         assert result.optimization_time_seconds == 10.5
 
@@ -173,9 +163,28 @@ class TestProductionOptimizer:
 
         assert isinstance(result, OptimizationResult)
         assert result.optimized_model is not None
-        assert len(result.optimization_techniques) > 0
-        assert "jit_compilation" in result.optimization_techniques
+        assert result.optimization_techniques == ["jit_compilation"]
         assert result.optimization_time_seconds > 0
+
+    def test_placeholder_optimizations_are_not_reported_as_applied(
+        self, simple_model, sample_inputs, hardware_specs
+    ):
+        """Requested placeholder techniques should stay absent from the result."""
+        optimizer = ProductionOptimizer(hardware_specs=hardware_specs)
+        target = OptimizationTarget(
+            latency_ms=25.0,
+            throughput_qps=200.0,
+            memory_budget_gb=4.0,
+            accuracy_threshold=0.9,
+        )
+
+        result = optimizer.optimize_for_production(
+            model=simple_model,
+            optimization_target=target,
+            sample_inputs=sample_inputs,
+        )
+
+        assert result.optimization_techniques == ["jit_compilation"]
 
     def test_optimization_technique_selection(self, hardware_specs):
         """Test optimization technique selection logic."""
@@ -341,6 +350,8 @@ class TestProductionMonitor:
         assert metrics.error_rate == 0.2  # 1 failure out of 5
         assert metrics.p95_latency_ms >= 40.0
         assert metrics.throughput_qps > 0
+        assert metrics.memory_usage_gb is None
+        assert metrics.cache_hit_rate is None
 
     def test_empty_metrics(self):
         """Test metrics when no requests recorded."""
@@ -351,6 +362,8 @@ class TestProductionMonitor:
         assert metrics.average_latency_ms == 0
         assert metrics.error_rate == 0
         assert metrics.throughput_qps == 0
+        assert metrics.memory_usage_gb is None
+        assert metrics.cache_hit_rate is None
 
     def test_reset_monitoring(self):
         """Test resetting monitoring data."""
@@ -482,4 +495,4 @@ class TestIntegration:
             )
 
             assert isinstance(result, OptimizationResult)
-            assert len(result.optimization_techniques) > 0
+            assert result.optimization_techniques == ["jit_compilation"]

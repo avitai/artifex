@@ -6,7 +6,7 @@ to improve model stability, generalization, and prevent overfitting.
 All functions are JAX-compatible and work with NNX modules.
 """
 
-from typing import Callable
+from collections.abc import Callable
 
 import jax
 import jax.numpy as jnp
@@ -57,10 +57,7 @@ def l1_regularization(
 
     # Handle NNX State
     if isinstance(params, nnx.State):
-        l1_norm = sum(
-            _calculate_l1(name, param.value if hasattr(param, "value") else param)
-            for name, param in _flatten_nnx_state(params)
-        )
+        l1_norm = sum(_calculate_l1(name, param) for name, param in _flatten_nnx_state(params))
     # Handle different param structures
     elif isinstance(params, jax.Array):
         # Single array
@@ -120,10 +117,7 @@ def l2_regularization(
 
     # Handle NNX State
     if isinstance(params, nnx.State):
-        l2_norm = sum(
-            _calculate_l2(name, param.value if hasattr(param, "value") else param)
-            for name, param in _flatten_nnx_state(params)
-        )
+        l2_norm = sum(_calculate_l2(name, param) for name, param in _flatten_nnx_state(params))
     # Handle different param structures
     elif isinstance(params, jax.Array):
         # Single array
@@ -182,7 +176,7 @@ class SpectralNormRegularization(nnx.Module):
             u_init = jnp.ones(u_shape) / jnp.sqrt(u_shape[0])
             self._u_states[weight_name] = nnx.Variable(u_init)
 
-        u = self._u_states[weight_name].value
+        u = self._u_states[weight_name][...]
 
         # Power iteration
         for _ in range(self.n_power_iterations):
@@ -195,7 +189,7 @@ class SpectralNormRegularization(nnx.Module):
             u = u / (jnp.linalg.norm(u) + self.eps)
 
         # Update stored u vector
-        self._u_states[weight_name].value = u
+        self._u_states[weight_name][...] = u
 
         # Compute spectral norm: u^T W v
         spectral_norm = jnp.matmul(jnp.matmul(u.T, weight), v).squeeze()
@@ -469,15 +463,15 @@ def _flatten_nnx_state(state: nnx.State):
         if hasattr(obj, "__dict__"):
             for k, v in obj.__dict__.items():
                 new_key = f"{prefix}/{k}" if prefix else k
-                if hasattr(v, "value"):  # NNX Variable
-                    items.append((new_key, v.value))
+                if isinstance(v, nnx.Variable):
+                    items.append((new_key, v[...]))
                 elif isinstance(v, (dict, nnx.State)):
                     _extract_from_state(v, new_key)
         elif isinstance(obj, dict):
             for k, v in obj.items():
                 new_key = f"{prefix}/{k}" if prefix else k
-                if hasattr(v, "value"):  # NNX Variable
-                    items.append((new_key, v.value))
+                if isinstance(v, nnx.Variable):
+                    items.append((new_key, v[...]))
                 elif isinstance(v, (dict, nnx.State)):
                     _extract_from_state(v, new_key)
 
@@ -501,10 +495,7 @@ def _flatten_dict(d, parent_key=""):
 def _count_params(params):
     """Count the total number of parameters."""
     if isinstance(params, nnx.State):
-        return sum(
-            param.value.size if hasattr(param, "value") else param.size
-            for _, param in _flatten_nnx_state(params)
-        )
+        return sum(param.size for _, param in _flatten_nnx_state(params))
     elif isinstance(params, jax.Array):
         return params.size
     elif isinstance(params, list):

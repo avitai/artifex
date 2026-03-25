@@ -12,8 +12,35 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import r2_score
 from sklearn.preprocessing import StandardScaler
 
-from artifex.benchmarks.metrics.core import MetricBase
+from artifex.benchmarks.metrics.core import _init_metric_from_config, MetricBase
 from artifex.generative_models.core.configuration import EvaluationConfig
+
+
+def _validate_disentanglement_inputs(real_data: jax.Array, generated_data: jax.Array) -> None:
+    """Validate factor and latent input arrays."""
+    if not isinstance(real_data, jax.Array) or not isinstance(generated_data, jax.Array):
+        raise ValueError("Both inputs must be jax.Array")
+    if len(real_data.shape) != 2 or len(generated_data.shape) != 2:
+        raise ValueError("Both inputs must be 2D arrays")
+    if real_data.shape[0] != generated_data.shape[0]:
+        raise ValueError("Batch sizes must match")
+
+
+def _normalize_latents(latents: jax.Array) -> jax.Array:
+    """Normalize latent representations to zero mean and unit variance."""
+    scaler = StandardScaler()
+    return jnp.asarray(scaler.fit_transform(jnp.asarray(latents)))
+
+
+def _prepare_disentanglement_inputs(
+    real_data: jax.Array,
+    generated_data: jax.Array,
+) -> tuple[jax.Array, jax.Array]:
+    """Validate and normalize disentanglement inputs."""
+    _validate_disentanglement_inputs(real_data, generated_data)
+    factors = jnp.asarray(real_data)
+    latents = _normalize_latents(jnp.asarray(generated_data))
+    return factors, latents
 
 
 class MutualInformationGapMetric(MetricBase):
@@ -35,43 +62,19 @@ class MutualInformationGapMetric(MetricBase):
             config: Evaluation configuration (must be EvaluationConfig)
             rngs: NNX Rngs for stochastic operations
         """
-        if not isinstance(config, EvaluationConfig):
-            raise TypeError(f"config must be an EvaluationConfig, got {type(config).__name__}")
-
-        # Initialize base class with the EvaluationConfig
-        super().__init__(config=config, rngs=rngs)
-        self.eval_batch_size = config.eval_batch_size
+        _init_metric_from_config(
+            self,
+            config=config,
+            rngs=rngs,
+            metric_key="mig",
+            modality="disentanglement",
+            higher_is_better=True,
+        )
         self.metric_name = "mig_score"
 
-    def compute(
-        self, real_data: jax.Array, generated_data: jax.Array, **kwargs
-    ) -> dict[str, float]:
-        """Compute the MIG score.
-
-        Args:
-            real_data: Ground truth factors [batch_size, num_factors]
-            generated_data: Latent vectors from the model [batch_size, latent_dim]
-            **kwargs: Additional parameters including:
-                - latent_representations: Alternative way to pass latent codes
-                - ground_truth_factors: Alternative way to pass factors
-
-        Returns:
-            Dictionary with MIG score
-        """
-        # Handle both direct parameters and kwargs for backward compatibility
-        if "latent_representations" in kwargs and "ground_truth_factors" in kwargs:
-            latent_representations = kwargs["latent_representations"]
-            ground_truth_factors = kwargs["ground_truth_factors"]
-        else:
-            # Use the standard protocol: real_data = factors, generated_data = latents
-            ground_truth_factors = real_data
-            latent_representations = generated_data
-        # Convert to numpy for computation
-        latents = jnp.array(latent_representations)
-        factors = jnp.array(ground_truth_factors)
-
-        # Normalize latent representations
-        latents = self._normalize_representations(latents)
+    def compute(self, real_data: jax.Array, generated_data: jax.Array) -> dict[str, float]:
+        """Compute the MIG score from factors and latent representations."""
+        factors, latents = _prepare_disentanglement_inputs(real_data, generated_data)
 
         # Calculate mutual information for each latent-factor pair
         latent_dim = latents.shape[1]
@@ -99,41 +102,9 @@ class MutualInformationGapMetric(MetricBase):
 
         return {"mig_score": mig_score}
 
-    def validate_inputs(self, real_data: jax.Array, generated_data: jax.Array) -> bool:
-        """Validate input data compatibility.
-
-        Args:
-            real_data: Ground truth factors
-            generated_data: Latent representations
-
-        Returns:
-            True if inputs are valid
-        """
-        # Check that both inputs are arrays
-        if not isinstance(real_data, jax.Array) or not isinstance(generated_data, jax.Array):
-            return False
-
-        # Check that both are 2D arrays
-        if len(real_data.shape) != 2 or len(generated_data.shape) != 2:
-            return False
-
-        # Check that batch sizes match
-        if real_data.shape[0] != generated_data.shape[0]:
-            return False
-
-        return True
-
-    def _normalize_representations(self, latents: jax.Array) -> jax.Array:
-        """Normalize latent representations to have zero mean and unit variance.
-
-        Args:
-            latents: Latent vectors [batch_size, latent_dim]
-
-        Returns:
-            Normalized latent vectors
-        """
-        scaler = StandardScaler()
-        return scaler.fit_transform(latents)
+    def validate_inputs(self, real_data: jax.Array, generated_data: jax.Array) -> None:
+        """Validate factor and latent inputs."""
+        _validate_disentanglement_inputs(real_data, generated_data)
 
     def _compute_mutual_information(self, x: jax.Array, y: jax.Array) -> float:
         """Compute mutual information between two variables.
@@ -224,44 +195,19 @@ class SeparationMetric(MetricBase):
             config: Evaluation configuration (must be EvaluationConfig)
             rngs: NNX Rngs for stochastic operations
         """
-        if not isinstance(config, EvaluationConfig):
-            raise TypeError(f"config must be an EvaluationConfig, got {type(config).__name__}")
-
-        # Initialize base class with minimal config to satisfy MetricBase requirements
-        # Initialize base class with the EvaluationConfig
-        super().__init__(config=config, rngs=rngs)
-        self.eval_batch_size = config.eval_batch_size
+        _init_metric_from_config(
+            self,
+            config=config,
+            rngs=rngs,
+            metric_key="sap",
+            modality="disentanglement",
+            higher_is_better=True,
+        )
         self.metric_name = "sap_score"
 
-    def compute(
-        self, real_data: jax.Array, generated_data: jax.Array, **kwargs
-    ) -> dict[str, float]:
-        """Compute the SAP score.
-
-        Args:
-            real_data: Ground truth factors [batch_size, num_factors]
-            generated_data: Latent vectors from the model [batch_size, latent_dim]
-            **kwargs: Additional parameters including:
-                - latent_representations: Alternative way to pass latent codes
-                - ground_truth_factors: Alternative way to pass factors
-
-        Returns:
-            Dictionary with SAP score
-        """
-        # Handle both direct parameters and kwargs for backward compatibility
-        if "latent_representations" in kwargs and "ground_truth_factors" in kwargs:
-            latent_representations = kwargs["latent_representations"]
-            ground_truth_factors = kwargs["ground_truth_factors"]
-        else:
-            # Use the standard protocol: real_data = factors, generated_data = latents
-            ground_truth_factors = real_data
-            latent_representations = generated_data
-        # Convert to numpy for computation
-        latents = jnp.array(latent_representations)
-        factors = jnp.array(ground_truth_factors)
-
-        # Normalize latent representations
-        latents = self._normalize_representations(latents)
+    def compute(self, real_data: jax.Array, generated_data: jax.Array) -> dict[str, float]:
+        """Compute the SAP score from factors and latent representations."""
+        factors, latents = _prepare_disentanglement_inputs(real_data, generated_data)
 
         # Calculate predictability scores for each latent-factor pair
         latent_dim = latents.shape[1]
@@ -284,41 +230,9 @@ class SeparationMetric(MetricBase):
 
         return {"sap_score": sap_score}
 
-    def validate_inputs(self, real_data: jax.Array, generated_data: jax.Array) -> bool:
-        """Validate input data compatibility.
-
-        Args:
-            real_data: Ground truth factors
-            generated_data: Latent representations
-
-        Returns:
-            True if inputs are valid
-        """
-        # Check that both inputs are arrays
-        if not isinstance(real_data, jax.Array) or not isinstance(generated_data, jax.Array):
-            return False
-
-        # Check that both are 2D arrays
-        if len(real_data.shape) != 2 or len(generated_data.shape) != 2:
-            return False
-
-        # Check that batch sizes match
-        if real_data.shape[0] != generated_data.shape[0]:
-            return False
-
-        return True
-
-    def _normalize_representations(self, latents: jax.Array) -> jax.Array:
-        """Normalize latent representations to have zero mean and unit variance.
-
-        Args:
-            latents: Latent vectors [batch_size, latent_dim]
-
-        Returns:
-            Normalized latent vectors
-        """
-        scaler = StandardScaler()
-        return scaler.fit_transform(latents)
+    def validate_inputs(self, real_data: jax.Array, generated_data: jax.Array) -> None:
+        """Validate factor and latent inputs."""
+        _validate_disentanglement_inputs(real_data, generated_data)
 
     def _compute_predictability(self, latent: jax.Array, factor: jax.Array) -> float:
         """Compute how well a factor can be predicted from a latent dimension.
@@ -349,7 +263,7 @@ class SeparationMetric(MetricBase):
 
                 # R² score
                 score = r2_score(factor, predictions)
-        except Exception:
+        except (ValueError, TypeError, RuntimeError):
             # Fallback if model fitting fails
             score = 0.0
 
@@ -377,52 +291,24 @@ class DisentanglementMetric(MetricBase):
             config: Evaluation configuration (must be EvaluationConfig)
             rngs: NNX Rngs for stochastic operations
         """
-        if not isinstance(config, EvaluationConfig):
-            raise TypeError(f"config must be an EvaluationConfig, got {type(config).__name__}")
-
-        # Initialize base class with minimal config to satisfy MetricBase requirements
-        # Initialize base class with the EvaluationConfig
-        super().__init__(config=config, rngs=rngs)
-        self.eval_batch_size = config.eval_batch_size
         self.metric_name = "dci_score"
 
         # DCI parameters from config
-        dci_params = config.metric_params.get("dci", {})
+        dci_params = _init_metric_from_config(
+            self,
+            config=config,
+            rngs=rngs,
+            metric_key="dci",
+            modality="disentanglement",
+            higher_is_better=True,
+        )
         self.weights = dci_params.get(
             "weights", {"disentanglement": 0.4, "completeness": 0.4, "informativeness": 0.2}
         )
 
-    def compute(
-        self, real_data: jax.Array, generated_data: jax.Array, **kwargs
-    ) -> dict[str, float]:
-        """Compute the DCI metrics.
-
-        Args:
-            real_data: Ground truth factors [batch_size, num_factors]
-            generated_data: Latent vectors from the model [batch_size, latent_dim]
-            **kwargs: Additional parameters including:
-                - latent_representations: Alternative way to pass latent codes
-                - ground_truth_factors: Alternative way to pass factors
-                - weights: Weights for combining DCI components
-
-        Returns:
-            Dictionary with DCI metrics
-        """
-        # Handle both direct parameters and kwargs for backward compatibility
-        if "latent_representations" in kwargs and "ground_truth_factors" in kwargs:
-            latent_representations = kwargs["latent_representations"]
-            ground_truth_factors = kwargs["ground_truth_factors"]
-        else:
-            # Use the standard protocol: real_data = factors, generated_data = latents
-            ground_truth_factors = real_data
-            latent_representations = generated_data
-
-        # Convert to numpy for computation
-        latents = jnp.array(latent_representations)
-        factors = jnp.array(ground_truth_factors)
-
-        # Normalize latent representations
-        latents = self._normalize_representations(latents)
+    def compute(self, real_data: jax.Array, generated_data: jax.Array) -> dict[str, float]:
+        """Compute the DCI metrics from factors and latent representations."""
+        factors, latents = _prepare_disentanglement_inputs(real_data, generated_data)
 
         # Train a predictor for each factor
         importance_matrix = self._compute_importance_matrix(latents, factors)
@@ -447,41 +333,9 @@ class DisentanglementMetric(MetricBase):
             "informativeness": float(informativeness),
         }
 
-    def validate_inputs(self, real_data: jax.Array, generated_data: jax.Array) -> bool:
-        """Validate input data compatibility.
-
-        Args:
-            real_data: Ground truth factors
-            generated_data: Latent representations
-
-        Returns:
-            True if inputs are valid
-        """
-        # Check that both inputs are arrays
-        if not isinstance(real_data, jax.Array) or not isinstance(generated_data, jax.Array):
-            return False
-
-        # Check that both are 2D arrays
-        if len(real_data.shape) != 2 or len(generated_data.shape) != 2:
-            return False
-
-        # Check that batch sizes match
-        if real_data.shape[0] != generated_data.shape[0]:
-            return False
-
-        return True
-
-    def _normalize_representations(self, latents: jax.Array) -> jax.Array:
-        """Normalize latent representations to have zero mean and unit variance.
-
-        Args:
-            latents: Latent vectors [batch_size, latent_dim]
-
-        Returns:
-            Normalized latent vectors
-        """
-        scaler = StandardScaler()
-        return scaler.fit_transform(latents)
+    def validate_inputs(self, real_data: jax.Array, generated_data: jax.Array) -> None:
+        """Validate factor and latent inputs."""
+        _validate_disentanglement_inputs(real_data, generated_data)
 
     def _compute_importance_matrix(self, latents: jax.Array, factors: jax.Array) -> jax.Array:
         """Compute importance matrix using random forest feature importance.
@@ -511,7 +365,7 @@ class DisentanglementMetric(MetricBase):
 
                 # Get feature importances
                 importance_matrix = importance_matrix.at[f_idx].set(rf.feature_importances_)
-            except Exception:
+            except (ValueError, TypeError, RuntimeError):
                 # Fallback if model fitting fails
                 importance_matrix = importance_matrix.at[f_idx].set(
                     jnp.ones(latent_dim) / latent_dim
@@ -620,7 +474,7 @@ class DisentanglementMetric(MetricBase):
 
                 rf.fit(X_train, y_train)
                 prediction_scores = prediction_scores.at[f_idx].set(rf.score(X_test, y_test))
-            except Exception:
+            except (ValueError, TypeError, RuntimeError):
                 # Fallback if model fitting fails
                 prediction_scores = prediction_scores.at[f_idx].set(0.0)
 

@@ -7,7 +7,6 @@ from artifex.generative_models.utils.logging.logger import (
     Logger,
 )
 from artifex.generative_models.utils.logging.metrics import (
-    get_default_metrics,
     log_distribution_metrics,
     MetricsLogger,
 )
@@ -25,6 +24,5 @@ __all__ = [
     "create_logger",
     # Metrics logging
     "MetricsLogger",
-    "get_default_metrics",
     "log_distribution_metrics",
 ]

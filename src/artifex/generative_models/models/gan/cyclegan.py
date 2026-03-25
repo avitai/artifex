@@ -21,6 +21,7 @@ from artifex.generative_models.core.configuration.network_configs import (
     PatchGANDiscriminatorConfig,
 )
 from artifex.generative_models.core.layers.residual import ResidualBlock
+from artifex.generative_models.core.losses import adversarial
 from artifex.generative_models.core.losses.reconstruction import mae_loss
 
 
@@ -75,7 +76,7 @@ class CycleGANGenerator(nnx.Module):
         elif hasattr(jax.nn, activation_name):
             self.activation = getattr(jax.nn, activation_name)
         else:
-            self.activation = jax.nn.relu
+            self.activation = nnx.relu
 
         input_height, input_width, input_channels = config.input_shape
         output_height, output_width, output_channels = config.output_shape
@@ -256,13 +257,13 @@ class CycleGANDiscriminator(nnx.Module):
         # Get activation function
         activation_name = config.activation
         if activation_name == "leaky_relu":
-            self.activation = lambda x: jax.nn.leaky_relu(x, negative_slope=config.leaky_relu_slope)
+            self.activation = lambda x: nnx.leaky_relu(x, negative_slope=config.leaky_relu_slope)
         elif hasattr(nnx, activation_name):
             self.activation = getattr(nnx, activation_name)
         elif hasattr(jax.nn, activation_name):
             self.activation = getattr(jax.nn, activation_name)
         else:
-            self.activation = jax.nn.leaky_relu
+            self.activation = nnx.leaky_relu
 
         input_channels = config.input_shape[-1]  # Assuming (H, W, C) format
 
@@ -379,6 +380,7 @@ class CycleGAN(GenerativeModel):
         # Extract CycleGAN-specific fields
         self.input_shape_a = config.input_shape_a
         self.input_shape_b = config.input_shape_b
+        self.loss_type = config.loss_type
         self.lambda_cycle = config.lambda_cycle
         self.lambda_identity = config.lambda_identity
 
@@ -508,6 +510,76 @@ class CycleGAN(GenerativeModel):
 
         return identity_loss_a, identity_loss_b
 
+    def generator_objective(
+        self,
+        batch: dict[str, Any],
+    ) -> dict[str, jax.Array]:
+        """Compute the generator-side CycleGAN objective."""
+        real_a = batch["domain_a"]
+        real_b = batch["domain_b"]
+
+        fake_b = self.generator_a_to_b(real_a)
+        fake_a = self.generator_b_to_a(real_b)
+
+        generator_a_to_b_loss = adversarial.generator_loss(
+            self.discriminator_b(fake_b),
+            loss_type=self.loss_type,
+        )
+        generator_b_to_a_loss = adversarial.generator_loss(
+            self.discriminator_a(fake_a),
+            loss_type=self.loss_type,
+        )
+
+        cycle_loss_a, cycle_loss_b = self.compute_cycle_loss(real_a, real_b)
+        identity_loss_a, identity_loss_b = self.compute_identity_loss(real_a, real_b)
+
+        cycle_loss = cycle_loss_a + cycle_loss_b
+        identity_loss = identity_loss_a + identity_loss_b
+        adversarial_loss = generator_a_to_b_loss + generator_b_to_a_loss
+        total_loss = (
+            adversarial_loss + self.lambda_cycle * cycle_loss + self.lambda_identity * identity_loss
+        )
+
+        return {
+            "total_loss": total_loss,
+            "generator_loss": total_loss,
+            "adversarial_loss": adversarial_loss,
+            "generator_a_to_b_loss": generator_a_to_b_loss,
+            "generator_b_to_a_loss": generator_b_to_a_loss,
+            "cycle_loss": cycle_loss,
+            "identity_loss": identity_loss,
+        }
+
+    def discriminator_objective(
+        self,
+        batch: dict[str, Any],
+    ) -> dict[str, jax.Array]:
+        """Compute the discriminator-side CycleGAN objective."""
+        real_a = batch["domain_a"]
+        real_b = batch["domain_b"]
+
+        fake_b = jax.lax.stop_gradient(self.generator_a_to_b(real_a))
+        fake_a = jax.lax.stop_gradient(self.generator_b_to_a(real_b))
+
+        discriminator_a_loss = adversarial.discriminator_loss(
+            self.discriminator_a(real_a),
+            self.discriminator_a(fake_a),
+            loss_type=self.loss_type,
+        )
+        discriminator_b_loss = adversarial.discriminator_loss(
+            self.discriminator_b(real_b),
+            self.discriminator_b(fake_b),
+            loss_type=self.loss_type,
+        )
+        total_loss = discriminator_a_loss + discriminator_b_loss
+
+        return {
+            "total_loss": total_loss,
+            "discriminator_loss": total_loss,
+            "discriminator_a_loss": discriminator_a_loss,
+            "discriminator_b_loss": discriminator_b_loss,
+        }
+
     def loss_fn(
         self,
         batch: dict[str, Any],
@@ -516,35 +588,9 @@ class CycleGAN(GenerativeModel):
         rngs: nnx.Rngs | None = None,
         **kwargs: Any,
     ) -> dict[str, Any]:
-        """Compute total CycleGAN loss.
-
-        Args:
-            batch: Batch containing real images from both domains.
-            model_outputs: Model outputs (not used in basic implementation).
-            rngs: Random number generators.
-            **kwargs: Additional keyword arguments.
-
-        Returns:
-            Dictionary containing loss and metrics.
-        """
-        real_a = batch["domain_a"]
-        real_b = batch["domain_b"]
-
-        # Compute cycle consistency losses
-        cycle_loss_a, cycle_loss_b = self.compute_cycle_loss(real_a, real_b)
-        total_cycle_loss = cycle_loss_a + cycle_loss_b
-
-        # Compute identity losses
-        identity_loss_a, identity_loss_b = self.compute_identity_loss(real_a, real_b)
-        total_identity_loss = identity_loss_a + identity_loss_b
-
-        # Total loss (adversarial loss would be added during training)
-        total_loss = (
-            self.lambda_cycle * total_cycle_loss + self.lambda_identity * total_identity_loss
+        """CycleGAN training requires explicit generator/discriminator objectives."""
+        del batch, model_outputs, rngs, kwargs
+        raise NotImplementedError(
+            "CycleGAN training requires separate generator and discriminator objectives. "
+            "Use generator_objective() and discriminator_objective()."
         )
-
-        return {
-            "loss": total_loss,
-            "cycle_loss": total_cycle_loss,
-            "identity_loss": total_identity_loss,
-        }

@@ -1,25 +1,20 @@
 """Multi-β VAE controllable generation benchmark suite.
 
-This module provides a comprehensive benchmark suite for evaluating
-multi-β VAE controllable generation models, targeting the Week 9-12 objectives:
+This module provides a complete benchmark suite for evaluating
+multi-β VAE controllable generation models, targeting the v0.9-v0.12 objectives:
 - MIG Score >0.3 (Mutual Information Gap for disentanglement)
 - FID Score <50 on CelebA (Fréchet Inception Distance)
 - Reconstruction Quality: LPIPS <0.2, SSIM >0.8
 - Training Efficiency: <8h per epoch on CelebA subset
 """
 
+import logging
 from typing import Any
 
-import jax.numpy as jnp
 import numpy as np
 from flax import nnx
 
-from artifex.benchmarks.base import (
-    Benchmark,
-    BenchmarkConfig,
-    BenchmarkResult,
-    BenchmarkSuite,
-)
+from artifex.benchmarks.core import Benchmark, BenchmarkConfig, BenchmarkResult, BenchmarkSuite
 from artifex.benchmarks.datasets.celeba import CelebADataset
 from artifex.benchmarks.metrics.disentanglement import (
     DisentanglementMetric,
@@ -33,9 +28,12 @@ from artifex.benchmarks.metrics.image import (
 )
 from artifex.generative_models.core.protocols.evaluation import (
     BatchableDatasetProtocol,
+    BenchmarkModelProtocol,
     DatasetProtocol,
-    ModelProtocol,
 )
+
+
+logger = logging.getLogger(__name__)
 
 
 class MultiBetaVAEBenchmark(Benchmark):
@@ -52,6 +50,7 @@ class MultiBetaVAEBenchmark(Benchmark):
         dataset: CelebADataset,
         num_samples: int = 1000,
         batch_size: int = 32,
+        demo_mode: bool = False,
         *,
         rngs: nnx.Rngs,
     ):
@@ -65,7 +64,7 @@ class MultiBetaVAEBenchmark(Benchmark):
         """
         config = BenchmarkConfig(
             name="multi_beta_vae_controllable_generation",
-            description="Comprehensive evaluation of Multi-β VAE controllable generation models",
+            description="Complete evaluation of Multi-β VAE controllable generation models",
             metric_names=[
                 "mig_score",
                 "sap_score",
@@ -91,6 +90,7 @@ class MultiBetaVAEBenchmark(Benchmark):
         self.dataset = dataset
         self.num_samples = num_samples
         self.batch_size = batch_size
+        self.demo_mode = demo_mode
         self.rngs = rngs
 
         # Import EvaluationConfig for metrics
@@ -124,7 +124,13 @@ class MultiBetaVAEBenchmark(Benchmark):
         fid_config = EvaluationConfig(
             name="fid_metric",
             metrics=["fid"],
-            metric_params={"fid": {"higher_is_better": False}},
+            metric_params={
+                "fid": {
+                    "higher_is_better": False,
+                    "mock_inception": demo_mode,
+                    "demo_mode": demo_mode,
+                }
+            },
             eval_batch_size=batch_size,
         )
         self.fid_metric = FIDMetric(config=fid_config, rngs=rngs)
@@ -132,7 +138,13 @@ class MultiBetaVAEBenchmark(Benchmark):
         lpips_config = EvaluationConfig(
             name="lpips_metric",
             metrics=["lpips"],
-            metric_params={"lpips": {"higher_is_better": False}},
+            metric_params={
+                "lpips": {
+                    "higher_is_better": False,
+                    "mock_implementation": demo_mode,
+                    "demo_mode": demo_mode,
+                }
+            },
             eval_batch_size=batch_size,
         )
         self.lpips_metric = LPIPSMetric(config=lpips_config, rngs=rngs)
@@ -147,7 +159,7 @@ class MultiBetaVAEBenchmark(Benchmark):
 
     def run(
         self,
-        model: ModelProtocol,
+        model: BenchmarkModelProtocol,
         dataset: DatasetProtocol | BatchableDatasetProtocol | None = None,
         **kwargs,
     ) -> BenchmarkResult:
@@ -159,10 +171,11 @@ class MultiBetaVAEBenchmark(Benchmark):
             **kwargs: Additional benchmark parameters
 
         Returns:
-            Benchmark results with comprehensive metrics
+            Benchmark results with complete metrics
         """
-        print(
-            f"Running Multi-β VAE controllable generation benchmark with {self.num_samples} samples"
+        logger.info(
+            "Running Multi-beta VAE controllable generation benchmark with %d samples",
+            self.num_samples,
         )
 
         # Use the provided dataset or fall back to self.dataset
@@ -183,7 +196,7 @@ class MultiBetaVAEBenchmark(Benchmark):
             start_idx = batch_idx * self.batch_size
             current_batch_size = min(self.batch_size, self.num_samples - start_idx)
 
-            print(f"Processing batch {batch_idx + 1}/{num_batches}")
+            logger.debug("Processing batch %d/%d", batch_idx + 1, num_batches)
 
             # Get batch from dataset
             batch_data = dataset_to_use.get_batch(
@@ -222,23 +235,23 @@ class MultiBetaVAEBenchmark(Benchmark):
             },
         )
 
-        print("Benchmark completed. Key results:")
+        logger.info("Benchmark completed. Key results:")
         # Handle metrics that might be N/A safely
         mig_score = final_metrics.get("mig_score", "N/A")
         mig_str = f"{mig_score:.3f}" if isinstance(mig_score, (float, int)) else mig_score
-        print(f"  MIG Score: {mig_str}")
+        logger.info("  MIG Score: %s", mig_str)
 
         fid_score = final_metrics.get("fid_score", "N/A")
         fid_str = f"{fid_score:.3f}" if isinstance(fid_score, (float, int)) else fid_score
-        print(f"  FID Score: {fid_str}")
+        logger.info("  FID Score: %s", fid_str)
 
         lpips_score = final_metrics.get("lpips_distance", "N/A")  # Updated to use lpips_distance
         lpips_str = f"{lpips_score:.3f}" if isinstance(lpips_score, (float, int)) else lpips_score
-        print(f"  LPIPS Score: {lpips_str}")
+        logger.info("  LPIPS Score: %s", lpips_str)
 
         ssim_score = final_metrics.get("ssim_score", "N/A")
         ssim_str = f"{ssim_score:.3f}" if isinstance(ssim_score, (float, int)) else ssim_score
-        print(f"  SSIM Score: {ssim_str}")
+        logger.info("  SSIM Score: %s", ssim_str)
 
         return result
 
@@ -257,21 +270,11 @@ class MultiBetaVAEBenchmark(Benchmark):
         images = batch_data["images"]
         attributes = batch_data.get("attributes")
 
-        # Run model inference
-        try:
-            model_outputs = self._run_model_inference(model, batch_data, **kwargs)
+        model_outputs = self._run_model_inference(model, batch_data, **kwargs)
 
-            # Extract predictions
-            reconstructed_images = model_outputs.get("reconstructions")
-            latent_codes = model_outputs.get("latent_codes")
-            generated_images = model_outputs.get("generated_images")
-
-        except Exception as e:
-            print(f"Warning: Model inference failed: {e}")
-            # Fallback to mock predictions for testing
-            reconstructed_images = images
-            latent_codes = jnp.zeros((images.shape[0], 64))  # Assume 64-dim latent space
-            generated_images = images
+        reconstructed_images = model_outputs.get("reconstructions")
+        latent_codes = model_outputs.get("latent_codes")
+        generated_images = model_outputs.get("generated_images")
 
         batch_metrics = {}
 
@@ -334,18 +337,25 @@ class MultiBetaVAEBenchmark(Benchmark):
         # The actual implementation would depend on the model interface
 
         if hasattr(model, "encode_decode"):
-            # Model has dedicated encode-decode method
             results = model.encode_decode(images=batch_data["images"], rngs=self.rngs)
         elif hasattr(model, "__call__"):
-            # Fallback to general model call
             results = model(batch_data["images"], rngs=self.rngs)
         else:
-            # Mock results for testing
-            results = {
-                "reconstructions": batch_data["images"],
-                "latent_codes": jnp.zeros((batch_data["images"].shape[0], 64)),
-                "generated_images": batch_data["images"],
-            }
+            raise ValueError(
+                "MultiBetaVAEBenchmark requires a model with encode_decode(...) or __call__(...) "
+                "returning benchmark outputs."
+            )
+
+        if not isinstance(results, dict):
+            raise TypeError("MultiBetaVAEBenchmark model outputs must be returned as a dict")
+
+        if not any(
+            key in results for key in ("reconstructions", "latent_codes", "generated_images")
+        ):
+            raise ValueError(
+                "MultiBetaVAEBenchmark model outputs must expose reconstructions, latent_codes, "
+                "or generated_images."
+            )
 
         return results
 
@@ -377,13 +387,14 @@ class MultiBetaVAEBenchmark(Benchmark):
 class MultiBetaVAEBenchmarkSuite(BenchmarkSuite):
     """Complete benchmark suite for Multi-β VAE controllable generation evaluation.
 
-    This suite includes all benchmarks needed for Week 9-12 objectives.
+    This suite includes all benchmarks needed for v0.9-v0.12 objectives.
     """
 
     def __init__(
         self,
         dataset_config: dict[str, Any] | None = None,
         benchmark_config: dict[str, Any] | None = None,
+        demo_mode: bool = False,
         *,
         rngs: nnx.Rngs,
     ):
@@ -396,10 +407,11 @@ class MultiBetaVAEBenchmarkSuite(BenchmarkSuite):
         """
         super().__init__(
             name="multi_beta_vae_controllable_generation_suite",
-            description="Comprehensive Multi-β VAE controllable generation evaluation suite",
+            description="Complete Multi-β VAE controllable generation evaluation suite",
         )
 
         self.rngs = rngs
+        self.demo_mode = demo_mode
 
         # Default configurations
         self.dataset_config = dataset_config or {
@@ -424,19 +436,22 @@ class MultiBetaVAEBenchmarkSuite(BenchmarkSuite):
 
         # Main controllable generation benchmark
         vae_benchmark = MultiBetaVAEBenchmark(
-            dataset=self.dataset, **self.benchmark_config, rngs=self.rngs
+            dataset=self.dataset, demo_mode=self.demo_mode, **self.benchmark_config, rngs=self.rngs
         )
 
         self.add_benchmark(vae_benchmark)
 
-        print(f"Multi-β VAE benchmark suite initialized with {len(self.benchmarks)} benchmarks")
-        print(f"Dataset: {len(self.dataset)} samples")
-        print("Target metrics:")
-        print("  - MIG Score: >0.3")
-        print("  - FID Score: <50")
-        print("  - LPIPS Distance: <0.2")  # Updated to use LPIPS Distance
-        print("  - SSIM Score: >0.8")
-        print("  - Training time: <8h per epoch")
+        logger.info(
+            "Multi-beta VAE benchmark suite initialized with %d benchmarks",
+            len(self.benchmarks),
+        )
+        logger.info("Dataset: %d samples", len(self.dataset))
+        logger.info("Target metrics:")
+        logger.info("  - MIG Score: >0.3")
+        logger.info("  - FID Score: <50")
+        logger.info("  - LPIPS Distance: <0.2")
+        logger.info("  - SSIM Score: >0.8")
+        logger.info("  - Training time: <8h per epoch")
 
     def run_all(self, model, **kwargs) -> dict[str, BenchmarkResult]:
         """Run all benchmarks in the suite.
@@ -448,18 +463,18 @@ class MultiBetaVAEBenchmarkSuite(BenchmarkSuite):
         Returns:
             dictionary mapping benchmark names to results
         """
-        print("Running Multi-β VAE controllable generation benchmark suite")
-        print(f"Benchmarks: {[b.config.name for b in self.benchmarks]}")
+        logger.info("Running Multi-beta VAE controllable generation benchmark suite")
+        logger.info("Benchmarks: %s", [b.config.name for b in self.benchmarks])
 
         results = super().run_all(model, **kwargs)
 
-        # Print summary
-        print("\n" + "=" * 60)
-        print("MULTI-β VAE CONTROLLABLE GENERATION BENCHMARK SUMMARY")
-        print("=" * 60)
+        # Log summary
+        logger.info("=" * 60)
+        logger.info("MULTI-BETA VAE CONTROLLABLE GENERATION BENCHMARK SUMMARY")
+        logger.info("=" * 60)
 
         for benchmark_name, result in results.items():
-            print(f"\n{benchmark_name}:")
+            logger.info("%s:", benchmark_name)
 
             # Key metrics
             mig = result.metrics.get("mig_score")
@@ -469,23 +484,23 @@ class MultiBetaVAEBenchmarkSuite(BenchmarkSuite):
             training_time = result.metrics.get("training_time_per_epoch")
 
             if mig is not None:
-                status = "✅ PASS" if mig > 0.3 else "❌ FAIL"
-                print(f"  MIG Score: {mig:.3f} {status}")
+                status = "PASS" if mig > 0.3 else "FAIL"
+                logger.info("  MIG Score: %.3f %s", mig, status)
 
             if fid is not None:
-                status = "✅ PASS" if fid < 50.0 else "❌ FAIL"
-                print(f"  FID Score: {fid:.3f} {status}")
+                status = "PASS" if fid < 50.0 else "FAIL"
+                logger.info("  FID Score: %.3f %s", fid, status)
 
             if lpips is not None:
-                status = "✅ PASS" if lpips < 0.2 else "❌ FAIL"
-                print(f"  LPIPS Score: {lpips:.3f} {status}")
+                status = "PASS" if lpips < 0.2 else "FAIL"
+                logger.info("  LPIPS Score: %.3f %s", lpips, status)
 
             if ssim is not None:
-                status = "✅ PASS" if ssim > 0.8 else "❌ FAIL"
-                print(f"  SSIM Score: {ssim:.3f} {status}")
+                status = "PASS" if ssim > 0.8 else "FAIL"
+                logger.info("  SSIM Score: %.3f %s", ssim, status)
 
             if training_time is not None:
-                status = "✅ PASS" if training_time < 8.0 else "❌ FAIL"
-                print(f"  Training Time: {training_time:.2f}h per epoch {status}")
+                status = "PASS" if training_time < 8.0 else "FAIL"
+                logger.info("  Training Time: %.2fh per epoch %s", training_time, status)
 
         return results

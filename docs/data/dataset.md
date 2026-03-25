@@ -1,55 +1,36 @@
-# Dataset
+# Protein Dataset Module
 
-**Module:** `data.protein.dataset`
+Canonical owner: `artifex.data.protein.dataset`
 
-**Source:** `data/protein/dataset.py`
+This page documents the retained protein dataset runtime. There is one current
+module owner for this surface: `artifex.data.protein.dataset`.
 
-## Overview
+## Current Runtime Surface
 
-Protein dataset implementation.
+The canonical module exposes:
 
-## Classes
+- `ProteinDataset`
+- `ProteinDatasetConfig`
+- `ProteinStructure`
+- `protein_collate_fn`
+- `create_synthetic_protein_dataset`
+- `pdb_to_protein_example`
 
-### ProteinDataset
+`ProteinDataset` is a Datarax-backed `DataSourceModule`. It accepts a
+`ProteinDatasetConfig` plus either in-memory protein dictionaries or a
+pickle-file / directory path.
 
-```python
-class ProteinDataset
-```
-
-## Functions
-
-### **init**
-
-```python
-def __init__()
-```
-
-### create_synthetic_data
+## Example
 
 ```python
-def create_synthetic_data()
+from artifex.data.protein import ProteinDataset, ProteinDatasetConfig
+
+config = ProteinDatasetConfig(max_seq_length=128)
+dataset = ProteinDataset(config, data_dir="./protein-pickles")
+batch = dataset.get_batch(4)
 ```
 
-### get_batch
+For the broader Datarax data-loading story, see:
 
-```python
-def get_batch()
-```
-
-### pdb_to_protein_example
-
-```python
-def pdb_to_protein_example()
-```
-
-### save_synthetic_data
-
-```python
-def save_synthetic_data()
-```
-
-## Module Statistics
-
-- **Classes:** 1
-- **Functions:** 5
-- **Imports:** 7
+- [User Guide: Data Overview](../user-guide/data/overview.md)
+- [API Reference: Data Loaders](../api/data/loaders.md)

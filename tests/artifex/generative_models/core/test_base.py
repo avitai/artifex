@@ -105,7 +105,7 @@ class ConcreteGenerativeModel(GenerativeModel):
         else:
             output = self(x)["output"]
         loss = jnp.mean((output - y) ** 2)
-        return {"loss": loss, "mse": loss}
+        return {"total_loss": loss, "mse": loss}
 
 
 class TestGenerativeModule:
@@ -185,14 +185,14 @@ class TestGenerativeModel:
         loss_dict = model.loss_fn(batch, outputs)
 
         # Check loss is a scalar
-        assert loss_dict["loss"].shape == ()
-        assert jnp.isfinite(loss_dict["loss"])
+        assert loss_dict["total_loss"].shape == ()
+        assert jnp.isfinite(loss_dict["total_loss"])
 
         # Verify loss value is in dictionary
-        assert "loss" in loss_dict
-        assert jnp.isfinite(loss_dict["loss"])
+        assert "total_loss" in loss_dict
+        assert jnp.isfinite(loss_dict["total_loss"])
         assert "mse" in loss_dict
-        assert jnp.isclose(loss_dict["loss"], loss_dict["mse"])
+        assert jnp.isclose(loss_dict["total_loss"], loss_dict["mse"])
 
         # Test with different batch inputs
         y2 = jnp.zeros((2, 10))  # Different target
@@ -200,7 +200,7 @@ class TestGenerativeModel:
         loss_dict2 = model.loss_fn(batch2, outputs)
 
         # Check that loss is different
-        assert not jnp.isclose(loss_dict["loss"], loss_dict2["loss"])
+        assert not jnp.isclose(loss_dict["total_loss"], loss_dict2["total_loss"])
 
 
 class TestMLP:
@@ -218,7 +218,7 @@ class TestMLP:
 
         assert len(mlp.layers) == 3
         assert len(mlp.dropouts) > 0  # Check dropouts list is not empty
-        assert mlp.hidden_dims.value == [32, 64, 16]
+        assert mlp.hidden_dims.get_value() == [32, 64, 16]
 
     def test_forward_pass(self, rngs):
         """Test MLP forward pass."""
@@ -323,7 +323,7 @@ class TestCNN:
         )
 
         assert len(cnn.layers) == 2
-        assert cnn.hidden_dims.value == [32, 64]
+        assert cnn.hidden_dims.get_value() == [32, 64]
 
     def test_forward_pass(self, rngs):
         """Test CNN forward pass."""
@@ -538,8 +538,8 @@ class TestOptimizations:
         grads_ckpt = nnx.grad(loss_fn)(mlp_ckpt, x)
 
         # Compare gradients on the first layer kernel
-        g1 = grads_no_ckpt.layers[0].kernel.value
-        g2 = grads_ckpt.layers[0].kernel.value
+        g1 = grads_no_ckpt.layers[0].kernel[...]
+        g2 = grads_ckpt.layers[0].kernel[...]
         assert jnp.allclose(g1, g2, atol=1e-5)
 
     def test_variable_types_usage(self, rngs):
@@ -613,7 +613,7 @@ class TestOptimizations:
 
 
 class TestJITCompatibility:
-    """Comprehensive JIT compatibility tests for all base modules."""
+    """Complete JIT compatibility tests for all base modules."""
 
     def test_mlp_jit_forward_pass(self, rngs):
         """Test that MLP forward pass can be JIT compiled."""
@@ -1081,8 +1081,8 @@ class TestJITCompatibility:
             return model.loss_fn(batch, outputs, rngs=None)
 
         loss_dict = compute_loss(model, batch)
-        assert "loss" in loss_dict
-        assert jnp.isfinite(loss_dict["loss"])
+        assert "total_loss" in loss_dict
+        assert jnp.isfinite(loss_dict["total_loss"])
 
     def test_generative_model_jit_with_different_batch_sizes(self, rngs):
         """Test GenerativeModel JIT with different batch sizes."""
@@ -1114,7 +1114,7 @@ class TestJITCompatibility:
             x, y = batch
             outputs = model(x, rngs=None)
             loss_dict = model.loss_fn(batch, outputs, rngs=None)
-            return loss_dict["loss"]
+            return loss_dict["total_loss"]
 
         # Compute gradients
         grad_fn = nnx.grad(loss_fn)
@@ -1145,7 +1145,7 @@ class TestJITCompatibility:
             def loss_fn(model):
                 outputs = model(x, rngs=None)
                 loss_dict = model.loss_fn(batch, outputs, rngs=None)
-                return loss_dict["loss"]
+                return loss_dict["total_loss"]
 
             grads = nnx.grad(loss_fn)(model)
 
@@ -1154,6 +1154,6 @@ class TestJITCompatibility:
         loss_dict, grads = train_step(model, batch)
 
         # Verify results
-        assert "loss" in loss_dict
-        assert jnp.isfinite(loss_dict["loss"])
+        assert "total_loss" in loss_dict
+        assert jnp.isfinite(loss_dict["total_loss"])
         assert grads is not None

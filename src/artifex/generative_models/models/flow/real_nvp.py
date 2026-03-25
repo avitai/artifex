@@ -1,6 +1,7 @@
 """RealNVP (Real-valued Non-Volume Preserving) normalizing flow implementation."""
 
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 import jax
 import jax.numpy as jnp
@@ -316,7 +317,7 @@ class RealNVP(NormalizingFlow):
             Generated samples
         """
         # Get sampling key
-        sample_key = (rngs or self.rngs).sample()
+        sample_key = self._get_sampling_key(rngs)
 
         # Sample from base distribution
         z = self.sample_fn(sample_key, n_samples)

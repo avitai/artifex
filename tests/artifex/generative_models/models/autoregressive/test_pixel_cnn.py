@@ -1,6 +1,6 @@
 """Tests for PixelCNN autoregressive image models.
 
-This module provides comprehensive test coverage for the PixelCNN implementation,
+This module provides complete test coverage for the PixelCNN implementation,
 including MaskedConv2D, PixelCNN model, and related functionality.
 """
 
@@ -10,7 +10,11 @@ import pytest
 from flax import nnx
 
 from artifex.generative_models.core.configuration import PixelCNNConfig
-from artifex.generative_models.models.autoregressive.pixel_cnn import MaskedConv2D, PixelCNN
+from artifex.generative_models.models.autoregressive.pixel_cnn import (
+    MaskedConv2D,
+    PixelCNN,
+    PixelCNNResidualBlock,
+)
 
 
 # =============================================================================
@@ -280,6 +284,29 @@ class TestMaskedConv2DAutoregressive:
 # =============================================================================
 
 
+class TestPixelCNNResidualBlock:
+    """Tests for the local autoregressive PixelCNN residual block."""
+
+    def test_uses_real_masked_convolutions(self, rngs: nnx.Rngs):
+        """Residual block should be built from MaskedConv2D, not shared placeholder convolutions."""
+        block = PixelCNNResidualBlock(
+            channels=16,
+            kernel_size=(3, 3),
+            mask_type="B",
+            rngs=rngs,
+        )
+
+        assert isinstance(block.conv1, MaskedConv2D)
+        assert isinstance(block.conv2, MaskedConv2D)
+        assert block.conv1.mask_type == "B"
+        assert block.conv2.mask_type == "B"
+
+        x = jax.random.normal(jax.random.key(0), (2, 8, 8, 16))
+        output = block(x)
+
+        assert output.shape == x.shape
+
+
 class TestPixelCNNInitialization:
     """Test suite for PixelCNN initialization."""
 
@@ -429,7 +456,7 @@ class TestPixelCNNLoss:
         outputs = model(images, rngs=rngs)
         loss_dict = model.loss_fn(images, outputs, rngs=rngs)
 
-        expected_keys = ["loss", "nll_loss", "accuracy", "bits_per_dim"]
+        expected_keys = ["total_loss", "nll_loss", "accuracy", "bits_per_dim"]
         for key in expected_keys:
             assert key in loss_dict, f"Missing key: {key}"
 
@@ -441,7 +468,7 @@ class TestPixelCNNLoss:
         outputs = model(images, rngs=rngs)
         loss_dict = model.loss_fn(images, outputs, rngs=rngs)
 
-        assert loss_dict["loss"].shape == ()
+        assert loss_dict["total_loss"].shape == ()
 
     def test_loss_is_non_negative(self, pixel_cnn_config, rngs: nnx.Rngs):
         """Test cross-entropy loss is non-negative."""
@@ -451,7 +478,7 @@ class TestPixelCNNLoss:
         outputs = model(images, rngs=rngs)
         loss_dict = model.loss_fn(images, outputs, rngs=rngs)
 
-        assert loss_dict["loss"] >= 0
+        assert loss_dict["total_loss"] >= 0
 
     def test_loss_is_finite(self, pixel_cnn_config, rngs: nnx.Rngs):
         """Test loss is finite."""
@@ -461,7 +488,7 @@ class TestPixelCNNLoss:
         outputs = model(images, rngs=rngs)
         loss_dict = model.loss_fn(images, outputs, rngs=rngs)
 
-        assert jnp.isfinite(loss_dict["loss"])
+        assert jnp.isfinite(loss_dict["total_loss"])
 
     def test_accuracy_in_valid_range(self, pixel_cnn_config, rngs: nnx.Rngs):
         """Test accuracy is between 0 and 1."""
@@ -492,7 +519,7 @@ class TestPixelCNNLoss:
         outputs = model(images, rngs=rngs)
         loss_dict = model.loss_fn(batch, outputs, rngs=rngs)
 
-        assert jnp.isfinite(loss_dict["loss"])
+        assert jnp.isfinite(loss_dict["total_loss"])
 
     def test_loss_with_images_key_in_batch(self, pixel_cnn_config, rngs: nnx.Rngs):
         """Test loss_fn with 'images' key in dictionary batch."""
@@ -503,7 +530,7 @@ class TestPixelCNNLoss:
         outputs = model(images, rngs=rngs)
         loss_dict = model.loss_fn(batch, outputs, rngs=rngs)
 
-        assert jnp.isfinite(loss_dict["loss"])
+        assert jnp.isfinite(loss_dict["total_loss"])
 
 
 class TestPixelCNNLogProb:
@@ -747,8 +774,8 @@ class TestPixelCNNIntegration:
         loss_dict = model.loss_fn(images, outputs, rngs=rngs)
 
         # Verify outputs
-        assert jnp.isfinite(loss_dict["loss"])
-        assert loss_dict["loss"] >= 0
+        assert jnp.isfinite(loss_dict["total_loss"])
+        assert loss_dict["total_loss"] >= 0
 
     def test_gradient_computation(self, pixel_cnn_config, rngs: nnx.Rngs):
         """Test that gradients can be computed."""
@@ -757,7 +784,7 @@ class TestPixelCNNIntegration:
         def loss_fn(model, images):
             outputs = model(images, rngs=rngs, training=True)
             loss_dict = model.loss_fn(images, outputs, rngs=rngs)
-            return loss_dict["loss"]
+            return loss_dict["total_loss"]
 
         images = create_random_image(jax.random.key(0), pixel_cnn_config.image_shape, batch_size=2)
 
@@ -792,7 +819,7 @@ class TestPixelCNNIntegration:
         outputs = model(images, rngs=rngs, training=True)
         loss_dict = model.loss_fn(images, outputs, rngs=rngs)
 
-        assert jnp.isfinite(loss_dict["loss"])
+        assert jnp.isfinite(loss_dict["total_loss"])
 
         # Generation step
         generated = model.generate(n_samples=1, rngs=rngs)

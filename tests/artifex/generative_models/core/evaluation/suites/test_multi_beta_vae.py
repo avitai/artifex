@@ -286,7 +286,9 @@ def test_image_metrics(rngs):
     fid_config = EvaluationConfig(
         name="fid_test",
         metrics=["fid"],
-        metric_params={"fid": {"mock_inception": True, "higher_is_better": False}},
+        metric_params={
+            "fid": {"mock_inception": True, "demo_mode": True, "higher_is_better": False}
+        },
         eval_batch_size=16,
     )
     fid_metric = FIDMetric(config=fid_config, rngs=rngs)
@@ -298,7 +300,9 @@ def test_image_metrics(rngs):
     lpips_config = EvaluationConfig(
         name="lpips_test",
         metrics=["lpips"],
-        metric_params={"lpips": {"mock_implementation": True, "higher_is_better": False}},
+        metric_params={
+            "lpips": {"mock_implementation": True, "demo_mode": True, "higher_is_better": False}
+        },
         eval_batch_size=32,
     )
     lpips_metric = LPIPSMetric(config=lpips_config, rngs=rngs)
@@ -317,7 +321,10 @@ def test_image_metrics(rngs):
     ssim_result = ssim_metric.compute(images1, images2)
     assert isinstance(ssim_result, dict)
     assert "ssim_score" in ssim_result
-    assert 0 <= ssim_result["ssim_score"] <= 1
+    # SSIM is mathematically bounded to [-1, 1], not [0, 1].
+    # For dissimilar random images with large Gaussian filter windows,
+    # SSIM can be slightly negative.
+    assert -1 <= ssim_result["ssim_score"] <= 1
 
 
 def test_multi_beta_vae_benchmark(mock_dataset, mock_model, rngs):
@@ -326,6 +333,7 @@ def test_multi_beta_vae_benchmark(mock_dataset, mock_model, rngs):
         dataset=mock_dataset,
         num_samples=10,
         batch_size=5,
+        demo_mode=True,
         rngs=rngs,
     )
 
@@ -360,6 +368,7 @@ def test_multi_beta_vae_benchmark_suite(mock_model, rngs):
             "num_samples": 10,
             "batch_size": 5,
         },
+        demo_mode=True,
         rngs=rngs,
     )
 

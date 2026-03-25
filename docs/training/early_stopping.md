@@ -1,8 +1,10 @@
 # Early Stopping Callbacks
 
-**Module:** `generative_models.training.callbacks.early_stopping`
+**Status:** `Supported runtime training surface`
 
-**Source:** `generative_models/training/callbacks/early_stopping.py`
+**Module:** `artifex.generative_models.training.callbacks.early_stopping`
+
+**Source:** `src/artifex/generative_models/training/callbacks/early_stopping.py`
 
 ## Overview
 
@@ -67,7 +69,9 @@ Callback that tracks a metric and signals when training should stop due to lack 
 ### Basic Early Stopping
 
 ```python
+from artifex.generative_models.training import Trainer
 from artifex.generative_models.training.callbacks import (
+    CallbackList,
     EarlyStopping,
     EarlyStoppingConfig,
 )
@@ -79,7 +83,13 @@ early_stop = EarlyStopping(EarlyStoppingConfig(
     mode="min",
 ))
 
-trainer.fit(callbacks=[early_stop])
+trainer = Trainer(
+    model=model,
+    training_config=training_config,
+    loss_fn=loss_fn,
+    callbacks=CallbackList([early_stop]),
+)
+trainer.train(train_data=train_data, num_epochs=20, batch_size=64, val_data=val_data)
 
 # Check if training stopped early
 if early_stop.should_stop:
@@ -145,7 +155,13 @@ callbacks = CallbackList([
     )),
 ])
 
-trainer.fit(callbacks=callbacks)
+trainer = Trainer(
+    model=model,
+    training_config=training_config,
+    loss_fn=loss_fn,
+    callbacks=callbacks,
+)
+trainer.train(train_data=train_data, num_epochs=20, batch_size=64, val_data=val_data)
 ```
 
 ---

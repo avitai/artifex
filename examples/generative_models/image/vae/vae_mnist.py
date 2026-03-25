@@ -33,7 +33,7 @@ This example depends on the following Artifex source files:
 - `src/artifex/generative_models/models/vae/decoders.py` - MLPDecoder class
 
 **Validation Status:**
-- ✅ All dependencies validated against `memory-bank/guides/flax-nnx-guide.md`
+- ✅ All dependencies validated against the internal Flax NNX compatibility guide
 - ✅ No anti-patterns detected (RNG handling, module init, activations)
 - ✅ All patterns follow Flax NNX best practices (no nnx.List issues)
 
@@ -300,9 +300,9 @@ def main():
     This function demonstrates the complete VAE pipeline using Artifex's
     modular encoder/decoder components.
     """
-    print("=" * 80)
-    print("VAE MNIST Example - Using Artifex's MLPEncoder & MLPDecoder")
-    print("=" * 80)
+    print("=" * 80)  # noqa: T201
+    print("VAE MNIST Example - Using Artifex's MLPEncoder & MLPDecoder")  # noqa: T201
+    print("=" * 80)  # noqa: T201
 
 
 # %% [markdown]
@@ -336,11 +336,11 @@ rngs = nnx.Rngs(params=params_key, dropout=dropout_key, sample=sample_key)
 
 # %%
 # Step 2: Load data
-print()
-print("📊 Loading MNIST data...")
+print()  # noqa: T201
+print("📊 Loading MNIST data...")  # noqa: T201
 train_images, test_images = load_mnist_data()
-print(f"  Train data shape: {train_images.shape}")  # (1000, 28, 28, 1)
-print(f"  Test data shape: {test_images.shape}")  # (100, 28, 28, 1)
+print(f"  Train data shape: {train_images.shape}")  # (1000, 28, 28, 1)  # noqa: T201
+print(f"  Test data shape: {test_images.shape}")  # (100, 28, 28, 1)  # noqa: T201
 
 # %% [markdown]
 #     ### Step 3: Create Encoder Configuration
@@ -359,8 +359,8 @@ print(f"  Test data shape: {test_images.shape}")  # (100, 28, 28, 1)
 
 # %%
 # Step 3: Create encoder configuration
-print()
-print("🔧 Creating VAE components using Artifex APIs...")
+print()  # noqa: T201
+print("🔧 Creating VAE components using Artifex APIs...")  # noqa: T201
 
 latent_dim = 32
 encoder_config = EncoderConfig(
@@ -370,7 +370,7 @@ encoder_config = EncoderConfig(
     activation="relu",  # Activation function
     input_shape=(28, 28, 1),  # Input image shape
 )
-print(f"  ✅ Encoder config: hidden_dims=(256, 128), latent_dim={latent_dim}")
+print(f"  ✅ Encoder config: hidden_dims=(256, 128), latent_dim={latent_dim}")  # noqa: T201
 
 # %% [markdown]
 #     ### Step 4: Create Decoder Configuration
@@ -398,7 +398,7 @@ decoder_config = DecoderConfig(
     latent_dim=latent_dim,  # Latent space dimension
     activation="relu",  # Activation function
 )
-print("  ✅ Decoder config: hidden_dims=(128, 256), output_shape=(28, 28, 1)")
+print("  ✅ Decoder config: hidden_dims=(128, 256), output_shape=(28, 28, 1)")  # noqa: T201
 
 # %% [markdown]
 #     ### Step 5: Create VAE Model
@@ -411,7 +411,8 @@ print("  ✅ Decoder config: hidden_dims=(128, 256), output_shape=(28, 28, 1)")
 #     **VAEConfig Parameters:**
 #     - `encoder`: The EncoderConfig we created above
 #     - `decoder`: The DecoderConfig we created above
-#     - `encoder_type="dense"`: Uses MLP-based encoder/decoder (vs "cnn" or "resnet")
+#     - `encoder_type="dense"`: Uses MLP-based encoder/decoder
+#       (use `"cnn"` for convolutional variants)
 #     - `kl_weight=1.0`: Weight for KL term (β-VAE uses β≠1 for disentanglement)
 #
 
@@ -425,7 +426,7 @@ vae_config = VAEConfig(
     kl_weight=1.0,  # Standard VAE (β=1), increase for β-VAE
 )
 model = VAE(config=vae_config, rngs=rngs)
-print(f"  ✅ VAE model created: latent_dim={model.latent_dim}, kl_weight={model.kl_weight}")
+print(f"  ✅ VAE model created: latent_dim={model.latent_dim}, kl_weight={model.kl_weight}")  # noqa: T201
 
 # %% [markdown]
 #     ### Step 6: Forward Pass (Reconstruction)
@@ -447,8 +448,8 @@ print(f"  ✅ VAE model created: latent_dim={model.latent_dim}, kl_weight={model
 
 # %%
 # Step 6: Test the model with a batch
-print()
-print("🧪 Testing model forward pass...")
+print()  # noqa: T201
+print("🧪 Testing model forward pass...")  # noqa: T201
 test_batch = train_images[:8]  # Use 8 images for testing
 
 # Forward pass - the VAE uses its internal rngs for reparameterization
@@ -459,18 +460,18 @@ outputs = model(test_batch)
 reconstructed = outputs.get("reconstructed")
 if reconstructed is None:
     reconstructed = outputs["reconstruction"]
-print(f"  ✅ Reconstruction shape: {reconstructed.shape}")
+print(f"  ✅ Reconstruction shape: {reconstructed.shape}")  # noqa: T201
 
 # Extract latent codes
 latent = outputs.get("z")
 if latent is None:
     latent = outputs["latent"]
-print(f"  ✅ Latent shape: {latent.shape}")
+print(f"  ✅ Latent shape: {latent.shape}")  # noqa: T201
 
 # Show latent statistics to verify reasonable values
-print("  📊 Latent statistics:")
-print(f"     Mean: {jnp.mean(latent):.4f} (should be near 0)")
-print(f"     Std: {jnp.std(latent):.4f} (should be near 1 for standard normal)")
+print("  📊 Latent statistics:")  # noqa: T201
+print(f"     Mean: {jnp.mean(latent):.4f} (should be near 0)")  # noqa: T201
+print(f"     Std: {jnp.std(latent):.4f} (should be near 1 for standard normal)")  # noqa: T201
 
 # %% [markdown]
 #     ### Step 7: Generation from Prior
@@ -492,12 +493,12 @@ print(f"     Std: {jnp.std(latent):.4f} (should be near 1 for standard normal)")
 
 # %%
 # Step 7: Generate new samples from the prior
-print()
-print("🎨 Generating new samples from prior...")
+print()  # noqa: T201
+print("🎨 Generating new samples from prior...")  # noqa: T201
 n_samples = 5
 generated = model.generate(n_samples=n_samples)  # VAE uses internal rngs
-print(f"  ✅ Generated shape: {generated.shape}")
-print(f"  📊 Generated pixels range: [{jnp.min(generated):.3f}, {jnp.max(generated):.3f}]")
+print(f"  ✅ Generated shape: {generated.shape}")  # noqa: T201
+print(f"  📊 Generated pixels range: [{jnp.min(generated):.3f}, {jnp.max(generated):.3f}]")  # noqa: T201
 
 # %% [markdown]
 #     ### Step 8: Visualization
@@ -519,8 +520,8 @@ print(f"  📊 Generated pixels range: [{jnp.min(generated):.3f}, {jnp.max(gener
 
 # %%
 # Step 8: Visualize results
-print()
-print("📊 Visualizing results...")
+print()  # noqa: T201
+print("📊 Visualizing results...")  # noqa: T201
 fig = visualize_vae_results(
     original=test_batch[:n_samples],
     reconstructed=reconstructed[:n_samples],
@@ -535,7 +536,7 @@ output_dir = "examples_output"
 os.makedirs(output_dir, exist_ok=True)
 output_path = os.path.join(output_dir, "vae_mnist_results.png")
 fig.savefig(output_path, dpi=150, bbox_inches="tight")
-print(f"  ✅ Results saved to {output_path}")
+print(f"  ✅ Results saved to {output_path}")  # noqa: T201
 
 # %% [markdown]
 #     """

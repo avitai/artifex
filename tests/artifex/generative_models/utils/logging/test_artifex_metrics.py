@@ -4,13 +4,14 @@ Tests for the metrics logger implementation.
 These tests verify the metrics logging functionality in Artifex library.
 """
 
+import importlib
 import tempfile
 
 import jax.numpy as jnp
 import numpy as np
 import pytest
 
-from artifex.generative_models.core.evaluation.metrics.base import MetricModule as Metric
+from artifex.generative_models.core.protocols.metrics import MetricBase as Metric
 from artifex.generative_models.utils.logging import (
     ConsoleLogger,
     FileLogger,
@@ -23,9 +24,9 @@ class DummyMetric(Metric):
 
     def __init__(self, name="dummy_metric", batch_size=32):
         """Initialize the dummy metric."""
-        super().__init__(name=name, batch_size=batch_size)
+        super().__init__(name=name, batch_size=batch_size, modality="test")
 
-    def __call__(self, real_data, generated_data, **kwargs):
+    def compute(self, real_data, generated_data, **kwargs):
         """Compute the dummy metric."""
         # Just return the mean difference as a dummy metric
         return {
@@ -33,6 +34,9 @@ class DummyMetric(Metric):
             "min": float(np.min(np.abs(real_data - generated_data))),
             "max": float(np.max(np.abs(real_data - generated_data))),
         }
+
+    def validate_inputs(self, real_data, generated_data):
+        pass
 
 
 @pytest.fixture
@@ -244,3 +248,12 @@ def test_log_comparison(console_logger):
 
     # This should not raise any exceptions
     metrics_logger.log_comparison(real, gen, step=10)
+
+
+def test_deleted_default_metrics_helper_is_not_reexported() -> None:
+    """The public logging surface should require explicit metric objects."""
+    utils_logging = importlib.import_module("artifex.generative_models.utils.logging")
+    core_logging = importlib.import_module("artifex.generative_models.core.logging")
+
+    assert not hasattr(utils_logging, "get_default_metrics")
+    assert not hasattr(core_logging, "get_default_metrics")

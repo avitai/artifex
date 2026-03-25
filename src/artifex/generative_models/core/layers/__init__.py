@@ -68,8 +68,6 @@ from artifex.generative_models.core.layers.residual import (
     Conv1DResidualBlock,
     Conv2DResidualBlock,
     create_residual_block,
-    MaskedConv2DResidualBlock,
-    PixelCNNResidualBlock,
     ResidualBlock,
     WaveNetResidualBlock,
 )
@@ -102,9 +100,7 @@ __all__ = [
     "ResidualBlock",
     "Conv1DResidualBlock",
     "Conv2DResidualBlock",
-    "MaskedConv2DResidualBlock",
     "WaveNetResidualBlock",
-    "PixelCNNResidualBlock",
     "create_residual_block",
     # ResNet blocks
     "ResNetBlock",

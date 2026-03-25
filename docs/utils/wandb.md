@@ -1,94 +1,20 @@
-# Wandb
+# W&B
 
-**Module:** `generative_models.utils.logging.wandb`
+**Status:** `Supported runtime utility`
+**Module:** `artifex.generative_models.utils.logging.wandb`
+**Source:** `src/artifex/generative_models/utils/logging/wandb.py`
 
-**Source:** `generative_models/utils/logging/wandb.py`
+This page documents the retained Weights & Biases logger integration used by
+generative-model training and evaluation workflows.
 
-## Overview
+## Key Symbols
 
-Weights & Biases logger implementation for the Artifex library.
+- `WandbLogger`
+- `log_scalars(...)`
+- `log_image(...)`
+- `log_histogram(...)`
 
-This module provides a logger implementation that integrates with Weights & Biases
-for experiment tracking, visualization, and collaboration.
+## Current Scope
 
-## Classes
-
-### WandbLogger
-
-```python
-class WandbLogger
-```
-
-## Functions
-
-### **init**
-
-```python
-def __init__()
-```
-
-### close
-
-```python
-def close()
-```
-
-### finish
-
-```python
-def finish()
-```
-
-### log_code
-
-```python
-def log_code()
-```
-
-### log_histogram
-
-```python
-def log_histogram()
-```
-
-### log_hyperparams
-
-```python
-def log_hyperparams()
-```
-
-### log_image
-
-```python
-def log_image()
-```
-
-### log_model
-
-```python
-def log_model()
-```
-
-### log_scalar
-
-```python
-def log_scalar()
-```
-
-### log_scalars
-
-```python
-def log_scalars()
-```
-
-### log_text
-
-```python
-def log_text()
-```
-
-## Module Statistics
-
-- **Classes:** 1
-- **Functions:** 11
-- **Imports:** 5
+The runtime ships this module as a package-local logging integration. It does not
+create a broader top-level `artifex.utils.logging` namespace.

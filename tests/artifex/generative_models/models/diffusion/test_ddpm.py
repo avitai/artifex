@@ -1,6 +1,6 @@
 """Tests for DDPM (Denoising Diffusion Probabilistic Models) implementation.
 
-This module provides comprehensive tests for the DDPM model, covering
+This module provides complete tests for the DDPM model, covering
 initialization, forward and reverse diffusion processes, noise scheduling,
 and sampling consistency.
 """
@@ -35,7 +35,7 @@ def update_config(config: DDPMConfig, **updates) -> DDPMConfig:
 
 
 class TestDDPMModel:
-    """Comprehensive DDPM model tests following standardized patterns."""
+    """Complete DDPM model tests following standardized patterns."""
 
     @pytest.fixture
     def ddpm_config(self):
@@ -99,11 +99,6 @@ class TestDDPMModel:
         # Test basic initialization
         model = ModelTestRunner.test_model_initialization(DDPMModel, ddpm_config, base_rngs)
 
-        # Debug: print actual vs expected
-        print(f"Expected noise_steps: {ddpm_config.noise_schedule.num_timesteps}")
-        print(f"Actual noise_steps: {model.noise_steps}")
-        print(f"Betas shape: {model.betas.shape}")
-
         # Check DDPM-specific attributes
         assert hasattr(model, "noise_steps"), "DDPM must have noise_steps"
         assert hasattr(model, "betas"), "DDPM must have betas schedule"
@@ -124,6 +119,42 @@ class TestDDPMModel:
 
         # Should handle more complex configurations
         assert model.noise_steps == 1000
+
+    def test_ddpm_reports_hwc_channel_metadata(self, ddpm_config, base_rngs):
+        """DDPM should report channel metadata from the last HWC dimension."""
+        model = DDPMModel(config=ddpm_config, rngs=base_rngs)
+
+        assert model.in_channels == ddpm_config.input_shape[-1]
+
+    def test_ddpm_rejects_chw_style_input_shape(self, base_rngs):
+        """The retained DDPM surface should reject the unsupported CHW public convention."""
+        backbone = UNetBackboneConfig(
+            name="test_unet_chw",
+            hidden_dims=(64, 128),
+            activation="relu",
+            in_channels=1,
+            out_channels=1,
+            channel_mult=(1, 2),
+            num_res_blocks=1,
+        )
+        noise_schedule = NoiseScheduleConfig(
+            name="test_schedule_chw",
+            num_timesteps=100,
+            schedule_type="linear",
+            beta_start=1e-4,
+            beta_end=0.02,
+        )
+        config = DDPMConfig(
+            name="test_ddpm_chw",
+            backbone=backbone,
+            noise_schedule=noise_schedule,
+            input_shape=(1, 28, 28),
+            loss_type="mse",
+            clip_denoised=True,
+        )
+
+        with pytest.raises(ValueError, match="HWC convention"):
+            DDPMModel(config=config, rngs=base_rngs)
 
     def test_noise_schedule_properties(self, ddpm_config, base_rngs):
         """Test noise schedule generation and properties."""
@@ -733,8 +764,8 @@ class TestDDPMGetSampleShape:
             name="test_unet",
             hidden_dims=(16, 32),
             activation="relu",
-            in_channels=1,
-            out_channels=1,
+            in_channels=3,
+            out_channels=3,
             channel_mult=(1, 2),
             num_res_blocks=1,
         )

@@ -114,6 +114,32 @@ def normalize_advantages(
     return (advantages - mean) / (std + eps)
 
 
+def masked_mean(
+    values: jax.Array,
+    mask: jax.Array,
+    eps: float = 1e-8,
+) -> jax.Array:
+    """Compute a mask-aware mean over rollout-aligned tensors."""
+    mask = mask.astype(values.dtype)
+    total = jnp.sum(values * mask)
+    normalizer = jnp.maximum(jnp.sum(mask), eps)
+    return total / normalizer
+
+
+def masked_normalize(
+    values: jax.Array,
+    mask: jax.Array,
+    eps: float = 1e-8,
+) -> jax.Array:
+    """Normalize values over masked positions only."""
+    mask = mask.astype(values.dtype)
+    mean = masked_mean(values, mask, eps)
+    variance = masked_mean((values - mean) ** 2, mask, eps)
+    std = jnp.sqrt(variance + eps)
+    normalized = (values - mean) / std
+    return normalized * mask
+
+
 def compute_policy_entropy(log_probs: jax.Array) -> jax.Array:
     """Compute entropy of policy distribution.
 
@@ -136,6 +162,16 @@ def compute_policy_entropy(log_probs: jax.Array) -> jax.Array:
     return jnp.mean(entropy)
 
 
+def compute_masked_policy_entropy(
+    log_probs: jax.Array,
+    mask: jax.Array,
+) -> jax.Array:
+    """Compute mean policy entropy over masked rollout positions."""
+    probs = jnp.exp(log_probs)
+    entropy = -jnp.sum(probs * log_probs, axis=-1)
+    return masked_mean(entropy, mask)
+
+
 def compute_kl_divergence(
     policy_log_probs: jax.Array,
     ref_log_probs: jax.Array,
@@ -155,6 +191,17 @@ def compute_kl_divergence(
     probs = jnp.exp(policy_log_probs)
     kl = jnp.sum(probs * (policy_log_probs - ref_log_probs), axis=-1)
     return jnp.mean(kl)
+
+
+def compute_masked_kl_divergence(
+    policy_log_probs: jax.Array,
+    ref_log_probs: jax.Array,
+    mask: jax.Array,
+) -> jax.Array:
+    """Compute mean KL divergence over masked rollout positions."""
+    probs = jnp.exp(policy_log_probs)
+    kl = jnp.sum(probs * (policy_log_probs - ref_log_probs), axis=-1)
+    return masked_mean(kl, mask)
 
 
 def compute_clipped_surrogate_loss(
@@ -189,3 +236,18 @@ def compute_clipped_surrogate_loss(
     # Take minimum (pessimistic bound)
     # Negate because we want to maximize the objective but minimize the loss
     return -jnp.mean(jnp.minimum(surr1, surr2))
+
+
+def compute_masked_clipped_surrogate_loss(
+    log_probs: jax.Array,
+    old_log_probs: jax.Array,
+    advantages: jax.Array,
+    mask: jax.Array,
+    clip_param: float,
+) -> jax.Array:
+    """Compute a PPO clipped surrogate loss over masked rollout positions."""
+    ratios = jnp.exp(log_probs - old_log_probs)
+    surr1 = ratios * advantages
+    clipped_ratios = jnp.clip(ratios, 1.0 - clip_param, 1.0 + clip_param)
+    surr2 = clipped_ratios * advantages
+    return -masked_mean(jnp.minimum(surr1, surr2), mask)

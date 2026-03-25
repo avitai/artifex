@@ -46,9 +46,9 @@ This example depends on the following Artifex source files:
 - `src/artifex/generative_models/factory.py` - Model factory
 
 **Validation Status:**
-- ✅ All dependencies validated against `memory-bank/guides/flax-nnx-guide.md`
+- ✅ All dependencies validated against the internal Flax NNX compatibility guide
 - ✅ No anti-patterns detected (RNG handling, module init, activations)
-- ✅ All tests passing for dependency files (Week 0 fixes applied)
+- ✅ All tests passing for dependency files (v0 compatibility fixes applied)
 
 ## 📚 Background
 
@@ -84,8 +84,8 @@ The model learns to assign low energy to real data and high energy to fake data.
 Before running this example, activate the Artifex environment:
 
 ```bash
-source activate.sh
-python examples/generative_models/energy/simple_ebm_example.py
+source ./activate.sh
+uv run python examples/generative_models/energy/simple_ebm_example.py
 ```
 
 ## 🎬 Expected Output
@@ -127,6 +127,7 @@ We'll use:
 """
 
 # %%
+import logging
 import time
 
 import jax
@@ -134,17 +135,26 @@ import jax.numpy as jnp
 from flax import nnx
 
 
+logging.basicConfig(level=logging.INFO, format="%(message)s")
+LOGGER = logging.getLogger(__name__)
+
+
+def echo(message: object = "") -> None:
+    """Log example progress without relying on raw print statements."""
+    LOGGER.info("%s", message)
+
+
 # Optional: Force CPU for testing
 # import os
 # os.environ["JAX_PLATFORMS"] = "cpu"
 
-print("=" * 80)
-print("Energy-Based Model (EBM) Example")
-print("=" * 80)
-print(f"✅ JAX version: {jax.__version__}")
-print(f"🖥️  Backend: {jax.default_backend()}")
-print(f"🔧 Devices: {jax.devices()}")
-print("=" * 80)
+echo("=" * 80)
+echo("Energy-Based Model (EBM) Example")
+echo("=" * 80)
+echo(f"✅ JAX version: {jax.__version__}")
+echo(f"🖥️  Backend: {jax.default_backend()}")
+echo(f"🔧 Devices: {jax.devices()}")
+echo("=" * 80)
 
 # %% [markdown]
 """
@@ -162,7 +172,7 @@ The `create_mnist_ebm` factory function creates an EBM with:
 from artifex.generative_models.models.energy import create_mnist_ebm
 
 
-print("\n📊 Creating EBM for MNIST-like data...")
+echo("\n📊 Creating EBM for MNIST-like data...")
 
 # Initialize random number generators
 rngs = nnx.Rngs(0)
@@ -170,10 +180,10 @@ rngs = nnx.Rngs(0)
 # Create the model
 model = create_mnist_ebm(rngs=rngs)
 
-print("✅ Created MNIST EBM")
-print(f"   Model type: {type(model).__name__}")
-print("   Input shape: (28, 28, 1)")
-print("   Output: Scalar energy values")
+echo("✅ Created MNIST EBM")
+echo(f"   Model type: {type(model).__name__}")
+echo("   Input shape: (28, 28, 1)")
+echo("   Output: Scalar energy values")
 
 # %% [markdown]
 """
@@ -189,7 +199,7 @@ The core of an EBM is the energy function E(x). Let's compute energies for test 
 """
 
 # %%
-print("\n⚡ Testing energy computation...")
+echo("\n⚡ Testing energy computation...")
 
 # Create test batch (all ones as a simple test)
 batch_size = 4
@@ -198,13 +208,13 @@ test_images = jnp.ones((batch_size, 28, 28, 1))
 # Forward pass: compute energy and score
 output = model(test_images)
 
-print("✅ Energy computation successful!")
-print(f"   Energy values shape: {output['energy'].shape}")
-print(f"   Energy values: {output['energy']}")
-print(f"   Score (gradient) shape: {output['score'].shape}")
-print("\n💡 Interpretation:")
-print("   - Lower energy = model thinks it's more likely")
-print("   - Score shows direction to move in MCMC sampling")
+echo("✅ Energy computation successful!")
+echo(f"   Energy values shape: {output['energy'].shape}")
+echo(f"   Energy values: {output['energy']}")
+echo(f"   Score (gradient) shape: {output['score'].shape}")
+echo("\n💡 Interpretation:")
+echo("   - Lower energy = model thinks it's more likely")
+echo("   - Score shows direction to move in MCMC sampling")
 
 # %% [markdown]
 """
@@ -219,7 +229,7 @@ This is called **Langevin dynamics** or **score-based sampling**.
 """
 
 # %%
-print("\n🎨 Generating samples using MCMC...")
+echo("\n🎨 Generating samples using MCMC...")
 
 start_time = time.time()
 
@@ -233,14 +243,14 @@ samples = model.generate(
 
 elapsed = time.time() - start_time
 
-print(f"✅ Generated {samples.shape[0]} samples in {elapsed:.2f}s")
-print(f"   Sample shape: {samples.shape}")
-print(f"   Sample range: [{samples.min():.3f}, {samples.max():.3f}]")
-print("\n💡 MCMC Process:")
-print("   1. Start from random noise")
-print("   2. For each step, move toward lower energy")
-print("   3. Add noise to avoid getting stuck")
-print("   4. Result: samples from the learned distribution")
+echo(f"✅ Generated {samples.shape[0]} samples in {elapsed:.2f}s")
+echo(f"   Sample shape: {samples.shape}")
+echo(f"   Sample range: [{samples.min():.3f}, {samples.max():.3f}]")
+echo("\n💡 MCMC Process:")
+echo("   1. Start from random noise")
+echo("   2. For each step, move toward lower energy")
+echo("   3. Add noise to avoid getting stuck")
+echo("   4. Result: samples from the learned distribution")
 
 # %% [markdown]
 """
@@ -263,7 +273,7 @@ from artifex.generative_models.core.configuration.energy_config import (
 from artifex.generative_models.models.energy import DeepEBM
 
 
-print("\n⚙️  Creating EBM with custom configuration...")
+echo("\n⚙️  Creating EBM with custom configuration...")
 
 # Define nested configurations for the EBM components
 
@@ -304,10 +314,10 @@ config = DeepEBMConfig(
 # Create model from configuration
 custom_model = DeepEBM(config=config, rngs=rngs)
 
-print("✅ Created custom EBM from configuration")
-print(f"   Architecture: {config.energy_network.hidden_dims}")
-print(f"   Activation: {config.energy_network.activation}")
-print(f"   MCMC steps: {config.mcmc.n_steps}")
+echo("✅ Created custom EBM from configuration")
+echo(f"   Architecture: {energy_network_config.hidden_dims}")
+echo(f"   Activation: {energy_network_config.activation}")
+echo(f"   MCMC steps: {mcmc_config.n_steps}")
 
 # %% [markdown]
 r"""
@@ -327,7 +337,7 @@ Where:
 """
 
 # %%
-print("\n📉 Computing contrastive divergence loss...")
+echo("\n📉 Computing contrastive divergence loss...")
 
 # Create real and fake data batches
 real_data = jax.random.normal(rngs.sample(), (4, 28, 28, 1))
@@ -340,14 +350,14 @@ loss_dict = custom_model.contrastive_divergence_loss(
     alpha=0.01,  # Regularization weight
 )
 
-print("✅ Loss computation successful!")
-print(f"   Total loss: {loss_dict['loss']:.4f}")
-print(f"   Real energy: {loss_dict['real_energy_mean']:.4f}")
-print(f"   Fake energy: {loss_dict['fake_energy_mean']:.4f}")
-print("\n💡 Training Goal:")
-print("   - Push real energy DOWN")
-print("   - Push fake energy UP")
-print("   - Maximize energy difference between real and fake")
+echo("✅ Loss computation successful!")
+echo(f"   Total loss: {loss_dict['total_loss']:.4f}")
+echo(f"   Real energy: {loss_dict['real_energy_mean']:.4f}")
+echo(f"   Fake energy: {loss_dict['fake_energy_mean']:.4f}")
+echo("\n💡 Training Goal:")
+echo("   - Push real energy DOWN")
+echo("   - Push fake energy UP")
+echo("   - Maximize energy difference between real and fake")
 
 # %% [markdown]
 """
@@ -371,7 +381,7 @@ from artifex.generative_models.models.energy.mcmc import (
 )
 
 
-print("\n🔄 Using persistent contrastive divergence...")
+echo("\n🔄 Using persistent contrastive divergence...")
 
 # Initialize sample buffer for efficient training
 buffer = SampleBuffer(
@@ -379,7 +389,7 @@ buffer = SampleBuffer(
     reinit_prob=0.05,  # 5% chance to reinitialize a sample
 )
 
-print(f"📦 Created sample buffer (capacity: {buffer.capacity})")
+echo(f"📦 Created sample buffer (capacity: {buffer.capacity})")
 
 # Generate samples using persistent CD
 real_samples = jax.random.normal(rngs.sample(), (8, 28, 28, 1))
@@ -393,15 +403,15 @@ real_processed, fake_samples = persistent_contrastive_divergence(
     step_size=0.01,
 )
 
-print("✅ Persistent CD completed!")
-print(f"   Buffer size: {len(buffer.buffer)} / {buffer.capacity}")
-print(f"   Generated fake samples: {fake_samples.shape}")
-print(f"   Fake sample range: [{fake_samples.min():.3f}, {fake_samples.max():.3f}]")
-print("\n💡 Why Persistent CD?")
-print("   - Reuses MCMC chains across iterations")
-print("   - Chains mix better over time")
-print("   - Much faster than starting from scratch")
-print("   - Essential for training on complex data")
+echo("✅ Persistent CD completed!")
+echo(f"   Retained samples: {buffer.num_samples} / {buffer.capacity}")
+echo(f"   Generated fake samples: {fake_samples.shape}")
+echo(f"   Fake sample range: [{fake_samples.min():.3f}, {fake_samples.max():.3f}]")
+echo("\n💡 Why Persistent CD?")
+echo("   - Reuses MCMC chains across iterations")
+echo("   - Chains mix better over time")
+echo("   - Much faster than starting from scratch")
+echo("   - Essential for training on complex data")
 
 # %% [markdown]
 """
@@ -411,7 +421,7 @@ For more complex data (e.g., CIFAR-10, ImageNet), we need deeper architectures.
 
 The `DeepEBM` class provides:
 - Multiple residual blocks for deep networks
-- Spectral normalization for training stability
+- Group-normalized blocks for stable CNN training
 - Support for higher resolution images
 - More expressive energy functions
 """
@@ -420,7 +430,7 @@ The `DeepEBM` class provides:
 # DeepEBM is already imported above, we just need fresh rngs for a new model
 deep_rngs = nnx.Rngs(42)
 
-print("\n🏗️  Creating Deep EBM...")
+echo("\n🏗️  Creating Deep EBM...")
 
 # Configuration for Deep EBM (suitable for CIFAR-10 or similar)
 # Create nested configs for the deep energy network
@@ -430,7 +440,6 @@ deep_energy_network_config = EnergyNetworkConfig(
     activation="silu",
     network_type="cnn",  # CNN for images
     use_bias=True,
-    use_spectral_norm=True,  # Stabilizes training
     use_residual=True,  # Residual connections for deep networks
 )
 
@@ -459,19 +468,18 @@ deep_config = DeepEBMConfig(
 # Create Deep EBM
 deep_ebm = DeepEBM(config=deep_config, rngs=deep_rngs)
 
-print("✅ Created Deep EBM with residual connections")
-print(f"   Input shape: {deep_config.input_shape}")
-print(f"   Hidden dims: {deep_config.energy_network.hidden_dims}")
-print(f"   Spectral norm: {deep_config.energy_network.use_spectral_norm}")
-print(f"   Residual: {deep_config.energy_network.use_residual}")
+echo("✅ Created Deep EBM with residual connections")
+echo(f"   Input shape: {deep_config.input_shape}")
+echo(f"   Hidden dims: {deep_energy_network_config.hidden_dims}")
+echo(f"   Residual: {deep_energy_network_config.use_residual}")
 
 # Test on a batch
 test_batch = jnp.ones((2, 32, 32, 3))
 deep_output = deep_ebm(test_batch)
 
-print("\n🧪 Test inference:")
-print(f"   Deep EBM energy shape: {deep_output['energy'].shape}")
-print(f"   Energy values: {deep_output['energy']}")
+echo("\n🧪 Test inference:")
+echo(f"   Deep EBM energy shape: {deep_output['energy'].shape}")
+echo(f"   Energy values: {deep_output['energy']}")
 
 # %% [markdown]
 """
@@ -486,7 +494,7 @@ In this example, you learned:
 3. **MCMC Sampling:** Generating samples using Langevin dynamics
 4. **Contrastive Divergence:** The standard training algorithm for EBMs
 5. **Persistent CD:** Efficient training with sample buffers
-6. **Deep Architectures:** Residual connections and spectral normalization
+6. **Deep Architectures:** Residual connections and deeper CNN energy functions
 
 ### 💡 Key Concepts Recap
 
@@ -561,7 +569,7 @@ To learn more about Energy-Based Models:
 - **Solution:** Use persistent CD with a sample buffer
 
 **Problem:** Energy values explode or collapse
-- **Solution:** Increase regularization `alpha` or use spectral normalization
+- **Solution:** Increase regularization `alpha`, reduce the learning rate, or clip gradients
 
 **Problem:** Samples don't match data distribution
 - **Solution:** Train longer, use more MCMC steps, or increase model capacity
@@ -577,18 +585,18 @@ Found a bug or have suggestions? Please open an issue on GitHub!
 
 # %%
 if __name__ == "__main__":
-    print("\n" + "=" * 80)
-    print("✨ Energy-Based Model Example Complete! ✨")
-    print("=" * 80)
-    print("\n💡 Key Takeaways:")
-    print("   1. EBMs learn energy functions E(x) where p(x) ∝ exp(-E(x))")
-    print("   2. Lower energy = higher probability under the model")
-    print("   3. Training uses contrastive divergence with MCMC sampling")
-    print("   4. Persistent CD with sample buffers improves efficiency")
-    print("   5. Deep EBMs with residual connections handle complex data")
-    print("\n🔗 Next Steps:")
-    print("   - Try different MCMC parameters (steps, step_size)")
-    print("   - Experiment with model architectures")
-    print("   - Explore persistent CD with different buffer sizes")
-    print("   - Learn about score matching as an alternative to CD")
-    print("\n" + "=" * 80)
+    echo("\n" + "=" * 80)
+    echo("✨ Energy-Based Model Example Complete! ✨")
+    echo("=" * 80)
+    echo("\n💡 Key Takeaways:")
+    echo("   1. EBMs learn energy functions E(x) where p(x) ∝ exp(-E(x))")
+    echo("   2. Lower energy = higher probability under the model")
+    echo("   3. Training uses contrastive divergence with MCMC sampling")
+    echo("   4. Persistent CD with sample buffers improves efficiency")
+    echo("   5. Deep EBMs with residual connections handle complex data")
+    echo("\n🔗 Next Steps:")
+    echo("   - Try different MCMC parameters (steps, step_size)")
+    echo("   - Experiment with model architectures")
+    echo("   - Explore persistent CD with different buffer sizes")
+    echo("   - Learn about score matching as an alternative to CD")
+    echo("\n" + "=" * 80)

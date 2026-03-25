@@ -3,8 +3,8 @@
 This module tests the backbone configuration system for diffusion models:
 - UNetBackboneConfig: Standard convolutional U-Net
 - DiTBackboneConfig: Diffusion Transformer
-- UViTBackboneConfig: ViT with U-Net-like skip connections
 - UNet2DConditionBackboneConfig: Text-conditioned UNet
+- UNet1DBackboneConfig: 1D U-Net for sequential diffusion
 - BackboneConfig: Union type with backbone_type discriminator
 - create_backbone: Factory function for creating backbones
 
@@ -17,14 +17,16 @@ import pytest
 
 from artifex.generative_models.core.configuration.backbone_config import (
     BackboneConfig,
-    create_backbone,
     DiTBackboneConfig,
-    get_backbone_config_type,
+    UNet1DBackboneConfig,
     UNet2DConditionBackboneConfig,
     UNetBackboneConfig,
-    UViTBackboneConfig,
 )
 from artifex.generative_models.core.configuration.base_network import BaseNetworkConfig
+from artifex.generative_models.factory.builders.backbone_builder import (
+    create_backbone,
+    get_backbone_config_type,
+)
 
 
 # =============================================================================
@@ -192,75 +194,61 @@ class TestDiTBackboneConfigBasics:
 
     def test_create_minimal(self):
         """Test creating DiTBackboneConfig with minimal required fields."""
-        config = DiTBackboneConfig(
-            name="dit_backbone",
-            hidden_dims=(512,),  # Required by BaseNetworkConfig
-            activation="gelu",
-        )
+        config = DiTBackboneConfig(name="dit_backbone")
         assert config.name == "dit_backbone"
         assert config.backbone_type == "dit"
+        assert config.in_channels == 3
         assert config.hidden_size == 512
         assert config.depth == 12
         assert config.num_heads == 8
 
     def test_backbone_type_discriminator(self):
         """Test that backbone_type is always 'dit'."""
-        config = DiTBackboneConfig(
-            name="dit",
-            hidden_dims=(768,),
-            activation="gelu",
-        )
+        config = DiTBackboneConfig(name="dit")
         assert config.backbone_type == "dit"
 
     def test_default_values(self):
         """Test default values for optional fields."""
-        config = DiTBackboneConfig(
-            name="dit",
-            hidden_dims=(512,),
-            activation="gelu",
-        )
+        config = DiTBackboneConfig(name="dit")
         assert config.img_size == 32
         assert config.patch_size == 2
+        assert config.in_channels == 3
         assert config.hidden_size == 512
         assert config.depth == 12
         assert config.num_heads == 8
         assert config.mlp_ratio == 4.0
         assert config.num_classes is None
         assert config.learn_sigma is False
-        assert config.cfg_scale == 1.0
+        assert config.dropout_rate == 0.0
 
     def test_create_with_custom_values(self):
         """Test creating DiTBackboneConfig with custom values."""
         config = DiTBackboneConfig(
             name="dit_xl",
-            hidden_dims=(1152,),
-            activation="gelu",
             img_size=256,
             patch_size=4,
+            in_channels=4,
             hidden_size=1152,
             depth=28,
             num_heads=16,
             mlp_ratio=4.0,
             num_classes=1000,
             learn_sigma=True,
-            cfg_scale=4.0,
+            dropout_rate=0.1,
         )
         assert config.img_size == 256
         assert config.patch_size == 4
+        assert config.in_channels == 4
         assert config.hidden_size == 1152
         assert config.depth == 28
         assert config.num_heads == 16
         assert config.num_classes == 1000
         assert config.learn_sigma is True
-        assert config.cfg_scale == 4.0
+        assert config.dropout_rate == 0.1
 
     def test_frozen(self):
         """Test that DiTBackboneConfig is frozen."""
-        config = DiTBackboneConfig(
-            name="dit",
-            hidden_dims=(512,),
-            activation="gelu",
-        )
+        config = DiTBackboneConfig(name="dit")
         with pytest.raises(dataclasses.FrozenInstanceError):
             config.depth = 24  # type: ignore
 
@@ -268,97 +256,60 @@ class TestDiTBackboneConfigBasics:
 class TestDiTBackboneConfigValidation:
     """Test validation of DiTBackboneConfig."""
 
+    def test_invalid_in_channels_zero(self):
+        """Test that zero in_channels raises ValueError."""
+        with pytest.raises(ValueError, match="in_channels must be positive"):
+            DiTBackboneConfig(name="dit", in_channels=0)
+
     def test_invalid_img_size_zero(self):
         """Test that zero img_size raises ValueError."""
         with pytest.raises(ValueError, match="img_size must be positive"):
-            DiTBackboneConfig(
-                name="dit",
-                hidden_dims=(512,),
-                activation="gelu",
-                img_size=0,
-            )
+            DiTBackboneConfig(name="dit", img_size=0)
 
     def test_invalid_patch_size_zero(self):
         """Test that zero patch_size raises ValueError."""
         with pytest.raises(ValueError, match="patch_size must be positive"):
-            DiTBackboneConfig(
-                name="dit",
-                hidden_dims=(512,),
-                activation="gelu",
-                patch_size=0,
-            )
+            DiTBackboneConfig(name="dit", patch_size=0)
 
     def test_invalid_hidden_size_zero(self):
         """Test that zero hidden_size raises ValueError."""
         with pytest.raises(ValueError, match="hidden_size must be positive"):
-            DiTBackboneConfig(
-                name="dit",
-                hidden_dims=(512,),
-                activation="gelu",
-                hidden_size=0,
-            )
+            DiTBackboneConfig(name="dit", hidden_size=0)
 
     def test_invalid_depth_zero(self):
         """Test that zero depth raises ValueError."""
         with pytest.raises(ValueError, match="depth must be positive"):
-            DiTBackboneConfig(
-                name="dit",
-                hidden_dims=(512,),
-                activation="gelu",
-                depth=0,
-            )
+            DiTBackboneConfig(name="dit", depth=0)
 
     def test_invalid_num_heads_zero(self):
         """Test that zero num_heads raises ValueError."""
         with pytest.raises(ValueError, match="num_heads must be positive"):
-            DiTBackboneConfig(
-                name="dit",
-                hidden_dims=(512,),
-                activation="gelu",
-                num_heads=0,
-            )
+            DiTBackboneConfig(name="dit", num_heads=0)
 
     def test_hidden_size_divisible_by_num_heads(self):
         """Test that hidden_size must be divisible by num_heads."""
         with pytest.raises(ValueError, match="hidden_size must be divisible by num_heads"):
-            DiTBackboneConfig(
-                name="dit",
-                hidden_dims=(512,),
-                activation="gelu",
-                hidden_size=512,
-                num_heads=7,  # 512 not divisible by 7
-            )
+            DiTBackboneConfig(name="dit", hidden_size=512, num_heads=7)
 
     def test_img_size_divisible_by_patch_size(self):
         """Test that img_size must be divisible by patch_size."""
         with pytest.raises(ValueError, match="img_size must be divisible by patch_size"):
-            DiTBackboneConfig(
-                name="dit",
-                hidden_dims=(512,),
-                activation="gelu",
-                img_size=32,
-                patch_size=5,  # 32 not divisible by 5
-            )
+            DiTBackboneConfig(name="dit", img_size=32, patch_size=5)
 
     def test_invalid_num_classes_zero(self):
         """Test that zero num_classes raises ValueError."""
         with pytest.raises(ValueError, match="num_classes must be positive"):
-            DiTBackboneConfig(
-                name="dit",
-                hidden_dims=(512,),
-                activation="gelu",
-                num_classes=0,
-            )
+            DiTBackboneConfig(name="dit", num_classes=0)
 
     def test_num_classes_none_allowed(self):
         """Test that None num_classes is allowed (unconditional)."""
-        config = DiTBackboneConfig(
-            name="dit",
-            hidden_dims=(512,),
-            activation="gelu",
-            num_classes=None,
-        )
+        config = DiTBackboneConfig(name="dit", num_classes=None)
         assert config.num_classes is None
+
+    def test_invalid_dropout_rate(self):
+        """Test that invalid dropout_rate raises ValueError."""
+        with pytest.raises(ValueError, match="dropout_rate must be in"):
+            DiTBackboneConfig(name="dit", dropout_rate=1.5)
 
 
 class TestDiTBackboneConfigSerialization:
@@ -366,11 +317,7 @@ class TestDiTBackboneConfigSerialization:
 
     def test_to_dict_includes_backbone_type(self):
         """Test that to_dict includes backbone_type."""
-        config = DiTBackboneConfig(
-            name="dit",
-            hidden_dims=(512,),
-            activation="gelu",
-        )
+        config = DiTBackboneConfig(name="dit")
         d = config.to_dict()
         assert d["backbone_type"] == "dit"
 
@@ -378,10 +325,9 @@ class TestDiTBackboneConfigSerialization:
         """Test serialization roundtrip."""
         original = DiTBackboneConfig(
             name="dit",
-            hidden_dims=(768,),
-            activation="gelu",
             img_size=64,
             patch_size=4,
+            in_channels=4,
             hidden_size=768,
             depth=16,
             num_heads=12,
@@ -390,66 +336,6 @@ class TestDiTBackboneConfigSerialization:
         d = original.to_dict()
         restored = DiTBackboneConfig.from_dict(d)
         assert restored == original
-
-
-# =============================================================================
-# UViTBackboneConfig Tests
-# =============================================================================
-
-
-class TestUViTBackboneConfigBasics:
-    """Test basic functionality of UViTBackboneConfig."""
-
-    def test_create_minimal(self):
-        """Test creating UViTBackboneConfig with minimal required fields."""
-        config = UViTBackboneConfig(
-            name="uvit_backbone",
-            hidden_dims=(512,),
-            activation="gelu",
-        )
-        assert config.name == "uvit_backbone"
-        assert config.backbone_type == "uvit"
-
-    def test_backbone_type_discriminator(self):
-        """Test that backbone_type is always 'uvit'."""
-        config = UViTBackboneConfig(
-            name="uvit",
-            hidden_dims=(512,),
-            activation="gelu",
-        )
-        assert config.backbone_type == "uvit"
-
-    def test_default_values(self):
-        """Test default values for optional fields."""
-        config = UViTBackboneConfig(
-            name="uvit",
-            hidden_dims=(512,),
-            activation="gelu",
-        )
-        assert config.img_size == 32
-        assert config.patch_size == 2
-        assert config.embed_dim == 512
-        assert config.depth == 12
-        assert config.num_heads == 8
-        assert config.in_channels == 3
-        assert config.out_channels == 3
-        assert config.mlp_ratio == 4.0
-        assert config.use_skip_connection is True
-
-
-class TestUViTBackboneConfigValidation:
-    """Test validation of UViTBackboneConfig."""
-
-    def test_embed_dim_divisible_by_num_heads(self):
-        """Test that embed_dim must be divisible by num_heads."""
-        with pytest.raises(ValueError, match="embed_dim must be divisible by num_heads"):
-            UViTBackboneConfig(
-                name="uvit",
-                hidden_dims=(512,),
-                activation="gelu",
-                embed_dim=512,
-                num_heads=7,  # 512 not divisible by 7
-            )
 
 
 # =============================================================================
@@ -465,7 +351,6 @@ class TestUNet2DConditionBackboneConfigBasics:
         config = UNet2DConditionBackboneConfig(
             name="unet2d_cond",
             hidden_dims=(320, 640, 1280),
-            activation="gelu",
         )
         assert config.name == "unet2d_cond"
         assert config.backbone_type == "unet2d_condition"
@@ -475,7 +360,6 @@ class TestUNet2DConditionBackboneConfigBasics:
         config = UNet2DConditionBackboneConfig(
             name="unet2d",
             hidden_dims=(320, 640),
-            activation="gelu",
         )
         assert config.backbone_type == "unet2d_condition"
 
@@ -484,7 +368,6 @@ class TestUNet2DConditionBackboneConfigBasics:
         config = UNet2DConditionBackboneConfig(
             name="unet2d",
             hidden_dims=(320, 640, 1280),
-            activation="gelu",
         )
         assert config.in_channels == 4
         assert config.out_channels == 4
@@ -493,6 +376,26 @@ class TestUNet2DConditionBackboneConfigBasics:
         assert config.num_res_blocks == 2
         assert config.attention_levels == (0, 1, 2)
         assert config.time_embedding_dim == 128
+
+    def test_invalid_attention_levels_negative(self):
+        """Test that negative attention levels are rejected."""
+        with pytest.raises(ValueError, match="attention_levels must be non-negative"):
+            UNet2DConditionBackboneConfig(
+                name="unet2d",
+                hidden_dims=(320, 640),
+                attention_levels=(-1,),
+            )
+
+    def test_invalid_attention_levels_out_of_range(self):
+        """Test that attention levels must map to declared UNet levels."""
+        with pytest.raises(
+            ValueError, match="attention_levels must be less than len\\(hidden_dims\\)"
+        ):
+            UNet2DConditionBackboneConfig(
+                name="unet2d",
+                hidden_dims=(320, 640),
+                attention_levels=(2,),
+            )
 
 
 # =============================================================================
@@ -516,30 +419,25 @@ class TestBackboneConfigUnion:
 
     def test_dit_is_backbone_config(self):
         """Test that DiTBackboneConfig is a BackboneConfig."""
-        config: BackboneConfig = DiTBackboneConfig(
-            name="dit",
-            hidden_dims=(512,),
-            activation="gelu",
-        )
+        config: BackboneConfig = DiTBackboneConfig(name="dit")
         assert config.backbone_type == "dit"
-
-    def test_uvit_is_backbone_config(self):
-        """Test that UViTBackboneConfig is a BackboneConfig."""
-        config: BackboneConfig = UViTBackboneConfig(
-            name="uvit",
-            hidden_dims=(512,),
-            activation="gelu",
-        )
-        assert config.backbone_type == "uvit"
 
     def test_unet2d_condition_is_backbone_config(self):
         """Test that UNet2DConditionBackboneConfig is a BackboneConfig."""
         config: BackboneConfig = UNet2DConditionBackboneConfig(
             name="unet2d",
             hidden_dims=(320, 640),
-            activation="gelu",
         )
         assert config.backbone_type == "unet2d_condition"
+
+    def test_unet1d_is_backbone_config(self):
+        """Test that UNet1DBackboneConfig is a BackboneConfig."""
+        config: BackboneConfig = UNet1DBackboneConfig(
+            name="unet1d",
+            hidden_dims=(32, 64),
+            activation="gelu",
+        )
+        assert config.backbone_type == "unet_1d"
 
     def test_backbone_type_discriminates(self):
         """Test that backbone_type can be used to discriminate union types."""
@@ -551,11 +449,7 @@ class TestBackboneConfigUnion:
                 in_channels=3,
                 out_channels=3,
             ),
-            DiTBackboneConfig(
-                name="dit",
-                hidden_dims=(512,),
-                activation="gelu",
-            ),
+            DiTBackboneConfig(name="dit"),
         ]
 
         backbone_types = [c.backbone_type for c in configs]
@@ -580,15 +474,15 @@ class TestGetBackboneConfigType:
         config_class = get_backbone_config_type("dit")
         assert config_class is DiTBackboneConfig
 
-    def test_get_uvit_config_type(self):
-        """Test getting UViTBackboneConfig class."""
-        config_class = get_backbone_config_type("uvit")
-        assert config_class is UViTBackboneConfig
-
     def test_get_unet2d_condition_config_type(self):
         """Test getting UNet2DConditionBackboneConfig class."""
         config_class = get_backbone_config_type("unet2d_condition")
         assert config_class is UNet2DConditionBackboneConfig
+
+    def test_get_unet1d_config_type(self):
+        """Test getting UNet1DBackboneConfig class."""
+        config_class = get_backbone_config_type("unet_1d")
+        assert config_class is UNet1DBackboneConfig
 
     def test_invalid_backbone_type(self):
         """Test that invalid backbone_type raises ValueError."""
@@ -631,10 +525,9 @@ class TestCreateBackboneFactory:
         """Test creating DiT backbone from config."""
         config = DiTBackboneConfig(
             name="dit",
-            hidden_dims=(256,),
-            activation="gelu",
             img_size=16,
             patch_size=2,
+            in_channels=3,
             hidden_size=256,
             depth=4,
             num_heads=4,
@@ -645,23 +538,27 @@ class TestCreateBackboneFactory:
         from artifex.generative_models.models.backbones.dit import DiffusionTransformer
 
         assert isinstance(backbone, DiffusionTransformer)
+        assert backbone.in_channels == 3
 
-    def test_create_uvit_backbone_not_implemented(self, rngs):
-        """Test that U-ViT backbone raises NotImplementedError."""
-        config = UViTBackboneConfig(
-            name="uvit",
-            hidden_dims=(256,),
-            activation="gelu",
+    def test_create_dit_backbone_uses_explicit_in_channels(self, rngs):
+        """Test that DiT builder uses the explicit channel contract."""
+        config = DiTBackboneConfig(
+            name="dit",
+            img_size=16,
+            patch_size=2,
+            in_channels=5,
+            hidden_size=256,
+            depth=4,
+            num_heads=4,
         )
-        with pytest.raises(NotImplementedError, match="U-ViT backbone is not yet implemented"):
-            create_backbone(config, rngs=rngs)
+        backbone = create_backbone(config, rngs=rngs)
+        assert backbone.in_channels == 5
 
     def test_create_unet2d_condition_backbone(self, rngs):
         """Test creating UNet2DCondition backbone from config."""
         config = UNet2DConditionBackboneConfig(
             name="unet2d",
             hidden_dims=(32, 64),
-            activation="gelu",
             in_channels=3,
             out_channels=3,
             cross_attention_dim=64,
@@ -676,6 +573,20 @@ class TestCreateBackboneFactory:
 
         assert isinstance(backbone, UNet2DCondition)
 
+    def test_create_unet1d_backbone(self, rngs):
+        """Test creating UNet1D backbone from config."""
+        config = UNet1DBackboneConfig(
+            name="unet1d",
+            hidden_dims=(32, 64),
+            activation="gelu",
+            in_channels=2,
+        )
+        backbone = create_backbone(config, rngs=rngs)
+
+        from artifex.generative_models.models.backbones.unet_1d import UNet1D
+
+        assert isinstance(backbone, UNet1D)
+
     def test_backbone_type_dispatch(self, rngs):
         """Test that factory dispatches based on backbone_type."""
         unet_config = UNetBackboneConfig(
@@ -687,10 +598,9 @@ class TestCreateBackboneFactory:
         )
         dit_config = DiTBackboneConfig(
             name="dit",
-            hidden_dims=(128,),
-            activation="gelu",
             img_size=8,
             patch_size=2,
+            in_channels=3,
             hidden_size=128,
             depth=2,
             num_heads=4,

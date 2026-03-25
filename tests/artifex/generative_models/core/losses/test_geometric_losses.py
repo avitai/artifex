@@ -1,7 +1,9 @@
 """Tests for geometric loss functions."""
 
+import jax
 import jax.numpy as jnp
 import pytest
+from calibrax.metrics.functional.geometric import hausdorff_distance as calibrax_hausdorff
 
 from artifex.generative_models.core.losses.geometric import (
     binary_cross_entropy,
@@ -12,6 +14,7 @@ from artifex.generative_models.core.losses.geometric import (
     get_mesh_loss,
     get_point_cloud_loss,
     get_voxel_loss,
+    hausdorff_distance,
 )
 
 
@@ -229,3 +232,57 @@ class TestVoxelLosses:
         """Test error on invalid loss type."""
         with pytest.raises(ValueError):
             get_voxel_loss("invalid_type")
+
+
+class TestHausdorffDistance:
+    """Test Hausdorff distance loss wrapping calibrax."""
+
+    def test_identical_points(self):
+        """Hausdorff distance of identical point clouds is near zero.
+
+        Note: calibrax uses epsilon-stabilized sqrt(dist + eps), so identical
+        points produce a small positive value (~1e-4) rather than exact zero.
+        """
+        pred = jnp.ones((2, 10, 3))
+        target = jnp.ones((2, 10, 3))
+        loss = hausdorff_distance(pred, target)
+        assert float(loss) < 1e-3
+
+    def test_different_points(self):
+        """Hausdorff distance of different point clouds is positive."""
+        pred = jax.random.normal(jax.random.key(42), (2, 10, 3))
+        target = jax.random.normal(jax.random.key(99), (2, 10, 3))
+        loss = hausdorff_distance(pred, target)
+        assert float(loss) > 0.0
+
+    def test_reduction_none(self):
+        """Hausdorff distance with reduction='none' returns per-batch values."""
+        pred = jax.random.normal(jax.random.key(42), (4, 10, 3))
+        target = jax.random.normal(jax.random.key(99), (4, 10, 3))
+        loss_none = hausdorff_distance(pred, target, reduction="none")
+        assert loss_none.shape == (4,)
+
+    def test_reduction_mean_sum(self):
+        """Reduction mean and sum are consistent with per-batch values."""
+        pred = jax.random.normal(jax.random.key(42), (4, 10, 3))
+        target = jax.random.normal(jax.random.key(99), (4, 10, 3))
+        loss_none = hausdorff_distance(pred, target, reduction="none")
+        loss_mean = hausdorff_distance(pred, target, reduction="mean")
+        loss_sum = hausdorff_distance(pred, target, reduction="sum")
+        assert float(loss_mean) == pytest.approx(float(jnp.mean(loss_none)), abs=1e-5)
+        assert float(loss_sum) == pytest.approx(float(jnp.sum(loss_none)), abs=1e-5)
+
+    def test_factory(self):
+        """Hausdorff distance is accessible via get_point_cloud_loss factory."""
+        loss_fn = get_point_cloud_loss("hausdorff")
+        assert loss_fn is hausdorff_distance
+
+    def test_matches_calibrax_delegate(self):
+        """Hausdorff distance should delegate to the CalibraX primitive exactly."""
+        pred = jax.random.normal(jax.random.key(42), (3, 10, 3))
+        target = jax.random.normal(jax.random.key(99), (3, 10, 3))
+
+        expected = jax.vmap(calibrax_hausdorff)(pred, target)
+        actual = hausdorff_distance(pred, target, reduction="none")
+
+        assert jnp.allclose(actual, expected)

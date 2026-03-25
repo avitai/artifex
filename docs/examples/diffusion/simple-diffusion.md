@@ -1,10 +1,14 @@
 # Simple Diffusion Example
 
-**Level:** Beginner | **Runtime:** ~30 seconds (CPU) / ~10 seconds (GPU) | **Format:** Python + Jupyter
+**Status:** `Standalone pedagogy`
+**Level:** Beginner | **Runtime:** ~30 seconds (CPU) / ~10 seconds (GPU) | **Format:** Python + Jupyter | **Device:** CPU-compatible
+
+This walkthrough is a standalone JAX/Flax NNX concept demo.
+It does not instantiate shipped Artifex runtime owners.
 
 ## Overview
 
-This example demonstrates the fundamentals of diffusion models using a simple implementation. It covers the core concepts of the forward diffusion process, reverse denoising, and sample generation.
+This standalone walkthrough demonstrates the fundamentals of diffusion models using a custom `GenerativeModel` subclass. It covers the core concepts of the forward diffusion process, reverse denoising, and sample generation.
 
 ## What You'll Learn
 
@@ -22,23 +26,10 @@ This example demonstrates the fundamentals of diffusion models using a simple im
 
 ## Quick Start
 
-### Run the Python Script
-
 ```bash
-# Activate environment
-source activate.sh
-
-# Run the example
 python examples/generative_models/diffusion/simple_diffusion_example.py
-```
 
-### Run the Jupyter Notebook
-
-```bash
-# Activate environment
-source activate.sh
-
-# Launch Jupyter
+# Or launch the Jupyter notebook
 jupyter lab examples/generative_models/diffusion/simple_diffusion_example.ipynb
 ```
 
@@ -101,7 +92,7 @@ config = {
 #   2. Middle steps: Introduce spatial structure
 #   3. Late steps: Refine and sharpen output
 
-# Run the example to see the full implementation:
+# Run the standalone walkthrough:
 # python examples/generative_models/diffusion/simple_diffusion_example.py
 
 # Output will be saved to: examples_output/diffusion_samples.png
@@ -143,10 +134,10 @@ config = {
 
 ## Next Steps
 
-After understanding this basic example:
+After understanding this standalone walkthrough:
 
-1. **[DiT Demo](dit-demo.md)**: Learn about Diffusion Transformers for more advanced architectures
-2. **Training**: Implement a full training loop for your own dataset
+1. **[DiT Demo](dit-demo.md)**: Compare this custom subclass walkthrough with a retained Artifex diffusion example
+2. **[Diffusion Guide](../../user-guide/models/diffusion-guide.md)**: Review the current supported diffusion model surface
 3. **Advanced Schedules**: Explore more sophisticated noise schedules
 4. **Conditional Generation**: Add class or text conditioning
 
@@ -154,19 +145,14 @@ After understanding this basic example:
 
 ### Import Errors
 
-Make sure you've activated the Artifex environment:
-
-```bash
-source activate.sh
-```
+Make sure the environment where `artifex` is installed is active.
 
 ### CUDA Issues
 
-If you encounter GPU errors, try running on CPU:
+If you want to inspect the active backend from a source checkout, run:
 
 ```bash
-export JAX_PLATFORMS=cpu
-python examples/generative_models/diffusion/simple_diffusion_example.py
+uv run python scripts/verify_gpu_setup.py --json
 ```
 
 ### Memory Issues

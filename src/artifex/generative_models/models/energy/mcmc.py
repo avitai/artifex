@@ -4,7 +4,7 @@ This module provides sampling algorithms for energy-based models, including
 Langevin dynamics and buffer-based sampling strategies.
 """
 
-from typing import Callable
+from collections.abc import Callable
 
 import jax
 import jax.numpy as jnp
@@ -183,7 +183,7 @@ class SampleBuffer:
         """Initialize sample buffer.
 
         Args:
-            capacity: Maximum number of samples to store
+            capacity: Maximum number of retained samples to store
             reinit_prob: Probability of reinitializing samples from scratch
             sample_shape: Shape of individual samples (excluding batch dim)
         """
@@ -191,6 +191,15 @@ class SampleBuffer:
         self.reinit_prob = reinit_prob
         self.sample_shape = sample_shape
         self.buffer: list[jax.Array] = []
+
+    @property
+    def num_samples(self) -> int:
+        """Return the total number of retained samples across all stored batches."""
+        return sum(int(batch.shape[0]) for batch in self.buffer)
+
+    def clear(self) -> None:
+        """Remove all retained samples from the buffer."""
+        self.buffer.clear()
 
     def sample_initial(
         self,
@@ -220,7 +229,7 @@ class SampleBuffer:
             return jax.random.uniform(key2, (batch_size, *sample_shape), minval=-1.0, maxval=1.0)
 
         # Determine how many samples to reinitialize
-        n_reinit = jax.random.binomial(key1, n=batch_size, p=self.reinit_prob).astype(int)
+        n_reinit = int(jax.random.binomial(key1, n=batch_size, p=self.reinit_prob))
         n_from_buffer = batch_size - n_reinit
 
         samples = []
@@ -271,12 +280,25 @@ class SampleBuffer:
         Args:
             new_samples: New samples to add to buffer
         """
-        # Add the entire batch as a single element
+        if self.sample_shape is None:
+            self.sample_shape = tuple(int(dim) for dim in new_samples.shape[1:])
+
+        # Keep batch storage for efficient concatenation, but enforce capacity
+        # in retained samples rather than retained batches.
         self.buffer.append(new_samples)
 
-        # Trim buffer if it exceeds capacity
-        if len(self.buffer) > self.capacity:
-            self.buffer = self.buffer[-self.capacity :]
+        overflow = self.num_samples - self.capacity
+        while overflow > 0 and self.buffer:
+            oldest_batch = self.buffer[0]
+            oldest_count = int(oldest_batch.shape[0])
+
+            if overflow >= oldest_count:
+                self.buffer.pop(0)
+                overflow -= oldest_count
+                continue
+
+            self.buffer[0] = oldest_batch[overflow:]
+            overflow = 0
 
 
 def improved_langevin_dynamics(

@@ -1,27 +1,27 @@
-"""Protocols for evaluation of generative models."""
+"""Protocols for evaluation of generative models.
 
-from typing import Any, Protocol, runtime_checkable
+BenchmarkModelProtocol is artifex-specific (requires rngs for NNX models).
+DatasetProtocol and BatchableDatasetProtocol are re-exported from calibrax.
+"""
+
+from typing import Protocol, runtime_checkable
 
 import jax
+from calibrax.core import BatchableDatasetProtocol, DatasetProtocol
 from flax import nnx
 
 
 @runtime_checkable
-class ModelProtocol(Protocol):
-    """Protocol defining the interface for NNX models that can be benchmarked.
+class BenchmarkModelProtocol(Protocol):
+    """Protocol for NNX models that can be benchmarked.
 
     All models must be built with Flax NNX and must follow the proper
-    RNG handling patterns described in the critical technical guidelines.
-    The rngs parameter is required for all operations.
+    RNG handling patterns. The rngs parameter is required for all operations.
     """
 
     @property
     def model_name(self) -> str:
-        """Get the name of the model.
-
-        Returns:
-            The model name.
-        """
+        """Get the name of the model."""
         ...
 
     def predict(self, x: jax.Array, *, rngs: nnx.Rngs) -> jax.Array:
@@ -29,7 +29,7 @@ class ModelProtocol(Protocol):
 
         Args:
             x: Input data.
-            rngs: dictionary of NNX Rngs objects for stochastic operations.
+            rngs: NNX Rngs objects for stochastic operations.
 
         Returns:
             Model predictions.
@@ -49,59 +49,8 @@ class ModelProtocol(Protocol):
         ...
 
 
-class DatasetProtocol(Protocol):
-    """Protocol defining the interface for datasets that can be used in benchmarks."""
-
-    def __len__(self) -> int:
-        """Get the number of examples in the dataset.
-
-        Returns:
-            Number of examples.
-        """
-        ...
-
-    def __getitem__(self, idx: int) -> Any:
-        """Get an example from the dataset.
-
-        Args:
-            idx: Index of the example.
-
-        Returns:
-            The example.
-        """
-        ...
-
-
-class BatchableDatasetProtocol(Protocol):
-    """Protocol for datasets that support batch retrieval."""
-
-    def __len__(self) -> int:
-        """Get the number of examples in the dataset.
-
-        Returns:
-            Number of examples.
-        """
-        ...
-
-    def __getitem__(self, idx: int) -> Any:
-        """Get an example from the dataset.
-
-        Args:
-            idx: Index of the example.
-
-        Returns:
-            The example.
-        """
-        ...
-
-    def get_batch(self, batch_size: int, start_idx: int) -> dict[str, Any]:
-        """Get a batch of data.
-
-        Args:
-            batch_size: Size of the batch
-            start_idx: Starting index
-
-        Returns:
-            Batch data dictionary
-        """
-        ...
+__all__ = [
+    "BatchableDatasetProtocol",
+    "BenchmarkModelProtocol",
+    "DatasetProtocol",
+]

@@ -103,14 +103,13 @@ class TestEBMBuilder:
 
     def test_ebm_with_custom_params(self, rngs, sample_buffer_config):
         """Test building EBM with custom parameters."""
-        # Custom energy network with spectral norm
+        # Custom energy network configuration
         energy_network = EnergyNetworkConfig(
             name="custom_energy",
             hidden_dims=(512, 256),
             activation="swish",
             network_type="mlp",
             use_bias=True,
-            use_spectral_norm=True,
             dropout_rate=0.1,
         )
 

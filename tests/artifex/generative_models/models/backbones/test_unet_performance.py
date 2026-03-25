@@ -237,8 +237,8 @@ class TestUNetScaling:
             params = nnx.state(model, nnx.Param)
             total = 0
             for leaf in jax.tree.leaves(params):
-                if hasattr(leaf, "value"):
-                    total += leaf.value.size
+                if isinstance(leaf, nnx.Variable):
+                    total += leaf[...].size
                 elif isinstance(leaf, jax.Array):
                     total += leaf.size
             return total
@@ -306,8 +306,8 @@ class TestUNetStability:
             # Compute gradient norm
             grad_norm = 0.0
             for leaf in jax.tree.leaves(grads):
-                if hasattr(leaf, "value"):
-                    grad_norm += jnp.sum(leaf.value**2)
+                if isinstance(leaf, nnx.Variable):
+                    grad_norm += jnp.sum(leaf[...] ** 2)
             grad_norm = jnp.sqrt(grad_norm)
             grad_norms.append(float(grad_norm))
 
@@ -430,44 +430,3 @@ class TestUNetGPU:
 
         output = parallel_forward(x_parallel, t_parallel)
         assert output.shape == x_parallel.shape
-
-
-if __name__ == "__main__":
-    # Run basic performance test if executed directly
-
-    rngs = nnx.Rngs(42)
-
-    print("Running basic UNet performance test...")
-
-    config = create_unet_config()
-    unet = UNet(config, rngs=rngs)
-    x = jnp.ones((4, 64, 64, 3))
-    t = jnp.array([10, 20, 30, 40])
-
-    # JIT compile
-    @nnx.jit
-    def forward_jit(model, x, t):
-        return model(x, t, deterministic=True)
-
-    # Warmup
-    print("Compiling...")
-    start_compile = time.time()
-    _ = forward_jit(unet, x, t)
-    compile_time = time.time() - start_compile
-    print(f"Compilation time: {compile_time:.2f}s")
-
-    # Benchmark
-    print("Benchmarking...")
-    num_runs = 50
-    start_time = time.time()
-
-    for _ in range(num_runs):
-        output = forward_jit(unet, x, t)
-        output.block_until_ready()
-
-    end_time = time.time()
-    avg_time = (end_time - start_time) / num_runs
-
-    print(f"Average forward pass time: {avg_time * 1000:.2f}ms")
-    print(f"Throughput: {4 / avg_time:.1f} samples/second")
-    print("Performance test completed!")

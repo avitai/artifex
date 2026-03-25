@@ -5,9 +5,12 @@ for the JAXProfiler and MemoryProfiler callbacks.
 """
 
 import json
+import platform
 import tempfile
 from pathlib import Path
 from unittest.mock import MagicMock, patch
+
+import pytest
 
 
 class TestProfilingConfig:
@@ -31,8 +34,8 @@ class TestProfilingConfig:
         assert config.log_dir == "logs/profiles"
         assert config.start_step == 10
         assert config.end_step == 20
-        assert config.trace_memory is True
-        assert config.trace_python is False
+        assert not hasattr(config, "trace_memory")
+        assert not hasattr(config, "trace_python")
 
     def test_config_custom_values(self):
         """ProfilingConfig should accept custom values."""
@@ -44,14 +47,20 @@ class TestProfilingConfig:
             log_dir="custom/profiles",
             start_step=5,
             end_step=15,
-            trace_memory=False,
-            trace_python=True,
         )
         assert config.log_dir == "custom/profiles"
         assert config.start_step == 5
         assert config.end_step == 15
-        assert config.trace_memory is False
-        assert config.trace_python is True
+
+    @pytest.mark.parametrize("removed_field", ["trace_memory", "trace_python"])
+    def test_config_rejects_removed_trace_flags(self, removed_field: str):
+        """ProfilingConfig should reject trace flags the runtime does not consume."""
+        from artifex.generative_models.training.callbacks.profiling import (
+            ProfilingConfig,
+        )
+
+        with pytest.raises(TypeError, match=removed_field):
+            ProfilingConfig(**{removed_field: True})
 
 
 class TestJAXProfilerBasic:
@@ -136,10 +145,17 @@ class TestJAXProfilerLifecycle:
             mock_start_trace.assert_not_called()
             assert callback._profiling is False
 
-            # At start_step - should start profiling
-            callback.on_batch_begin(trainer, batch=5)
-            mock_start_trace.assert_called_once()
-            assert callback._profiling is True
+            # At start_step - should start profiling except on macOS, where
+            # the retained runtime intentionally disables trace profiling.
+            if platform.system() == "Darwin":
+                with pytest.warns(RuntimeWarning, match="disabled on macOS"):
+                    callback.on_batch_begin(trainer, batch=5)
+                mock_start_trace.assert_not_called()
+                assert callback._profiling is False
+            else:
+                callback.on_batch_begin(trainer, batch=5)
+                mock_start_trace.assert_called_once()
+                assert callback._profiling is True
 
     @patch("jax.profiler.stop_trace")
     @patch("jax.profiler.start_trace")
@@ -155,18 +171,27 @@ class TestJAXProfilerLifecycle:
             callback = JAXProfiler(config)
             trainer = MagicMock()
 
-            # Start profiling
-            callback.on_batch_begin(trainer, batch=5)
-            assert callback._profiling is True
+            # Start profiling when the runtime supports trace capture.
+            if platform.system() == "Darwin":
+                with pytest.warns(RuntimeWarning, match="disabled on macOS"):
+                    callback.on_batch_begin(trainer, batch=5)
+                assert callback._profiling is False
 
-            # Before end_step - should not stop
-            callback.on_batch_end(trainer, 9, {})
-            mock_stop_trace.assert_not_called()
+                callback.on_batch_end(trainer, 9, {})
+                callback.on_batch_end(trainer, 10, {})
+                mock_stop_trace.assert_not_called()
+            else:
+                callback.on_batch_begin(trainer, batch=5)
+                assert callback._profiling is True
 
-            # At end_step - should stop profiling
-            callback.on_batch_end(trainer, 10, {})
-            mock_stop_trace.assert_called_once()
-            assert callback._profiling is False
+                # Before end_step - should not stop
+                callback.on_batch_end(trainer, 9, {})
+                mock_stop_trace.assert_not_called()
+
+                # At end_step - should stop profiling
+                callback.on_batch_end(trainer, 10, {})
+                mock_stop_trace.assert_called_once()
+                assert callback._profiling is False
 
     @patch("jax.profiler.stop_trace")
     @patch("jax.profiler.start_trace")
@@ -182,14 +207,21 @@ class TestJAXProfilerLifecycle:
             callback = JAXProfiler(config)
             trainer = MagicMock()
 
-            # Start profiling
-            callback.on_batch_begin(trainer, batch=5)
-            assert callback._profiling is True
+            if platform.system() == "Darwin":
+                with pytest.warns(RuntimeWarning, match="disabled on macOS"):
+                    callback.on_batch_begin(trainer, batch=5)
+                assert callback._profiling is False
 
-            # End training before end_step
-            callback.on_train_end(trainer)
-            mock_stop_trace.assert_called_once()
-            assert callback._profiling is False
+                callback.on_train_end(trainer)
+                mock_stop_trace.assert_not_called()
+            else:
+                callback.on_batch_begin(trainer, batch=5)
+                assert callback._profiling is True
+
+                # End training before end_step
+                callback.on_train_end(trainer)
+                mock_stop_trace.assert_called_once()
+                assert callback._profiling is False
 
     @patch("jax.profiler.stop_trace")
     def test_on_train_end_does_nothing_if_not_profiling(self, mock_stop_trace):

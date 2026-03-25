@@ -15,7 +15,7 @@ Demonstrate how to use protein-specific extensions with Artifex's geometric mode
 
 ```bash
 # Run the Python script
-source activate.sh
+pip install artifex
 python examples/generative_models/protein/protein_model_extension.py
 
 # Or use Jupyter notebook

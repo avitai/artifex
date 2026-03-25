@@ -14,6 +14,7 @@ from artifex.generative_models.core.configuration import (
     DCGANConfig,
     DecoderConfig,
     EncoderConfig,
+    GANConfig,
     VAEConfig,
 )
 from artifex.generative_models.factory.core import create_model, ModelFactory
@@ -204,6 +205,30 @@ class TestModelFactoryWithGAN:
         assert model is not None
         assert hasattr(model, "generator")
         assert hasattr(model, "discriminator")
+
+    def test_create_model_rejects_base_gan_config(self, rngs):
+        """Base GANConfig should not be advertised as factory-ready."""
+        generator = ConvGeneratorConfig(
+            name="generator",
+            latent_dim=32,
+            output_shape=(3, 32, 32),
+            hidden_dims=(64, 32),
+            activation="relu",
+        )
+        discriminator = ConvDiscriminatorConfig(
+            name="discriminator",
+            input_shape=(3, 32, 32),
+            hidden_dims=(32, 64),
+            activation="leaky_relu",
+        )
+        config = GANConfig(
+            name="test_base_gan",
+            generator=generator,
+            discriminator=discriminator,
+        )
+
+        with pytest.raises(TypeError, match="Cannot build model from base GANConfig"):
+            create_model(config, rngs=rngs)
 
 
 class TestFactoryTypeDispatch:

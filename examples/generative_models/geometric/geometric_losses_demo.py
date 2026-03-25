@@ -19,10 +19,10 @@
 #
 # ## Learning Objectives
 #
-# - Understand loss functions for point cloud models (Chamfer, Earth Mover's Distance)
-# - Learn about mesh-specific losses (vertex, normal, edge)
+# - Understand point-cloud loss primitives (Chamfer, Earth Mover's Distance, Hausdorff)
+# - Learn how mesh losses are composed from explicit geometric primitives
 # - Explore voxel loss functions (BCE, Focal, Dice)
-# - See how to configure loss weights for different geometric representations
+# - See which losses are model runtime defaults versus standalone helpers
 #
 # ## Prerequisites
 #
@@ -44,27 +44,38 @@
 # %%
 """Demonstration of geometric model loss functions with configuration."""
 
+import logging
+
 import jax
 import jax.numpy as jnp
 from flax import nnx
 
-from artifex.generative_models.core.configuration import (
-    MeshConfig,
-    MeshNetworkConfig,
-    PointCloudConfig,
-    PointCloudNetworkConfig,
-    VoxelConfig,
-    VoxelNetworkConfig,
+from artifex.generative_models.core.configuration import VoxelConfig, VoxelNetworkConfig
+from artifex.generative_models.core.losses.geometric import (
+    chamfer_distance,
+    earth_mover_distance,
+    get_mesh_loss,
+    hausdorff_distance,
 )
 from artifex.generative_models.factory import create_model
+
+
+logging.basicConfig(level=logging.INFO, format="%(message)s")
+LOGGER = logging.getLogger(__name__)
+
+
+def echo(message: object = "") -> None:
+    """Log example progress without raw print statements."""
+    LOGGER.info("%s", message)
 
 
 # %% [markdown]
 # ## 1. Point Cloud Loss Functions
 #
 # Point clouds are unordered sets of 3D points. The main challenge is that
-# permutations of the same shape should have zero loss, requiring specialized
-# metrics like Chamfer Distance and Earth Mover's Distance.
+# permutations of the same shape should have zero loss, so the retained surface
+# is a set of standalone geometric primitives rather than a PointCloudConfig
+# loss-selection knob.
 #
 # ### Chamfer Distance
 #
@@ -78,10 +89,7 @@ from artifex.generative_models.factory import create_model
 
 
 # %%
-# Initialize RNG for point cloud demo
-print("===== Point Cloud Loss Functions Demo =====")
-rng_pc = jax.random.PRNGKey(42)
-rngs = nnx.Rngs(params=rng_pc)
+echo("===== Point Cloud Loss Functions Demo =====")
 
 # %%
 # Create a sample point cloud for testing
@@ -90,69 +98,27 @@ true_points = jnp.array(
 )  # Shape: [1, 125, 3]
 
 # %%
-# Test with Chamfer distance loss
-# Create network configuration for point cloud
-pc_network_config = PointCloudNetworkConfig(
-    name="chamfer_network",
-    hidden_dims=(64, 64),
-    activation="gelu",
-    embed_dim=64,
-    num_heads=4,
-    num_layers=2,
-    dropout_rate=0.1,
-)
+# Create a slightly shifted prediction
+pred_points = true_points + 0.05
 
-chamfer_config = PointCloudConfig(
-    name="chamfer_point_cloud",
-    network=pc_network_config,
-    num_points=125,
-    dropout_rate=0.1,
-)
-chamfer_model = create_model(chamfer_config, rngs=rngs)
-chamfer_loss_fn = chamfer_model.get_loss_fn()
-
-# Generate a sample prediction
-pred_points = chamfer_model.generate(n_samples=1)
-
-# Compute the loss (loss function expects batch dict and outputs)
-batch = {"target": true_points}
-chamfer_loss = chamfer_loss_fn(batch, pred_points)
-print(f"Chamfer distance loss: {chamfer_loss}")
+# Compute retained standalone point-cloud losses directly
+chamfer_loss = chamfer_distance(pred_points, true_points)
+echo(f"Chamfer distance loss: {float(chamfer_loss):.4f}")
 
 # %%
-# Test with Earth Mover's distance loss (if implemented)
-# Create network configuration for point cloud
-em_network_config = PointCloudNetworkConfig(
-    name="earth_mover_network",
-    hidden_dims=(64, 64),
-    activation="gelu",
-    embed_dim=64,
-    num_heads=4,
-    num_layers=2,
-    dropout_rate=0.1,
-)
+earth_mover_loss = earth_mover_distance(pred_points, true_points)
+echo(f"Earth Mover distance loss: {float(earth_mover_loss):.4f}")
 
-earth_mover_config = PointCloudConfig(
-    name="earth_mover_point_cloud",
-    network=em_network_config,
-    num_points=125,
-    dropout_rate=0.1,
-)
-earth_mover_model = create_model(earth_mover_config, rngs=rngs)
-earth_mover_loss_fn = earth_mover_model.get_loss_fn()
-
-# Compute the loss
-pred_points = earth_mover_model.generate(n_samples=1)
-earth_mover_batch = {"target": true_points}
-earth_mover_loss = earth_mover_loss_fn(earth_mover_batch, pred_points)
-print(f"Earth Mover distance loss: {earth_mover_loss}")
+hausdorff_loss = hausdorff_distance(pred_points, true_points)
+echo(f"Hausdorff distance loss: {float(hausdorff_loss):.4f}")
 
 
 # %% [markdown]
 # ## 2. Mesh Loss Functions
 #
-# Meshes have vertices connected by edges and faces. Loss functions can focus
-# on different aspects:
+# Meshes have vertices connected by edges and faces. The retained runtime model
+# reconstructs vertices generically; the richer mesh objective remains an
+# explicit standalone primitive assembled with get_mesh_loss(...).
 #
 # - **Vertex Loss**: Measures vertex position accuracy
 # - **Normal Loss**: Ensures surface normals are correct (smooth surfaces)
@@ -162,62 +128,28 @@ print(f"Earth Mover distance loss: {earth_mover_loss}")
 
 
 # %%
-# Initialize RNG for mesh demo
-print("\n===== Mesh Loss Functions Demo =====")
-rng_mesh = jax.random.PRNGKey(43)
-rngs = nnx.Rngs(params=rng_mesh)
+echo("\n===== Mesh Loss Functions Demo =====")
 
 # %%
-# Default weights - create network configuration for mesh
-default_mesh_network = MeshNetworkConfig(
-    name="default_mesh_network",
-    hidden_dims=(128, 64),
-    activation="gelu",
-    embed_dim=128,
-    num_heads=4,
-    num_layers=2,
-    edge_features_dim=32,
+# Create simple predicted and target meshes
+pred_vertices = jnp.array([[[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]]])
+pred_faces = jnp.array([[0, 1, 2]])
+pred_normals = jnp.array([[[0.0, 0.0, 1.0], [0.0, 0.0, 1.0], [0.0, 0.0, 1.0]]])
+
+target_vertices = pred_vertices + 0.1
+target_faces = pred_faces
+target_normals = pred_normals
+
+pred_mesh = (pred_vertices, pred_faces, pred_normals)
+target_mesh = (target_vertices, target_faces, target_normals)
+
+default_mesh_loss = get_mesh_loss()(pred_mesh, target_mesh)
+smooth_mesh_loss = get_mesh_loss(vertex_weight=0.5, normal_weight=1.0, edge_weight=0.1)(
+    pred_mesh, target_mesh
 )
 
-default_config = MeshConfig(
-    name="default_weights_mesh",
-    network=default_mesh_network,
-    num_vertices=100,
-    num_faces=196,
-    dropout_rate=0.1,
-)
-default_model = create_model(default_config, rngs=rngs)
-
-# %%
-# Custom weights emphasizing normal consistency
-normal_mesh_network = MeshNetworkConfig(
-    name="normal_mesh_network",
-    hidden_dims=(128, 64),
-    activation="gelu",
-    embed_dim=128,
-    num_heads=4,
-    num_layers=2,
-    edge_features_dim=32,
-)
-
-normal_config = MeshConfig(
-    name="normal_weights_mesh",
-    network=normal_mesh_network,
-    num_vertices=100,
-    num_faces=196,
-    dropout_rate=0.1,
-)
-normal_model = create_model(normal_config, rngs=rngs)
-
-# %%
-# Access configuration parameters
-print(f"Default model num_vertices: {default_model.config.num_vertices}")
-print(f"Default model num_faces: {default_model.config.num_faces}")
-print(f"Default model network embed_dim: {default_model.config.network.embed_dim}")
-
-print(f"Normal-focused model num_vertices: {normal_model.config.num_vertices}")
-print(f"Normal-focused model num_faces: {normal_model.config.num_faces}")
-print(f"Normal-focused model network embed_dim: {normal_model.config.network.embed_dim}")
+echo(f"Default mesh loss: {float(default_mesh_loss):.4f}")
+echo(f"Smooth-surface weighted mesh loss: {float(smooth_mesh_loss):.4f}")
 
 
 # %% [markdown]
@@ -241,7 +173,7 @@ print(f"Normal-focused model network embed_dim: {normal_model.config.network.emb
 
 # %%
 # Initialize RNG for voxel demo
-print("\n===== Voxel Loss Functions Demo =====")
+echo("\n===== Voxel Loss Functions Demo =====")
 rng_voxel = jax.random.PRNGKey(44)
 rngs = nnx.Rngs(params=rng_voxel)
 
@@ -280,7 +212,7 @@ pred_voxels = bce_model.generate(n_samples=1)
 
 # Compute the loss (voxel loss functions expect direct arrays)
 bce_loss = bce_loss_fn(pred_voxels, true_voxels)
-print(f"Binary cross-entropy loss: {bce_loss}")
+echo(f"Binary cross-entropy loss: {bce_loss}")
 
 # %%
 # Focal loss configuration
@@ -310,7 +242,7 @@ focal_loss_fn = focal_model.get_loss_fn()
 pred_voxels = focal_model.generate(n_samples=1)
 # Compute the loss (voxel loss functions expect direct arrays)
 focal_loss = focal_loss_fn(pred_voxels, true_voxels)
-print(f"Focal loss (gamma=2.0): {focal_loss}")
+echo(f"Focal loss (gamma=2.0): {focal_loss}")
 
 # %%
 # Dice loss configuration (good for segmentation tasks)
@@ -338,7 +270,7 @@ dice_loss_fn = dice_model.get_loss_fn()
 # Compute the loss
 pred_voxels = dice_model.generate(n_samples=1)
 dice_loss = dice_loss_fn(pred_voxels, true_voxels)
-print(f"Dice loss: {dice_loss}")
+echo(f"Dice loss: {dice_loss}")
 
 # %%
 # MSE loss configuration (good for regression tasks)
@@ -366,9 +298,9 @@ mse_loss_fn = mse_model.get_loss_fn()
 # Compute the loss
 pred_voxels = mse_model.generate(n_samples=1)
 mse_loss = mse_loss_fn(pred_voxels, true_voxels)
-print(f"MSE loss: {mse_loss}")
+echo(f"MSE loss: {mse_loss}")
 
-print("\nSupported voxel loss types: 'bce', 'dice', 'focal', 'mse'")
+echo("\nSupported voxel loss types: 'bce', 'dice', 'focal', 'mse'")
 
 
 # %% [markdown]
@@ -398,7 +330,7 @@ print("\nSupported voxel loss types: 'bce', 'dice', 'focal', 'mse'")
 #
 # 1. **Choose loss based on representation**: Different 3D formats need different losses
 # 2. **Point clouds need permutation invariance**: Use Chamfer or EMD
-# 3. **Mesh losses are composite**: Balance vertex, normal, and edge terms
+# 3. **Mesh losses are standalone primitives**: Compose vertex, normal, and edge terms
 # 4. **Voxel losses handle sparsity**: Use Focal or Dice for sparse 3D shapes
 # 5. **Loss weights are hyperparameters**: Tune them for your application
 #
@@ -418,4 +350,4 @@ print("\nSupported voxel loss types: 'bce', 'dice', 'focal', 'mse'")
 
 
 # %%
-print("\nLoss function demos completed!")
+echo("\nLoss function demos completed!")

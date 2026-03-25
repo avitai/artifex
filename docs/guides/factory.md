@@ -1,8 +1,5 @@
 # Factory Guide
 
-!!! info "Coming Soon"
-    This guide is being developed. Check back for comprehensive factory pattern documentation.
-
 ## Overview
 
 Learn about Artifex's factory pattern:

@@ -18,7 +18,7 @@ from artifex.generative_models.core.configuration.validation import (
 )
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class VAEConfig(BaseConfig):
     """Base configuration for VAE models with nested network configs.
 
@@ -31,7 +31,7 @@ class VAEConfig(BaseConfig):
         description: Optional description
         encoder: EncoderConfig for the encoder network
         decoder: DecoderConfig for the decoder network
-        encoder_type: Type of encoder/decoder architecture (dense, cnn, resnet)
+        encoder_type: Type of encoder/decoder architecture (dense, cnn)
         kl_weight: Weight for KL divergence term (default: 1.0)
         tags: Tuple of string tags
         metadata: Dictionary of arbitrary metadata
@@ -76,7 +76,7 @@ class VAEConfig(BaseConfig):
             TypeError: If encoder or decoder have wrong type
         """
         # Call parent validation first
-        super().__post_init__()
+        super(VAEConfig, self).__post_init__()
 
         # Validate required nested configs
         if self.encoder is None:
@@ -98,7 +98,7 @@ class VAEConfig(BaseConfig):
             )
 
         # Validate encoder_type
-        valid_encoder_types = {"dense", "cnn", "resnet"}
+        valid_encoder_types = {"dense", "cnn"}
         if self.encoder_type not in valid_encoder_types:
             raise ValueError(
                 f"encoder_type must be one of {valid_encoder_types}, got '{self.encoder_type}'"
@@ -135,7 +135,7 @@ class VAEConfig(BaseConfig):
         return super(VAEConfig, cls).from_dict(data)
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class BetaVAEConfig(VAEConfig):
     """Configuration for Beta-VAE.
 
@@ -170,7 +170,7 @@ class BetaVAEConfig(VAEConfig):
             ValueError: If any validation fails
         """
         # Call parent validation first
-        super().__post_init__()
+        super(BetaVAEConfig, self).__post_init__()
 
         # Validate BetaVAE-specific parameters
         if self.beta_default <= 0:
@@ -187,7 +187,7 @@ class BetaVAEConfig(VAEConfig):
             )
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class BetaVAEWithCapacityConfig(BetaVAEConfig):
     """Configuration for Beta-VAE with Burgess et al. capacity control.
 
@@ -226,7 +226,7 @@ class BetaVAEWithCapacityConfig(BetaVAEConfig):
             ValueError: If any validation fails
         """
         # Call parent validation first
-        super().__post_init__()
+        super(BetaVAEWithCapacityConfig, self).__post_init__()
 
         # Validate capacity control parameters
         validate_non_negative_float(self.capacity_max, "capacity_max")
@@ -234,7 +234,7 @@ class BetaVAEWithCapacityConfig(BetaVAEConfig):
         validate_non_negative_float(self.gamma, "gamma")
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class ConditionalVAEConfig(VAEConfig):
     """Configuration for Conditional VAE.
 
@@ -268,7 +268,7 @@ class ConditionalVAEConfig(VAEConfig):
             ValueError: If any validation fails
         """
         # Call parent validation first
-        super().__post_init__()
+        super(ConditionalVAEConfig, self).__post_init__()
 
         # Validate num_classes (required)
         if self.num_classes <= 0:
@@ -290,7 +290,7 @@ class ConditionalVAEConfig(VAEConfig):
             )
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class VQVAEConfig(VAEConfig):
     """Configuration for Vector Quantized VAE (VQ-VAE).
 
@@ -324,7 +324,7 @@ class VQVAEConfig(VAEConfig):
             ValueError: If any validation fails
         """
         # Call parent validation first
-        super().__post_init__()
+        super(VQVAEConfig, self).__post_init__()
 
         # Validate VQ-VAE-specific parameters
         validate_positive_int(self.num_embeddings, "num_embeddings")

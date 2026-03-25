@@ -57,6 +57,7 @@ class TestPatchGANDiscriminator:
         assert patchgan_discriminator.patchgan_num_layers == 3
         assert patchgan_discriminator.batch_norm is True
         assert patchgan_discriminator.dropout_rate == 0.1
+        assert not hasattr(patchgan_discriminator, "use_spectral_norm")
 
         # Check that layers are created
         assert hasattr(patchgan_discriminator, "initial_conv")

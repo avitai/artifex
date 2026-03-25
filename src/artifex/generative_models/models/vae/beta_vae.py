@@ -10,7 +10,8 @@ from artifex.generative_models.core.configuration.vae_config import (
     BetaVAEConfig,
     BetaVAEWithCapacityConfig,
 )
-from artifex.generative_models.models.vae.base import VAE
+from artifex.generative_models.core.losses.vae import vae_elbo_terms, vae_kl_components
+from artifex.generative_models.models.vae.base import _extract_vae_inputs, VAE
 
 
 class BetaVAE(VAE):
@@ -45,22 +46,17 @@ class BetaVAE(VAE):
 
     def loss_fn(
         self,
-        params: dict | None = None,
-        batch: dict | None = None,
-        rng: jax.Array | None = None,
-        x: jax.Array | None = None,
-        outputs: dict[str, jax.Array] | None = None,
+        batch: Any,
+        model_outputs: dict[str, jax.Array],
+        *,
         beta: float | None = None,
         **kwargs: Any,
     ) -> dict[str, jax.Array]:
         """Calculate loss for BetaVAE.
 
         Args:
-            params: Model parameters (optional, for compatibility with Trainer)
-            batch: Input batch (optional, for compatibility with Trainer)
-            rng: Random number generator (optional, for Trainer compatibility)
-            x: Input data (if not provided in batch)
-            outputs: Dictionary of model outputs from forward pass
+            batch: Input batch as an array or dict containing the model inputs.
+            model_outputs: Dictionary of model outputs from forward pass.
             beta: Weight for KL divergence term. If None, uses model's beta_default
                 with optional warmup.
             **kwargs: Additional arguments including current training step
@@ -68,46 +64,17 @@ class BetaVAE(VAE):
         Returns:
             Dictionary of loss components
         """
-        # Handle different input patterns for compatibility
-        if batch is not None and x is None:
-            if isinstance(batch, dict) and "inputs" in batch:
-                x = batch["inputs"]
-            else:
-                x = batch
-
-        # Ensure x is a proper JAX array, not a dictionary
-        if isinstance(x, dict):
-            if "inputs" in x:
-                x = x["inputs"]
-            elif "input" in x:
-                x = x["input"]
-            else:
-                # If x is still a dictionary without recognized keys, raise error
-                error_msg = (
-                    "Input 'x' is a dictionary without 'inputs' or 'input' keys. "
-                    "Expected a JAX array."
-                )
-                raise ValueError(error_msg)
-
-        if outputs is None:
-            if hasattr(self, "apply") and params is not None:
-                # For compatibility with Trainer
-                outputs = self.apply(params, x)
-            else:
-                # Use direct call
-                outputs = self(x)
+        x = _extract_vae_inputs(batch)
 
         # Extract outputs
-        recon_key1 = "reconstructed"
-        recon_key2 = "reconstruction"
-        reconstructed = outputs.get(recon_key1, outputs.get(recon_key2, None))
+        reconstructed = model_outputs.get("reconstructed")
         if reconstructed is None:
-            raise KeyError(f"Missing required output key: '{recon_key1}' or '{recon_key2}'")
+            raise KeyError("Missing required output key: 'reconstructed'")
 
-        mean = outputs["mean"]
-        log_var = outputs.get("log_var", outputs.get("logvar", None))
+        mean = model_outputs["mean"]
+        log_var = model_outputs.get("log_var")
         if log_var is None:
-            raise KeyError("Missing required output key: 'log_var' or 'logvar'")
+            raise KeyError("Missing required output key: 'log_var'")
 
         # Get beta value and handle annealing if needed
         # If beta is None, use beta_default with optional warmup
@@ -125,33 +92,16 @@ class BetaVAE(VAE):
             )
             beta = beta_value * warmup_ratio
 
-        # Calculate reconstruction loss based on specified type
-        if self.reconstruction_loss_type == "bce":
-            # Binary cross entropy for image data (values in [0, 1])
-            epsilon = 1e-8  # Small value for numerical stability
-            recon_loss = -jnp.sum(
-                x * jnp.log(reconstructed + epsilon)
-                + (1 - x) * jnp.log(1 - reconstructed + epsilon),
-                axis=tuple(range(1, x.ndim)),
-            )
-            recon_loss = jnp.mean(recon_loss)
-        else:
-            # Default to MSE loss
-            recon_loss = jnp.mean((x - reconstructed) ** 2)
-
-        # KL divergence loss
-        kl_loss = -0.5 * jnp.mean(1 + log_var - mean**2 - jnp.exp(log_var))
-
-        # Total loss with beta weighting
-        total_loss = recon_loss + beta * kl_loss
-
-        # Return dict with all loss components
-        return {
-            "loss": total_loss,
-            "reconstruction_loss": recon_loss,
-            "kl_loss": kl_loss,
-            "beta": jnp.array(beta),  # Current beta value (for monitoring)
-        }
+        losses = vae_elbo_terms(
+            reconstructed=reconstructed,
+            targets=x,
+            mean=mean,
+            log_var=log_var,
+            beta=beta,
+            reconstruction_loss_type=self.reconstruction_loss_type,
+        )
+        losses["beta"] = jnp.asarray(beta)
+        return losses
 
 
 class BetaVAEWithCapacity(BetaVAE):
@@ -179,24 +129,18 @@ class BetaVAEWithCapacity(BetaVAE):
 
     def loss_fn(
         self,
-        params: dict | None = None,
-        batch: dict | None = None,
-        rng: jax.Array | None = None,
-        x: jax.Array | None = None,
-        outputs: dict[str, jax.Array] | None = None,
+        batch: Any,
+        model_outputs: dict[str, jax.Array],
+        *,
         beta: float | None = None,
         step: int = 0,  # Current training step
-        **kwargs,
+        **kwargs: Any,
     ) -> dict[str, jax.Array]:
         """Calculate loss with optional capacity control."""
-
         # Get base loss components
         base_losses = super().loss_fn(
-            params=params,
             batch=batch,
-            rng=rng,
-            x=x,
-            outputs=outputs,
+            model_outputs=model_outputs,
             beta=beta,
             step=step,
             **kwargs,
@@ -207,17 +151,10 @@ class BetaVAEWithCapacity(BetaVAE):
 
         # Extract components
         recon_loss = base_losses["reconstruction_loss"]
-        mean = outputs["mean"]
-        log_var = outputs.get("log_var", outputs.get("logvar"))
+        mean = model_outputs["mean"]
+        log_var = model_outputs.get("log_var")
 
-        # Per-sample KL divergence (not averaged yet)
-        kl_per_sample = -0.5 * jnp.sum(
-            1 + log_var - mean**2 - jnp.exp(log_var),
-            axis=-1,  # Sum over latent dimensions
-        )
-
-        # Average KL over batch
-        kl_loss = jnp.mean(kl_per_sample)
+        kl_loss, _ = vae_kl_components(mean, log_var)
 
         # Calculate current capacity
         current_capacity = jnp.minimum(
@@ -231,7 +168,7 @@ class BetaVAEWithCapacity(BetaVAE):
         total_loss = recon_loss + capacity_loss
 
         return {
-            "loss": total_loss,
+            "total_loss": total_loss,
             "reconstruction_loss": recon_loss,
             "kl_loss": kl_loss,
             "capacity_loss": capacity_loss,

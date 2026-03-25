@@ -1,73 +1,31 @@
 # Registry
 
-**Module:** `generative_models.core.evaluation.metrics.registry`
+Registry ownership for evaluation metrics lives in CalibraX.
 
-**Source:** `generative_models/core/evaluation/metrics/registry.py`
+## Current Contract
 
-## Overview
+- use `calibrax.metrics.MetricRegistry` for registry-backed metric lookup
+- use CalibraX metric entries, collections, or suites when you need grouped
+  metric execution
+- Artifex does not ship a second local registry in
+  `core.evaluation.metrics`
 
-Metrics registry for artifex.generative_models.core.evaluation.
-
-## Classes
-
-### MetricsRegistry
-
-```python
-class MetricsRegistry
-```
-
-## Functions
-
-### **init**
+## Example
 
 ```python
-def __init__()
+from calibrax.metrics import MetricEntry, MetricRegistry, MetricTier
+
+
+registry = MetricRegistry()
+registry.register(
+    "custom_score",
+    MetricEntry(
+        name="custom_score",
+        fn=lambda predictions, targets: 1.0,
+        tier=MetricTier.PURE_FUNCTION,
+        domain="testing",
+    ),
+)
+score_fn = registry.get_function("custom_score")
+result = score_fn([1], [1])
 ```
-
-### accuracy_metric
-
-```python
-def accuracy_metric()
-```
-
-### compute_metrics
-
-```python
-def compute_metrics()
-```
-
-### has_metric
-
-```python
-def has_metric()
-```
-
-### list_available_metrics
-
-```python
-def list_available_metrics()
-```
-
-### mae_metric
-
-```python
-def mae_metric()
-```
-
-### mse_metric
-
-```python
-def mse_metric()
-```
-
-### register_metric_computer
-
-```python
-def register_metric_computer()
-```
-
-## Module Statistics
-
-- **Classes:** 1
-- **Functions:** 8
-- **Imports:** 3

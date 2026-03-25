@@ -6,10 +6,10 @@
 
 ## Overview
 
-StyleGAN3 Generator with Translation and Rotation Equivariance.
+StyleGAN3-inspired generator and discriminator with simplified style modulation.
 
-This module implements StyleGAN3 architecture based on the official NVIDIA implementation
-but simplified for JAX/Flax NNX patterns while maintaining mathematical correctness.
+This module provides a simplified style-modulated generator/discriminator stack
+for JAX/Flax NNX with mapping and synthesis networks plus progressive upsampling.
 
 Key Features:
 

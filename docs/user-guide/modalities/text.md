@@ -6,6 +6,8 @@ This guide covers working with text data in Artifex, including tokenization, voc
 
 Artifex's text modality provides a unified interface for processing text data, handling tokenization, vocabulary management, and sequence processing for generative models.
 
+`TextModality` is the preprocessing owner for tokenization, detokenization, and sequence shaping. It is not a standalone text generator; model-owned generation stays outside this helper surface. Public evaluation lives in `TextEvaluationSuite`, and representation processing lives in `TextProcessor` and `TokenizationProcessor`.
+
 <div class="grid cards" markdown>
 
 - :material-alphabetical-variant:{ .lg .middle } **Tokenization**
@@ -51,7 +53,7 @@ Artifex's text modality provides a unified interface for processing text data, h
 ### Basic Configuration
 
 ```python
-from artifex.generative_models.core.configuration import ModalityConfiguration
+from artifex.configs import ModalityConfig
 from artifex.generative_models.modalities import TextModality
 from flax import nnx
 
@@ -59,9 +61,9 @@ from flax import nnx
 rngs = nnx.Rngs(0)
 
 # Configure text modality
-text_config = ModalityConfiguration(
+text_config = ModalityConfig(
     name="text",
-    modality_type="text",
+    modality_name="text",
     metadata={
         "text_params": {
             "vocab_size": 10000,
@@ -96,9 +98,9 @@ Artifex uses standard special tokens for sequence processing:
 
 ```python
 # Special token configuration
-text_config = ModalityConfiguration(
+text_config = ModalityConfig(
     name="text",
-    modality_type="text",
+    modality_name="text",
     metadata={
         "text_params": {
             "vocab_size": 50000,
@@ -122,26 +124,22 @@ Artifex provides several synthetic text dataset types:
 #### Random Sentences
 
 ```python
-from artifex.generative_models.modalities.text.datasets import SyntheticTextDataset
+from artifex.generative_models.modalities.text.datasets import create_text_dataset
 
 # Create dataset with random sentences
-random_text = SyntheticTextDataset(
-    config=text_config,
+random_text = create_text_dataset(
+    "synthetic",
+    rngs=rngs,
     dataset_size=5000,
     pattern_type="random_sentences",
-    split="train",
-    rngs=rngs
+    vocab_size=10000,
+    max_length=512,
 )
 
-# Get sample
-sample = next(iter(random_text))
-print(sample["text"])  # "the cat runs quickly"
-print(sample["text_tokens"].shape)  # (512,) - padded to max_length
-
-# Get batch
-batch = random_text.get_batch(batch_size=32)
-print(batch["text_tokens"].shape)  # (32, 512)
-print(len(batch["texts"]))  # 32 - list of strings
+# Iterate over samples
+for sample in random_text:
+    print(sample["text_tokens"].shape)  # (512,) - padded to max_length
+    break
 ```
 
 **Generated patterns:**
@@ -154,17 +152,19 @@ print(len(batch["texts"]))  # 32 - list of strings
 
 ```python
 # Dataset with repeated phrases
-repeated_text = SyntheticTextDataset(
-    config=text_config,
+repeated_text = create_text_dataset(
+    "synthetic",
+    rngs=rngs,
     dataset_size=5000,
     pattern_type="repeated_phrases",
-    split="train",
-    rngs=rngs
+    vocab_size=10000,
+    max_length=512,
 )
 
-# Example output: "hello world hello world hello world"
-sample = next(iter(repeated_text))
-print(sample["text"])
+# Iterate to inspect
+for sample in repeated_text:
+    print(sample["text_tokens"].shape)
+    break
 ```
 
 **Useful for:**
@@ -177,17 +177,19 @@ print(sample["text"])
 
 ```python
 # Dataset with numerical sequences
-sequences = SyntheticTextDataset(
-    config=text_config,
+sequences = create_text_dataset(
+    "synthetic",
+    rngs=rngs,
     dataset_size=5000,
     pattern_type="sequences",
-    split="train",
-    rngs=rngs
+    vocab_size=10000,
+    max_length=512,
 )
 
-# Example output: "0 1 2 3 4"
-sample = next(iter(sequences))
-print(sample["text"])
+# Iterate to inspect
+for sample in sequences:
+    print(sample["text_tokens"].shape)
+    break
 ```
 
 **Useful for:**
@@ -200,17 +202,19 @@ print(sample["text"])
 
 ```python
 # Dataset with palindromic patterns
-palindromes = SyntheticTextDataset(
-    config=text_config,
+palindromes = create_text_dataset(
+    "synthetic",
+    rngs=rngs,
     dataset_size=5000,
     pattern_type="palindromes",
-    split="train",
-    rngs=rngs
+    vocab_size=10000,
+    max_length=512,
 )
 
-# Example output: "racecar is a palindrome racecar"
-sample = next(iter(palindromes))
-print(sample["text"])
+# Iterate to inspect
+for sample in palindromes:
+    print(sample["text_tokens"].shape)
+    break
 ```
 
 **Useful for:**
@@ -224,7 +228,7 @@ print(sample["text"])
 For custom text data:
 
 ```python
-from artifex.generative_models.modalities.text.datasets import SimpleTextDataset
+from artifex.generative_models.modalities.text.datasets import create_text_dataset
 
 # Your text data
 texts = [
@@ -232,52 +236,52 @@ texts = [
     "Machine learning is a subset of artificial intelligence",
     "Deep learning uses neural networks with multiple layers",
     "Natural language processing enables text understanding",
-    "Transformers revolutionized NLP with attention mechanisms"
+    "Transformers revolutionized NLP with attention mechanisms",
 ]
 
 # Create dataset
-text_dataset = SimpleTextDataset(
-    config=text_config,
+text_dataset = create_text_dataset(
+    "simple",
+    rngs=rngs,
     texts=texts,
-    split="train",
-    rngs=rngs
+    vocab_size=10000,
+    max_length=512,
 )
 
 # Iterate over samples
 for sample in text_dataset:
-    print(f"Text: {sample['text']}")
     print(f"Tokens: {sample['text_tokens'].shape}")
     print(f"Index: {sample['index']}")
     break
-
-# Get batch
-batch = text_dataset.get_batch(batch_size=3)
-print(batch["text_tokens"].shape)  # (3, 512)
-print(batch["texts"])  # List of 3 strings
 ```
 
 ### Factory Function
+
+The `create_text_dataset()` factory returns a `MemorySource` instance. It accepts
+`dataset_type` as the first positional argument (`"synthetic"` or `"simple"`),
+`rngs` as a required keyword argument, and forwards remaining keyword arguments
+to the underlying data generation functions.
 
 ```python
 from artifex.generative_models.modalities.text.datasets import create_text_dataset
 
 # Create synthetic dataset
 dataset = create_text_dataset(
-    config=text_config,
-    dataset_type="synthetic",
-    split="train",
-    pattern_type="random_sentences",
+    "synthetic",
+    rngs=rngs,
     dataset_size=10000,
-    rngs=rngs
+    pattern_type="random_sentences",
+    vocab_size=10000,
+    max_length=512,
 )
 
 # Create simple dataset
 custom_dataset = create_text_dataset(
-    config=text_config,
-    dataset_type="simple",
-    split="train",
-    texts=["text 1", "text 2", ...],
-    rngs=rngs
+    "simple",
+    rngs=rngs,
+    texts=["text 1", "text 2", "text 3"],
+    vocab_size=10000,
+    max_length=512,
 )
 ```
 
@@ -386,59 +390,30 @@ print(recovered)
 For production use, integrate real tokenizers:
 
 ```python
-class CustomTextDataset(BaseDataset):
-    """Dataset with custom tokenizer."""
+import jax.numpy as jnp
+from datarax.sources import MemorySource, MemorySourceConfig
+from flax import nnx
 
-    def __init__(
-        self,
-        config: ModalityConfiguration,
-        texts: list[str],
-        tokenizer,  # Your tokenizer (e.g., from HuggingFace)
-        split: str = "train",
-        *,
-        rngs: nnx.Rngs,
-    ):
-        super().__init__(config, split, rngs=rngs)
-        self.texts = texts
-        self.tokenizer = tokenizer
+# Tokenize with a custom tokenizer, then wrap in MemorySource
+texts = ["hello world", "machine learning", "deep neural networks"]
+max_length = 128
 
-        # Tokenize all texts
-        self.tokens = self._tokenize_all()
+# Replace with your real tokenizer (e.g., HuggingFace)
+token_arrays = []
+for text in texts:
+    # encoded = tokenizer.encode(text, max_length=max_length)
+    encoded = jnp.array([2, 100, 200, 300, 3] + [0] * (max_length - 5))
+    token_arrays.append(encoded)
 
-    def _tokenize_all(self):
-        """Tokenize all texts using custom tokenizer."""
-        tokens = []
-        for text in self.texts:
-            # Use your tokenizer
-            # encoded = self.tokenizer.encode(text)
-            # For demo:
-            encoded = jnp.array([2, 100, 200, 300, 3])  # BOS ... EOS
-            tokens.append(encoded)
-        return tokens
+data = {
+    "text_tokens": jnp.stack(token_arrays),
+    "index": jnp.arange(len(texts)),
+}
+config = MemorySourceConfig(shuffle=True)
+dataset = MemorySource(config, data, rngs=nnx.Rngs(0))
 
-    def __len__(self) -> int:
-        return len(self.texts)
-
-    def __iter__(self):
-        for i, (text, tokens) in enumerate(zip(self.texts, self.tokens)):
-            yield {
-                "text": text,
-                "text_tokens": tokens,
-                "index": jnp.array(i)
-            }
-
-    def get_batch(self, batch_size: int):
-        key = self.rngs.sample() if "sample" in self.rngs else jax.random.key(0)
-        indices = jax.random.randint(key, (batch_size,), 0, len(self))
-
-        batch_tokens = [self.tokens[int(idx)] for idx in indices]
-        batch_texts = [self.texts[int(idx)] for idx in indices]
-
-        return {
-            "text_tokens": jnp.stack(batch_tokens),
-            "texts": batch_texts,
-            "indices": indices
-        }
+batch = dataset.get_batch(2)
+print(batch["text_tokens"].shape)  # (2, 128)
 ```
 
 ## Text Preprocessing
@@ -855,7 +830,7 @@ print("Shuffled: ", shuffled)
 ```python
 @jax.jit
 def augment_text(tokens: jax.Array, key, vocab_size: int = 10000):
-    """Apply comprehensive text augmentation.
+    """Apply complete text augmentation.
 
     Args:
         tokens: Token sequence
@@ -973,155 +948,84 @@ print(f"Most common tokens: {stats['most_common']}")
 import jax
 import jax.numpy as jnp
 from flax import nnx
-from artifex.generative_models.core.configuration import ModalityConfiguration
-from artifex.generative_models.modalities.text.datasets import SyntheticTextDataset
+from artifex.generative_models.modalities.text.datasets import create_text_dataset
 
 # Setup
 rngs = nnx.Rngs(0)
 
-# Configure
-text_config = ModalityConfiguration(
-    name="text",
-    modality_type="text",
-    metadata={
-        "text_params": {
-            "vocab_size": 50000,
-            "max_length": 256,
-            "pad_token_id": 0,
-            "unk_token_id": 1,
-            "bos_token_id": 2,
-            "eos_token_id": 3,
-            "case_sensitive": False
-        }
-    }
-)
-
-# Create datasets
-train_dataset = SyntheticTextDataset(
-    config=text_config,
+# Create datasets via factory
+train_dataset = create_text_dataset(
+    "synthetic",
+    rngs=rngs,
     dataset_size=100000,
     pattern_type="random_sentences",
-    split="train",
-    rngs=rngs
+    vocab_size=50000,
+    max_length=256,
 )
 
-val_dataset = SyntheticTextDataset(
-    config=text_config,
+val_dataset = create_text_dataset(
+    "synthetic",
+    rngs=rngs,
     dataset_size=10000,
     pattern_type="random_sentences",
-    split="val",
-    rngs=rngs
+    vocab_size=50000,
+    max_length=256,
 )
 
 # Training loop
-batch_size = 64
-num_epochs = 10
 key = jax.random.key(42)
 
-for epoch in range(num_epochs):
-    num_batches = len(train_dataset) // batch_size
-
-    for i in range(num_batches):
-        # Get batch
-        batch = train_dataset.get_batch(batch_size)
+for epoch in range(10):
+    for batch in train_dataset:
         tokens = batch["text_tokens"]
 
         # Apply augmentation during training
         key, subkey = jax.random.split(key)
-        augmented_tokens = augment_text_batch(tokens, subkey, vocab_size=50000)
+        augmented_tokens = augment_text_batch(tokens[None], subkey, vocab_size=50000)
 
         # Training step
         # loss = train_step(model, augmented_tokens)
 
     # Validation (no augmentation)
-    val_batches = len(val_dataset) // batch_size
-    for i in range(val_batches):
-        val_batch = val_dataset.get_batch(batch_size)
+    for val_batch in val_dataset:
+        pass
         # val_loss = validate_step(model, val_batch["text_tokens"])
 
-    print(f"Epoch {epoch + 1}/{num_epochs} complete")
+    print(f"Epoch {epoch + 1}/10 complete")
 ```
 
 ### Example 2: Custom Text Dataset
 
 ```python
-from typing import Iterator
-from artifex.generative_models.modalities.base import BaseDataset
+import jax.numpy as jnp
+from datarax.sources import MemorySource, MemorySourceConfig
+from flax import nnx
 
-class CustomTextDataset(BaseDataset):
-    """Custom text dataset from file."""
+from artifex.generative_models.modalities.text.datasets import simple_tokenize
 
-    def __init__(
-        self,
-        config: ModalityConfiguration,
-        text_file: str,
-        split: str = "train",
-        *,
-        rngs: nnx.Rngs,
-    ):
-        super().__init__(config, split, rngs=rngs)
-        self.text_file = text_file
+# Load texts from file
+# In practice: texts = Path("data/texts.txt").read_text().splitlines()
+texts = ["Sample text 1", "Sample text 2", "Sample text 3"]
 
-        # Get text parameters
-        text_params = config.metadata.get("text_params", {})
-        self.vocab_size = text_params.get("vocab_size", 10000)
-        self.max_length = text_params.get("max_length", 512)
+# Tokenize all texts
+vocab_size = 10000
+max_length = 512
+token_arrays = []
+for text in texts:
+    tokens = simple_tokenize(text, vocab_size=vocab_size, max_length=max_length)
+    token_arrays.append(tokens)
 
-        # Load texts
-        self.texts = self._load_texts()
-        self.tokens = self._tokenize_all()
-
-    def _load_texts(self):
-        """Load texts from file."""
-        texts = []
-        # In practice: with open(self.text_file) as f: ...
-        # For demo:
-        texts = [
-            "Sample text 1",
-            "Sample text 2",
-            "Sample text 3"
-        ]
-        return texts
-
-    def _tokenize_all(self):
-        """Tokenize all texts."""
-        tokens = []
-        for text in self.texts:
-            # Use tokenization function
-            token_seq = tokenize_text(text, self.config)
-            tokens.append(token_seq)
-        return tokens
-
-    def __len__(self) -> int:
-        return len(self.texts)
-
-    def __iter__(self) -> Iterator[dict[str, jax.Array]]:
-        for i, (text, tokens) in enumerate(zip(self.texts, self.tokens)):
-            yield {
-                "text": text,
-                "text_tokens": tokens,
-                "index": jnp.array(i)
-            }
-
-    def get_batch(self, batch_size: int) -> dict[str, jax.Array]:
-        key = self.rngs.sample() if "sample" in self.rngs else jax.random.key(0)
-        indices = jax.random.randint(key, (batch_size,), 0, len(self))
-
-        batch_tokens = [self.tokens[int(idx)] for idx in indices]
-        batch_texts = [self.texts[int(idx)] for idx in indices]
-
-        return {
-            "text_tokens": jnp.stack(batch_tokens),
-            "texts": batch_texts,
-            "indices": indices
-        }
+# Wrap in MemorySource
+data = {
+    "text_tokens": jnp.stack(token_arrays),
+    "index": jnp.arange(len(texts)),
+}
+config = MemorySourceConfig(shuffle=True)
+dataset = MemorySource(config, data, rngs=nnx.Rngs(0))
 
 # Usage
-custom_dataset = CustomTextDataset(
-    config=text_config,
-    text_file="data/texts.txt",
-    rngs=rngs
-)
+batch = dataset.get_batch(2)
+print(batch["text_tokens"].shape)  # (2, 512)
 ```
 
 ## Best Practices

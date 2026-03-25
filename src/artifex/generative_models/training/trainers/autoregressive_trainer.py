@@ -18,8 +18,9 @@ References:
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable, Literal
+from typing import Any, Literal
 
 import jax
 import jax.numpy as jnp
@@ -315,7 +316,7 @@ class AutoregressiveTrainer:
             logits = model(input_ids, mask=mask) if mask is not None else model(input_ids)
 
         # Compute loss
-        log_probs = jax.nn.log_softmax(logits, axis=-1)
+        log_probs = nnx.log_softmax(logits, axis=-1)
 
         # Cross-entropy with optional label smoothing
         loss_per_position = self.apply_label_smoothing(log_probs, labels)
@@ -437,23 +438,23 @@ class AutoregressiveTrainer:
 
     def create_loss_fn(
         self,
-        step: int = 0,
-    ) -> Callable[[nnx.Module, dict[str, Any], jax.Array], tuple[jax.Array, dict[str, Any]]]:
-        """Create loss function compatible with base Trainer.
-
-        Args:
-            step: Training step for scheduled sampling schedule.
+    ) -> Callable[
+        [nnx.Module, dict[str, Any], jax.Array, jax.Array],
+        tuple[jax.Array, dict[str, Any]],
+    ]:
+        """Create a step-aware objective closure for shared training infrastructure.
 
         Returns:
-            Function with signature: (model, batch, rng) -> (loss, metrics)
+            Function with signature: (model, batch, rng, step) -> (loss, metrics)
         """
 
         def loss_fn(
             model: nnx.Module,
             batch: dict[str, Any],
             rng: jax.Array,
+            step: jax.Array,
         ) -> tuple[jax.Array, dict[str, Any]]:
-            return self.compute_loss(model, batch, step, rng)
+            return self.compute_loss(model, batch, int(step), rng)
 
         return loss_fn
 
@@ -529,7 +530,7 @@ class AutoregressiveTrainer:
             # Apply top-p (nucleus) filtering
             if top_p is not None:
                 sorted_logits = jnp.sort(next_logits, axis=-1)[:, ::-1]
-                sorted_probs = jax.nn.softmax(sorted_logits, axis=-1)
+                sorted_probs = nnx.softmax(sorted_logits, axis=-1)
                 cumsum_probs = jnp.cumsum(sorted_probs, axis=-1)
 
                 cutoff_idx = jnp.sum(cumsum_probs <= top_p, axis=-1, keepdims=True)
@@ -542,7 +543,7 @@ class AutoregressiveTrainer:
                 )
 
             # Sample next token
-            probs = jax.nn.softmax(next_logits, axis=-1)
+            probs = nnx.softmax(next_logits, axis=-1)
             next_token = jax.random.categorical(step_key, jnp.log(probs + 1e-10))
 
             # Write to pre-allocated buffer (no shape change)

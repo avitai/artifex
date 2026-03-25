@@ -15,6 +15,7 @@ from artifex.generative_models.core.configuration import (
     OptimizerConfig,
     TrainingConfig,
 )
+from tests.artifex.generative_models.training.timing_utils import best_average_us_per_call
 
 
 class TestTrainingCallbackProtocol:
@@ -357,7 +358,8 @@ class TestCallbackIntegrationWithTrainer:
             CallbackList,
         )
 
-        def loss_fn(model, batch, _rng):
+        def loss_fn(model, batch, _rng, step):
+            del step
             x = batch["x"]
             y = model(x)
             loss = jnp.mean(y**2)
@@ -380,7 +382,8 @@ class TestCallbackIntegrationWithTrainer:
         from artifex.generative_models.training import Trainer
         from artifex.generative_models.training.callbacks import CallbackList
 
-        def loss_fn(model, batch, _rng):
+        def loss_fn(model, batch, _rng, step):
+            del step
             x = batch["x"]
             y = model(x)
             loss = jnp.mean(y**2)
@@ -402,39 +405,157 @@ class TestCallbackIntegrationWithTrainer:
         # on_batch_end should have been called
         assert mock_callback.on_batch_end.called
 
+    def test_trainer_calls_on_batch_begin_during_train_step(self, simple_model, training_config):
+        """Trainer should call on_batch_begin before each training step."""
+        from artifex.generative_models.training import Trainer
+        from artifex.generative_models.training.callbacks import CallbackList
+
+        def loss_fn(model, batch, _rng, step):
+            del step
+            x = batch["x"]
+            y = model(x)
+            loss = jnp.mean(y**2)
+            return loss, {"loss": loss}
+
+        mock_callback = MagicMock()
+        callbacks = CallbackList(callbacks=[mock_callback])
+
+        trainer = Trainer(
+            model=simple_model,
+            training_config=training_config,
+            loss_fn=loss_fn,
+            callbacks=callbacks,
+        )
+
+        batch = {"x": jax.random.normal(jax.random.PRNGKey(0), (4, 4))}
+        trainer.train_step(batch)
+
+        assert mock_callback.on_batch_begin.called
+
+    def test_trainer_train_dispatches_full_callback_lifecycle(
+        self, simple_model, training_config
+    ) -> None:
+        """Trainer.train should emit train, epoch, and batch lifecycle hooks."""
+        from artifex.generative_models.training import Trainer
+        from artifex.generative_models.training.callbacks import CallbackList
+
+        def loss_fn(model, batch, _rng, step):
+            del step
+            x = batch["x"]
+            y = model(x)
+            loss = jnp.mean(y**2)
+            return loss, {"loss": loss}
+
+        mock_callback = MagicMock()
+        callbacks = CallbackList(callbacks=[mock_callback])
+
+        trainer = Trainer(
+            model=simple_model,
+            training_config=training_config,
+            loss_fn=loss_fn,
+            callbacks=callbacks,
+        )
+
+        train_data = {"x": jnp.ones((8, 4), dtype=jnp.float32)}
+        trainer.train(train_data=train_data, num_epochs=2, batch_size=4)
+
+        assert mock_callback.on_train_begin.call_count == 1
+        assert mock_callback.on_train_end.call_count == 1
+        assert mock_callback.on_epoch_begin.call_count == 2
+        assert mock_callback.on_epoch_end.call_count == 2
+        assert mock_callback.on_batch_begin.call_count == 4
+        assert mock_callback.on_batch_end.call_count == 4
+
+    def test_trainer_train_dispatches_validation_callbacks(
+        self, simple_model, training_config
+    ) -> None:
+        """Trainer.train should emit validation hooks and expose val_* epoch logs."""
+        from artifex.generative_models.training import Trainer
+        from artifex.generative_models.training.callbacks import CallbackList
+
+        def loss_fn(model, batch, _rng, step):
+            del step
+            x = batch["x"]
+            y = model(x)
+            loss = jnp.mean(y**2)
+            return loss, {"loss": loss}
+
+        mock_callback = MagicMock()
+        callbacks = CallbackList(callbacks=[mock_callback])
+
+        trainer = Trainer(
+            model=simple_model,
+            training_config=training_config,
+            loss_fn=loss_fn,
+            callbacks=callbacks,
+        )
+
+        data = {"x": jnp.ones((8, 4), dtype=jnp.float32)}
+        trainer.train(train_data=data, num_epochs=1, batch_size=4, val_data=data)
+
+        assert mock_callback.on_validation_begin.call_count == 1
+        assert mock_callback.on_validation_end.call_count == 1
+
+        _, _, epoch_logs = mock_callback.on_epoch_end.call_args.args
+        assert "val_loss" in epoch_logs
+
+    def test_trainer_train_stops_when_callback_requests_stop(
+        self, simple_model, training_config
+    ) -> None:
+        """Trainer.train should honor callback-driven early stop requests."""
+        from artifex.generative_models.training import Trainer
+        from artifex.generative_models.training.callbacks import BaseCallback, CallbackList
+
+        class StopAfterFirstEpoch(BaseCallback):
+            __slots__ = ("should_stop",)
+
+            def __init__(self) -> None:
+                self.should_stop = False
+
+            def on_epoch_end(self, _trainer, _epoch, _logs) -> None:
+                self.should_stop = True
+
+        def loss_fn(model, batch, _rng, step):
+            del step
+            x = batch["x"]
+            y = model(x)
+            loss = jnp.mean(y**2)
+            return loss, {"loss": loss}
+
+        trainer = Trainer(
+            model=simple_model,
+            training_config=training_config,
+            loss_fn=loss_fn,
+            callbacks=CallbackList([StopAfterFirstEpoch()]),
+        )
+
+        train_data = {"x": jnp.ones((8, 4), dtype=jnp.float32)}
+        trainer.train(train_data=train_data, num_epochs=5, batch_size=4)
+
+        assert trainer.step == 2
+
 
 class TestCallbackOverhead:
     """Test that callback system has minimal overhead."""
 
     def test_empty_callback_list_overhead(self):
         """Empty CallbackList should have near-zero overhead."""
-        import time
-
         from artifex.generative_models.training.callbacks import CallbackList
 
         callback_list = CallbackList()
-        trainer_mock = None  # Minimal object
+        trainer_mock = None
         logs = {}
 
-        # Warmup
-        for _ in range(100):
-            callback_list.on_batch_end(trainer_mock, 0, logs)
-
-        # Benchmark
-        iterations = 100_000
-        start = time.perf_counter()
-        for i in range(iterations):
-            callback_list.on_batch_end(trainer_mock, i, logs)
-        elapsed = time.perf_counter() - start
-
-        # Should be < 1 microsecond per call (100k calls in < 100ms)
-        avg_time_us = (elapsed / iterations) * 1_000_000
-        assert avg_time_us < 1.0, f"Empty callback overhead too high: {avg_time_us:.3f}us"
+        baseline_us = best_average_us_per_call(lambda: None, iterations=100_000)
+        avg_time_us = best_average_us_per_call(
+            lambda: callback_list.on_batch_end(trainer_mock, 0, logs),
+            iterations=100_000,
+        )
+        overhead_us = avg_time_us - baseline_us
+        assert overhead_us < 1.0, f"Empty callback overhead too high: {overhead_us:.3f}us"
 
     def test_base_callback_overhead(self):
         """BaseCallback no-op methods should have minimal overhead."""
-        import time
-
         from artifex.generative_models.training.callbacks import (
             BaseCallback,
             CallbackList,
@@ -445,50 +566,40 @@ class TestCallbackOverhead:
         trainer_mock = None
         logs = {}
 
-        # Warmup
-        for _ in range(100):
-            callback_list.on_batch_end(trainer_mock, 0, logs)
-
-        # Benchmark
-        iterations = 100_000
-        start = time.perf_counter()
-        for i in range(iterations):
-            callback_list.on_batch_end(trainer_mock, i, logs)
-        elapsed = time.perf_counter() - start
-
-        # Should be < 2 microseconds per call with one no-op callback
-        avg_time_us = (elapsed / iterations) * 1_000_000
-        assert avg_time_us < 2.0, f"BaseCallback overhead too high: {avg_time_us:.3f}us"
+        direct_time_us = best_average_us_per_call(
+            lambda: callback.on_batch_end(trainer_mock, 0, logs),
+            iterations=100_000,
+        )
+        avg_time_us = best_average_us_per_call(
+            lambda: callback_list.on_batch_end(trainer_mock, 0, logs),
+            iterations=100_000,
+        )
+        overhead_us = avg_time_us - direct_time_us
+        assert overhead_us < 1.0, f"BaseCallback overhead too high: {overhead_us:.3f}us"
 
     def test_multiple_callbacks_overhead(self):
         """Multiple callbacks should scale linearly with minimal base overhead."""
-        import time
-
         from artifex.generative_models.training.callbacks import (
             BaseCallback,
             CallbackList,
         )
 
-        # 10 no-op callbacks
         callbacks = [BaseCallback() for _ in range(10)]
         callback_list = CallbackList(callbacks=callbacks)
         trainer_mock = None
         logs = {}
 
-        # Warmup
-        for _ in range(100):
-            callback_list.on_batch_end(trainer_mock, 0, logs)
+        def direct_dispatch() -> None:
+            for callback in callbacks:
+                callback.on_batch_end(trainer_mock, 0, logs)
 
-        # Benchmark
-        iterations = 10_000
-        start = time.perf_counter()
-        for i in range(iterations):
-            callback_list.on_batch_end(trainer_mock, i, logs)
-        elapsed = time.perf_counter() - start
-
-        # Should be < 5 microseconds per call with 10 no-op callbacks
-        avg_time_us = (elapsed / iterations) * 1_000_000
-        assert avg_time_us < 5.0, f"10 callbacks overhead too high: {avg_time_us:.3f}us"
+        direct_time_us = best_average_us_per_call(direct_dispatch, iterations=100_000)
+        avg_time_us = best_average_us_per_call(
+            lambda: callback_list.on_batch_end(trainer_mock, 0, logs),
+            iterations=100_000,
+        )
+        overhead_us = avg_time_us - direct_time_us
+        assert overhead_us < 1.5, f"10 callbacks overhead too high: {overhead_us:.3f}us"
 
     def test_slots_memory_efficiency(self):
         """CallbackList and BaseCallback should use __slots__ for memory efficiency."""

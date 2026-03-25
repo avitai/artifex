@@ -251,7 +251,6 @@ energy_config = EnergyNetworkConfig(
     activation="silu",
     network_type="cnn",
     use_residual=True,
-    use_spectral_norm=True,
 )
 
 mcmc_config = MCMCConfig(
@@ -282,7 +281,7 @@ model = DeepEBM(config, rngs=rngs)
 **Deep EBM Features:**
 
 - **Residual connections**: Enable deeper networks (10+ layers)
-- **Spectral normalization**: Stabilizes training
+- **Group normalization**: Keeps CNN energy blocks stable during sampling
 - **GroupNorm**: Better than BatchNorm for MCMC sampling
 
 ---
@@ -333,7 +332,7 @@ def train_step_with_monitoring(model, batch):
 
     # Log metrics (keys from contrastive_divergence_loss)
     print(f"Step metrics:")
-    print(f"  Loss: {loss_dict['loss']:.4f}")
+    print(f"  Loss: {loss_dict['total_loss']:.4f}")
     print(f"  Real energy: {loss_dict['real_energy_mean']:.4f}")
     print(f"  Fake energy: {loss_dict['fake_energy_mean']:.4f}")
 
@@ -473,8 +472,8 @@ The sample buffer is critical for stable training:
 
 ```python
 # Access buffer statistics
-buffer_size = len(model.sample_buffer.buffer)
-print(f"Buffer contains {buffer_size} samples")
+buffer_size = model.sample_buffer.num_samples
+print(f"Buffer contains {buffer_size} retained samples")
 
 # Manually populate buffer by running train steps
 # The train_step method automatically updates the sample buffer
@@ -483,7 +482,7 @@ for batch in train_loader:
     # Samples are automatically added to the buffer during training
 
 # Clear buffer (for reinitialization)
-model.sample_buffer.buffer = []
+model.sample_buffer.clear()
 ```
 
 ### 2. Energy Landscape Visualization
@@ -574,7 +573,7 @@ high_quality_samples = annealed_sampling(
     **Solutions**:
   - Reduce learning rate (try 1e-5)
   - Add/increase regularization (alpha=0.01 to 0.1)
-  - Use spectral normalization
+  - Use stronger regularization or smaller learning rates
   - Clip gradients: `max_grad_norm=1.0`
 
     ```python
@@ -684,8 +683,8 @@ def diagnose_ebm(model, batch, sample_shape):
     print(f"MCMC energy decrease: {energy_decrease:.3f}")
 
     # 3. Check buffer health
-    buffer_size = len(model.sample_buffer.buffer)
-    print(f"Buffer size: {buffer_size}/{model.sample_buffer.capacity}")
+    buffer_size = model.sample_buffer.num_samples
+    print(f"Buffer samples: {buffer_size}/{model.sample_buffer.capacity}")
 
     # 4. Check sample validity
     sample_min, sample_max = float(fake_samples.min()), float(fake_samples.max())
@@ -738,12 +737,11 @@ medium_model = create_mnist_ebm(
     sample_buffer_capacity=4096,
 )
 
-# For complex data (CIFAR-like images with residual + spectral norm)
+# For complex data (CIFAR-like images with residual blocks)
 complex_model = create_cifar_ebm(
     rngs=rngs,
     hidden_dims=(64, 128, 256, 512),
     use_residual=True,
-    use_spectral_norm=True,
     mcmc_steps=100,
     sample_buffer_capacity=8192,
 )
@@ -759,7 +757,7 @@ def detailed_training_step(model, batch, step, sample_shape):
     if step % 100 == 0:
         # Detailed logging (keys from contrastive_divergence_loss)
         print(f"\nStep {step}:")
-        print(f"  Loss: {loss_dict['loss']:.4f}")
+        print(f"  Loss: {loss_dict['total_loss']:.4f}")
         print(f"  Real energy: {loss_dict['real_energy_mean']:.4f}")
         print(f"  Fake energy: {loss_dict['fake_energy_mean']:.4f}")
         gap = float(loss_dict['fake_energy_mean'] - loss_dict['real_energy_mean'])
@@ -878,7 +876,7 @@ for epoch in range(num_epochs):
 
         if step % 100 == 0:
             gap = float(loss_dict['fake_energy_mean'] - loss_dict['real_energy_mean'])
-            print(f"  Step {step}: Loss={loss_dict['loss']:.4f}, "
+            print(f"  Step {step}: Loss={loss_dict['total_loss']:.4f}, "
                   f"Gap={gap:.4f}")
 
     # Generate samples
@@ -911,7 +909,7 @@ print("Training complete!")
 - Sample buffer management is critical for stable training
 - Monitor energy gap: fake_energy should be > real_energy
 - Start simple, increase complexity gradually
-- Use spectral normalization and regularization for stability
+- Use regularization, gradient clipping, and careful monitoring for stability
 
 **Recommended Workflow:**
 

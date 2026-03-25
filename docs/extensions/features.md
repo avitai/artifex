@@ -1,58 +1,21 @@
 # Features
 
-**Module:** `generative_models.extensions.chemical.features`
+**Status:** `Supported runtime extension owner`
 
-**Source:** `generative_models/extensions/chemical/features.py`
+**Module:** `artifex.generative_models.extensions.chemical.features`
 
-## Overview
+**Source:** `src/artifex/generative_models/extensions/chemical/features.py`
 
-Molecular feature computation and extraction.
+Molecular descriptor and fingerprint owners for the chemical extension family.
 
-This module provides molecular descriptor computation and feature extraction
-for chemical property prediction and drug-likeness assessment.
+## Top-Level Module Exports
 
-## Classes
+- `MolecularFeatures`
 
-### MolecularFeatures
+## Class APIs
 
-```python
-class MolecularFeatures
-```
+### `MolecularFeatures`
 
-## Functions
-
-### **call**
-
-```python
-def __call__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### compute_descriptors
-
-```python
-def compute_descriptors()
-```
-
-### compute_drug_likeness_score
-
-```python
-def compute_drug_likeness_score()
-```
-
-### extract_fingerprint
-
-```python
-def extract_fingerprint()
-```
-
-## Module Statistics
-
-- **Classes:** 1
-- **Functions:** 5
-- **Imports:** 5
+- `compute_descriptors()`
+- `compute_drug_likeness_score()`
+- `extract_fingerprint()`

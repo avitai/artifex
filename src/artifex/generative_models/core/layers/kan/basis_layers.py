@@ -4,7 +4,7 @@ Includes Chebyshev, Fourier, Legendre, RBF, and Sine KAN layers.
 All adapted from jaxKAN (MIT license) to Artifex conventions.
 """
 
-from typing import Callable
+from collections.abc import Callable
 
 import jax
 import jax.numpy as jnp
@@ -174,19 +174,19 @@ def _standard_forward(
     act = bi.reshape(batch, -1)  # (batch, n_in*D)
 
     if c_ext is not None:
-        act_w = c_basis.value * c_ext.value[..., None]
+        act_w = c_basis[...] * c_ext[...][..., None]
     else:
-        act_w = c_basis.value
+        act_w = c_basis[...]
 
     act_w = act_w.reshape(n_out, -1)  # (n_out, n_in*D)
     y = jnp.matmul(act, act_w.T)  # (batch, n_out)
 
     if residual is not None and c_res is not None:
         res = residual(x)
-        y = y + jnp.matmul(res, c_res.value.T)
+        y = y + jnp.matmul(res, c_res[...].T)
 
     if bias is not None:
-        y = y + bias.value
+        y = y + bias[...]
 
     return y
 
@@ -212,7 +212,7 @@ def _standard_update_grid(
         new_degree: New degree/D value.
     """
     bi = basis_fn(x).transpose(1, 0, 2)
-    ci = c_basis.value.transpose(1, 2, 0)
+    ci = c_basis[...].transpose(1, 2, 0)
     ci_bi = jnp.einsum("ijk,ikm->ijm", bi, ci)
 
     setattr(layer, degree_attr, new_degree)
@@ -451,8 +451,8 @@ class FourierKANLayer(nnx.Module):
         ci, si = self.basis(x)
         ci = ci.transpose(1, 0, 2)
         si = si.transpose(1, 0, 2)
-        cos_w = self.c_cos.value.transpose(1, 2, 0)
-        sin_w = self.c_sin.value.transpose(1, 2, 0)
+        cos_w = self.c_cos[...].transpose(1, 2, 0)
+        sin_w = self.c_sin[...].transpose(1, 2, 0)
 
         cosines = jnp.einsum("ijk,ikm->ijm", ci, cos_w)
         sines = jnp.einsum("ijk,ikm->ijm", si, sin_w)
@@ -490,13 +490,13 @@ class FourierKANLayer(nnx.Module):
         cosines = ci.reshape(batch, -1)
         sines = si.reshape(batch, -1)
 
-        cos_w = self.c_cos.value.reshape(self.n_out, -1)
-        sin_w = self.c_sin.value.reshape(self.n_out, -1)
+        cos_w = self.c_cos[...].reshape(self.n_out, -1)
+        sin_w = self.c_sin[...].reshape(self.n_out, -1)
 
         y = jnp.matmul(cosines, cos_w.T) + jnp.matmul(sines, sin_w.T)
 
         if self.bias is not None:
-            y = y + self.bias.value
+            y = y + self.bias[...]
 
         return y
 
@@ -738,7 +738,7 @@ class RBFKANLayer(nnx.Module):
             ValueError: If kernel type is unknown.
         """
         kernel_type = self.kernel.get("type", "gaussian")
-        grid_item = self.grid.knots.value
+        grid_item = self.grid.knots[...]
 
         if kernel_type == "gaussian":
             std = self.kernel.get("std", 1.0)
@@ -754,7 +754,7 @@ class RBFKANLayer(nnx.Module):
             d_new: New number of centers.
         """
         bi = self.basis(x).transpose(1, 0, 2)
-        ci = self.c_basis.value.transpose(1, 2, 0)
+        ci = self.c_basis[...].transpose(1, 2, 0)
         ci_bi = jnp.einsum("ijk,ikm->ijm", bi, ci)
 
         self.grid.update(x, d_new)
@@ -870,8 +870,8 @@ class SineKANLayer(nnx.Module):
             Normalized basis values, shape (batch, n_in, D).
         """
         x_exp = jnp.expand_dims(x, axis=-1)  # (batch, n_in, 1)
-        omegas = self.omega.value.reshape(1, 1, self.D)
-        p = self.phase.value.reshape(1, 1, self.D)
+        omegas = self.omega[...].reshape(1, 1, self.D)
+        p = self.phase[...].reshape(1, 1, self.D)
 
         wx = omegas * x_exp
         s = jnp.sin(wx + p)
@@ -889,7 +889,7 @@ class SineKANLayer(nnx.Module):
             d_new: New number of basis functions.
         """
         bi = self.basis(x).transpose(1, 0, 2)
-        ci = self.c_basis.value.transpose(1, 2, 0)
+        ci = self.c_basis[...].transpose(1, 2, 0)
         ci_bi = jnp.einsum("ijk,ikm->ijm", bi, ci)
 
         self.D = d_new

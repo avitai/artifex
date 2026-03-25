@@ -78,12 +78,6 @@ def compute_receptive_field()
 def conditional_generate()
 ```
 
-### generate_fast
-
-```python
-def generate_fast()
-```
-
 ### get_intermediate_outputs
 
 ```python
@@ -99,5 +93,5 @@ def loss_fn()
 ## Module Statistics
 
 - **Classes:** 3
-- **Functions:** 11
+- **Functions:** 10
 - **Imports:** 6

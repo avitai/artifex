@@ -11,8 +11,12 @@ usage within any performance-critical code paths.
 """
 
 import time
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable, Literal
+from typing import Any, Literal
+
+
+SourceKind = Literal["detected", "estimated", "unavailable"]
 
 import jax
 
@@ -31,6 +35,10 @@ class HardwareSpecs:
     compute_capability: str | None = None
     peak_flops_per_second: float | None = None
     memory_bandwidth_gb_per_second: float | None = None
+    memory_source: SourceKind = "detected"
+    compute_capability_source: SourceKind = "unavailable"
+    peak_flops_source: SourceKind = "unavailable"
+    memory_bandwidth_source: SourceKind = "unavailable"
 
 
 @dataclass
@@ -74,6 +82,7 @@ class HardwareDetector:
                 platform="cpu",
                 device_count=1,
                 memory_gb=8.0,  # Conservative default
+                memory_source="estimated",
             )
             return self._hardware_specs
 
@@ -122,6 +131,10 @@ class HardwareDetector:
             compute_capability=compute_capability,
             peak_flops_per_second=peak_flops,
             memory_bandwidth_gb_per_second=bandwidth,
+            memory_source="estimated",
+            compute_capability_source="estimated",
+            peak_flops_source="estimated",
+            memory_bandwidth_source="estimated",
         )
 
     def _detect_tpu_specs(self, devices: list[jax.Device]) -> HardwareSpecs:
@@ -139,6 +152,9 @@ class HardwareDetector:
             memory_gb=memory_gb * device_count,  # Total memory
             peak_flops_per_second=peak_flops * device_count,
             memory_bandwidth_gb_per_second=bandwidth * device_count,
+            memory_source="estimated",
+            peak_flops_source="estimated",
+            memory_bandwidth_source="estimated",
         )
 
     def _detect_cpu_specs(self, devices: list[jax.Device]) -> HardwareSpecs:
@@ -154,6 +170,9 @@ class HardwareDetector:
             memory_gb=memory_gb,
             peak_flops_per_second=peak_flops,
             memory_bandwidth_gb_per_second=bandwidth,
+            memory_source="estimated",
+            peak_flops_source="estimated",
+            memory_bandwidth_source="estimated",
         )
 
     def get_optimal_batch_size(self, memory_gb: float, model_memory_gb: float) -> int:
@@ -257,7 +276,7 @@ class HardwareDetector:
         return batch_size >= int(critical * 0.8)
 
     def get_batch_size_recommendation(self, model_memory_gb: float) -> dict:
-        """Get comprehensive batch size recommendations.
+        """Get complete batch size recommendations.
 
         Args:
             model_memory_gb: Estimated model memory usage
@@ -306,7 +325,7 @@ class HardwareDetector:
 class PerformanceEstimator:
     """Roofline model analysis and performance estimation.
 
-    Provides comprehensive performance analysis using the roofline model
+    Provides complete performance analysis using the roofline model
     to understand compute vs memory bottlenecks and optimization opportunities.
     """
 
@@ -404,16 +423,19 @@ class PerformanceEstimator:
         achieved_flops_per_second = operation_flops / execution_time_seconds
         achieved_bandwidth = memory_bytes / (execution_time_seconds * 1024**3)
 
-        # Determine bottleneck using roofline model
+        missing_specs: list[str] = []
         if hardware_specs.peak_flops_per_second is None:
-            peak_flops = 1e12  # Default fallback
-        else:
-            peak_flops = hardware_specs.peak_flops_per_second
-
+            missing_specs.append("peak_flops_per_second")
         if hardware_specs.memory_bandwidth_gb_per_second is None:
-            peak_bandwidth = 100.0  # Default fallback
-        else:
-            peak_bandwidth = hardware_specs.memory_bandwidth_gb_per_second
+            missing_specs.append("memory_bandwidth_gb_per_second")
+        if missing_specs:
+            missing = ", ".join(missing_specs)
+            raise ValueError(
+                "analyze_roofline requires explicit hardware peak estimates: " + missing
+            )
+
+        peak_flops = hardware_specs.peak_flops_per_second
+        peak_bandwidth = hardware_specs.memory_bandwidth_gb_per_second
 
         # Convert bandwidth from GB/s to bytes/s for consistent units
         peak_bandwidth_bytes_per_second = peak_bandwidth * 1024**3

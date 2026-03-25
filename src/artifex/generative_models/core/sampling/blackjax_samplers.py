@@ -5,44 +5,22 @@ for JAX. It allows using BlackJAX's advanced MCMC samplers with our
 distribution framework.
 """
 
-from typing import Any, Callable, NamedTuple
+from collections.abc import Callable
+from typing import Any, NamedTuple
 
 import blackjax
 import jax
 import jax.numpy as jnp
 from flax import nnx
 
-from artifex.generative_models.core.interfaces import Distribution
+from artifex.generative_models.core.distributions.base import Distribution
+from artifex.generative_models.core.rng import extract_rng_key
 from artifex.generative_models.core.sampling.base import SamplingAlgorithm
 
 
 def _extract_key(rng: jax.Array | nnx.Rngs) -> jax.Array:
-    """Extract a JAX random key from either a key or an nnx.Rngs object.
-
-    Args:
-        rng: JAX random key or nnx.Rngs object.
-
-    Returns:
-        A JAX random key.
-    """
-    # Handle nnx.Rngs if provided
-    if isinstance(rng, nnx.Rngs):
-        # Check for specific keys in priority order
-        if "sample" in rng:
-            return rng.sample()
-        if "default" in rng:
-            return rng.default()
-
-        # Fallback to first available key
-        for k in rng:
-            if not k.startswith("_"):
-                return getattr(rng, k)()
-
-        # If no keys available, use a default key
-        return jax.random.key(0)
-
-    # If it's already a JAX key, return as is
-    return rng
+    """Extract a JAX random key from an explicit sampling owner."""
+    return extract_rng_key(rng, streams=("sample", "default"), context="BlackJAX sampling")
 
 
 def _prepare_logdensity_fn(
@@ -100,8 +78,6 @@ class BlackJAXHMC(SamplingAlgorithm):
         step_size: float = 1e-3,
         inverse_mass_matrix: jax.Array | None = None,
         num_integration_steps: int = 10,
-        *,
-        rngs=None,
     ):
         """Constructor.
 
@@ -110,13 +86,11 @@ class BlackJAXHMC(SamplingAlgorithm):
           step_size: Step size for the leapfrog integrator.
           inverse_mass_matrix: Inverse mass matrix for the HMC sampler.
           num_integration_steps: Number of integration steps for leapfrog.
-          rngs: Random number generator keys (nnx.Rngs or jax.Array).
         """
         self.log_prob_fn = log_prob_fn
         self.step_size = step_size
         self.inverse_mass_matrix = inverse_mass_matrix
         self.num_integration_steps = num_integration_steps
-        self.rngs = rngs
         self._kernel = None
 
     def _scalar_log_prob_fn(self, x):
@@ -232,8 +206,6 @@ class BlackJAXNUTS(SamplingAlgorithm):
         log_prob_fn: Callable,
         step_size: float = 1e-3,
         inverse_mass_matrix: jax.Array | None = None,
-        *,
-        rngs=None,
     ):
         """Constructor.
 
@@ -241,12 +213,10 @@ class BlackJAXNUTS(SamplingAlgorithm):
           log_prob_fn: Function that returns the log probability of a position.
           step_size: Step size.
           inverse_mass_matrix: Inverse mass matrix for the HMC sampler.
-          rngs: Random number generator keys (nnx.Rngs or jax.Array).
         """
         self.log_prob_fn = log_prob_fn
         self.step_size = step_size
         self.inverse_mass_matrix = inverse_mass_matrix
-        self.rngs = rngs
         self._kernel = None
 
     def _scalar_log_prob_fn(self, x):
@@ -334,18 +304,16 @@ class BlackJAXMALA(SamplingAlgorithm):
     BlackJAX docs: https://blackjax-devs.github.io/blackjax/
     """
 
-    def __init__(self, log_prob_fn: Callable, step_size: float = 1e-3, *, rngs=None):
+    def __init__(self, log_prob_fn: Callable, step_size: float = 1e-3):
         """Constructor.
 
         Args:
             log_prob_fn: Function that returns the log probability of a
                 position.
             step_size: Step size for the MALA update.
-            rngs: Random number generator keys (nnx.Rngs or jax.Array).
         """
         self.log_prob_fn = log_prob_fn
         self.step_size = step_size
-        self.rngs = rngs
         self._kernel = None
 
     def _scalar_log_prob_fn(self, x):
@@ -424,10 +392,7 @@ def hmc_sampling(
     step_size: float = 0.1,
     num_integration_steps: int = 10,
     inverse_mass_matrix: float | jax.Array | None = None,
-    adapt_step_size: bool = False,
     thinning: int = 1,
-    *,
-    rngs=None,
 ) -> jax.Array:
     """Sample from a distribution using Hamiltonian Monte Carlo.
 
@@ -441,9 +406,7 @@ def hmc_sampling(
         step_size: Step size for the leapfrog integrator.
         num_integration_steps: Number of integration steps for leapfrog.
         inverse_mass_matrix: Inverse mass matrix. If None, identity is used.
-        adapt_step_size: Whether to adapt the step size.
         thinning: Thinning factor (keep every `thinning` samples).
-        rngs: Optional nnx.Rngs for function-specific random operations.
 
     Returns:
         Array of samples with shape [n_samples, ...].
@@ -546,12 +509,7 @@ def nuts_sampling(
     n_burnin: int = 100,
     step_size: float | None = None,
     inverse_mass_matrix: float | jax.Array | None = None,
-    target_acceptance_rate: float = 0.8,
-    max_num_doublings: int = 10,
-    divergence_threshold: int = 1000,
     thinning: int = 1,
-    *,
-    rngs=None,
 ) -> jax.Array:
     """Sample from a distribution using the No-U-Turn Sampler (NUTS).
 
@@ -566,11 +524,7 @@ def nuts_sampling(
         n_burnin: Number of burn-in steps to discard.
         step_size: Initial step size. If None, it will be set to 1e-3.
         inverse_mass_matrix: Inverse mass matrix. If None, identity is used.
-        target_acceptance_rate: Target acceptance rate for adaptation.
-        max_num_doublings: Maximum number of trajectory doublings.
-        divergence_threshold: Threshold for detecting divergences.
         thinning: Thinning factor (keep every `thinning` samples).
-        rngs: Optional nnx.Rngs for function-specific random operations.
 
     Returns:
         Array of samples with shape [n_samples, ...].
@@ -612,8 +566,6 @@ def nuts_sampling(
             inverse_mass_matrix = jnp.array([1.0])
 
     # Create NUTS sampler
-    # Note: blackjax.nuts() only accepts logdensity_fn, step_size, and inverse_mass_matrix
-    # max_num_doublings and divergence_threshold are not directly supported in the API
     nuts = blackjax.nuts(
         logdensity_fn,
         step_size,
@@ -665,8 +617,6 @@ def mala_sampling(
     n_burnin: int = 100,
     step_size: float = 1e-3,
     thinning: int = 1,
-    *,
-    rngs=None,
 ) -> jax.Array:
     """Sample from a distribution using Metropolis-Adjusted Langevin Algorithm.
 
@@ -679,7 +629,6 @@ def mala_sampling(
         n_burnin: Number of burn-in steps to discard.
         step_size: Step size for the gradient update.
         thinning: Thinning factor (keep every `thinning` samples).
-        rngs: Optional nnx.Rngs for function-specific random operations.
 
     Returns:
         Array of samples with shape [n_samples, ...].

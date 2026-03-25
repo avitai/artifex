@@ -4,9 +4,10 @@ import time
 
 import jax
 import jax.numpy as jnp
+import numpy as np
 from flax import nnx
 
-from artifex.benchmarks.base import BenchmarkResult
+from artifex.benchmarks import BenchmarkResult
 from artifex.benchmarks.performance.latency import (
     LatencyBenchmark,
     measure_inference_latency,
@@ -27,13 +28,13 @@ class MockModel:
         """Mock sample method with a sleep."""
         self.sample_called = True
         time.sleep(self.sleep_time)
-        return jnp.ones((batch_size, 10))
+        return np.ones((batch_size, 10), dtype=np.float32)
 
     def predict(self, x, *, rngs=None):
         """Mock predict method with a sleep."""
         self.predict_called = True
         time.sleep(self.sleep_time)
-        return jnp.ones_like(x)
+        return np.ones_like(np.asarray(x), dtype=np.float32)
 
 
 class TestLatencyMeasurement:
@@ -87,8 +88,10 @@ class TestLatencyMeasurement:
             rngs=rngs,
         )
 
-        # Should be close to the sleep time
-        assert 0.005 < latency < 0.02
+        # The measured latency should stay in the same order of magnitude as
+        # the injected sleep time even on slower CI runners.
+        assert latency > model.sleep_time * 0.75
+        assert latency < model.sleep_time + 0.04
 
 
 class TestLatencyBenchmark:

@@ -28,7 +28,7 @@ class TestVAEBuilder:
     @pytest.fixture
     def rngs(self):
         """Create RNGs for testing."""
-        return nnx.Rngs(params=jax.random.PRNGKey(42))
+        return nnx.Rngs(params=jax.random.PRNGKey(42), sample=jax.random.PRNGKey(42))
 
     @pytest.fixture
     def encoder_config(self):

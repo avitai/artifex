@@ -3,6 +3,12 @@
 import jax.numpy as jnp
 import numpy as np
 import pytest
+from calibrax.metrics.functional.divergence import (
+    js_divergence as calibrax_js_divergence,
+    kl_divergence as calibrax_kl_divergence,
+    reverse_kl_divergence as calibrax_reverse_kl_divergence,
+    wasserstein_1d as calibrax_wasserstein_1d,
+)
 from distrax import Normal
 
 from artifex.generative_models.core.losses.divergence import (
@@ -29,9 +35,7 @@ class TestKLDivergence:
         p = jnp.array([0.9, 0.1])
         q = jnp.array([0.1, 0.9])
         result = kl_divergence(p, q)
-        # Manually compute KL: p * log(p/q)
-        expected = jnp.mean(p * (jnp.log(p) - jnp.log(q)))
-        np.testing.assert_allclose(result, expected)
+        np.testing.assert_allclose(result, calibrax_kl_divergence(p, q), rtol=1e-6)
 
     def test_with_log_inputs(self):
         """Test KL divergence with pre-computed log probabilities."""
@@ -40,8 +44,7 @@ class TestKLDivergence:
         log_p = jnp.log(p)
         log_q = jnp.log(q)
         result = kl_divergence(p, q, log_predictions=log_p, log_targets=log_q)
-        expected = jnp.mean(p * (log_p - log_q))
-        np.testing.assert_allclose(result, expected)
+        np.testing.assert_allclose(result, calibrax_kl_divergence(p, q), rtol=1e-6)
 
     def test_distrax_distributions(self):
         """Test KL divergence with distrax distributions."""
@@ -51,6 +54,13 @@ class TestKLDivergence:
         # For two normal distributions, KL has analytical solution
         expected = p.kl_divergence(q)
         np.testing.assert_allclose(result, expected)
+
+    def test_default_array_path_matches_calibrax_kl(self):
+        """Default array KL should track the shared CalibraX primitive."""
+        p = jnp.array([0.9, 0.1])
+        q = jnp.array([0.1, 0.9])
+
+        np.testing.assert_allclose(kl_divergence(p, q), calibrax_kl_divergence(p, q))
 
 
 class TestReverseKLDivergence:
@@ -69,9 +79,7 @@ class TestReverseKLDivergence:
         p = jnp.array([0.9, 0.1])
         q = jnp.array([0.1, 0.9])
         result = reverse_kl_divergence(p, q)
-        # Manually compute reverse KL: q * log(q/p)
-        expected = jnp.mean(q * (jnp.log(q) - jnp.log(p)))
-        np.testing.assert_allclose(result, expected)
+        np.testing.assert_allclose(result, calibrax_reverse_kl_divergence(p, q), rtol=1e-6)
 
     def test_distrax_distributions(self):
         """Test reverse KL divergence with distrax distributions."""
@@ -81,6 +89,16 @@ class TestReverseKLDivergence:
         # For two normal distributions, KL has analytical solution
         expected = q.kl_divergence(p)
         np.testing.assert_allclose(result, expected)
+
+    def test_default_array_path_matches_calibrax_reverse_kl(self):
+        """Default array reverse KL should track the shared CalibraX primitive."""
+        p = jnp.array([0.9, 0.1])
+        q = jnp.array([0.1, 0.9])
+
+        np.testing.assert_allclose(
+            reverse_kl_divergence(p, q),
+            calibrax_reverse_kl_divergence(p, q),
+        )
 
 
 class TestJSDivergence:
@@ -117,6 +135,13 @@ class TestJSDivergence:
         q = Normal(loc=1.0, scale=2.0)
         with pytest.raises(NotImplementedError):
             js_divergence(p, q)
+
+    def test_default_array_path_matches_calibrax_js(self):
+        """Default array JS should track the shared CalibraX primitive."""
+        p = jnp.array([0.9, 0.1])
+        q = jnp.array([0.1, 0.9])
+
+        np.testing.assert_allclose(js_divergence(p, q), calibrax_js_divergence(p, q), rtol=1e-5)
 
 
 class TestWassersteinDistance:
@@ -165,3 +190,10 @@ class TestWassersteinDistance:
         result = wasserstein_distance(p, q, p=1, axis=1)
         expected = jnp.array([1.0, 1.0])  # Each point is shifted by 1.0
         np.testing.assert_allclose(result, expected)
+
+    def test_default_l1_path_matches_calibrax_wasserstein(self):
+        """Default 1D Wasserstein should track the shared CalibraX primitive."""
+        p = jnp.array([1.0, 2.0, 3.0])
+        q = jnp.array([2.0, 3.0, 4.0])
+
+        np.testing.assert_allclose(wasserstein_distance(p, q), calibrax_wasserstein_1d(p, q))

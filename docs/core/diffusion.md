@@ -1,49 +1,31 @@
 # Diffusion
 
-**Module:** `generative_models.core.sampling.diffusion`
+**Module:** `artifex.generative_models.core.sampling.diffusion`
 
-**Source:** `generative_models/core/sampling/diffusion.py`
+**Source:** `src/artifex/generative_models/core/sampling/diffusion.py`
 
 ## Overview
 
-Diffusion-based sampling algorithms.
+`DiffusionSampler` retains two supported responsibilities:
 
-## Classes
+- stateful DDPM-style stepping through `init(...)` and `step(...)`
+- a wrapper-only `sample(...)` entrypoint that delegates to `model.sample(...)`
 
-### DiffusionSampler
+The public `sample(...)` method does not implement a standalone generic
+direct-sampling path. If you want `DiffusionSampler.sample(...)`, initialize the
+sampler with a model that already owns a real `sample(...)` implementation.
 
-```python
-class DiffusionSampler
-```
+## Supported Sampling Contract
 
-## Functions
+- `DiffusionSampler.sample(...)` is wrapper-only.
+- It delegates to `model.sample(...)` when the sampler was created with a
+  compatible model owner.
+- It forwards `scheduler`, optional `steps`, and optional `rngs` to that model.
+- Without a model-owned sampling implementation, the method raises
+  `NotImplementedError` instead of pretending a generic fallback exists.
 
-### **init**
+## Stepper Contract
 
-```python
-def __init__()
-```
-
-### init
-
-```python
-def init()
-```
-
-### sample
-
-```python
-def sample()
-```
-
-### step
-
-```python
-def step()
-```
-
-## Module Statistics
-
-- **Classes:** 1
-- **Functions:** 4
-- **Imports:** 4
+`init(...)` and `step(...)` still provide the retained low-level diffusion
+stepping utility for explicit state dictionaries containing `x`, `key`, and `t`.
+Use this surface when you want to own the outer loop yourself.

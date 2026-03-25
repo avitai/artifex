@@ -4,9 +4,15 @@ This module provides metrics for evaluating the quality of generated images,
 including FID, IS (Inception Score), LPIPS, and SSIM metrics for image generation.
 """
 
+import logging
+
 import flax.nnx as nnx
 import jax
 import jax.numpy as jnp
+from calibrax.metrics.functional.image import ssim as calibrax_ssim
+
+
+logger = logging.getLogger(__name__)
 
 
 try:
@@ -17,8 +23,12 @@ except ImportError:
     InceptionV3 = None
     _HAS_TENSORFLOW = False
 
-from artifex.benchmarks.metrics.core import MetricBase
+from artifex.benchmarks.metrics.core import _init_metric_from_config, MetricBase
+from artifex.benchmarks.runtime_guards import demo_mode_from_mapping, require_demo_mode
 from artifex.generative_models.core.configuration import EvaluationConfig
+from artifex.generative_models.core.evaluation.metrics.metric_ops import (
+    frechet_distance_from_statistics,
+)
 from artifex.generative_models.core.evaluation.metrics.quality import (
     calculate_fid_score,
     compute_lpips_distance,
@@ -45,33 +55,46 @@ class FIDMetric(MetricBase):
             rngs: NNX Rngs for stochastic operations
             config: Evaluation configuration (must be EvaluationConfig)
         """
-        if not isinstance(config, EvaluationConfig):
-            # Also check for class name to handle dynamic module loading
-            if type(config).__name__ != "EvaluationConfig":
-                raise TypeError(f"config must be an EvaluationConfig, got {type(config).__name__}")
-
-        # Initialize base class with the EvaluationConfig
-        super().__init__(config=config, rngs=rngs)
-        self.eval_batch_size = config.eval_batch_size
-
         self.metric_name = "fid_score"
         self.inception_model: InceptionV3 | MockInceptionModel | None = None
-        self.mock_inception = config.metric_params.get("fid", {}).get("mock_inception", True)
+        self.fid_params = _init_metric_from_config(
+            self,
+            config=config,
+            rngs=rngs,
+            metric_key="fid",
+            modality="image",
+            higher_is_better=False,
+        )
+        self.mock_inception = self.fid_params.get("mock_inception", False)
+        self.demo_mode = demo_mode_from_mapping(self.fid_params)
 
-        # Initialize mock or real inception model
+        if self.mock_inception:
+            require_demo_mode(
+                enabled=self.demo_mode,
+                component="FIDMetric",
+                detail=(
+                    "The retained mock Inception feature extractor is demo-only and not the "
+                    "shipped benchmark dependency path."
+                ),
+            )
+
         self._initialize_inception_model()
 
     def _initialize_inception_model(self):
         """Initialize the Inception model for feature extraction."""
-        if self.mock_inception or not _HAS_TENSORFLOW:
-            # Use mock inception model that returns random features
+        if self.mock_inception:
             self.inception_model = MockInceptionModel(rngs=self.rngs)
-            if not _HAS_TENSORFLOW:
-                print("TensorFlow not available, using mock Inception model")
-        else:
-            # Load real inception model
-            self.inception_model = InceptionV3(include_top=False, weights="imagenet", pooling="avg")
-            print("Loaded real Inception model for FID calculation")
+            logger.info("Using retained mock Inception model in explicit demo mode")
+            return
+
+        if not _HAS_TENSORFLOW:
+            raise RuntimeError(
+                "FIDMetric requires TensorFlow InceptionV3 in supported mode. Pass "
+                "mock_inception=True only for the retained demo workflow."
+            )
+
+        self.inception_model = InceptionV3(include_top=False, weights="imagenet", pooling="avg")
+        logger.info("Loaded real Inception model for FID calculation")
 
     def compute(
         self, real_data: jax.Array, generated_data: jax.Array, **kwargs
@@ -95,34 +118,60 @@ class FIDMetric(MetricBase):
 
         return {"fid_score": fid_score}
 
-    def validate_inputs(self, real_data: jax.Array, generated_data: jax.Array) -> bool:
+    def validate_inputs(self, real_data: jax.Array, generated_data: jax.Array) -> None:
         """Validate input data compatibility.
 
         Args:
             real_data: Real images
             generated_data: Generated images
 
-        Returns:
-            True if inputs are valid
+        Raises:
+            ValueError: If inputs are invalid
         """
-        # Check that both inputs are arrays
         if not isinstance(real_data, jax.Array) or not isinstance(generated_data, jax.Array):
-            return False
-
-        # Check that both have same number of dimensions
-        # (should be 4D: batch x height x width x channels)
+            raise ValueError("Both inputs must be jax.Array")
         if len(real_data.shape) != 4 or len(generated_data.shape) != 4:
-            return False
-
-        # Check that last dimension is 3 (for RGB channels)
+            raise ValueError("Images must be 4D (batch, height, width, channels)")
         if real_data.shape[-1] != 3 or generated_data.shape[-1] != 3:
-            return False
-
-        # Check that batch sizes match
+            raise ValueError("Images must have 3 channels (RGB)")
         if real_data.shape[0] != generated_data.shape[0]:
-            return False
+            raise ValueError("Batch sizes must match")
 
-        return True
+    def compute_statistics(self, images: jax.Array) -> tuple[jax.Array, jax.Array]:
+        """Compute mean and covariance of Inception features for a set of images.
+
+        Args:
+            images: Images [batch_size, height, width, channels]
+
+        Returns:
+            Tuple of (mean, covariance) of extracted features
+        """
+        features = self._extract_features(images)
+        mean = jnp.mean(features, axis=0)
+        # Covariance with small regularisation for numerical stability
+        centered = features - mean
+        cov = (centered.T @ centered) / max(features.shape[0] - 1, 1)
+        return mean, cov
+
+    def compute_fid(
+        self,
+        real_mean: jax.Array,
+        real_cov: jax.Array,
+        fake_mean: jax.Array,
+        fake_cov: jax.Array,
+    ) -> float:
+        """Compute FID from pre-computed statistics.
+
+        Args:
+            real_mean: Mean of real image features
+            real_cov: Covariance of real image features
+            fake_mean: Mean of generated image features
+            fake_cov: Covariance of generated image features
+
+        Returns:
+            FID score (lower is better, non-negative)
+        """
+        return frechet_distance_from_statistics(real_mean, real_cov, fake_mean, fake_cov)
 
     def _extract_features(self, images: jax.Array) -> jax.Array:
         """Extract features from images using Inception model.
@@ -178,7 +227,7 @@ class FIDMetric(MetricBase):
             return resized_images
         except ImportError:
             # Fallback to simple resizing using interpolation
-            print("PIL not available, using simple resize")
+            logger.info("PIL not available, using simple resize")
             return images  # Return original images for testing
 
 
@@ -251,35 +300,40 @@ class LPIPSMetric(MetricBase):
             rngs: NNX Rngs for stochastic operations
             config: Evaluation configuration (must be EvaluationConfig)
         """
-        if not isinstance(config, EvaluationConfig):
-            # Also check for class name to handle dynamic module loading
-            if type(config).__name__ != "EvaluationConfig":
-                raise TypeError(f"config must be an EvaluationConfig, got {type(config).__name__}")
-
-        # Initialize base class with minimal config to satisfy MetricBase requirements
-        # Initialize base class with the EvaluationConfig
-        super().__init__(config=config, rngs=rngs)
-        self.eval_batch_size = config.eval_batch_size
-
         self.metric_name = "lpips_distance"
-        self.mock_implementation = config.metric_params.get("lpips", {}).get(
-            "mock_implementation", True
+        self.lpips_params = _init_metric_from_config(
+            self,
+            config=config,
+            rngs=rngs,
+            metric_key="lpips",
+            modality="image",
+            higher_is_better=False,
         )
+        self.mock_implementation = self.lpips_params.get("mock_implementation", False)
+        self.demo_mode = demo_mode_from_mapping(self.lpips_params)
 
-        # Initialize model
+        if self.mock_implementation:
+            require_demo_mode(
+                enabled=self.demo_mode,
+                component="LPIPSMetric",
+                detail=(
+                    "The retained LPIPS path uses a placeholder perceptual distance backend and "
+                    "is demo-only."
+                ),
+            )
+
         self._initialize_lpips_model()
 
     def _initialize_lpips_model(self):
         """Initialize LPIPS model."""
-        if not self.mock_implementation:
-            try:
-                # Try to import real LPIPS implementation
-                # This is a placeholder - in a real implementation, we would import
-                # the actual LPIPS library or implement it using JAX/Flax
-                pass
-            except ImportError:
-                print("LPIPS library not available, using mock implementation")
-                self.mock_implementation = True
+        if self.mock_implementation:
+            logger.info("Using retained mock LPIPS implementation in explicit demo mode")
+            return
+
+        raise RuntimeError(
+            "LPIPSMetric does not ship a benchmark-grade perceptual backend. Pass "
+            "mock_implementation=True only for the retained demo workflow."
+        )
 
     def compute(
         self, real_data: jax.Array, generated_data: jax.Array, **kwargs
@@ -295,39 +349,49 @@ class LPIPSMetric(MetricBase):
             dictionary with LPIPS score
         """
         if self.mock_implementation:
-            # Use mock implementation
             lpips_score = compute_lpips_distance(real_data, generated_data)
-        else:
-            # Use real LPIPS implementation
-            # This is a placeholder - in a real implementation, we would use
-            # the actual LPIPS library or our JAX/Flax implementation
-            lpips_score = 0.0
+            return {"lpips_distance": lpips_score}
 
-        return {"lpips_distance": lpips_score}
+        raise RuntimeError(
+            "LPIPSMetric does not ship a benchmark-grade perceptual backend outside explicit "
+            "demo mode."
+        )
 
-    def validate_inputs(self, real_data: jax.Array, generated_data: jax.Array) -> bool:
+    def compute_distance(self, images1: jax.Array, images2: jax.Array) -> jax.Array:
+        """Compute per-sample LPIPS distance between two image batches.
+
+        Args:
+            images1: First set of images [batch_size, H, W, C]
+            images2: Second set of images [batch_size, H, W, C]
+
+        Returns:
+            Per-sample LPIPS distances [batch_size]
+        """
+        batch_size = images1.shape[0]
+        distances = jnp.zeros(batch_size)
+        for i in range(batch_size):
+            img1 = images1[i : i + 1]
+            img2 = images2[i : i + 1]
+            score = compute_lpips_distance(img1, img2)
+            distances = distances.at[i].set(score)
+        return distances
+
+    def validate_inputs(self, real_data: jax.Array, generated_data: jax.Array) -> None:
         """Validate input data compatibility.
 
         Args:
             real_data: Real images
             generated_data: Generated images
 
-        Returns:
-            True if inputs are valid
+        Raises:
+            ValueError: If inputs are invalid
         """
-        # Check that both inputs are arrays
         if not isinstance(real_data, jax.Array) or not isinstance(generated_data, jax.Array):
-            return False
-
-        # Check shapes match
+            raise ValueError("Both inputs must be jax.Array")
         if real_data.shape != generated_data.shape:
-            return False
-
-        # Check that images are 4D with 3 channels
+            raise ValueError("Input shapes must match")
         if len(real_data.shape) != 4 or real_data.shape[-1] != 3:
-            return False
-
-        return True
+            raise ValueError("Images must be 4D with 3 channels")
 
 
 class SSIMMetric(MetricBase):
@@ -348,20 +412,26 @@ class SSIMMetric(MetricBase):
             rngs: NNX Rngs for stochastic operations
             config: Evaluation configuration (must be EvaluationConfig)
         """
-        if not isinstance(config, EvaluationConfig):
-            # Also check for class name to handle dynamic module loading
-            if type(config).__name__ != "EvaluationConfig":
-                raise TypeError(f"config must be an EvaluationConfig, got {type(config).__name__}")
-
-        # Initialize base class with minimal config to satisfy MetricBase requirements
-        # Initialize base class with the EvaluationConfig
-        super().__init__(config=config, rngs=rngs)
-        self.eval_batch_size = config.eval_batch_size
+        _init_metric_from_config(
+            self,
+            config=config,
+            rngs=rngs,
+            metric_key="ssim",
+            modality="image",
+            higher_is_better=True,
+        )
 
         self.metric_name = "ssim_score"
 
         # SSIM parameters from config
-        ssim_params = config.metric_params.get("ssim", {})
+        ssim_params = _init_metric_from_config(
+            self,
+            config=config,
+            rngs=rngs,
+            metric_key="ssim",
+            modality="image",
+            higher_is_better=True,
+        )
         self.K1 = ssim_params.get("K1", 0.01)
         self.K2 = ssim_params.get("K2", 0.03)
         self.window_size = ssim_params.get("window_size", 11)
@@ -372,6 +442,8 @@ class SSIMMetric(MetricBase):
     ) -> dict[str, float]:
         """Compute SSIM score between two sets of images.
 
+        Delegates per-image SSIM computation to calibrax.
+
         Args:
             real_data: Real images [batch_size, height, width, channels]
             generated_data: Generated images [batch_size, height, width, channels]
@@ -380,144 +452,37 @@ class SSIMMetric(MetricBase):
         Returns:
             dictionary with SSIM score
         """
-        # Create Gaussian window
-        window = self._gaussian_window(self.window_size, self.sigma)
-        window = window[:, :, None, None]  # Add channel dimensions
 
-        # Compute SSIM for each image pair
-        ssim_values = []
+        def _ssim_single(img1: jax.Array, img2: jax.Array) -> jax.Array:
+            return calibrax_ssim(
+                img1,
+                img2,
+                filter_size=self.window_size,
+                k1=self.K1,
+                k2=self.K2,
+                filter_sigma=self.sigma,
+            )
 
-        for i in range(real_data.shape[0]):
-            img1 = real_data[i]
-            img2 = generated_data[i]
-
-            # Compute SSIM for each channel
-            channel_ssim = []
-            for c in range(img1.shape[2]):
-                ssim_val = self._compute_ssim(img1[:, :, c], img2[:, :, c], window)
-                channel_ssim.append(ssim_val)
-
-            # Average across channels
-            ssim_values.append(jnp.mean(jnp.array(channel_ssim)))
-
-        # Average across batch
-        ssim_score = float(jnp.mean(jnp.array(ssim_values)))
-
+        ssim_per_image = jax.vmap(_ssim_single)(real_data, generated_data)
+        ssim_score = float(jnp.mean(ssim_per_image))
         return {"ssim_score": ssim_score}
 
-    def validate_inputs(self, real_data: jax.Array, generated_data: jax.Array) -> bool:
+    def validate_inputs(self, real_data: jax.Array, generated_data: jax.Array) -> None:
         """Validate input data compatibility.
 
         Args:
             real_data: Real images
             generated_data: Generated images
 
-        Returns:
-            True if inputs are valid
+        Raises:
+            ValueError: If inputs are invalid
         """
-        # Check that both inputs are arrays
         if not isinstance(real_data, jax.Array) or not isinstance(generated_data, jax.Array):
-            return False
-
-        # Check shapes match
+            raise ValueError("Both inputs must be jax.Array")
         if real_data.shape != generated_data.shape:
-            return False
-
-        # Check that images are 4D with 3 channels
+            raise ValueError("Input shapes must match")
         if len(real_data.shape) != 4 or real_data.shape[-1] != 3:
-            return False
-
-        return True
-
-    def _gaussian_window(self, window_size: int, sigma: float) -> jax.Array:
-        """Create a Gaussian window.
-
-        Args:
-            window_size: Size of the window
-            sigma: Standard deviation of the Gaussian
-
-        Returns:
-            2D Gaussian window
-        """
-        # Create 1D Gaussian kernel
-        x = jnp.arange(window_size)
-        x = x - window_size // 2
-        gauss = jnp.exp(-(x**2) / (2 * sigma**2))
-        gauss = gauss / jnp.sum(gauss)
-
-        # Create 2D Gaussian kernel
-        window = jnp.outer(gauss, gauss)
-
-        return window
-
-    def _compute_ssim(self, img1: jax.Array, img2: jax.Array, window: jax.Array) -> float:
-        """Compute SSIM for a single channel.
-
-        Args:
-            img1: First image channel
-            img2: Second image channel
-            window: Gaussian window
-
-        Returns:
-            SSIM value
-        """
-        # Constants for stability
-        C1 = (self.K1 * 1.0) ** 2
-        C2 = (self.K2 * 1.0) ** 2
-
-        # Compute means
-        mu1 = self._conv2d(img1, window)
-        mu2 = self._conv2d(img2, window)
-
-        mu1_sq = mu1**2
-        mu2_sq = mu2**2
-        mu1_mu2 = mu1 * mu2
-
-        # Compute variances and covariance
-        sigma1_sq = self._conv2d(img1**2, window) - mu1_sq
-        sigma2_sq = self._conv2d(img2**2, window) - mu2_sq
-        sigma12 = self._conv2d(img1 * img2, window) - mu1_mu2
-
-        # Compute SSIM
-        numerator = (2 * mu1_mu2 + C1) * (2 * sigma12 + C2)
-        denominator = (mu1_sq + mu2_sq + C1) * (sigma1_sq + sigma2_sq + C2)
-        ssim_map = numerator / denominator
-
-        return float(jnp.mean(ssim_map))
-
-    def _conv2d(self, img: jax.Array, window: jax.Array) -> jax.Array:
-        """Apply 2D convolution with a window.
-
-        This is a simplified implementation for testing purposes.
-
-        Args:
-            img: Input image
-            window: Convolution window
-
-        Returns:
-            Convolved image
-        """
-        # Simple convolution implementation
-        # In a real implementation, we would use jax.lax.conv or similar
-
-        # For simplicity, we'll use a very basic implementation
-        # that doesn't handle padding properly
-        h, w = window.shape[:2]
-
-        # Pad image
-        pad_h = h // 2
-        pad_w = w // 2
-        img_padded = jnp.pad(img, ((pad_h, pad_h), (pad_w, pad_w)), mode="reflect")
-
-        # Apply convolution
-        result = jnp.zeros_like(img)
-
-        for i in range(img.shape[0]):
-            for j in range(img.shape[1]):
-                patch = img_padded[i : i + h, j : j + w]
-                result = result.at[i, j].set(jnp.sum(patch * window))
-
-        return result
+            raise ValueError("Images must be 4D with 3 channels")
 
 
 class ISMetric(MetricBase):
@@ -540,45 +505,52 @@ class ISMetric(MetricBase):
             rngs: NNX Rngs for stochastic operations
             config: Evaluation configuration (must be EvaluationConfig)
         """
-        if not isinstance(config, EvaluationConfig):
-            # Also check for class name to handle dynamic module loading
-            if type(config).__name__ != "EvaluationConfig":
-                raise TypeError(f"config must be an EvaluationConfig, got {type(config).__name__}")
-
-        # Initialize base class with minimal config to satisfy MetricBase requirements
-        # Initialize base class with the EvaluationConfig
-        super().__init__(config=config, rngs=rngs)
-        self.eval_batch_size = config.eval_batch_size
-
         self.metric_name = "inception_score"
 
         # IS parameters from config
-        is_params = config.metric_params.get("inception_score", {})
-        self.mock_inception = is_params.get("mock_inception", True)
+        is_params = _init_metric_from_config(
+            self,
+            config=config,
+            rngs=rngs,
+            metric_key="inception_score",
+            modality="image",
+            higher_is_better=True,
+        )
+        self.mock_inception = is_params.get("mock_inception", False)
+        self.demo_mode = demo_mode_from_mapping(is_params)
         self.splits = is_params.get("splits", 10)
         self.inception_model = None
 
-        # Initialize mock or real inception model
+        if self.mock_inception:
+            require_demo_mode(
+                enabled=self.demo_mode,
+                component="ISMetric",
+                detail=(
+                    "The retained mock Inception classifier is demo-only and not the shipped "
+                    "benchmark dependency path."
+                ),
+            )
+
         self._initialize_inception_model()
 
     def _initialize_inception_model(self):
         """Initialize the Inception model for feature extraction."""
         if self.mock_inception:
-            # Use mock inception model that returns random features
             self.inception_model = MockInceptionModel(rngs=self.rngs)
-        else:
-            # Try to load real inception model
-            try:
-                # Import TensorFlow if available
-                import tensorflow as tf  # noqa: F401
-                from tensorflow.keras.applications.inception_v3 import InceptionV3
+            logger.info("Using retained mock Inception classifier in explicit demo mode")
+            return
 
-                # Load pre-trained Inception model
-                self.inception_model = InceptionV3(include_top=True, weights="imagenet")
-                print("Loaded real Inception model for IS calculation")
-            except ImportError:
-                print("TensorFlow not available, using mock Inception model")
-                self.inception_model = MockInceptionModel(rngs=self.rngs)
+        try:
+            import tensorflow as tf  # noqa: F401
+            from tensorflow.keras.applications.inception_v3 import InceptionV3
+        except ImportError as e:
+            raise RuntimeError(
+                "ISMetric requires TensorFlow InceptionV3 in supported mode. Pass "
+                "mock_inception=True only for the retained demo workflow."
+            ) from e
+
+        self.inception_model = InceptionV3(include_top=True, weights="imagenet")
+        logger.info("Loaded real Inception model for IS calculation")
 
     def compute(
         self, real_data: jax.Array, generated_data: jax.Array, **kwargs
@@ -602,29 +574,22 @@ class ISMetric(MetricBase):
 
         return {"inception_score": is_score}
 
-    def validate_inputs(self, real_data: jax.Array, generated_data: jax.Array) -> bool:
+    def validate_inputs(self, real_data: jax.Array, generated_data: jax.Array) -> None:
         """Validate input data compatibility.
 
         Args:
             real_data: Real images
             generated_data: Generated images
 
-        Returns:
-            True if inputs are valid
+        Raises:
+            ValueError: If inputs are invalid
         """
-        # For IS, we only need generated images to be valid
         if not isinstance(generated_data, jax.Array):
-            return False
-
-        # Check that input is 4D: batch x height x width x channels
+            raise ValueError("Generated data must be jax.Array")
         if len(generated_data.shape) != 4:
-            return False
-
-        # Check that last dimension is 3 (for RGB channels)
+            raise ValueError("Images must be 4D (batch, height, width, channels)")
         if generated_data.shape[-1] != 3:
-            return False
-
-        return True
+            raise ValueError("Images must have 3 channels (RGB)")
 
     def _get_inception_predictions(self, images: jax.Array) -> jax.Array:
         """Get Inception model predictions for images.
@@ -650,7 +615,7 @@ class ISMetric(MetricBase):
             logits = jax.random.normal(key, (batch_size, num_classes))
 
             # Apply softmax to get probabilities
-            probs = jax.nn.softmax(logits, axis=1)
+            probs = nnx.softmax(logits, axis=1)
 
             # Make probabilities somewhat dependent on image content
             image_means = jnp.mean(images, axis=(1, 2, 3))
@@ -721,7 +686,7 @@ class ISMetric(MetricBase):
 # Factory functions for creating metrics with unified configuration
 def create_fid_metric(
     rngs: nnx.Rngs,
-    mock_inception: bool = True,
+    mock_inception: bool = False,
     batch_size: int = 32,
     config_name: str = "fid_metric",
 ) -> FIDMetric:
@@ -753,7 +718,7 @@ def create_fid_metric(
 
 def create_lpips_metric(
     rngs: nnx.Rngs,
-    mock_implementation: bool = True,
+    mock_implementation: bool = False,
     batch_size: int = 32,
     config_name: str = "lpips_metric",
 ) -> LPIPSMetric:
@@ -817,7 +782,7 @@ def create_ssim_metric(
 
 def create_is_metric(
     rngs: nnx.Rngs,
-    mock_inception: bool = True,
+    mock_inception: bool = False,
     splits: int = 10,
     batch_size: int = 32,
     config_name: str = "is_metric",

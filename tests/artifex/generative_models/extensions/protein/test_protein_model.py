@@ -185,7 +185,3 @@ def main():
             log(traceback_text)
 
     print(f"Test completed. Output written to {output_file}")
-
-
-if __name__ == "__main__":
-    main()

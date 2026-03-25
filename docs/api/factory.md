@@ -1,8 +1,5 @@
 # Factory API
 
-!!! info "Coming Soon"
-    This page is under development. Check back for factory API documentation.
-
 ## Overview
 
 API reference for the model factory system.

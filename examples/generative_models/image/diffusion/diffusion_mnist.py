@@ -36,7 +36,7 @@ This example depends on the following Artifex source files:
 - `src/artifex/generative_models/core/configuration/backbone_config.py` - UNetBackboneConfig
 
 **Validation Status:**
-- ✅ All dependencies validated against `memory-bank/guides/flax-nnx-guide.md`
+- ✅ All dependencies validated against the internal Flax NNX compatibility guide
 - ✅ No anti-patterns detected (RNG handling checked 2025-10-16)
 - ✅ All patterns follow Flax NNX best practices
 

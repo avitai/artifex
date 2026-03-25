@@ -10,15 +10,15 @@ import jax
 import jax.numpy as jnp
 from flax import nnx
 
-from artifex.benchmarks.datasets.base import DatasetProtocol
+from artifex.benchmarks.runtime_guards import demo_mode_from_mapping, require_demo_mode
 from artifex.generative_models.core.configuration import DataConfig
 
 
-class SyntheticProteinDataset(DatasetProtocol):
+class SyntheticProteinDataset:
     """Synthetic protein structure dataset for benchmarking.
 
     This dataset generates synthetic protein structures with random
-    coordinates for testing.
+    coordinates for testing. Structurally conforms to DatasetProtocol.
     """
 
     def __init__(
@@ -44,15 +44,28 @@ class SyntheticProteinDataset(DatasetProtocol):
         if not isinstance(config, DataConfig):
             raise TypeError(f"config must be DataConfig, got {type(config).__name__}")
 
-        # Extract protein-specific parameters from config metadata BEFORE calling super().__init__
+        self.config = config
+        self.data_path = data_path
+        self.rngs = rngs
+
+        # Extract protein-specific parameters from config metadata
         self.num_samples = config.metadata.get("num_samples", 100)
         self.num_residues = config.metadata.get("num_residues", 10)
         self.num_atoms = config.metadata.get("num_atoms", 4)
         self.seed = config.metadata.get("seed", 42)
         self.batch_size = config.metadata.get("batch_size", 32)
+        self.demo_mode = demo_mode_from_mapping(config.metadata)
 
-        # Now call parent init which will call _load_dataset
-        super().__init__(data_path, config, rngs=rngs)
+        require_demo_mode(
+            enabled=self.demo_mode,
+            component="SyntheticProteinDataset",
+            detail=(
+                "This retained protein benchmark dataset synthesizes coordinates rather than "
+                "loading benchmark-grade protein structures."
+            ),
+        )
+
+        self._load_dataset()
 
     def _generate_dataset(self) -> tuple[jnp.ndarray, jnp.ndarray]:
         """Generate synthetic protein structures.

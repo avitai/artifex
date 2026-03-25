@@ -1,38 +1,38 @@
-"""Models package for generative models."""
+"""Model implementations for generative models."""
 
-# Import model submodules
-# Ensure model registration by importing all factory modules
-# Note: JAXopt package shows deprecation warnings.
-# Consider alternatives per https://docs.jax.dev/en/latest/
-import artifex.generative_models.models.geometric  # noqa
-import artifex.generative_models.models.vae  # noqa
-from artifex.generative_models.models import (
-    diffusion,
-    factories,  # Import all factories to ensure they're registered
-    geometric,
-    registry,
-    vae,
-)
+from importlib import import_module
+from typing import Any
 
-# Factory functions have been moved to the centralized factory
-# Use: from artifex.generative_models.factory import create_model
 
-# Re-export registry
-from artifex.generative_models.models.registry import (
-    ModelRegistry,
-    register_model,
-)
-# from artifex.generative_models.models.vae.factory import create_vae_model
+_LAZY_EXPORTS: dict[str, str | tuple[str, str]] = {
+    "diffusion": "artifex.generative_models.models.diffusion",
+    "geometric": "artifex.generative_models.models.geometric",
+    "vae": "artifex.generative_models.models.vae",
+}
 
 
 __all__ = [
     # Submodules
     "diffusion",
-    "factories",
     "geometric",
     "vae",
-    # Registry
-    "ModelRegistry",
-    "register_model",
-    "registry",
 ]
+
+
+def __getattr__(name: str) -> Any:
+    """Load exported modules and symbols lazily on first attribute access."""
+    try:
+        export = _LAZY_EXPORTS[name]
+    except KeyError as exc:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}") from exc
+
+    if isinstance(export, tuple):
+        module_path, attr_name = export
+        return getattr(import_module(module_path), attr_name)
+
+    return import_module(export)
+
+
+def __dir__() -> list[str]:
+    """Keep introspection aligned with the documented export surface."""
+    return sorted(__all__)

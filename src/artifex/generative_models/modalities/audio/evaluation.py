@@ -116,7 +116,7 @@ class AudioMetrics:
 
 
 class AudioEvaluationSuite:
-    """Comprehensive audio evaluation suite."""
+    """Complete audio evaluation suite."""
 
     def __init__(self, config: AudioModalityConfig):
         """Initialize evaluation suite.

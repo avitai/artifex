@@ -298,7 +298,7 @@ class TestFileAnalysisTests:
         """Test calculating coverage percentage."""
         analysis = tsa_module.TestFileAnalysis(**test_analysis_data)
 
-        # Both modules are tested, so coverage should be 100%
+        # Both modules are tested, so coverage should be full
         assert analysis.calculate_coverage_percentage() == 100.0
 
         # Modify to test edge case with no source modules
@@ -331,7 +331,7 @@ class TestFileAnalysisTests:
 
         # Test with high coverage but import issues
         analysis.total_source_modules = 2
-        analysis.source_modules_with_tests = 2  # 100% coverage
+        analysis.source_modules_with_tests = 2  # full coverage
         analysis.test_files_without_imports = 5
         recommendations = analysis.generate_recommendations()
         assert any("import their corresponding" in r.lower() for r in recommendations)

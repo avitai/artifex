@@ -1,309 +1,204 @@
-"""Evaluation pipeline and metric composition for artifex.generative_models.core.evaluation."""
+"""Explicit evaluation pipeline for caller-supplied runtime metrics.
 
+The retained pipeline only supports metric families with caller-supplied
+runtime dependencies. Registry ownership lives in ``calibrax.metrics``.
+Unsupported metric specs fail fast.
+"""
+
+from __future__ import annotations
+
+from collections.abc import Callable
+from dataclasses import dataclass
 from typing import Any
 
 import flax.nnx as nnx
 
 from artifex.generative_models.core.configuration import EvaluationConfig
+from artifex.generative_models.core.evaluation.metrics.image import (
+    FrechetInceptionDistance,
+    InceptionScore,
+)
+from artifex.generative_models.core.evaluation.metrics.text import Perplexity
 from artifex.generative_models.core.protocols.metrics import MetricBase
 
 
+_MetricInvoker = Callable[[MetricBase, dict[str, Any]], dict[str, float]]
+
+
+def _invoke_fid(metric: MetricBase, payload: dict[str, Any]) -> dict[str, float]:
+    return metric.compute(payload["real"], payload["generated"])
+
+
+def _invoke_inception_score(metric: MetricBase, payload: dict[str, Any]) -> dict[str, float]:
+    return metric.compute(payload["generated"])
+
+
+def _invoke_perplexity(metric: MetricBase, payload: dict[str, Any]) -> dict[str, float]:
+    if "inputs" not in payload and "log_probs" not in payload:
+        raise ValueError(
+            'text evaluation payload for perplexity must include "inputs" or "log_probs".'
+        )
+    return metric.compute(
+        inputs=payload.get("inputs"),
+        log_probs=payload.get("log_probs"),
+        mask=payload.get("mask"),
+    )
+
+
+@dataclass(frozen=True)
+class _MetricSpec:
+    spec: str
+    modality: str
+    metric_name: str
+    metric_type: type[MetricBase]
+    invoke: _MetricInvoker
+    dependency_name: str | None = None
+    constructor_defaults: tuple[tuple[str, Any], ...] = ()
+    required_payload_keys: tuple[str, ...] = ()
+
+
+_SUPPORTED_METRICS: dict[str, _MetricSpec] = {
+    "image:fid": _MetricSpec(
+        spec="image:fid",
+        modality="image",
+        metric_name="fid",
+        metric_type=FrechetInceptionDistance,
+        invoke=_invoke_fid,
+        dependency_name="feature_extractor",
+        required_payload_keys=("real", "generated"),
+    ),
+    "image:is": _MetricSpec(
+        spec="image:is",
+        modality="image",
+        metric_name="is",
+        metric_type=InceptionScore,
+        invoke=_invoke_inception_score,
+        dependency_name="classifier",
+        constructor_defaults=(("splits", 10),),
+        required_payload_keys=("generated",),
+    ),
+    "text:perplexity": _MetricSpec(
+        spec="text:perplexity",
+        modality="text",
+        metric_name="perplexity",
+        metric_type=Perplexity,
+        invoke=_invoke_perplexity,
+        dependency_name="model",
+    ),
+}
+
+
 class EvaluationPipeline(nnx.Module):
-    """Complete evaluation pipeline for multi-modal benchmarks.
-
-    Orchestrates evaluation across multiple modalities and metrics,
-    providing comprehensive assessment capabilities.
-
-    Attributes:
-        config: Pipeline configuration
-        metrics: Dictionary of modality-specific metrics
-        rngs: NNX Rngs for stochastic operations
-    """
+    """Explicit multi-modality evaluation pipeline."""
 
     def __init__(self, config: EvaluationConfig, *, rngs: nnx.Rngs):
-        """Initialize evaluation pipeline.
-
-        Args:
-            config: Evaluation configuration
-            rngs: NNX Rngs for stochastic operations
-
-        Raises:
-            TypeError: If config is not EvaluationConfig
-        """
+        super().__init__()
         if not isinstance(config, EvaluationConfig):
             raise TypeError(f"config must be EvaluationConfig, got {type(config).__name__}")
 
         self.config = config
-        # Extract modalities from metrics
-        modalities = set()
-        for metric in config.metrics:
-            if ":" in metric:
-                modality, _ = metric.split(":", 1)
-                modalities.add(modality)
-
         self.rngs = rngs
-        self.metrics = {}
+        self.metrics = nnx.Dict({})
+        self.metric_specs_by_modality: dict[str, list[_MetricSpec]] = {}
 
-        # Initialize modality-specific metrics
-        for modality in modalities:
-            self.metrics[modality] = self._create_modality_metrics(modality)
+        grouped_metrics: dict[str, list[MetricBase]] = {}
+        for metric_spec in config.metrics:
+            spec = self._resolve_metric_spec(metric_spec)
+            grouped_metrics.setdefault(spec.modality, []).append(self._build_metric(spec))
+            self.metric_specs_by_modality.setdefault(spec.modality, []).append(spec)
 
-    def _create_modality_metrics(self, modality: str) -> list[MetricBase]:
-        """Create metrics for a specific modality."""
-        metrics = []
+        for modality, metrics in grouped_metrics.items():
+            self.metrics[modality] = nnx.List(metrics)
 
-        # Extract metrics for this modality from typed config
-        metric_names = [
-            metric.split(":", 1)[1] if ":" in metric else metric
-            for metric in self.config.metrics
-            if metric.startswith(f"{modality}:") or ":" not in metric
-        ]
+    @staticmethod
+    def _resolve_metric_spec(metric_spec: str) -> _MetricSpec:
+        if ":" not in metric_spec:
+            raise ValueError(
+                'EvaluationPipeline metrics must use explicit "modality:metric" specs.'
+            )
 
-        for metric_name in metric_names:
-            # Get metric params from typed config
-            metric_config = {
-                "name": metric_name,
-                "modality": modality,
-                **self.config.metric_params.get(metric_name, {}),
-            }
+        spec = _SUPPORTED_METRICS.get(metric_spec)
+        if spec is None:
+            supported = ", ".join(sorted(_SUPPORTED_METRICS))
+            raise ValueError(
+                f"Unsupported evaluation metric spec: {metric_spec}. "
+                f"Supported specs are {supported}."
+            )
+        return spec
 
-            # Create actual metrics with their specific constructors
-            if metric_name == "fid":
-                from artifex.generative_models.core.evaluation.metrics.image import (
-                    FrechetInceptionDistance,
-                )
-
-                # Extract FID-specific params
-                batch_size = metric_config.get("batch_size", 32)
-                feature_extractor = metric_config.get("feature_extractor", None)
-                metrics.append(
-                    FrechetInceptionDistance(
-                        batch_size=batch_size,
-                        feature_extractor=feature_extractor,
-                        name=metric_name,
-                        rngs=self.rngs,
-                    )
-                )
-            elif metric_name == "is":
-                from artifex.generative_models.core.evaluation.metrics.image import InceptionScore
-
-                # Extract IS-specific params
-                batch_size = metric_config.get("batch_size", 32)
-                splits = metric_config.get("splits", 10)
-                classifier = metric_config.get("classifier", None)
-                metrics.append(
-                    InceptionScore(
-                        classifier=classifier,
-                        batch_size=batch_size,
-                        splits=splits,
-                        name=metric_name,
-                        rngs=self.rngs,
-                    )
-                )
-            elif metric_name == "perplexity":
-                from artifex.generative_models.core.evaluation.metrics.text import Perplexity
-
-                # Extract perplexity-specific params
-                model = metric_config.get("model", None)
-                batch_size = metric_config.get("batch_size", 32)
-                metrics.append(
-                    Perplexity(model=model, batch_size=batch_size, name=metric_name, rngs=self.rngs)
-                )
-            # For unsupported metrics, create a mock for now
-            elif metric_name in ["bleu", "rouge"]:
-                # These metrics aren't implemented yet, so we'll skip them
-                pass
-
-        return metrics
-
-    def evaluate(self, data: dict[str, dict[str, Any]]) -> dict[str, dict[str, float]]:
-        """Evaluate all modalities and metrics.
-
-        Args:
-            data: Dictionary with modality -> {real, generated} data
-
-        Returns:
-            Dictionary of results by modality and metric
-        """
-        results = {}
-
-        for modality, modality_data in data.items():
-            if modality in self.metrics:
-                modality_results = {}
-
-                for metric in self.metrics[modality]:
-                    metric_results = metric.compute(
-                        modality_data["real"], modality_data["generated"]
-                    )
-                    modality_results.update(metric_results)
-
-                results[modality] = modality_results
-
-        return results
-
-
-class MetricComposer(nnx.Module):
-    """Compose and aggregate metrics across modalities.
-
-    Provides sophisticated metric composition capabilities including
-    weighted combinations and cross-modality aggregation.
-
-    Attributes:
-        config: Composer configuration
-        rngs: NNX Rngs for stochastic operations
-    """
-
-    def __init__(self, config: EvaluationConfig, *, rngs: nnx.Rngs):
-        """Initialize metric composer.
-
-        Args:
-            config: Composer configuration
-            rngs: NNX Rngs for stochastic operations
-
-        Raises:
-            TypeError: If config is not EvaluationConfig
-        """
-        if not isinstance(config, EvaluationConfig):
-            raise TypeError(f"config must be EvaluationConfig, got {type(config).__name__}")
-        self.config = config
-        self.rngs = rngs
-
-    def compose(self, metrics: dict[str, float]) -> dict[str, float]:
-        """Compose metrics using configured rules.
-
-        Args:
-            metrics: Dictionary of metric values
-
-        Returns:
-            Dictionary with composed metrics
-        """
-        composed = {}
-
-        # Get composition rules from metric_params
-        composition_rules = self.config.metric_params.get("composition_rules", {})
-        for rule_name, rule_config in composition_rules.items():
-            weights = rule_config.get("weights", {})
-            normalization = rule_config.get("normalization", "none")
-
-            # Compute weighted combination
-            score = 0.0
-            for metric_name, weight in weights.items():
-                if metric_name in metrics:
-                    value = metrics[metric_name]
-
-                    # Apply normalization if specified
-                    if normalization == "min_max":
-                        # Simple mock normalization for testing
-                        value = (value - 0) / (100 - 0)  # Assume range [0, 100]
-
-                    score += weight * value
-
-            composed[rule_name] = score
-
-        return composed
-
-    def aggregate_modalities(
-        self, modality_results: dict[str, dict[str, float]]
-    ) -> dict[str, float]:
-        """Aggregate results across modalities.
-
-        Args:
-            modality_results: Results by modality
-
-        Returns:
-            Aggregated cross-modality metrics
-        """
-        # Get aggregation settings from metric_params
-        # Check if there's a composer_settings dict first
-        composer_settings = self.config.metric_params.get("composer_settings", {})
-        strategy = composer_settings.get("aggregation_strategy", "weighted_average")
-        weights = composer_settings.get("modality_weights", {})
-
-        if strategy == "weighted_average":
-            # Compute weighted average across modalities
-            total_score = 0.0
-            total_weight = 0.0
-
-            for modality, results in modality_results.items():
-                weight = weights.get(modality, 1.0)
-                # Use first metric as representative score for simplicity
-                modality_score = next(iter(results.values()), 0.0)
-
-                total_score += weight * modality_score
-                total_weight += weight
-
-            if total_weight > 0:
-                cross_modality_score = total_score / total_weight
-            else:
-                cross_modality_score = 0.0
-
-            return {"cross_modality_score": cross_modality_score}
-
-        return {}
-
-
-class ModalityMetrics(nnx.Module):
-    """Manage modality-specific metrics and selection.
-
-    Provides centralized management of metrics by modality with
-    automatic selection capabilities based on quality requirements.
-
-    Attributes:
-        config: Modality metrics configuration
-        rngs: NNX Rngs for stochastic operations
-    """
-
-    def __init__(self, config: EvaluationConfig, *, rngs: nnx.Rngs):
-        """Initialize modality metrics manager.
-
-        Args:
-            config: Modality metrics configuration
-            rngs: NNX Rngs for stochastic operations
-
-        Raises:
-            TypeError: If config is not EvaluationConfig
-        """
-        if not isinstance(config, EvaluationConfig):
-            raise TypeError(f"config must be EvaluationConfig, got {type(config).__name__}")
-        self.config = config
-        self.rngs = rngs
-
-        # Extract modalities from metrics
-        modalities = set()
-        for metric in config.metrics:
-            if ":" in metric:
-                modality, _ = metric.split(":", 1)
-                modalities.add(modality)
-        self.supported_modalities = modalities
-
-    def get_supported_modalities(self) -> list[str]:
-        """Get list of supported modalities."""
-        return list(self.supported_modalities)
-
-    def select_metrics(self, modality: str, quality_level: str = "standard") -> list[str]:
-        """Select appropriate metrics for modality and quality level.
-
-        Args:
-            modality: Target modality
-            quality_level: Quality requirement level
-
-        Returns:
-            List of recommended metric names
-        """
-        if modality not in self.supported_modalities:
-            return []
-
-        # Get quality levels from metric_params
-        quality_levels = self.config.metric_params.get("quality_levels", {})
-
-        if quality_level in quality_levels:
-            return quality_levels[quality_level]
-
-        # Default metric selection by modality
-        default_metrics: dict[str, list[str]] = {
-            "image": ["fid", "is"],
-            "text": ["bleu", "rouge"],
-            "audio": ["spectral", "mcd"],
+    def _metric_config(self, spec: _MetricSpec) -> dict[str, Any]:
+        return {
+            **self.config.metric_params.get(spec.metric_name, {}),
+            **self.config.metric_params.get(spec.spec, {}),
         }
 
-        return default_metrics.get(modality, [])
+    @staticmethod
+    def _require_callable_dependency(
+        metric_name: str,
+        dependency_name: str,
+        metric_config: dict[str, Any],
+    ) -> Any:
+        dependency = metric_config.get(dependency_name)
+        if dependency is None:
+            raise ValueError(
+                f"{metric_name} requires an explicit callable {dependency_name}. "
+                "Artifex does not ship a placeholder default."
+            )
+        if not callable(dependency):
+            raise TypeError(
+                f"{metric_name} requires {dependency_name} to be callable, "
+                f"got {type(dependency).__name__}."
+            )
+        return dependency
+
+    def _build_metric(self, spec: _MetricSpec) -> MetricBase:
+        metric_config = self._metric_config(spec)
+        kwargs: dict[str, Any] = {
+            "batch_size": metric_config.get("batch_size", 32),
+            "name": spec.metric_name,
+            "rngs": self.rngs,
+        }
+        for key, default in spec.constructor_defaults:
+            kwargs[key] = metric_config.get(key, default)
+        if spec.dependency_name is not None:
+            kwargs[spec.dependency_name] = self._require_callable_dependency(
+                spec.metric_name,
+                spec.dependency_name,
+                metric_config,
+            )
+        return spec.metric_type(**kwargs)
+
+    @staticmethod
+    def _require_keys(modality: str, payload: dict[str, Any], keys: tuple[str, ...]) -> None:
+        missing = [key for key in keys if key not in payload]
+        if missing:
+            missing_csv = ", ".join(missing)
+            raise ValueError(
+                f"{modality} evaluation payload is missing required keys: {missing_csv}."
+            )
+
+    def _compute_metric(
+        self,
+        spec: _MetricSpec,
+        metric: MetricBase,
+        modality_data: dict[str, Any],
+    ) -> dict[str, float]:
+        if spec.required_payload_keys:
+            self._require_keys(spec.modality, modality_data, spec.required_payload_keys)
+        return spec.invoke(metric, modality_data)
+
+    def evaluate(self, data: dict[str, dict[str, Any]]) -> dict[str, dict[str, float]]:
+        """Evaluate the configured modalities and metrics."""
+        results: dict[str, dict[str, float]] = {}
+        for modality, metrics in self.metrics.items():
+            if modality not in data:
+                raise ValueError(
+                    f"Missing evaluation payload for configured modality {modality!r}."
+                )
+
+            modality_results: dict[str, float] = {}
+            specs = self.metric_specs_by_modality[modality]
+            for metric, spec in zip(metrics, specs, strict=False):
+                modality_results.update(self._compute_metric(spec, metric, data[modality]))
+            results[modality] = modality_results
+        return results

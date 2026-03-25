@@ -84,7 +84,8 @@ class TestTrainerNNXSupport:
     def test_trainer_accepts_nnx_model(self, ddpm_model, training_config):
         """Trainer should accept NNX modules without error."""
 
-        def loss_fn(model, batch, rng):
+        def loss_fn(model, batch, rng, step):
+            del step
             x = batch["images"]
             t = jax.random.randint(rng, (x.shape[0],), 0, model.noise_steps)
             noisy_x, noise = model.forward_diffusion(x, t)
@@ -107,7 +108,8 @@ class TestTrainerNNXSupport:
     ):
         """Trainer.train_step should work with NNX models without TraceContextError."""
 
-        def loss_fn(model, batch, rng):
+        def loss_fn(model, batch, rng, step):
+            del step
             x = batch["images"]
             t = jax.random.randint(rng, (x.shape[0],), 0, model.noise_steps)
             noisy_x, noise = model.forward_diffusion(x, t)
@@ -131,7 +133,8 @@ class TestTrainerNNXSupport:
     def test_trainer_multiple_steps_reduce_loss(self, ddpm_model, training_config, sample_batch):
         """Multiple training steps should reduce loss (model is learning)."""
 
-        def loss_fn(model, batch, rng):
+        def loss_fn(model, batch, rng, step):
+            del step
             x = batch["images"]
             t = jax.random.randint(rng, (x.shape[0],), 0, model.noise_steps)
             noisy_x, noise = model.forward_diffusion(x, t)
@@ -159,7 +162,8 @@ class TestTrainerNNXSupport:
     def test_trainer_preserves_model_state(self, ddpm_model, training_config, sample_batch):
         """Training should update model parameters in-place (NNX style)."""
 
-        def loss_fn(model, batch, rng):
+        def loss_fn(model, batch, rng, step):
+            del step
             x = batch["images"]
             t = jax.random.randint(rng, (x.shape[0],), 0, model.noise_steps)
             noisy_x, noise = model.forward_diffusion(x, t)

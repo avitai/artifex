@@ -174,7 +174,7 @@ nav:
   - Examples:
       - Overview: examples/overview.md
       - Diffusion Models:
-          - Simple Diffusion: examples/diffusion/simple-diffusion.md
+          - Standalone Simple Diffusion: examples/diffusion/simple-diffusion.md
           - DiT Demo: examples/diffusion/dit-demo.md
       - Energy-Based Models:
           - Simple EBM: examples/energy/simple-ebm.md
@@ -184,48 +184,36 @@ nav:
           - Diffusion on MNIST: examples/basic/diffusion-mnist.md
           - Diffusion MNIST Training: examples/basic/diffusion-mnist-demo.md
           - Flow on MNIST: examples/basic/flow-mnist.md
-          - EBM on MNIST: examples/basic/ebm-mnist.md
-          - Autoregressive Text: examples/basic/ar-text.md
-          - Transformer Text: examples/basic/transformer-text.md
       - Advanced Tutorials:
           - Advanced Training: examples/advanced/advanced-training.md
           - Advanced VAE: examples/advanced/advanced-vae.md
-          - Advanced GAN: examples/advanced/advanced-gan.md
-          - Advanced Diffusion: examples/advanced/advanced-diffusion.md
-          - Advanced Flow: examples/advanced/advanced-flow.md
-          - CLIP Models: examples/advanced/clip-models.md
-          - Visual QA: examples/advanced/visual-qa.md
-          - Image Captioning: examples/advanced/image-captioning.md
-          - Cross-Modal Retrieval: examples/advanced/cross-modal-retrieval.md
-          - Text Compression: examples/advanced/text-compression.md
-          - Seq2Seq Models: examples/advanced/seq2seq.md
-          - Multimodal Generation: examples/advanced/multimodal.md
       - VAE Models:
           - Multi-Beta VAE Benchmark: examples/vae/multi-beta-vae-benchmark-demo.md
       - Protein Modeling:
-          - Protein Diffusion Example: examples/protein/protein-diffusion-example.md
-          - Protein Diffusion Tech Validation: examples/protein/protein-diffusion-tech-validation.md
           - Protein Extensions Example: examples/protein/protein-extensions-example.md
           - Protein Model Extension: examples/protein/protein-model-extension.md
           - Protein Model with Modality: examples/protein/protein-model-with-modality.md
           - Protein Point Cloud Example: examples/protein/protein-point-cloud-example.md
           - Protein Extensions with Config: examples/protein/protein-extensions-with-config.md
           - Protein Ligand Benchmark: examples/protein/protein-ligand-benchmark-demo.md
+      - Exploratory Workflows:
+          - Exploratory Advanced GAN: examples/advanced/advanced-gan.md
+          - Exploratory Protein Diffusion: examples/protein/protein-diffusion-example.md
+      - Validation Utilities:
+          - Validation Protein Tech Check: examples/protein/protein-diffusion-tech-validation.md
       - Geometric Models:
           - Geometric Models Demo: examples/geometric/geometric-models-demo.md
           - Geometric Losses Demo: examples/geometric/geometric-losses-demo.md
           - Simple Point Cloud: examples/geometric/simple-point-cloud-example.md
           - Geometric Benchmark Demo: examples/geometric/geometric-benchmark-demo.md
       - Audio Generation:
-          - Simple Audio Generation: examples/audio/simple-audio-generation.md
+          - Standalone Audio Generation: examples/audio/simple-audio-generation.md
       - Text Generation:
-          - Simple Text Generation: examples/text/simple-text-generation.md
+          - Standalone Text Generation: examples/text/simple-text-generation.md
       - Multimodal Models:
-          - Simple Image-Text: examples/multimodal/simple-image-text.md
+          - Standalone Image-Text: examples/multimodal/simple-image-text.md
       - Framework Features:
           - Framework Features Demo: examples/framework/framework-features-demo.md
-          - Training Strategies: examples/framework/training-strategies.md
-          - Model Deployment: examples/framework/model-deployment.md
       - Loss Functions:
           - Loss Examples: examples/losses/loss-examples.md
       - Sampling Methods:
@@ -289,6 +277,7 @@ nav:
       - Command Line Interface: cli/index.md
       - Utilities: utils/index.md
       - Testing Guide: development/testing.md
+      - Example Documentation Design Guide: development/example-documentation-design.md
       - BlackJAX Testing: development/blackjax-testing.md
       - Development Philosophy: development/philosophy.md
       - Roadmap: development/roadmap.md
@@ -296,6 +285,410 @@ nav:
   - Community:
       - Contributing: community/contributing.md
       - FAQ: community/faq.md
+
+  - Reference Library:
+      - API Companion Pages:
+          - api/configs/protein-extension.md
+          - api/configuration.md
+          - api/data/protein-dataset.md
+          - api/datasets/crossdocked.md
+          - api/extensions.md
+          - api/extensions/protein.md
+          - api/factory.md
+          - api/models/protein-point-cloud.md
+      - Architecture:
+          - architecture/extensions.md
+      - Retained Benchmark Reference:
+          - benchmarks/audio.md
+          - benchmarks/audio_benchmarks.md
+          - benchmarks/audio_protocols.md
+          - benchmarks/audio_suite.md
+          - benchmarks/base.md
+          - benchmarks/benchmark_runner.md
+          - benchmarks/caching.md
+          - benchmarks/celeba.md
+          - benchmarks/comparison.md
+          - benchmarks/core.md
+          - benchmarks/crossdocked.md
+          - benchmarks/dashboard.md
+          - benchmarks/dataset_loaders.md
+          - benchmarks/disentanglement.md
+          - benchmarks/diversity.md
+          - benchmarks/ffhq.md
+          - benchmarks/geometric.md
+          - benchmarks/geometric_suite.md
+          - benchmarks/image.md
+          - benchmarks/image_benchmarks.md
+          - benchmarks/image_grid.md
+          - benchmarks/image_protocols.md
+          - benchmarks/image_suite.md
+          - benchmarks/image_unified.md
+          - benchmarks/inception_metrics.md
+          - benchmarks/latency.md
+          - benchmarks/likelihood.md
+          - benchmarks/memory.md
+          - benchmarks/model_adapters.md
+          - benchmarks/molecular_flows.md
+          - benchmarks/multi_beta_vae_suite.md
+          - benchmarks/multimodal_benchmarks.md
+          - benchmarks/multimodal_protocols.md
+          - benchmarks/multimodal_suite.md
+          - benchmarks/optimization.md
+          - benchmarks/optimization_benchmark.md
+          - benchmarks/optimization_plots.md
+          - benchmarks/perplexity.md
+          - benchmarks/plots.md
+          - benchmarks/precision_recall.md
+          - benchmarks/protein_adapters.md
+          - benchmarks/protein_benchmarks.md
+          - benchmarks/protein_dataset.md
+          - benchmarks/protein_ligand.md
+          - benchmarks/protein_ligand_suite.md
+          - benchmarks/protein_model_adapters.md
+          - benchmarks/qm9.md
+          - benchmarks/registry.md
+          - benchmarks/reporting.md
+          - benchmarks/sample_quality.md
+          - benchmarks/scaling.md
+          - benchmarks/se3_molecular_flows_suite.md
+          - benchmarks/standard.md
+          - benchmarks/statistical.md
+          - benchmarks/style_metrics.md
+          - benchmarks/stylegan3_suite.md
+          - benchmarks/synthetic_datasets.md
+          - benchmarks/text.md
+          - benchmarks/text_benchmarks.md
+          - benchmarks/text_protocols.md
+          - benchmarks/text_suite.md
+          - benchmarks/throughput.md
+      - CLI Reference:
+          - cli/__main__.md
+          - cli/benchmark.md
+          - cli/config.md
+          - cli/convert.md
+          - cli/evaluate.md
+          - cli/generate.md
+          - cli/serve.md
+          - cli/train.md
+      - Config Reference:
+          - configs/base.md
+          - configs/config_loader.md
+          - configs/data.md
+          - configs/distributed.md
+          - configs/error_handling.md
+          - configs/extensions.md
+          - configs/hyperparam.md
+          - configs/index.md
+          - configs/inference.md
+          - configs/templates.md
+          - configs/training.md
+      - Core Reference:
+          - core/adversarial.md
+          - core/ancestral.md
+          - core/architecture.md
+          - core/base.md
+          - core/benchmarks.md
+          - core/blackjax_samplers.md
+          - core/causal.md
+          - core/checkpointing.md
+          - core/config_commands.md
+          - core/configuration.md
+          - core/continuous.md
+          - core/distribution_base.md
+          - core/device_manager.md
+          - core/device_testing.md
+          - core/diffusion.md
+          - core/discrete.md
+          - core/distance.md
+          - core/divergence.md
+          - core/evaluation.md
+          - core/fid.md
+          - core/flash_attention.md
+          - core/gan.md
+          - core/geometric.md
+          - core/inception_score.md
+          - core/index.md
+          - core/information.md
+          - core/jax_config.md
+          - core/logging.md
+          - core/mcmc.md
+          - core/metric_ops.md
+          - core/migrate_configs.md
+          - core/mixture.md
+          - core/ode.md
+          - core/perceptual.md
+          - core/performance.md
+          - core/perplexity.md
+          - core/pipeline.md
+          - core/positional.md
+          - core/precision_recall.md
+          - core/quality.md
+          - core/reconstruction.md
+          - core/registry.md
+          - core/regularization.md
+          - core/residual.md
+          - core/resnet.md
+          - core/runner.md
+          - core/sde.md
+          - core/statistical.md
+          - core/templates.md
+          - core/transformations.md
+          - core/transformers.md
+          - core/unified.md
+          - core/validation.md
+          - core/versioning.md
+      - Data Reference:
+          - data/audio.md
+          - data/base.md
+          - data/bookcorpus.md
+          - data/bpe.md
+          - data/character.md
+          - data/cifar.md
+          - data/coco.md
+          - data/collators.md
+          - data/custom_audio.md
+          - data/custom_image.md
+          - data/custom_multimodal.md
+          - data/custom_text.md
+          - data/custom_video.md
+          - data/dataset.md
+          - data/ffhq.md
+          - data/image.md
+          - data/imagenet.md
+          - data/index.md
+          - data/librispeech.md
+          - data/pipeline.md
+          - data/protein_dataset.md
+          - data/registry.md
+          - data/remote.md
+          - data/samplers.md
+          - data/sentencepiece.md
+          - data/structured.md
+          - data/text.md
+          - data/tfrecord.md
+          - data/ucf101.md
+          - data/vctk.md
+          - data/video.md
+          - data/webdataset.md
+          - data/wikipedia.md
+          - data/word.md
+      - Extensions Owner Pages:
+          - extensions/augmentation.md
+          - extensions/backbone.md
+          - extensions/constraints.md
+          - extensions/embeddings.md
+          - extensions/extensions.md
+          - extensions/features.md
+          - extensions/mixin.md
+          - extensions/registry.md
+          - extensions/spectral.md
+          - extensions/temporal.md
+          - extensions/tokenization.md
+          - extensions/utils.md
+      - Factory Reference:
+          - factory/autoregressive.md
+          - factory/core.md
+          - factory/diffusion.md
+          - factory/ebm.md
+          - factory/flow.md
+          - factory/gan.md
+          - factory/geometric.md
+          - factory/vae.md
+      - Generative Models Reference:
+          - generative_models/index.md
+      - Guide Addenda:
+          - guides/benchmarks/protein-ligand.md
+          - guides/modalities/molecular.md
+      - Inference Reference:
+          - Current Inference Pages:
+              - inference/index.md
+              - inference/production.md
+          - Coming Soon:
+              - inference/adapter.md
+              - inference/ancestral.md
+              - inference/autoregressive_generator.md
+              - inference/base.md
+              - inference/beam_search.md
+              - inference/caching.md
+              - inference/classifier_free.md
+              - inference/compilation.md
+              - inference/diffusion_generator.md
+              - inference/distillation.md
+              - inference/dynamic.md
+              - inference/energy_generator.md
+              - inference/flow_generator.md
+              - inference/gan_generator.md
+              - inference/grpc.md
+              - inference/latency.md
+              - inference/lora.md
+              - inference/memory.md
+              - inference/middleware.md
+              - inference/nucleus.md
+              - inference/onnx.md
+              - inference/padding.md
+              - inference/pipeline.md
+              - inference/prefix_tuning.md
+              - inference/prompt_tuning.md
+              - inference/pruning.md
+              - inference/quantization.md
+              - inference/rest.md
+              - inference/stateless.md
+              - inference/streaming.md
+              - inference/temperature.md
+              - inference/tensorrt.md
+              - inference/tfjs.md
+              - inference/throughput.md
+              - inference/top_k.md
+              - inference/vae_generator.md
+      - Modalities Reference:
+          - modalities/adapters.md
+          - modalities/base.md
+          - modalities/config.md
+          - modalities/datasets.md
+          - modalities/evaluation.md
+          - modalities/index.md
+          - modalities/losses.md
+          - modalities/modality.md
+          - modalities/registry.md
+          - modalities/representations.md
+          - modalities/utils.md
+      - Model Reference:
+          - models/base.md
+          - models/beta_vae.md
+          - models/conditional.md
+          - models/cyclegan.md
+          - models/dcgan.md
+          - models/ddim.md
+          - models/ddpm.md
+          - models/decoders.md
+          - models/diffusion.md
+          - models/dit.md
+          - models/ebm.md
+          - models/encoders.md
+          - models/glow.md
+          - models/graph.md
+          - models/guidance.md
+          - models/iaf.md
+          - models/latent.md
+          - models/lsgan.md
+          - models/made.md
+          - models/maf.md
+          - models/mcmc.md
+          - models/mesh.md
+          - models/neural_spline.md
+          - models/patchgan.md
+          - models/pixel_cnn.md
+          - models/point_cloud.md
+          - models/protein_graph.md
+          - models/protein_point_cloud.md
+          - models/real_nvp.md
+          - models/score.md
+          - models/se3_molecular.md
+          - models/stable_diffusion.md
+          - models/stylegan3.md
+          - models/transformer.md
+          - models/voxel.md
+          - models/vq_vae.md
+          - models/wavenet.md
+          - models/wgan.md
+      - Coming Soon:
+          - models/conditioning.md
+          - models/stylegan.md
+          - models/unet.md
+      - Notebooks:
+          - notebooks/README.md
+      - Notebook Source Views:
+          - examples/templates/example_template.ipynb
+          - getting-started/quickstart.ipynb
+      - Papers:
+          - papers/artifex_arxiv_preprint.md
+      - Roadmap:
+          - roadmap/planned-modules.md
+          - roadmap/planned-examples.md
+      - Scaling Reference:
+          - scaling/mesh_utils.md
+          - scaling/sharding.md
+      - Theory:
+          - theory/molecular-constraints.md
+
+      - Training Reference:
+          - Current Training Pages:
+              - training/index.md
+              - training/base.md
+              - training/checkpoint.md
+              - training/early_stopping.md
+              - training/logging.md
+              - training/profiling.md
+              - training/factory.md
+              - training/gradient_accumulation.md
+              - training/data_parallel.md
+              - training/device_placement.md
+              - training/distributed_metrics.md
+              - training/mesh.md
+              - training/utils.md
+              - training/vae_trainer.md
+              - training/gan_trainer.md
+              - training/diffusion_trainer.md
+              - training/flow_trainer.md
+              - training/energy_trainer.md
+              - training/autoregressive_trainer.md
+              - training/reinforce.md
+              - training/ppo.md
+              - training/grpo.md
+              - training/dpo.md
+          - Coming Soon:
+              - training/adamw.md
+              - training/adafactor.md
+              - training/lion.md
+              - training/scheduler.md
+              - training/optax_wrappers.md
+              - training/exponential.md
+              - training/linear.md
+              - training/cosine.md
+              - training/mixed_precision.md
+              - training/tracking.md
+              - training/visualization.md
+              - training/model_parallel.md
+      - Tutorials:
+          - tutorials/protein-modeling.md
+      - Utilities Reference:
+          - Current Utility Pages:
+              - utils/dependency_analyzer.md
+              - utils/device.md
+              - utils/file_utils.md
+              - utils/logger.md
+              - utils/metrics.md
+              - utils/mlflow.md
+              - utils/protein.md
+              - utils/wandb.md
+          - Coming Soon:
+              - utils/attention_vis.md
+              - utils/color.md
+              - utils/dtype.md
+              - utils/env.md
+              - utils/file.md
+              - utils/flax_utils.md
+              - utils/formats.md
+              - utils/image_grid.md
+              - utils/latent_space.md
+              - utils/math.md
+              - utils/memory.md
+              - utils/performance.md
+              - utils/plotting.md
+              - utils/postprocessing.md
+              - utils/prng.md
+              - utils/processing.md
+              - utils/registry.md
+              - utils/serialization.md
+              - utils/shapes.md
+              - utils/stability.md
+              - utils/stats.md
+              - utils/timer.md
+              - utils/transforms.md
+              - utils/types.md
+              - utils/xprof.md
+      - Visualization Reference:
+          - visualization/protein_viz.md
 
 # Plugins configuration
 plugins:
@@ -307,6 +700,7 @@ plugins:
         - "examples/.ipynb_checkpoints/"
         - "*.tmp"
         - "*.pyc"
+        - "*.ipynb"
         - "__pycache__"
         - "CNAME"  # Excluded: workflow creates it at correct location
   - ipynb
@@ -347,10 +741,6 @@ plugins:
             filters:
               - "!^_"
               - "^__"
-          inventories:
-            - https://docs.python.org/3/objects.inv
-            - https://jax.readthedocs.io/en/latest/objects.inv
-            - https://flax.readthedocs.io/en/latest/objects.inv
 
 # Markdown extensions for scientific/ML content
 markdown_extensions:
@@ -407,8 +797,10 @@ extra_css:
   - _static/extra.css
 
 # Build configuration
-strict: false
+strict: true
 docs_dir: docs
+exclude_docs: |
+  *.ipynb
 site_dir: site
 
 # File watching configuration for development

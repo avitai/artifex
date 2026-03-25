@@ -8,8 +8,8 @@
 
 Protein-ligand co-design benchmark suite.
 
-This module provides a comprehensive benchmark suite for evaluating
-protein-ligand co-design models, targeting the Week 5-8 objectives:
+This module provides a complete benchmark suite for evaluating
+protein-ligand co-design models, targeting the v0.5-v0.8 objectives:
 
 - Binding affinity RMSE <1.0 kcal/mol
 - Molecular validity >95%

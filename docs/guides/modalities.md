@@ -1,8 +1,5 @@
 # Modalities Guide
 
-!!! info "Coming Soon"
-    This guide is being developed. Check back for comprehensive modality documentation.
-
 ## Overview
 
 Learn about Artifex's modality system:

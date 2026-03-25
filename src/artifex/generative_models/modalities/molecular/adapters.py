@@ -50,6 +50,10 @@ class MolecularAdapter:
         """
         self.config = config or MolecularAdapterConfig()
 
+    def adapt(self, model: Any, config: Any) -> Any:
+        """Adapt a built model for molecular data."""
+        return model
+
     def create(self, config: Any, *, rngs: nnx.Rngs, **kwargs: Any) -> Any:
         """Create a model with molecular adaptations.
 
@@ -104,14 +108,31 @@ class MolecularAdapter:
         """
 
         def molecular_loss_fn(batch, model_outputs, **loss_kwargs: Any) -> Any:
-            # Base loss computation
-            base_loss = loss_fn(batch, model_outputs, **loss_kwargs)
-
-            # Add molecular-specific terms (placeholder)
-            # In a real implementation, this would include chemical validity terms
-            return base_loss
+            return self._require_loss_dict(loss_fn(batch, model_outputs, **loss_kwargs))
 
         return molecular_loss_fn
+
+    def _require_loss_dict(self, loss_result: Any) -> dict[str, jnp.ndarray]:
+        """Validate that adapted losses use the canonical dict contract."""
+        if not isinstance(loss_result, dict):
+            raise TypeError("Adapted molecular losses must return a dict containing 'total_loss'.")
+        if "total_loss" not in loss_result:
+            raise ValueError("Adapted molecular losses must include 'total_loss'.")
+        return dict(loss_result)
+
+    def _with_penalty(
+        self,
+        loss_result: Any,
+        *,
+        penalty_name: str,
+        penalty_value: jnp.ndarray,
+        penalty_weight: float,
+    ) -> dict[str, jnp.ndarray]:
+        """Merge an adapter-specific penalty into the canonical loss dict."""
+        loss_dict = self._require_loss_dict(loss_result)
+        loss_dict[penalty_name] = penalty_value
+        loss_dict["total_loss"] = loss_dict["total_loss"] + penalty_weight * penalty_value
+        return loss_dict
 
 
 class MolecularDiffusionAdapter(MolecularAdapter):
@@ -176,14 +197,14 @@ class MolecularDiffusionAdapter(MolecularAdapter):
         physics_weight = self.config.physics_weight
 
         def molecular_diffusion_loss_fn(batch, model_outputs, **loss_kwargs: Any) -> Any:
-            # Base diffusion loss
             base_loss = loss_fn(batch, model_outputs, **loss_kwargs)
-
-            # Add molecular physics constraints
-            # This would include bond length, angle, and torsion penalties
             physics_penalty = self._compute_physics_penalty(batch, model_outputs)
-
-            return base_loss + physics_weight * physics_penalty
+            return self._with_penalty(
+                base_loss,
+                penalty_name="physics_penalty",
+                penalty_value=physics_penalty,
+                penalty_weight=physics_weight,
+            )
 
         return molecular_diffusion_loss_fn
 
@@ -260,16 +281,17 @@ class MolecularGeometricAdapter(MolecularAdapter):
         Returns:
             Molecular geometric loss function
         """
-        equivariance_weight = 0.05  # Could be added to config if needed
+        geometry_weight = 0.1
 
         def molecular_geometric_loss_fn(batch, model_outputs, **loss_kwargs: Any) -> Any:
-            # Base geometric loss
             base_loss = loss_fn(batch, model_outputs, **loss_kwargs)
-
-            # Add equivariance penalty for molecular symmetries
-            equivariance_penalty = self._compute_equivariance_penalty(batch, model_outputs)
-
-            return base_loss + equivariance_weight * equivariance_penalty
+            geometry_penalty = self._compute_geometry_penalty(batch, model_outputs)
+            return self._with_penalty(
+                base_loss,
+                penalty_name="geometry_penalty",
+                penalty_value=geometry_penalty,
+                penalty_weight=geometry_weight,
+            )
 
         return molecular_geometric_loss_fn
 
@@ -290,16 +312,15 @@ class MolecularGeometricAdapter(MolecularAdapter):
         num_atoms = coordinates.shape[0]
         return jnp.zeros((num_atoms, 16))  # Placeholder feature dimension
 
-    def _compute_equivariance_penalty(self, batch: Any, model_outputs: Any) -> jnp.ndarray:
-        """Compute equivariance penalty for molecular geometric models.
+    def _compute_geometry_penalty(self, batch: Any, model_outputs: Any) -> jnp.ndarray:
+        """Compute geometry penalty for molecular geometric models.
 
         Args:
             batch: Input batch
             model_outputs: Model predictions
 
         Returns:
-            Equivariance penalty scalar
+            Geometry penalty scalar
         """
-        # Placeholder for SE(3) equivariance penalty
-        # In a real implementation, this would test rotation/translation invariance
+        # Placeholder for molecular geometry regularization.
         return jnp.array(0.0)

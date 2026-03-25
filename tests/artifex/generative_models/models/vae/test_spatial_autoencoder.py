@@ -243,7 +243,7 @@ class TestSpatialAutoencoder:
 
 
 class TestSpatialAutoencoderJITCompatibility:
-    """Comprehensive JIT compatibility tests for SpatialEncoder and SpatialDecoder."""
+    """Complete JIT compatibility tests for SpatialEncoder and SpatialDecoder."""
 
     def test_spatial_encoder_jit_forward_pass(self, rngs):
         """Test that SpatialEncoder forward pass can be JIT compiled."""

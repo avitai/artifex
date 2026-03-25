@@ -1,242 +1,186 @@
-#!/usr/bin/env python
-"""
-GPU Verification and Diagnostics Tool for Artifex
-===================================================
+#!/usr/bin/env python3
+"""Verify the active JAX backend without relying on system CUDA paths."""
 
-PURPOSE:
-    Comprehensive GPU setup verification and diagnostics using Artifex's
-    unified device management framework. Provides detailed information about
-    GPU availability, CUDA configuration, and JAX compatibility.
+from __future__ import annotations
 
-USAGE:
-    python scripts/verify_gpu_setup.py [OPTIONS]
-
-    Options:
-        --critical-only     Run only critical tests for quick validation
-        --configure-first   Configure device manager before verification
-        --help             Show help message
-
-FEATURES:
-    - Automatic GPU/CPU detection
-    - JAX device configuration verification
-    - Memory management testing
-    - CUDA library path validation
-    - Performance characteristic analysis
-    - Detailed diagnostic output with recommendations
-
-OUTPUT SECTIONS:
-    1. Device Information - Hardware capabilities and configuration
-    2. Comprehensive Testing - Full test suite execution
-    3. Recommendations - Actionable steps for fixing issues
-
-EXIT CODES:
-    0 - System is healthy and GPU (if available) is properly configured
-    1 - Critical issues detected that need resolution
-
-DEPENDENCIES:
-    - artifex.generative_models.core.device_manager
-    - artifex.generative_models.core.device_testing
-    - JAX and CUDA libraries (if GPU mode)
-
-ENVIRONMENT:
-    Respects JAX_PLATFORMS and CUDA-related environment variables
-    from .env file.
-
-Author: Artifex Team
-License: MIT
-"""
-
+import argparse
+import contextlib
+import json
+import os
+import platform
 import sys
-from pathlib import Path
+from dataclasses import asdict, dataclass
+from typing import Any
 
 
-# Add src to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+@dataclass
+class DeviceInfo:
+    """Serializable device information for verification output."""
 
-try:
-    from artifex.generative_models.core.device_manager import (
-        configure_for_generative_models,
-        get_device_manager,
-        MemoryStrategy,
-        print_device_info,
-    )
-    from artifex.generative_models.core.device_testing import (
-        print_test_results,
-        run_comprehensive_device_tests,
-    )
-except ImportError as e:
-    print(f"❌ Import error: {e}")
-    print("Make sure you're running from the project root and have installed dependencies.")
-    sys.exit(1)
+    platform: str
+    id: str
+    kind: str
 
 
-def main():
-    """Main verification entry point."""
-    print("🔍 Artifex GPU Verification Suite")
-    print("=" * 50)
-    print("Foundation-first device testing and validation")
-    print()
+@dataclass
+class VerificationReport:
+    """Top-level verification report."""
 
-    # Parse command line arguments
-    if len(sys.argv) > 1:
-        if sys.argv[1] == "--critical-only":
-            run_critical_verification()
-        elif sys.argv[1] == "--configure-first":
-            configure_and_verify()
-        elif sys.argv[1] == "--help":
-            print_help()
-        else:
-            print(f"Unknown option: {sys.argv[1]}")
-            print_help()
-            sys.exit(1)
-    else:
-        run_full_verification()
+    artifex_backend: str | None
+    jax_platforms: str | None
+    platform: str
+    python: str
+    jax_import_ok: bool
+    jax_version: str | None
+    default_backend: str | None
+    gpu_device_count: int
+    devices: list[DeviceInfo]
+    error: str | None
 
 
-def run_full_verification():
-    """Run complete verification suite."""
-    print("🚀 Running complete verification suite...")
-
-    # Step 1: Show device information
-    print("\n📊 Step 1: Device Information")
-    print("-" * 30)
-    print_device_info()
-
-    # Step 2: Run comprehensive tests
-    print("\n🧪 Step 2: Comprehensive Testing")
-    print("-" * 30)
-    suite = run_comprehensive_device_tests()
-    print_test_results(suite)
-
-    # Step 3: Provide recommendations
-    print("\n💡 Step 3: Recommendations")
-    print("-" * 30)
-    provide_recommendations(suite)
-
-    # Exit with appropriate code
-    if suite.is_healthy:
-        print("\n✅ Verification complete: System is healthy!")
-        sys.exit(0)
-    else:
-        print("\n❌ Verification failed: Critical issues detected!")
-        sys.exit(1)
+def emit(message: str) -> None:
+    """Write a single line to stdout."""
+    sys.stdout.write(f"{message}\n")
 
 
-def run_critical_verification():
-    """Run only critical tests for quick validation."""
-    print("🔴 Running critical tests only...")
-
-    print_device_info()
-
-    suite = run_comprehensive_device_tests(critical_only=True)
-    print_test_results(suite)
-
-    if suite.is_healthy:
-        print("\n✅ Critical tests passed!")
-        sys.exit(0)
-    else:
-        print("\n❌ Critical tests failed!")
-        sys.exit(1)
+@contextlib.contextmanager
+def suppress_process_stderr():
+    """Temporarily redirect process stderr to avoid noisy plugin-init logs."""
+    stderr_fd = sys.stderr.fileno()
+    with open(os.devnull, "w", encoding="utf-8") as null_stream:
+        saved_stderr_fd = os.dup(stderr_fd)
+        try:
+            os.dup2(null_stream.fileno(), stderr_fd)
+            yield
+        finally:
+            os.dup2(saved_stderr_fd, stderr_fd)
+            os.close(saved_stderr_fd)
 
 
-def configure_and_verify():
-    """Configure for generative models and verify."""
-    print("🎨 Configuring for generative models and verifying...")
-
-    # Configure for generative models
-    configure_for_generative_models(
-        memory_strategy=MemoryStrategy.BALANCED, enable_mixed_precision=True
+def collect_report() -> VerificationReport:
+    """Collect backend information from the active environment."""
+    base_report = VerificationReport(
+        artifex_backend=os.environ.get("ARTIFEX_BACKEND"),
+        jax_platforms=os.environ.get("JAX_PLATFORMS"),
+        platform=platform.platform(),
+        python=sys.version.split()[0],
+        jax_import_ok=False,
+        jax_version=None,
+        default_backend=None,
+        gpu_device_count=0,
+        devices=[],
+        error=None,
     )
 
-    print("✅ Configuration applied!")
-    print_device_info()
+    try:
+        with suppress_process_stderr():
+            import jax
+    except (
+        ImportError,
+        OSError,
+        RuntimeError,
+    ) as exc:  # pragma: no cover - exercised in script mode
+        base_report.error = str(exc)
+        return base_report
 
-    # Run verification
-    suite = run_comprehensive_device_tests()
-    print_test_results(suite)
+    try:
+        with suppress_process_stderr():
+            devices = [
+                DeviceInfo(
+                    platform=device.platform,
+                    id=str(device),
+                    kind=getattr(device, "device_kind", "unknown"),
+                )
+                for device in jax.devices()
+            ]
+            default_backend = jax.default_backend()
+    except RuntimeError as exc:  # pragma: no cover - exercised in script mode
+        base_report.jax_import_ok = True
+        base_report.jax_version = getattr(jax, "__version__", None)
+        base_report.error = str(exc)
+        return base_report
 
-    sys.exit(0 if suite.is_healthy else 1)
+    gpu_device_count = sum(1 for device in devices if device.platform in {"gpu", "cuda"})
+    return VerificationReport(
+        artifex_backend=base_report.artifex_backend,
+        jax_platforms=base_report.jax_platforms,
+        platform=base_report.platform,
+        python=base_report.python,
+        jax_import_ok=True,
+        jax_version=jax.__version__,
+        default_backend=default_backend,
+        gpu_device_count=gpu_device_count,
+        devices=devices,
+        error=None,
+    )
 
 
-def provide_recommendations(suite):
-    """Provide recommendations based on test results."""
-    manager = get_device_manager()
+def render_human_report(report: VerificationReport) -> str:
+    """Render the report for terminal output."""
+    lines = [
+        "Artifex JAX backend verification",
+        f"Platform: {report.platform}",
+        f"Python: {report.python}",
+        f"Configured Artifex backend: {report.artifex_backend or 'unset'}",
+        f"JAX_PLATFORMS: {report.jax_platforms or 'unset'}",
+    ]
 
-    if suite.is_healthy:
-        print("🎉 Your system is optimally configured!")
-        print()
-        print("✅ All critical tests passed")
-        print("✅ Device management is working correctly")
-        print("✅ Neural network operations are functional")
+    if not report.jax_import_ok:
+        lines.append(f"JAX import failed: {report.error}")
+        return "\n".join(lines)
 
-        if manager.has_gpu:
-            print(f"✅ GPU acceleration available ({manager.gpu_count} GPUs)")
-            if manager.capabilities.supports_distributed:
-                print("✅ Multi-GPU training supported")
+    lines.extend(
+        [
+            f"JAX version: {report.jax_version}",
+            f"Default backend: {report.default_backend}",
+            f"GPU devices visible to JAX: {report.gpu_device_count}",
+            "Devices:",
+        ]
+    )
 
-        print()
-        print("🚀 Ready for Artifex development!")
-        print("   • Run generative model training")
-        print("   • Use multi-GPU distributed training")
-        print("   • Develop new models with confidence")
+    for device in report.devices:
+        lines.append(f"  - {device.platform}: {device.kind} ({device.id})")
 
+    lines.append(
+        "Note: Artifex leaves JAX_PLATFORMS unset by default so JAX can pick"
+        " GPU when available and CPU otherwise."
+    )
+    return "\n".join(lines)
+
+
+def parse_args() -> argparse.Namespace:
+    """Parse command-line arguments."""
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--require-gpu",
+        action="store_true",
+        help="Exit non-zero unless JAX can see at least one GPU device",
+    )
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Emit the verification report as JSON",
+    )
+    return parser.parse_args()
+
+
+def main() -> int:
+    """Entry point for the verification script."""
+    args = parse_args()
+    report = collect_report()
+
+    if args.json:
+        payload: dict[str, Any] = asdict(report)
+        emit(json.dumps(payload, indent=2, sort_keys=True))
     else:
-        print("⚠️  Issues detected that need attention:")
-        print()
+        emit(render_human_report(report))
 
-        for failure in suite.critical_failures:
-            print(f"🔴 {failure.test_name}")
-            print(f"   Error: {failure.error_message}")
-            print()
-
-        print("🔧 Recommended fixes:")
-
-        if not manager.has_gpu:
-            print("   • Install NVIDIA drivers and CUDA toolkit")
-            print("   • Verify GPU is detected: nvidia-smi")
-            print("   • Reinstall JAX with CUDA support")
-
-        if any("computation" in f.test_name.lower() for f in suite.critical_failures):
-            print("   • Check JAX installation:")
-            print("     uv pip install 'jax[cuda12_local]==0.6.1' jaxlib==0.6.1")
-            print("   • Verify environment variables are set correctly")
-
-        if any("neural" in f.test_name.lower() for f in suite.critical_failures):
-            print("   • Check Flax NNX installation:")
-            print("     uv pip install flax==0.10.6")
-            print("   • Verify model initialization patterns")
-
-        print()
-        print("💡 After fixing issues, re-run verification:")
-        print("   python scripts/verify_gpu_setup.py")
-
-
-def print_help():
-    """Print help information."""
-    print("Artifex GPU Verification - Foundation-first Testing")
-    print("=" * 55)
-    print()
-    print("Usage: python scripts/verify_gpu_setup.py [options]")
-    print()
-    print("Options:")
-    print("  (no args)           Complete verification suite")
-    print("  --critical-only     Run critical tests only")
-    print("  --configure-first   Configure for generative models first")
-    print("  --help              Show this help message")
-    print()
-    print("Examples:")
-    print("  python scripts/verify_gpu_setup.py")
-    print("  python scripts/verify_gpu_setup.py --critical-only")
-    print("  python scripts/verify_gpu_setup.py --configure-first")
-    print()
-    print("Test Categories:")
-    print("  🔴 Critical    - Must pass for basic functionality")
-    print("  🟡 Important  - Should pass for optimal performance")
-    print("  🟢 Optional   - Nice to have, may fail on some systems")
-    print()
-    print("For detailed device information:")
-    print("  python scripts/gpu_utils.py --comprehensive")
+    if not report.jax_import_ok:
+        return 1
+    if args.require_gpu and report.gpu_device_count == 0:
+        return 1
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

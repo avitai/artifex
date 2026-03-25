@@ -10,8 +10,11 @@ import jax
 import jax.numpy as jnp
 from flax import nnx
 
-from artifex.generative_models.core.configuration import ExtensionConfig
+from artifex.generative_models.core.configuration import ProteinExtensionConfig
 from artifex.generative_models.extensions.base import ConstraintExtension
+from artifex.generative_models.extensions.protein.constraints import (
+    _extract_protein_coordinates,
+)
 
 
 class BondLengthExtension(ConstraintExtension):
@@ -19,32 +22,37 @@ class BondLengthExtension(ConstraintExtension):
 
     def __init__(
         self,
-        config: ExtensionConfig,
+        config: ProteinExtensionConfig,
         *,
         rngs: nnx.Rngs,
     ) -> None:
         """Initialize the bond length extension.
 
         Args:
-            config: Extension configuration with constraint parameters:
-                - weight: Weight for the constraint loss (default: 1.0)
-                - ideal_lengths: Array of [N-CA, CA-C, C-N+1] ideal lengths
-                  (in extensions.constraints field for ExtensionConfig)
+            config: Typed protein constraint configuration.
             rngs: Random number generator keys.
         """
-        # Handle configuration
-        if not isinstance(config, ExtensionConfig):
-            raise TypeError(f"config must be ExtensionConfig, got {type(config).__name__}")
+        if not isinstance(config, ProteinExtensionConfig):
+            raise TypeError(f"config must be ProteinExtensionConfig, got {type(config).__name__}")
 
         super().__init__(config, rngs=rngs)
 
-        # Get constraint parameters from extensions field
-        constraint_params = getattr(config, "extensions", {}).get("constraints", {})
-
-        # Set ideal bond lengths (in Angstroms)
-        # N-CA: ~1.45Å, CA-C: ~1.52Å, C-N+1: ~1.33Å
-        ideal_lengths = constraint_params.get("ideal_lengths", [1.45, 1.52, 1.33])
-        self.ideal_lengths = jnp.array(ideal_lengths)
+        ideal_length_defaults = {
+            "N-CA": 1.45,
+            "CA-C": 1.52,
+            "C-N": 1.33,
+        }
+        ideal_lengths = {
+            **ideal_length_defaults,
+            **config.ideal_bond_lengths,
+        }
+        self.ideal_lengths = jnp.array(
+            [
+                ideal_lengths["N-CA"],
+                ideal_lengths["CA-C"],
+                ideal_lengths["C-N"],
+            ]
+        )
 
     def __call__(self, inputs: Any, model_outputs: Any, **kwargs: Any) -> dict[str, Any]:
         """Process model inputs/outputs.
@@ -98,59 +106,12 @@ class BondLengthExtension(ConstraintExtension):
             outputs: Model outputs.
 
         Returns:
-            Coordinates array with shape [..., num_atoms, 3].
+            Coordinates array with shape [..., num_residues, num_atoms, 3].
         """
-        # Handle case when outputs is a dictionary
-        if isinstance(outputs, dict):
-            # Try common coordinate keys
-            for key in ["positions", "coords", "coordinates", "predicted_coordinates"]:
-                if key in outputs:
-                    coords = outputs[key]
-                    break
-            else:
-                # If no coordinates found in dict, try the dict itself
-                coords = outputs
-        else:
-            # If outputs is not a dict, assume it's the coordinates directly
-            coords = outputs
-
-        # For test cases, the input might be simple like a coordinates dict with shape (10, 3)
-        # In this case, reshape it to a backbone-like structure with 4 atoms per residue
-        if coords is not None and coords.ndim == 2 and coords.shape[-1] == 3:
-            # Reshape as a single residue with all atoms
-            coords = coords.reshape(1, -1, 3)
-
-        # For more complex inputs, do proper residue/atom splitting
-        if (
-            coords is not None and coords.ndim == 3 and coords.shape[-1] == 3
-        ):  # [batch, num_points, 3]
-            # Get batch size and total points
-            batch_size = coords.shape[0]
-            num_points = coords.shape[1]
-
-            # In test cases, just create a dummy structure with N, CA, C, O atoms per residue
-            atoms_per_residue = 4
-            residues = max(1, num_points // atoms_per_residue)
-
-            # Reshape to [batch, residues, atoms, 3]
-            # For test cases, we might need to pad or truncate
-            if residues * atoms_per_residue != num_points:
-                # Pad or truncate to fit the expected shape
-                pad_size = residues * atoms_per_residue - num_points
-                if pad_size > 0:
-                    # Pad with zeros
-                    coords = jnp.pad(coords, ((0, 0), (0, pad_size), (0, 0)))
-                else:
-                    # Truncate
-                    coords = coords[:, : residues * atoms_per_residue]
-
-            # Now reshape
-            coords = coords.reshape(batch_size, residues, atoms_per_residue, 3)
-
-        if coords is None:
-            raise ValueError("Could not extract coordinates from model outputs")
-
-        return coords
+        return _extract_protein_coordinates(
+            outputs,
+            error_label="Protein bond-length coordinates",
+        )
 
     def _extract_mask(self, inputs: dict[str, Any]) -> jax.Array | None:
         """Extract mask from inputs.
@@ -288,32 +249,35 @@ class BondAngleExtension(ConstraintExtension):
 
     def __init__(
         self,
-        config: ExtensionConfig,
+        config: ProteinExtensionConfig,
         *,
         rngs: nnx.Rngs,
     ) -> None:
         """Initialize the bond angle extension.
 
         Args:
-            config: Extension configuration with constraint parameters:
-                - weight: Weight for the constraint loss (default: 1.0)
-                - ideal_angles: Array with [N-CA-C, CA-C-O] ideal angles (in radians)
-                  (in extensions.constraints field for ExtensionConfig)
+            config: Typed protein constraint configuration.
             rngs: Random number generator keys.
         """
-        # Handle configuration
-        if not isinstance(config, ExtensionConfig):
-            raise TypeError(f"config must be ExtensionConfig, got {type(config).__name__}")
+        if not isinstance(config, ProteinExtensionConfig):
+            raise TypeError(f"config must be ProteinExtensionConfig, got {type(config).__name__}")
 
         super().__init__(config, rngs=rngs)
 
-        # Get constraint parameters from extensions field
-        constraint_params = getattr(config, "extensions", {}).get("constraints", {})
-
-        # Set ideal bond angles (in radians)
-        # N-CA-C: ~111° (1.94 rad), CA-C-O: ~120° (2.10 rad)
-        ideal_angles = constraint_params.get("ideal_angles", [1.94, 2.10])
-        self.ideal_angles = jnp.array(ideal_angles)
+        ideal_angle_defaults = {
+            "N-CA-C": 1.94,
+            "CA-C-O": 2.10,
+        }
+        ideal_angles = {
+            **ideal_angle_defaults,
+            **config.ideal_bond_angles,
+        }
+        self.ideal_angles = jnp.array(
+            [
+                ideal_angles["N-CA-C"],
+                ideal_angles["CA-C-O"],
+            ]
+        )
 
     def __call__(self, inputs: Any, model_outputs: Any, **kwargs: Any) -> dict[str, Any]:
         """Process model inputs/outputs.
@@ -367,59 +331,12 @@ class BondAngleExtension(ConstraintExtension):
             outputs: Model outputs.
 
         Returns:
-            Coordinates array with shape [..., num_atoms, 3].
+            Coordinates array with shape [..., num_residues, num_atoms, 3].
         """
-        # Handle case when outputs is a dictionary
-        if isinstance(outputs, dict):
-            # Try common coordinate keys
-            for key in ["positions", "coords", "coordinates", "predicted_coordinates"]:
-                if key in outputs:
-                    coords = outputs[key]
-                    break
-            else:
-                # If no coordinates found in dict, try the dict itself
-                coords = outputs
-        else:
-            # If outputs is not a dict, assume it's the coordinates directly
-            coords = outputs
-
-        # For test cases, the input might be simple like a coordinates dict with shape (10, 3)
-        # In this case, reshape it to a backbone-like structure with 4 atoms per residue
-        if coords is not None and coords.ndim == 2 and coords.shape[-1] == 3:
-            # Reshape as a single residue with all atoms
-            coords = coords.reshape(1, -1, 3)
-
-        # For more complex inputs, do proper residue/atom splitting
-        if (
-            coords is not None and coords.ndim == 3 and coords.shape[-1] == 3
-        ):  # [batch, num_points, 3]
-            # Get batch size and total points
-            batch_size = coords.shape[0]
-            num_points = coords.shape[1]
-
-            # In test cases, just create a dummy structure with N, CA, C, O atoms per residue
-            atoms_per_residue = 4
-            residues = max(1, num_points // atoms_per_residue)
-
-            # Reshape to [batch, residues, atoms, 3]
-            # For test cases, we might need to pad or truncate
-            if residues * atoms_per_residue != num_points:
-                # Pad or truncate to fit the expected shape
-                pad_size = residues * atoms_per_residue - num_points
-                if pad_size > 0:
-                    # Pad with zeros
-                    coords = jnp.pad(coords, ((0, 0), (0, pad_size), (0, 0)))
-                else:
-                    # Truncate
-                    coords = coords[:, : residues * atoms_per_residue]
-
-            # Now reshape
-            coords = coords.reshape(batch_size, residues, atoms_per_residue, 3)
-
-        if coords is None:
-            raise ValueError("Could not extract coordinates from model outputs")
-
-        return coords
+        return _extract_protein_coordinates(
+            outputs,
+            error_label="Protein bond-angle coordinates",
+        )
 
     def _extract_mask(self, inputs: dict[str, Any]) -> jax.Array | None:
         """Extract mask from inputs.

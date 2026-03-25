@@ -1,106 +1,29 @@
 # Tokenization
 
-**Module:** `generative_models.extensions.nlp.tokenization`
+**Status:** `Supported runtime extension owner`
 
-**Source:** `generative_models/extensions/nlp/tokenization.py`
+**Module:** `artifex.generative_models.extensions.nlp.tokenization`
 
-## Overview
+**Source:** `src/artifex/generative_models/extensions/nlp/tokenization.py`
 
-Advanced tokenization for text generation tasks.
+Tokenization owner for the NLP extension family.
 
-This module provides JAX-compatible tokenization utilities for text processing
-and generation tasks.
+## Top-Level Module Exports
 
-## Classes
+- `AdvancedTokenization`
 
-### AdvancedTokenization
+## Class APIs
 
-```python
-class AdvancedTokenization
-```
+### `AdvancedTokenization`
 
-## Functions
-
-### **call**
-
-```python
-def __call__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### add_special_tokens
-
-```python
-def add_special_tokens()
-```
-
-### apply_masking
-
-```python
-def apply_masking()
-```
-
-### compute_token_frequencies
-
-```python
-def compute_token_frequencies()
-```
-
-### create_attention_mask
-
-```python
-def create_attention_mask()
-```
-
-### create_position_ids
-
-```python
-def create_position_ids()
-```
-
-### decode_batch
-
-```python
-def decode_batch()
-```
-
-### detokenize
-
-```python
-def detokenize()
-```
-
-### encode_batch
-
-```python
-def encode_batch()
-```
-
-### get_vocabulary_info
-
-```python
-def get_vocabulary_info()
-```
-
-### tokenize
-
-```python
-def tokenize()
-```
-
-### truncate_sequences
-
-```python
-def truncate_sequences()
-```
-
-## Module Statistics
-
-- **Classes:** 1
-- **Functions:** 13
-- **Imports:** 5
+- `tokenize()`
+- `detokenize()`
+- `encode_batch()`
+- `decode_batch()`
+- `create_attention_mask()`
+- `add_special_tokens()`
+- `compute_token_frequencies()`
+- `apply_masking()`
+- `create_position_ids()`
+- `truncate_sequences()`
+- `get_vocabulary_info()`

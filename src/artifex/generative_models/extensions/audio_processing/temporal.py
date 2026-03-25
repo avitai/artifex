@@ -183,6 +183,14 @@ class TemporalAnalysis(ModelExtension):
         else:
             return jax.vmap(self._onset_strength_single)(audio)
 
+    def _require_single_audio(self, audio: jax.Array, *, method_name: str) -> None:
+        """Reject unsupported batch audio for ragged temporal feature helpers."""
+        if audio.ndim != 1:
+            raise ValueError(
+                f"TemporalAnalysis.{method_name} only supports single audio [length] input; "
+                "batch temporal feature extraction is not supported"
+            )
+
     def _onset_strength_single(self, audio: jax.Array) -> jax.Array:
         """Compute onset strength for a single audio signal."""
         # Compute spectrogram (simplified)
@@ -211,22 +219,18 @@ class TemporalAnalysis(ModelExtension):
         return onset_strength
 
     def detect_beats(self, audio: jax.Array, tempo: jax.Array | None = None) -> jax.Array:
-        """Detect beat positions.
+        """Detect beat positions for a single audio waveform.
 
         Args:
-            audio: Audio signal [length] or [batch, length]
-            tempo: Known tempo (optional) [scalar] or [batch]
+            audio: Audio signal [length]
+            tempo: Known tempo (optional) [scalar]
 
         Returns:
-            Beat positions in samples [n_beats] or [batch, n_beats]
+            Beat positions in samples [n_beats]
         """
-        if audio.ndim == 1:
-            estimated_tempo = tempo if tempo is not None else self.estimate_tempo(audio)
-            return self._detect_beats_single(audio, estimated_tempo)
-        else:
-            if tempo is None:
-                tempo = self.estimate_tempo(audio)
-            return jax.vmap(self._detect_beats_single)(audio, tempo)
+        self._require_single_audio(audio, method_name="detect_beats")
+        estimated_tempo = tempo if tempo is not None else self.estimate_tempo(audio)
+        return self._detect_beats_single(audio, estimated_tempo)
 
     def _detect_beats_single(self, audio: jax.Array, tempo: jax.Array) -> jax.Array:
         """Detect beats for a single audio signal."""
@@ -253,15 +257,16 @@ class TemporalAnalysis(ModelExtension):
 
         return jnp.array(peaks)
 
-    def compute_rhythm_features(self, audio: jax.Array) -> dict[str, jax.Array]:
-        """Compute comprehensive rhythm features.
+    def compute_rhythm_features(self, audio: jax.Array) -> dict[str, Any]:
+        """Compute complete rhythm features for a single audio waveform.
 
         Args:
-            audio: Audio signal [length] or [batch, length]
+            audio: Audio signal [length]
 
         Returns:
             Dictionary of rhythm features
         """
+        self._require_single_audio(audio, method_name="compute_rhythm_features")
         features = {}
 
         # Tempo estimation
@@ -275,15 +280,16 @@ class TemporalAnalysis(ModelExtension):
 
         return features
 
-    def compute_temporal_features(self, audio: jax.Array) -> dict[str, jax.Array]:
-        """Extract comprehensive temporal features.
+    def compute_temporal_features(self, audio: jax.Array) -> dict[str, Any]:
+        """Extract complete temporal features for a single audio waveform.
 
         Args:
-            audio: Audio signal [length] or [batch, length]
+            audio: Audio signal [length]
 
         Returns:
             Dictionary of temporal features
         """
+        self._require_single_audio(audio, method_name="compute_temporal_features")
         features = {}
 
         # Basic temporal features
@@ -298,14 +304,15 @@ class TemporalAnalysis(ModelExtension):
         return features
 
     def compute_pulse_clarity(self, audio: jax.Array) -> jax.Array:
-        """Compute pulse clarity measure.
+        """Compute pulse clarity for a single audio waveform.
 
         Args:
-            audio: Audio signal [length] or [batch, length]
+            audio: Audio signal [length]
 
         Returns:
-            Pulse clarity [scalar] or [batch]
+            Pulse clarity [scalar]
         """
+        self._require_single_audio(audio, method_name="compute_pulse_clarity")
         onset_strength = self.compute_onset_strength(audio)
 
         # Compute autocorrelation
@@ -396,11 +403,17 @@ class TemporalAnalysis(ModelExtension):
                 "error": "No audio data found in model outputs",
             }
 
-        # Extract comprehensive temporal features
-        features = self.compute_temporal_features(audio)
+        try:
+            # Extract complete temporal features
+            features = self.compute_temporal_features(audio)
 
-        # Add additional temporal analysis results
-        features["pulse_clarity"] = self.compute_pulse_clarity(audio)
+            # Add additional temporal analysis results
+            features["pulse_clarity"] = self.compute_pulse_clarity(audio)
+        except ValueError as exc:
+            return {
+                "extension_type": "temporal_analysis",
+                "error": str(exc),
+            }
 
         # Segment audio by energy
         if audio.ndim == 1:  # Only for single audio, not batch

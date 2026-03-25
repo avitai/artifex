@@ -1,19 +1,20 @@
 """Optimization benchmark for generative models.
 
-This module provides benchmarks for evaluating the training performance and
+Provides benchmarks for evaluating the training performance and
 optimization strategies for generative models, measuring convergence rates,
 loss curves, and training efficiency.
 """
 
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Callable, Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 import flax.nnx as nnx
 import jax
 import jax.numpy as jnp
 
-from artifex.benchmarks.base import (
+from artifex.benchmarks import (
     Benchmark,
     BenchmarkConfig,
     BenchmarkResult,

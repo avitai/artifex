@@ -1,4 +1,4 @@
-"""Comprehensive tests for CLIP Text Encoder.
+"""Complete tests for CLIP Text Encoder.
 
 This module tests the CLIP-like text encoder used in Stable Diffusion,
 following Test-Driven Development (TDD) principles.
@@ -77,8 +77,8 @@ class TestCLIPTextEncoderInitialization:
         )
 
         # Get token embedding weights
-        token_emb1 = encoder1.token_embedding.embedding.value
-        token_emb2 = encoder2.token_embedding.embedding.value
+        token_emb1 = encoder1.token_embedding.embedding[...]
+        token_emb2 = encoder2.token_embedding.embedding[...]
 
         assert not jnp.allclose(token_emb1, token_emb2)
 

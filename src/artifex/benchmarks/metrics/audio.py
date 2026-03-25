@@ -4,9 +4,8 @@ import jax
 import jax.numpy as jnp
 from flax import nnx
 
+from artifex.benchmarks.metrics.core import _init_metric_from_config, MetricBase
 from artifex.generative_models.core.configuration import EvaluationConfig
-
-from .core import MetricBase
 
 
 class SpectralMetric(MetricBase):
@@ -19,27 +18,31 @@ class SpectralMetric(MetricBase):
             config: Evaluation configuration (must be EvaluationConfig)
             rngs: NNX Rngs for stochastic operations
         """
-        if not isinstance(config, EvaluationConfig):
-            raise TypeError(f"config must be an EvaluationConfig, got {type(config).__name__}")
-
-        # Initialize base class with the EvaluationConfig
-        super().__init__(config=config, rngs=rngs)
-        self.eval_batch_size = config.eval_batch_size
+        spectral_params = _init_metric_from_config(
+            self,
+            config=config,
+            rngs=rngs,
+            metric_key="spectral",
+            modality="audio",
+            higher_is_better=True,
+        )
 
         # Spectral parameters from config
-        spectral_params = config.metric_params.get("spectral", {})
         self.n_fft = spectral_params.get("n_fft", 1024)
         self.hop_length = spectral_params.get("hop_length", 256)
 
-    def validate_inputs(self, real_data, generated_data) -> bool:
-        """Validate input data for spectral computation."""
+    def validate_inputs(self, real_data, generated_data) -> None:
+        """Validate input data for spectral computation.
+
+        Raises:
+            ValueError: If inputs are invalid
+        """
         if not isinstance(real_data, jnp.ndarray) or not isinstance(generated_data, jnp.ndarray):
-            return False
+            raise ValueError("Both inputs must be jax arrays")
         if real_data.shape != generated_data.shape:
-            return False
-        if real_data.ndim != 2:  # (batch, time)
-            return False
-        return True
+            raise ValueError("Input shapes must match")
+        if real_data.ndim != 2:
+            raise ValueError("Audio data must be 2D (batch, time)")
 
     def compute(self, real_data, generated_data, **kwargs) -> dict[str, float]:
         """Compute spectral convergence between real and generated audio."""
@@ -105,29 +108,32 @@ class MelCepstralMetric(MetricBase):
             config: Evaluation configuration (must be EvaluationConfig)
             rngs: NNX Rngs for stochastic operations
         """
-        if not isinstance(config, EvaluationConfig):
-            raise TypeError(f"config must be an EvaluationConfig, got {type(config).__name__}")
-
-        # Initialize base class with minimal config to satisfy MetricBase requirements
-        # Initialize base class with the EvaluationConfig
-        super().__init__(config=config, rngs=rngs)
-        self.eval_batch_size = config.eval_batch_size
+        mcd_params = _init_metric_from_config(
+            self,
+            config=config,
+            rngs=rngs,
+            metric_key="mcd",
+            modality="audio",
+            higher_is_better=False,
+        )
 
         # MCD parameters from config
-        mcd_params = config.metric_params.get("mcd", {})
         self.n_mels = mcd_params.get("n_mels", 80)
         self.sr = mcd_params.get("sr", 16000)
         self.n_fft = mcd_params.get("n_fft", 1024)
 
-    def validate_inputs(self, real_data, generated_data) -> bool:
-        """Validate input data for mel-cepstral computation."""
+    def validate_inputs(self, real_data, generated_data) -> None:
+        """Validate input data for mel-cepstral computation.
+
+        Raises:
+            ValueError: If inputs are invalid
+        """
         if not isinstance(real_data, jnp.ndarray) or not isinstance(generated_data, jnp.ndarray):
-            return False
+            raise ValueError("Both inputs must be jax arrays")
         if real_data.shape != generated_data.shape:
-            return False
-        if real_data.ndim != 2:  # (batch, time)
-            return False
-        return True
+            raise ValueError("Input shapes must match")
+        if real_data.ndim != 2:
+            raise ValueError("Audio data must be 2D (batch, time)")
 
     def compute(self, real_data, generated_data, **kwargs) -> dict[str, float]:
         """Compute mel-cepstral distortion between real and generated audio."""

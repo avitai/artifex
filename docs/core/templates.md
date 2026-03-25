@@ -10,6 +10,12 @@ Configuration template system for artifex.generative_models.core.
 
 ## Classes
 
+### ConfigTemplate
+
+```python
+class ConfigTemplate
+```
+
 ### ConfigTemplateManager
 
 ```python
@@ -62,6 +68,6 @@ def register_template()
 
 ## Module Statistics
 
-- **Classes:** 2
+- **Classes:** 3
 - **Functions:** 6
 - **Imports:** 5

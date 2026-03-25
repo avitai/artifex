@@ -10,27 +10,21 @@ import jax.numpy as jnp
 import pytest
 from jax.sharding import PartitionSpec
 
-
-# Import the components we'll implement
-try:
-    from artifex.generative_models.scaling.mesh_utils import (
-        create_device_mesh,
-        DeviceMeshManager,
-        get_optimal_mesh_shape,
-    )
-    from artifex.generative_models.scaling.sharding import (
-        DataParallelStrategy,
-        FSDPStrategy,
-        MultiDimensionalStrategy,
-        ParallelismConfig,
-        PipelineParallelStrategy,
-        ShardingConfig,
-        ShardingStrategy,
-        TensorParallelStrategy,
-    )
-except ImportError:
-    # These will be implemented after tests are written
-    pytest.skip("Sharding infrastructure not yet implemented", allow_module_level=True)
+from artifex.generative_models.scaling.mesh_utils import (
+    create_device_mesh,
+    DeviceMeshManager,
+    get_optimal_mesh_shape,
+)
+from artifex.generative_models.scaling.sharding import (
+    DataParallelStrategy,
+    FSDPStrategy,
+    MultiDimensionalStrategy,
+    ParallelismConfig,
+    PipelineParallelStrategy,
+    ShardingConfig,
+    ShardingStrategy,
+    TensorParallelStrategy,
+)
 
 
 class TestShardingConfig:
@@ -340,6 +334,10 @@ class TestMultiDimensionalStrategy:
         )
 
         assert resolved_spec is not None
+
+    def test_multi_dimensional_strategy_has_no_invalid_pipeline_partition_helper(self):
+        """The public strategy should not publish the invalid stage_* partition helper."""
+        assert not hasattr(MultiDimensionalStrategy, "create_partition_spec")
 
 
 class TestDeviceMeshManager:

@@ -416,7 +416,7 @@ class TextEmbeddings(ModelExtension):
         scores = jnp.dot(query_embeddings, key_embeddings.T) / temperature
 
         # Apply softmax
-        attention_weights = jax.nn.softmax(scores, axis=-1)
+        attention_weights = nnx.softmax(scores, axis=-1)
 
         return attention_weights
 

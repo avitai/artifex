@@ -1428,9 +1428,9 @@ Diffusion models represent a paradigm shift in generative modeling, offering unm
 
 ### Tutorial Papers and Surveys
 
-:material-file-document: **Yang, L., Zhang, Z., Song, Y., Hong, S., Xu, R., Zhao, Y., ... & Cui, B. (2023).** "Diffusion Models: A Comprehensive Survey of Methods and Applications"<br>
+:material-file-document: **Yang, L., Zhang, Z., Song, Y., Hong, S., Xu, R., Zhao, Y., ... & Cui, B. (2023).** Survey paper on diffusion methods and applications<br>
 &nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2209.00796](https://arxiv.org/abs/2209.00796)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Comprehensive 150+ page survey covering theory and applications
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Complete 150+ page survey covering theory and applications
 
 :material-file-document: **Cao, H., Tan, C., Gao, Z., Chen, G., Heng, P. A., & Li, S. Z. (2023).** "A Survey on Generative Diffusion Models"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2209.02646](https://arxiv.org/abs/2209.02646)<br>
@@ -1465,7 +1465,7 @@ Diffusion models represent a paradigm shift in generative modeling, offering unm
 ### Sampling and Acceleration
 
 :material-file-document: **Lu, C., Zhou, Y., Bao, F., Chen, J., Li, C., & Zhu, J. (2022).** "DPM-Solver: A Fast ODE Solver for Diffusion Probabilistic Model Sampling in Around 10 Steps"<br>
-&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2206.00927](https://arxiv.org/abs/2206.00927) | [NeurIPS 2022](https://proceedings.neurips.cc/paper_files/paper/2022/hash/77dbd393ec3d0a6d9e94c1a5f2f8c33b-Abstract-Conference.html)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2206.00927](https://arxiv.org/abs/2206.00927) | [NeurIPS 2022](https://proceedings.neurips.cc/paper_files/paper/2022/hash/260a14acce2a89dad36adc8eefe7c59e-Abstract-Conference.html)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: 10-20 step high-quality sampling via ODE solvers
 
 :material-file-document: **Lu, C., Zhou, Y., Bao, F., Chen, J., Li, C., & Zhu, J. (2023).** "DPM-Solver++: Fast Solver for Guided Sampling of Diffusion Probabilistic Models"<br>
@@ -1574,7 +1574,7 @@ Diffusion models represent a paradigm shift in generative modeling, offering unm
 
 :material-web: **Lilian Weng's Blog: "What are Diffusion Models?"**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;:material-link: [lilianweng.github.io/posts/2021-07-11-diffusion-models](https://lilianweng.github.io/posts/2021-07-11-diffusion-models/)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Comprehensive blog post with excellent visualizations and intuitions
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Complete blog post with excellent visualizations and intuitions
 
 :material-web: **Yang Song's Blog: "Generative Modeling by Estimating Gradients of the Data Distribution"**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;:material-link: [yang-song.net/blog/2021/score](https://yang-song.net/blog/2021/score/)<br>
@@ -1585,7 +1585,7 @@ Diffusion models represent a paradigm shift in generative modeling, offering unm
 &nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Production-ready implementations: DDPM, DDIM, Stable Diffusion, ControlNet
 
 :material-github: **Stability AI: Stable Diffusion Official Repository**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [github.com/Stability-AI/stablediffusion](https://github.com/Stability-AI/stablediffusion)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [github.com/Stability-AI/generative-models](https://github.com/Stability-AI/generative-models)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Official implementation of Stable Diffusion models
 
 :material-github: **CompVis: Latent Diffusion Models**<br>
@@ -1596,7 +1596,7 @@ Diffusion models represent a paradigm shift in generative modeling, offering unm
 &nbsp;&nbsp;&nbsp;&nbsp;:material-link: [github.com/lucidrains/denoising-diffusion-pytorch](https://github.com/lucidrains/denoising-diffusion-pytorch)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Clean, well-documented PyTorch implementations
 
-### Books and Comprehensive Tutorials
+### Books and Complete Tutorials
 
 :material-book: **Prince, S. J. D. (2023).** "Understanding Deep Learning"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;:material-link: Chapter on Diffusion Models | [udlbook.github.io/udlbook](https://udlbook.github.io/udlbook/)<br>

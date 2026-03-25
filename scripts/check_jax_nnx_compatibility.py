@@ -1,139 +1,171 @@
-#!/usr/bin/env python
-"""Check compatibility between JAX, NNX, and other dependencies.
+#!/usr/bin/env python3
+"""Validate installed JAX ecosystem packages against the repo dependency contract."""
 
-This script verifies that the installed versions of JAX, NNX, and other
-dependencies are compatible with each other.
-"""
+from __future__ import annotations
 
+import argparse
 import importlib.metadata
+import json
 import sys
+import tomllib
+from collections.abc import Sequence
+from pathlib import Path
+from typing import Any
 
-from packaging import version
+from packaging.requirements import Requirement
+from packaging.specifiers import SpecifierSet
+from packaging.version import Version
+
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+PYPROJECT_PATH = REPO_ROOT / "pyproject.toml"
+DOCS_REFS = [
+    "docs/getting-started/installation.md",
+    "docs/getting-started/hardware-setup-guide.md",
+]
+PACKAGES_TO_CHECK = ("jax", "flax", "optax", "orbax-checkpoint", "jaxlib")
+
+
+def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
+    """Parse command-line arguments."""
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Emit the compatibility report as JSON",
+    )
+    return parser.parse_args(argv)
 
 
 def get_version(package_name: str) -> str | None:
-    """Get the version of an installed package."""
+    """Return the installed version for one package, if present."""
     try:
         return importlib.metadata.version(package_name)
     except importlib.metadata.PackageNotFoundError:
         return None
 
 
-def check_compatibility() -> tuple[bool, dict[str, str | None]]:
-    """Check if installed package versions are compatible.
+def load_project_minimum_versions() -> dict[str, str]:
+    """Return the repo-declared minimum versions for the JAX stack."""
+    with PYPROJECT_PATH.open("rb") as handle:
+        pyproject = tomllib.load(handle)
 
-    Returns:
-        Tuple of (is_compatible, versions_dict)
-    """
-    versions = {
-        "jax": get_version("jax"),
-        "flax": get_version("flax"),
-        "jaxlib": get_version("jaxlib"),
-        "optax": get_version("optax"),
-        "orbax-checkpoint": get_version("orbax-checkpoint"),
-    }
+    minimum_versions: dict[str, str] = {}
+    for raw_requirement in pyproject["project"]["dependencies"]:
+        requirement = Requirement(raw_requirement)
+        if requirement.name not in {"jax", "flax", "optax", "orbax-checkpoint"}:
+            continue
 
-    # If core packages are not installed, they can't be compatible
-    if not versions["jax"] or not versions["flax"]:
-        return False, versions
+        lower_bounds = [
+            Version(spec.version)
+            for spec in requirement.specifier
+            if spec.operator in {">=", "==", "==="}
+        ]
+        if not lower_bounds:
+            continue
+        minimum_versions[requirement.name] = str(max(lower_bounds))
 
-    # Parse versions
-    jax_v = version.parse(versions["jax"])
-    flax_v = version.parse(versions["flax"])
+    return minimum_versions
 
-    # Check if jaxlib version matches jax version
-    jaxlib_compatible = True
-    if versions["jaxlib"]:
-        jaxlib_v = version.parse(versions["jaxlib"])
-        if jaxlib_v != jax_v:
-            jaxlib_compatible = False
 
-    # Check optax version if installed
-    optax_compatible = True
-    if versions["optax"]:
-        optax_v = version.parse(versions["optax"])
-        # Check optax compatibility with jax
-        if optax_v <= version.parse("0.1.9") and jax_v >= version.parse("0.6.0"):
-            optax_compatible = False
-        elif optax_v >= version.parse("0.2.0") and jax_v < version.parse("0.5.1"):
-            optax_compatible = False
+def build_report() -> dict[str, Any]:
+    """Build the metadata-driven compatibility report."""
+    project_minimum_versions = load_project_minimum_versions()
+    installed_versions = {package: get_version(package) for package in PACKAGES_TO_CHECK}
 
-    # Check orbax-checkpoint version if installed
-    orbax_compatible = True
-    if versions["orbax-checkpoint"]:
-        orbax_v = version.parse(versions["orbax-checkpoint"])
-        # orbax 0.11.0-0.11.5 requires JAX >= 0.4.34
-        if version.parse("0.11.0") <= orbax_v <= version.parse("0.11.5"):
-            if jax_v < version.parse("0.4.34"):
-                orbax_compatible = False
-        # orbax 0.11.6, 0.11.8+ require JAX >= 0.5.0
-        elif orbax_v == version.parse("0.11.6") or orbax_v >= version.parse("0.11.8"):
-            if jax_v < version.parse("0.5.0"):
-                orbax_compatible = False
-        # orbax 0.11.7 requires JAX == 0.5.0
-        elif orbax_v == version.parse("0.11.7"):
-            if jax_v != version.parse("0.5.0"):
-                orbax_compatible = False
+    missing_packages: list[str] = []
+    below_minimum: dict[str, dict[str, str]] = {}
+    for package_name, minimum_version in project_minimum_versions.items():
+        installed_version = installed_versions.get(package_name)
+        if installed_version is None:
+            missing_packages.append(package_name)
+            continue
 
-    # Check Flax version for NNX compatibility
-    flax_nnx_compatible = True
-    if flax_v < version.parse("0.10.0"):
-        flax_nnx_compatible = False  # NNX requires Flax >= 0.10.0
+        specifier = SpecifierSet(f">={minimum_version}")
+        if installed_version not in specifier:
+            below_minimum[package_name] = {
+                "installed": installed_version,
+                "required_minimum": minimum_version,
+            }
 
-    # Check if Flax version is compatible with JAX version
-    flax_jax_compatible = True
-    if flax_v >= version.parse("0.10.0"):
-        if jax_v < version.parse("0.5.1"):
-            flax_jax_compatible = False
-
-    # Our project is configured for:
-    # - JAX 0.6.1
-    # - Flax 0.10.6
-    # - optax 0.2.4
-    # - orbax-checkpoint 0.11.13
-    # Check if versions match our target versions
-    # (uncommenting this if needed for additional checks)
-    # target_compatible = (jax_v == version.parse("0.6.1") and
-    #                      flax_v == version.parse("0.10.6"))
-
-    # All checks must pass
-    is_compatible = (
-        flax_nnx_compatible
-        and flax_jax_compatible
-        and jaxlib_compatible
-        and optax_compatible
-        and orbax_compatible
+    jax_version = installed_versions.get("jax")
+    jaxlib_version = installed_versions.get("jaxlib")
+    jaxlib_matches_jax = (
+        jax_version is not None and jaxlib_version is not None and jax_version == jaxlib_version
     )
 
-    return is_compatible, versions
+    issues: list[str] = []
+    if missing_packages:
+        issues.append("Missing required packages: " + ", ".join(sorted(missing_packages)))
+    if below_minimum:
+        issues.extend(
+            (
+                f"{package} {details['installed']} is below the repo minimum "
+                f"{details['required_minimum']}"
+            )
+            for package, details in sorted(below_minimum.items())
+        )
+    if jax_version and jaxlib_version and not jaxlib_matches_jax:
+        issues.append(f"jaxlib {jaxlib_version} does not match jax {jax_version}")
+
+    return {
+        "installed_versions": installed_versions,
+        "project_minimum_versions": project_minimum_versions,
+        "docs_refs": DOCS_REFS,
+        "missing_packages": sorted(missing_packages),
+        "below_minimum": below_minimum,
+        "jaxlib_matches_jax": jaxlib_matches_jax,
+        "scope_note": (
+            "This check validates the repo-declared minimum versions and JAX/JAXLIB parity. "
+            "It does not claim full upstream compatibility beyond that contract."
+        ),
+        "is_compatible": not issues,
+        "issues": issues,
+    }
 
 
-def main():
-    """Run the compatibility check and print results."""
-    is_compatible, versions = check_compatibility()
+def render_human_report(report: dict[str, Any]) -> str:
+    """Render the compatibility report for terminal output."""
+    lines = ["Installed versions:"]
+    for package_name in PACKAGES_TO_CHECK:
+        installed_version = report["installed_versions"][package_name]
+        lines.append(f"  {package_name}: {installed_version or 'Not installed'}")
 
-    print("Installed versions:")
-    for pkg, ver in versions.items():
-        print(f"  {pkg}: {ver or 'Not installed'}")
+    lines.append("")
+    lines.append("Project-declared minimum versions:")
+    for package_name, minimum_version in report["project_minimum_versions"].items():
+        lines.append(f"  - {package_name} >= {minimum_version}")
 
-    if is_compatible:
-        print("\n✅ Compatible: Dependencies are compatible")
-        print("\nRecommended configurations:")
-        print("  - JAX 0.6.1")
-        print("  - Flax 0.10.6")
-        print("  - optax 0.2.4")
-        print("  - orbax-checkpoint 0.11.13")
-        sys.exit(0)
+    lines.append("")
+    if report["is_compatible"]:
+        lines.append("Compatible with the repo-declared dependency contract.")
     else:
-        print("\n❌ Incompatible: Dependency version conflicts detected")
-        print("\nRecommended compatible versions:")
-        print("  - JAX 0.6.1")
-        print("  - Flax 0.10.6")
-        print("  - optax 0.2.4")
-        print("  - orbax-checkpoint 0.11.13")
-        print("\nCheck docs/dependencies.md for more information.")
-        sys.exit(1)
+        lines.append("Incompatible with the repo-declared dependency contract.")
+        for issue in report["issues"]:
+            lines.append(f"  - {issue}")
+
+    lines.append("")
+    lines.append(report["scope_note"])
+    lines.append("Relevant docs:")
+    for relative_path in report["docs_refs"]:
+        lines.append(f"  - {relative_path}")
+
+    return "\n".join(lines)
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    """Run the compatibility check."""
+    args = parse_args(argv)
+    report = build_report()
+
+    if args.json:
+        sys.stdout.write(json.dumps(report, indent=2, sort_keys=True))
+        sys.stdout.write("\n")
+    else:
+        sys.stdout.write(f"{render_human_report(report)}\n")
+
+    return 0 if report["is_compatible"] else 1
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

@@ -79,7 +79,7 @@ class TestModelPerformance:
             hidden_dims=(32, 64),
         )
 
-        model = create_model(config, rngs=nnx.Rngs(params=rng))
+        model = create_model(config, rngs=nnx.Rngs(params=rng, sample=rng))
         batch_size = 8
         test_batch = jnp.ones((batch_size, 32, 32, 3))
 
@@ -113,7 +113,7 @@ class TestModelPerformance:
             hidden_dims=(32, 64),
         )
 
-        model = create_model(config, rngs=nnx.Rngs(params=rng))
+        model = create_model(config, rngs=nnx.Rngs(params=rng, sample=rng))
         n_samples = 8
 
         # Warm up
@@ -131,8 +131,6 @@ class TestModelPerformance:
     def test_diffusion_inference_performance(self, benchmark):
         """Benchmark diffusion model inference performance."""
         try:
-            from tests.utils.test_helpers import should_run_diffusion_tests
-
             from artifex.generative_models.core.configuration import (
                 DDPMConfig,
                 NoiseScheduleConfig,
@@ -141,9 +139,6 @@ class TestModelPerformance:
             from artifex.generative_models.factory import create_model
         except ImportError:
             pytest.skip("Diffusion model not available")
-
-        if not should_run_diffusion_tests():
-            pytest.skip("Diffusion tests disabled")
 
         # Setup
         rng = jax.random.key(42)
@@ -177,7 +172,7 @@ class TestModelPerformance:
             loss_type="mse",
         )
 
-        model = create_model(config, rngs=nnx.Rngs(params=rng))
+        model = create_model(config, rngs=nnx.Rngs(params=rng, sample=rng))
         batch_size = 4
         test_batch = jnp.ones((batch_size, 16, 16, 3))
         t = jnp.array([2, 4, 6, 8])
@@ -191,8 +186,8 @@ class TestModelPerformance:
 
         result = benchmark(predict_noise)
 
-        # Verify result shape
-        assert result.shape == test_batch.shape
+        # Verify result shape (model returns dict with predicted_noise)
+        assert result["predicted_noise"].shape == test_batch.shape
 
     def test_gan_generator_performance(self, benchmark):
         """Benchmark GAN generator performance."""
@@ -287,7 +282,7 @@ class TestModelPerformance:
             mask_type="checkerboard",
         )
 
-        model = create_model(config, rngs=nnx.Rngs(params=rng))
+        model = create_model(config, rngs=nnx.Rngs(params=rng, sample=rng))
         batch_size = 8
         test_batch = jax.random.normal(rng, (batch_size, input_dim))
 
@@ -325,7 +320,7 @@ class TestMemoryUsage:
             hidden_dims=(64, 128, 256),
         )
 
-        model = create_model(config, rngs=nnx.Rngs(params=rng))
+        model = create_model(config, rngs=nnx.Rngs(params=rng, sample=rng))
 
         # Test with different batch sizes
         batch_sizes = [1, 4, 8, 16]
@@ -382,7 +377,7 @@ class TestMemoryUsage:
             use_batch_norm=False,
         )
 
-        model = create_model(config, rngs=nnx.Rngs(params=rng))
+        model = create_model(config, rngs=nnx.Rngs(params=rng, sample=rng))
         # Put model in eval mode for deterministic inference
         model.eval()
 
@@ -445,17 +440,19 @@ class TestRegressionBenchmarks:
             hidden_dims=(32, 64),
         )
 
-        model = create_model(config, rngs=nnx.Rngs(params=rng))
+        model = create_model(config, rngs=nnx.Rngs(params=rng, sample=rng))
         batch_size = 8
         test_batch = jnp.ones((batch_size, 32, 32, 3))
 
         # Warm up
         for _ in range(3):
-            _ = model.loss_fn(x=test_batch, rng=jax.random.key(42))
+            warmup_outputs = model(test_batch)
+            _ = model.loss_fn(test_batch, warmup_outputs)
 
         # Time training step
         start_time = time.time()
-        loss_dict = model.loss_fn(x=test_batch, rng=jax.random.key(42))
+        model_outputs = model(test_batch)
+        loss_dict = model.loss_fn(test_batch, model_outputs)
         step_time = time.time() - start_time
 
         # Performance baseline: should complete within reasonable time
@@ -463,7 +460,7 @@ class TestRegressionBenchmarks:
         assert step_time < max_step_time, f"Training step too slow: {step_time:.3f}s"
 
         # Verify outputs
-        assert jnp.isfinite(loss_dict["loss"])
+        assert jnp.isfinite(loss_dict["total_loss"])
         assert "reconstruction_loss" in loss_dict
         assert "kl_loss" in loss_dict
 
@@ -485,7 +482,7 @@ class TestRegressionBenchmarks:
             hidden_dims=(32, 64),
         )
 
-        model = create_model(config, rngs=nnx.Rngs(params=rng))
+        model = create_model(config, rngs=nnx.Rngs(params=rng, sample=rng))
         test_batch = jnp.ones((4, 32, 32, 3))
 
         # First forward pass (includes compilation)

@@ -1,4 +1,4 @@
-"""Comprehensive tests for Stable Diffusion Pipeline.
+"""Complete tests for Stable Diffusion Pipeline.
 
 This module tests the complete Stable Diffusion pipeline for text-to-image generation,
 following Test-Driven Development (TDD) principles.
@@ -12,7 +12,7 @@ from flax import nnx
 from artifex.generative_models.core.configuration import (
     NoiseScheduleConfig,
     StableDiffusionConfig,
-    UNetBackboneConfig,
+    UNet2DConditionBackboneConfig,
 )
 from artifex.generative_models.core.configuration.network_configs import (
     DecoderConfig,
@@ -32,6 +32,10 @@ def create_pipeline_config(
     text_embedding_dim: int = 256,
     noise_steps: int = 100,
     guidance_scale: float = 7.5,
+    backbone_num_res_blocks: int = 2,
+    backbone_num_heads: int = 8,
+    attention_levels: tuple[int, ...] | None = None,
+    time_embedding_dim: int = 128,
 ) -> StableDiffusionConfig:
     """Create a test configuration for Stable Diffusion Pipeline.
 
@@ -64,13 +68,19 @@ def create_pipeline_config(
         activation="gelu",
     )
 
-    backbone = UNetBackboneConfig(
-        name="test_unet",
+    if attention_levels is None:
+        attention_levels = tuple(range(len(hidden_dims)))
+
+    backbone = UNet2DConditionBackboneConfig(
+        name="test_unet_conditioned",
         hidden_dims=hidden_dims,
         in_channels=latent_channels,
         out_channels=latent_channels,
-        time_embedding_dim=128,
-        activation="gelu",
+        cross_attention_dim=text_embedding_dim,
+        num_heads=backbone_num_heads,
+        num_res_blocks=backbone_num_res_blocks,
+        attention_levels=attention_levels,
+        time_embedding_dim=time_embedding_dim,
     )
 
     noise_schedule = NoiseScheduleConfig(
@@ -135,6 +145,30 @@ class TestStableDiffusionPipelineInitialization:
 
         pipeline = StableDiffusionPipeline(config_min, rngs=rngs)
         assert pipeline is not None
+
+    def test_pipeline_uses_declared_conditioned_backbone(self):
+        """Test that pipeline exposes the configured conditioned UNet contract."""
+        rngs = nnx.Rngs(0)
+        config = create_pipeline_config(
+            latent_channels=6,
+            hidden_dims=(48, 96, 192),
+            text_embedding_dim=37,
+            backbone_num_res_blocks=5,
+            backbone_num_heads=2,
+            attention_levels=(0, 2),
+            time_embedding_dim=96,
+        )
+
+        pipeline = StableDiffusionPipeline(config, rngs=rngs)
+
+        assert pipeline.unet.in_channels == 6
+        assert pipeline.unet.out_channels == 6
+        assert pipeline.unet.hidden_dims == [48, 96, 192]
+        assert pipeline.unet.num_res_blocks == 5
+        assert pipeline.unet.attention_levels == [0, 2]
+        assert pipeline.unet.cross_attention_dim == 37
+        assert pipeline.unet.num_heads == 2
+        assert pipeline.unet.time_embedding.embedding_dim == 96
 
 
 class TestStableDiffusionPipelineTextToImage:
@@ -374,10 +408,10 @@ class TestStableDiffusionPipelineTraining:
         loss_dict = pipeline.train_step(batch)
 
         # Check loss dict
-        assert "loss" in loss_dict
-        assert isinstance(loss_dict["loss"], jax.Array)
-        assert loss_dict["loss"].shape == ()  # Scalar
-        assert loss_dict["loss"] >= 0.0
+        assert "total_loss" in loss_dict
+        assert isinstance(loss_dict["total_loss"], jax.Array)
+        assert loss_dict["total_loss"].shape == ()  # Scalar
+        assert loss_dict["total_loss"] >= 0.0
 
     def test_gradients_computable(self, pipeline):
         """Test that gradients can be computed."""
@@ -388,7 +422,7 @@ class TestStableDiffusionPipelineTraining:
 
         def loss_fn(model):
             loss_dict = model.train_step(batch)
-            return loss_dict["loss"]
+            return loss_dict["total_loss"]
 
         # Compute gradients
         loss, grads = nnx.value_and_grad(loss_fn)(pipeline)

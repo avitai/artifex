@@ -1,11 +1,14 @@
 # Conditioning
 
-**Module:** `generative_models.models.common.conditioning`
+Status: Coming soon
 
-**Source:** `generative_models/models/common/conditioning.py`
+`artifex.generative_models.models.common.conditioning` does not ship in the
+current runtime.
 
-## Module Statistics
+Conditioning is currently family-owned. For the retained diffusion-facing
+surface, see `artifex.generative_models.models.diffusion.guidance` and the
+conditioned backbone owners such as
+`artifex.generative_models.models.backbones.unet_cross_attention`.
 
-- **Classes:** 0
-- **Functions:** 0
-- **Imports:** 0
+See [planned-modules.md](../roadmap/planned-modules.md) for the roadmap status
+of a standalone shared conditioning page.

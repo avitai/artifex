@@ -1,4 +1,4 @@
-"""Utilities for test discovery and execution."""
+"""Shared test models and retained test infrastructure helpers."""
 
 from .test_models import MockModel, MockProteinModel, SimpleModel, SimpleNNXModel
 

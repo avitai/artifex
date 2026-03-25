@@ -1,6 +1,7 @@
 """VAE base class definition."""
 
-from typing import Any, Callable, cast
+from collections.abc import Callable
+from typing import Any, cast
 
 import jax
 import jax.numpy as jnp
@@ -8,8 +9,19 @@ from flax import nnx
 
 from artifex.generative_models.core.base import GenerativeModel
 from artifex.generative_models.core.configuration.vae_config import VAEConfig
+from artifex.generative_models.core.losses.vae import vae_elbo_terms
 from artifex.generative_models.models.vae.decoders import create_decoder
 from artifex.generative_models.models.vae.encoders import create_encoder
+
+
+def _extract_vae_inputs(batch: Any) -> jax.Array:
+    """Extract the input tensor from a canonical VAE batch."""
+    if isinstance(batch, dict):
+        for key in ("inputs", "input", "x", "data"):
+            if key in batch:
+                return batch[key]
+        raise KeyError("Batch must contain one of ('inputs', 'input', 'x', 'data').")
+    return batch
 
 
 class VAE(GenerativeModel):
@@ -148,11 +160,9 @@ class VAE(GenerativeModel):
 
     def loss_fn(
         self,
-        params: dict | None = None,
-        batch: dict | None = None,
-        rng: jax.Array | None = None,
-        x: jax.Array | None = None,
-        outputs: dict[str, jax.Array] | None = None,
+        batch: Any,
+        model_outputs: dict[str, jax.Array],
+        *,
         beta: float | None = None,
         reconstruction_loss_fn: Callable | None = None,
         **kwargs: Any,
@@ -160,11 +170,8 @@ class VAE(GenerativeModel):
         """Calculate loss for VAE.
 
         Args:
-            params: Model parameters (optional, for compatibility with Trainer)
-            batch: Input batch (optional, for compatibility with Trainer)
-            rng: Random number generator (optional, for compatibility with Trainer)
-            x: Input data (if not provided in batch)
-            outputs: Dictionary of model outputs from forward pass
+            batch: Input batch as an array or dict containing the model inputs.
+            model_outputs: Dictionary of model outputs from the forward pass.
             beta: Weight for KL divergence term
             reconstruction_loss_fn: Optional custom reconstruction loss function.
                 Signature: fn(predictions, targets) -> loss (JAX/Optax convention)
@@ -173,71 +180,27 @@ class VAE(GenerativeModel):
         Returns:
             Dictionary of loss components
         """
-        # Handle different input patterns for compatibility
-        if batch is not None and x is None:
-            if isinstance(batch, dict) and "inputs" in batch:
-                x = batch["inputs"]
-            else:
-                x = batch
+        del kwargs
+        x = _extract_vae_inputs(batch)
 
-        # Ensure x is a proper JAX array, not a dictionary
-        if isinstance(x, dict):
-            if "inputs" in x:
-                x = x["inputs"]
-            elif "input" in x:
-                x = x["input"]
-            else:
-                # If x is still a dictionary without recognized keys, raise error
-                raise ValueError(
-                    "Input 'x' is a dictionary without 'inputs' or 'input' keys. "
-                    "Expected a JAX array."
-                )
-
-        if outputs is None:
-            if hasattr(self, "apply") and params is not None:
-                # For compatibility with Trainer
-                rngs_dict = None
-                if rng is not None:
-                    rngs_dict = nnx.Rngs(dropout=rng)
-                outputs = self.apply(params, x, rngs=rngs_dict)
-            else:
-                # Use direct call
-                outputs = self(x)
-
-        # Reconstruction loss (Mean Squared Error by default)
-        # Try both keys for compatibility
-        reconstructed = outputs.get("reconstructed", outputs.get("reconstruction", None))
+        reconstructed = model_outputs.get("reconstructed")
         if reconstructed is None:
-            raise KeyError("Missing required output key: 'reconstructed' or 'reconstruction'")
-
-        if reconstruction_loss_fn is None:
-            # Default to MSE
-            reconstruction_loss = jnp.mean((x - reconstructed) ** 2)
-        else:
-            # Use custom loss function (JAX/Optax convention: predictions, targets)
-            reconstruction_loss = reconstruction_loss_fn(reconstructed, x)
-
-        # KL divergence loss
-        # Try both keys for compatibility
-        mean = outputs["mean"]
-        log_var = outputs.get("log_var", outputs.get("logvar", None))
+            raise KeyError("Missing required output key: 'reconstructed'")
+        mean = model_outputs["mean"]
+        log_var = model_outputs.get("log_var")
         if log_var is None:
-            raise KeyError("Missing required output key: 'log_var' or 'logvar'")
-
-        # Compute KL divergence analytically for Gaussian distributions
-        kl_loss = -0.5 * jnp.sum(1 + log_var - mean**2 - jnp.exp(log_var), axis=-1).mean()
+            raise KeyError("Missing required output key: 'log_var'")
 
         # Use provided beta or default to instance kl_weight
         beta_value = beta if beta is not None else self.kl_weight
-
-        # Total loss
-        total_loss = reconstruction_loss + beta_value * kl_loss
-
-        return {
-            "loss": total_loss,
-            "reconstruction_loss": reconstruction_loss,
-            "kl_loss": kl_loss,
-        }
+        return vae_elbo_terms(
+            reconstructed=reconstructed,
+            targets=x,
+            mean=mean,
+            log_var=log_var,
+            beta=beta_value,
+            reconstruction_loss_fn=reconstruction_loss_fn,
+        )
 
     def sample(self, n_samples: int = 1, *, temperature: float = 1.0) -> jax.Array:
         """Sample from the prior distribution.

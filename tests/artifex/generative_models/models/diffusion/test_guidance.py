@@ -1,6 +1,6 @@
 """Tests for diffusion guidance techniques.
 
-This module provides comprehensive tests for guidance methods including
+This module provides complete tests for guidance methods including
 classifier-free guidance, classifier guidance, and conditional diffusion.
 
 DiffusionModel uses the (config, *, rngs) signature pattern.
@@ -111,7 +111,6 @@ def create_cfg_test_config() -> DiffusionConfig:
     backbone = UNet2DConditionBackboneConfig(
         name="test_unet2d_condition",
         hidden_dims=(32, 64),
-        activation="silu",
         in_channels=1,
         out_channels=1,
         cross_attention_dim=8,  # Must be divisible by num_heads

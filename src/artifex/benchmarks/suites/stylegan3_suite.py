@@ -1,6 +1,6 @@
 """StyleGAN3 Benchmark Suite for High-Resolution Image Generation.
 
-This module provides a comprehensive benchmark suite for evaluating StyleGAN3
+This module provides a complete benchmark suite for evaluating StyleGAN3
 performance on FFHQ dataset with few-shot adaptation capabilities.
 
 Key Features:
@@ -10,12 +10,17 @@ Key Features:
 - Progressive training and evaluation
 """
 
-from dataclasses import dataclass, field
+import logging
+from dataclasses import asdict, dataclass, field
 from typing import Any
 
 import flax.nnx as nnx
 import jax.numpy as jnp
 
+from artifex.benchmarks.core import BenchmarkBase, BenchmarkConfig, BenchmarkResult
+from artifex.benchmarks.datasets.ffhq import CelebADataset, FFHQDataset
+from artifex.benchmarks.metrics.style_metrics import StyleGANMetrics
+from artifex.benchmarks.runtime_guards import require_demo_mode
 from artifex.generative_models.core.configuration import (
     EvaluationConfig,
 )
@@ -23,13 +28,11 @@ from artifex.generative_models.core.configuration.network_configs import (
     DiscriminatorConfig,
     StyleGAN3GeneratorConfig,
 )
-from artifex.generative_models.core.protocols.benchmarks import BenchmarkBase
 from artifex.generative_models.models.gan.base import Discriminator
 from artifex.generative_models.models.gan.stylegan3 import StyleGAN3Generator
 
-from ..datasets.ffhq import CelebADataset, FFHQDataset
-from ..metrics.style_metrics import StyleGANMetrics
-from ..protocols.core import BenchmarkConfig, BenchmarkResult
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -37,17 +40,19 @@ class StyleGAN3BenchmarkConfig(BenchmarkConfig):
     """Configuration for StyleGAN3 benchmark."""
 
     name: str = field(default="stylegan3", init=False)
+    description: str = "StyleGAN3 benchmark configuration"
+    metric_names: list[str] = field(
+        default_factory=lambda: ["fid", "lpips", "is_score"],
+    )
     model_name: str = "stylegan3"
+    demo_mode: bool = False
 
     def __post_init__(self) -> None:
         """Initialize after dataclass creation.
 
-        Sets name to model_name and calls parent's post_init.
+        Sets name to model_name if provided.
         """
-        # Set name to model_name if provided
         self.name = self.model_name
-
-        super().__post_init__()
 
     image_size: int = 64
     latent_dim: int = 256
@@ -68,6 +73,7 @@ class StyleGAN3BenchmarkConfig(BenchmarkConfig):
             (
                 self.name,
                 self.model_name,
+                self.demo_mode,
                 self.image_size,
                 self.latent_dim,
                 self.style_dim,
@@ -90,6 +96,7 @@ class StyleGAN3BenchmarkConfig(BenchmarkConfig):
         return (
             self.name == other.name
             and self.model_name == other.model_name
+            and self.demo_mode == other.demo_mode
             and self.image_size == other.image_size
             and self.latent_dim == other.latent_dim
             and self.style_dim == other.style_dim
@@ -120,6 +127,15 @@ class StyleGAN3Benchmark(BenchmarkBase):
             config: Configuration for the benchmark
             rngs: Random number generators
         """
+        require_demo_mode(
+            enabled=config.demo_mode,
+            component="StyleGAN3Benchmark",
+            detail=(
+                "This retained StyleGAN3 benchmark still uses mock FFHQ data, synthetic training "
+                "metrics, and demo-only style evaluation helpers."
+            ),
+        )
+
         # Store the original typed config for internal use
         self.benchmark_config = config
 
@@ -128,11 +144,16 @@ class StyleGAN3Benchmark(BenchmarkBase):
             name="stylegan3_benchmark",
             metrics=["fid", "style_mixing", "equivariance"],
             metric_params={
-                "fid": {"target": config.fid_target},
-                "style_mixing": {"quality_threshold": 0.8},
-                "equivariance": {"score_threshold": 0.8},
+                "fid": {
+                    "target": config.fid_target,
+                    "mock_inception": True,
+                    "demo_mode": True,
+                },
+                "style_mixing": {"quality_threshold": 0.8, "demo_mode": True},
+                "equivariance": {"score_threshold": 0.8, "demo_mode": True},
             },
             eval_batch_size=config.batch_size,
+            metadata={"demo_mode": True},
         )
 
         # Store original config attributes for easy access
@@ -155,6 +176,7 @@ class StyleGAN3Benchmark(BenchmarkBase):
         self.ffhq_dataset = FFHQDataset(
             image_size=config.image_size,
             split="test",
+            demo_mode=config.demo_mode,
             rngs=rngs,
         )
 
@@ -165,7 +187,18 @@ class StyleGAN3Benchmark(BenchmarkBase):
         )
 
         # Initialize metrics
-        self.metrics = StyleGANMetrics(rngs=rngs)
+        metrics_config = EvaluationConfig(
+            name="stylegan3_metrics",
+            metrics=["fid", "lpips", "is_score"],
+            metric_params={
+                "fid": {"mock_inception": True, "demo_mode": True},
+                "lpips": {"mock_implementation": True, "demo_mode": True},
+                "demo_mode": True,
+            },
+            eval_batch_size=config.batch_size,
+            metadata={"demo_mode": True},
+        )
+        self.metrics = StyleGANMetrics(rngs=rngs, config=metrics_config)
 
     def _setup_benchmark_components(self) -> None:
         """Setup benchmark-specific components."""
@@ -324,11 +357,12 @@ class StyleGAN3Benchmark(BenchmarkBase):
         all_metrics = {**training_metrics, **evaluation_metrics}
 
         return BenchmarkResult(
+            benchmark_name="stylegan3",
             model_name=self.benchmark_config.name,
-            dataset_name=self.dataset_name,
             metrics=all_metrics,
-            config=self.benchmark_config.__dict__,
             metadata={
+                "dataset_name": self.dataset_name,
+                "config": asdict(self.benchmark_config),
                 "image_size": self.image_size,
                 "evaluation_samples": self.num_samples,
                 "few_shot_samples": self.num_evaluation_samples,
@@ -369,6 +403,7 @@ class StyleGAN3Suite:
         for img_size in image_sizes:
             config = StyleGAN3BenchmarkConfig(
                 image_size=img_size,
+                demo_mode=True,
                 latent_dim=128,  # Further reduced for smaller sizes
                 style_dim=128,  # Further reduced for smaller sizes
                 batch_size=2,  # Very small batch size
@@ -405,13 +440,16 @@ class StyleGAN3Suite:
             results[img_size] = result
 
             # Print progress
-            print(f"✅ StyleGAN3 {img_size}x{img_size} benchmark completed")
+            logger.info("StyleGAN3 %dx%d benchmark completed", img_size, img_size)
             fid_score = result.metrics.get("fid_score", "N/A")
             if isinstance(fid_score, (int, float)):
-                print(f"   FID Score: {fid_score:.2f}")
+                logger.info("   FID Score: %.2f", fid_score)
             else:
-                print(f"   FID Score: {fid_score}")
-            print(f"   Style Mixing Quality: {result.metrics.get('style_mixing_quality', 'N/A')}")
+                logger.info("   FID Score: %s", fid_score)
+            logger.info(
+                "   Style Mixing Quality: %s",
+                result.metrics.get("style_mixing_quality", "N/A"),
+            )
 
         return results
 
@@ -467,6 +505,7 @@ def create_stylegan3_demo():
     # Create configuration
     config = StyleGAN3BenchmarkConfig(
         image_size=256,
+        demo_mode=True,
         latent_dim=512,
         style_dim=512,
         batch_size=4,

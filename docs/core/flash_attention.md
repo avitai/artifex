@@ -6,24 +6,18 @@
 
 ## Overview
 
-Flash Attention implementation for Flax NNX with kvax optimizations.
+Flash-attention-style helpers for Flax NNX.
 
-This module provides a Flash Attention implementation designed to serve
-as a drop-in replacement for Flax NNX's MultiHeadAttention with performance improvements and additional features.
+This page documents the retained single JAX fallback implementation. It does not
+publish backend switches, Triton-specific runtime guarantees, or broader
+performance claims beyond the code that actually ships in this repository.
 
 Based on:
 
 - Flash Attention paper: <https://arxiv.org/abs/2205.14135>
 - Flash Attention 2: <https://arxiv.org/abs/2307.08691>
-- kvax implementation: <https://github.com/nebius/kvax>
 
 ## Classes
-
-### AttentionBackend
-
-```python
-class AttentionBackend
-```
 
 ### AttentionMask
 
@@ -57,28 +51,16 @@ def __call__()
 def __init__()
 ```
 
-### **init**
-
-```python
-def __init__()
-```
-
 ### create_attention_mask
 
 ```python
 def create_attention_mask()
 ```
 
-### flash_attention_forward_kernel
+### flash_attention
 
 ```python
-def flash_attention_forward_kernel()
-```
-
-### flash_attention_triton
-
-```python
-def flash_attention_triton()
+def flash_attention()
 ```
 
 ### init_cache
@@ -87,20 +69,7 @@ def flash_attention_triton()
 def init_cache()
 ```
 
-### make_causal_mask
-
-```python
-def make_causal_mask()
-```
-
-### make_segment_mask
-
-```python
-def make_segment_mask()
-```
-
 ## Module Statistics
 
-- **Classes:** 4
-- **Functions:** 9
-- **Imports:** 20
+- **Classes:** 3
+- **Functions:** 5

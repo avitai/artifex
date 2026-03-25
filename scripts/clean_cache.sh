@@ -21,10 +21,11 @@
 #
 # WHAT IT PRESERVES:
 #   - Virtual environment (.venv/)
+#   - Generated backend configuration (.artifex.env)
 #   - Dependency lock file (uv.lock)
 #   - Git repository (.git/)
 #   - IDE configuration (.vscode/ settings)
-#   - Environment configuration (.env)
+#   - User environment overrides (.env, .env.local)
 #
 # SAFE TO RUN:
 #   This script is safe to run at any time and will not delete any source
@@ -74,7 +75,7 @@ rm -rf test_artifacts/ 2>/dev/null || true
 # Remove IDE cache (but keep configuration)
 echo "Removing IDE cache..."
 find .vscode/ -name "*.log" -delete 2>/dev/null || true
-# find .cursor/ -name "*.log" -delete 2>/dev/null || true
+# find .c*sor/ -name "*.log" -delete 2>/dev/null || true
 
 echo "✅ Cache cleanup completed!"
 echo ""

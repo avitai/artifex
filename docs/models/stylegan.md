@@ -1,11 +1,12 @@
-# Stylegan
+# StyleGAN
 
-**Module:** `generative_models.models.gan.stylegan`
+Status: Coming soon
 
-**Source:** `generative_models/models/gan/stylegan.py`
+`artifex.generative_models.models.gan.stylegan` does not ship in the current
+runtime.
 
-## Module Statistics
+The current live style-modulated GAN owner is
+`artifex.generative_models.models.gan.stylegan3`.
 
-- **Classes:** 0
-- **Functions:** 0
-- **Imports:** 0
+See [planned-modules.md](../roadmap/planned-modules.md) for the roadmap status
+of a standalone StyleGAN page.

@@ -1,11 +1,9 @@
 # Transforms
 
-**Module:** `generative_models.utils.image.transforms`
+**Status:** `Coming soon`
+**Planned module target:** `artifex.generative_models.utils.image.transforms`
 
-**Source:** `generative_models/utils/image/transforms.py`
+`artifex.generative_models.utils.image.transforms` is still relevant to the roadmap, but it is not shipped yet.
 
-## Module Statistics
-
-- **Classes:** 0
-- **Functions:** 0
-- **Imports:** 0
+See [Utilities](index.md) for the current utility docs.
+See [Planned Modules Roadmap](../roadmap/planned-modules.md#utilities) for status and scope.

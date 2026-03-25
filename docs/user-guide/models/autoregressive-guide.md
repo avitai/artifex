@@ -125,7 +125,7 @@ outputs = model(images, rngs=rngs, training=True)
 # Loss
 batch = {"images": images}
 loss_dict = model.loss_fn(batch, outputs, rngs=rngs)
-print(f"Loss: {loss_dict['loss']:.4f}")
+print(f"Loss: {loss_dict['total_loss']:.4f}")
 print(f"Bits per dim: {loss_dict['bits_per_dim']:.4f}")
 
 # Generation (pixel by pixel)
@@ -338,7 +338,7 @@ def train_step(model, batch, optimizer_state):
         # Compute loss
         loss_dict = model.loss_fn(batch, outputs, rngs=rngs)
 
-        return loss_dict['loss'], loss_dict
+        return loss_dict['total_loss'], loss_dict
 
     # Compute gradients
     (loss, metrics), grads = nnx.value_and_grad(loss_fn, has_aux=True)(model)
@@ -373,12 +373,12 @@ def train_with_monitoring(model, train_loader, val_loader, num_epochs):
             outputs = model(batch['sequences'], training=True, rngs=rngs)
             loss_dict = model.loss_fn(batch, outputs, rngs=rngs)
 
-            train_losses.append(loss_dict['loss'])
+            train_losses.append(loss_dict['total_loss'])
             train_perplexities.append(loss_dict['perplexity'])
 
             if step % 100 == 0:
                 print(f"Epoch {epoch}, Step {step}:")
-                print(f"  Loss: {loss_dict['loss']:.4f}")
+                print(f"  Loss: {loss_dict['total_loss']:.4f}")
                 print(f"  Perplexity: {loss_dict['perplexity']:.2f}")
                 print(f"  Accuracy: {loss_dict['accuracy']:.4f}")
 
@@ -399,7 +399,7 @@ def evaluate(model, val_loader):
         loss_dict = model.loss_fn(batch, outputs, rngs=rngs)
 
         batch_size, seq_len = batch['sequences'].shape
-        total_loss += loss_dict['loss'] * batch_size * seq_len
+        total_loss += loss_dict['total_loss'] * batch_size * seq_len
         total_tokens += batch_size * seq_len
 
     avg_loss = total_loss / total_tokens
@@ -638,25 +638,22 @@ inpainted = model.inpaint(
 
 ## Advanced Techniques
 
-### 1. Caching for Faster Generation
+### 1. Standard Transformer Generation
 
-Cache key-value pairs for Transformers:
+Use the standard generation path for transformer decoding:
 
 ```python
-# TransformerAutoregressiveModel has a built-in generate_with_cache() method
-# that handles KV caching automatically.
-
-# Basic cached generation
-samples = model.generate_with_cache(
+# Basic generation
+samples = model.generate(
     n_samples=4,
     max_length=128,
     temperature=0.8,
     rngs=rngs,
 )
 
-# Cached generation with prompt and top-p sampling
+# Prompted generation with top-p sampling
 prompt = jnp.array([1, 45, 23, 89])  # Token IDs
-samples = model.generate_with_cache(
+samples = model.generate(
     n_samples=4,
     prompt=prompt,
     max_length=128,

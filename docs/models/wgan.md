@@ -1,97 +1,29 @@
-# Wgan
+# WGAN
 
-**Module:** `generative_models.models.gan.wgan`
+Supported owner: `artifex.generative_models.models.gan.wgan`
 
-**Source:** `generative_models/models/gan/wgan.py`
+## Public Imports
+
+```python
+from artifex.generative_models.models.gan import (
+    WGAN,
+    WGANDiscriminator,
+    WGANGenerator,
+    compute_gradient_penalty,
+)
+```
 
 ## Overview
 
-Wasserstein GAN with Gradient Penalty (WGAN-GP) implementation.
+The retained WGAN surface consists of the main `WGAN` model, the concrete
+`WGANGenerator` and `WGANDiscriminator` owners, and the exported
+`compute_gradient_penalty` helper.
 
-## Classes
+Generation and objective behavior live on the model instances themselves rather
+than as additional module-level public helpers.
 
-### WGAN
+## Related Pages
 
-```python
-class WGAN
-```
-
-### WGANDiscriminator
-
-```python
-class WGANDiscriminator
-```
-
-### WGANGenerator
-
-```python
-class WGANGenerator
-```
-
-## Functions
-
-### **call**
-
-```python
-def __call__()
-```
-
-### **call**
-
-```python
-def __call__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### compute_gradient_penalty
-
-```python
-def compute_gradient_penalty()
-```
-
-### discriminator_fn
-
-```python
-def discriminator_fn()
-```
-
-### discriminator_loss
-
-```python
-def discriminator_loss()
-```
-
-### generate
-
-```python
-def generate()
-```
-
-### generator_loss
-
-```python
-def generator_loss()
-```
-
-## Module Statistics
-
-- **Classes:** 3
-- **Functions:** 10
-- **Imports:** 6
+- [Model Implementations](index.md)
+- [GAN API Reference](../api/models/gan.md)
+- [GAN Guide](../user-guide/models/gan-guide.md)

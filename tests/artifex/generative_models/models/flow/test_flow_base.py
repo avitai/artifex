@@ -336,13 +336,13 @@ class TestNormalizingFlow:
         metrics = flow_model.loss_fn(input_data, {}, rngs=rngs)
 
         # Extract loss
-        loss = metrics["loss"]
+        loss = metrics["total_loss"]
 
         # Check scalar loss
         assert loss.ndim == 0
 
         # Check metrics
-        assert "loss" in metrics
+        assert "total_loss" in metrics
         assert "log_prob" in metrics
 
     def test_multiple_layers(self, config, rngs, input_data):

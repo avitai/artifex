@@ -212,7 +212,7 @@ class AutoregressiveModel(GenerativeModel):
             **kwargs: Additional keyword arguments
 
         Returns:
-            dictionary containing loss and metrics
+            Dictionary containing canonical loss terms.
         """
         # Extract data from batch
         if isinstance(batch, dict):
@@ -252,7 +252,7 @@ class AutoregressiveModel(GenerativeModel):
         perplexity = jnp.exp(loss)
 
         return {
-            "loss": loss,
+            "total_loss": loss,
             "nll_loss": loss,
             "accuracy": accuracy,
             "perplexity": perplexity,
@@ -372,7 +372,7 @@ class AutoregressiveModel(GenerativeModel):
                     return rngs.fork("sample")
                 elif hasattr(rngs, "params"):
                     return rngs.fork("params")
-            except Exception:
+            except (AttributeError, TypeError):
                 # Fallback to direct JAX key generation
                 pass
 

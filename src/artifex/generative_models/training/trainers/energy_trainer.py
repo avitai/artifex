@@ -15,8 +15,9 @@ References:
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable, Literal
+from typing import Any, Literal
 
 import jax
 import jax.numpy as jnp
@@ -34,10 +35,6 @@ class EnergyTrainingConfig:
             - "cd": Contrastive Divergence (initialize chains from data)
             - "pcd": Persistent Contrastive Divergence (persistent chains)
             - "score_matching": Denoising score matching (gradient-based)
-        mcmc_sampler: MCMC sampler for negative samples.
-            - "langevin": Langevin dynamics (gradient + noise)
-            - "hmc": Hamiltonian Monte Carlo (for complex distributions)
-            - "mala": Metropolis-Adjusted Langevin Algorithm
         mcmc_steps: Number of MCMC steps for sampling negatives.
         step_size: Step size for MCMC updates.
         noise_scale: Scale of noise injection in Langevin dynamics.
@@ -49,7 +46,6 @@ class EnergyTrainingConfig:
     """
 
     training_method: Literal["cd", "pcd", "score_matching"] = "cd"
-    mcmc_sampler: Literal["langevin", "hmc", "mala"] = "langevin"
     mcmc_steps: int = 20
     step_size: float = 0.01
     noise_scale: float = 0.005
@@ -153,7 +149,6 @@ class EnergyTrainer:
 
         config = EnergyTrainingConfig(
             training_method="pcd",
-            mcmc_sampler="langevin",
             mcmc_steps=20,
             step_size=0.01,
         )
@@ -507,21 +502,23 @@ class EnergyTrainer:
 
     def create_loss_fn(
         self,
-    ) -> Callable[[nnx.Module, dict[str, Any], jax.Array], tuple[jax.Array, dict[str, Any]]]:
-        """Create loss function compatible with base Trainer.
-
-        This enables integration with the base Trainer for callbacks,
-        checkpointing, logging, and other training infrastructure.
+    ) -> Callable[
+        [nnx.Module, dict[str, Any], jax.Array, jax.Array],
+        tuple[jax.Array, dict[str, Any]],
+    ]:
+        """Create a step-aware objective closure for shared training infrastructure.
 
         Returns:
-            Function with signature: (model, batch, rng) -> (loss, metrics)
+            Function with signature: (model, batch, rng, step) -> (loss, metrics)
         """
 
         def loss_fn(
             model: nnx.Module,
             batch: dict[str, Any],
             rng: jax.Array,
+            _step: jax.Array,
         ) -> tuple[jax.Array, dict[str, Any]]:
+            del _step
             return self.compute_loss(model, batch, rng)
 
         return loss_fn

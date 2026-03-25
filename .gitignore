@@ -129,6 +129,8 @@ celerybeat.pid
 
 # Environments
 .env
+.artifex.env
+.env.local
 .venv
 env/
 venv/
@@ -183,6 +185,7 @@ tmp/
 # Test and benchmark results
 test_results/
 benchmark_results/
+test_shapenet_data/
 
 # JAX/ML specific
 *.npy
@@ -249,7 +252,7 @@ data_pipeline_design/
 htmlcov_distributions/
 test_artifacts/
 
-# AI assistant configuration (IDE-specific)
+# IDE-private configuration
 .claude/
 .cursor/
 CLAUDE.md

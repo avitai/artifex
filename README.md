@@ -9,9 +9,9 @@
 
 ## A research-focused modular generative modeling library built on JAX/Flax NNX
 
-*From Latin "artifex" — craftsman, artist, maker*
+From Latin "artifex": craftsman, artist, maker.
 
-[Documentation](https://docs.avitai.bio/artifex) • [Getting Started](docs/getting-started/installation.md) • [Examples](docs/examples) • [Contributing](CONTRIBUTING.md)
+[Documentation](https://docs.avitai.bio/artifex) • [Getting Started](docs/getting-started/installation.md) • [Examples](docs/examples/index.md) • [Contributing](CONTRIBUTING.md)
 
 </div>
 
@@ -19,15 +19,16 @@
 
 > **⚠️ Major Refactoring in Progress**
 >
-> Artifex is currently undergoing a significant architectural refactoring. Please be aware of the following implications:
+> Artifex is still in a heavy rebuild cycle. Stability is not guaranteed, and breaking changes are expected between commits.
 >
-> | Area | Status | Impact |
-> |------|--------|--------|
-> | **API** | 🔄 Unstable | Breaking changes are expected. Public interfaces may change without deprecation warnings. Pin to specific commits if stability is required. |
-> | **Tests** | 🔄 In Flux | Test suite is being restructured. Some tests may fail or be skipped. Coverage metrics are temporarily unreliable. |
-> | **Documentation** | 🔄 Outdated | Docs may not reflect current implementation. Code examples might not work. Refer to source code and tests for accurate usage. |
+> | Area | Status | Current expectation |
+> |------|--------|---------------------|
+> | **API surface** | Unstable | Public interfaces can change without deprecation while runtime boundaries are still being simplified. |
+> | **Performance** | In progress | Optimization work is ongoing across training, inference, and benchmark paths. Do not assume current throughput or memory behavior is final. |
+> | **Feature breadth** | Expanding | Core model families ship today, but additional capabilities, deeper integrations, and broader examples are still being added. |
+> | **Docs and workflows** | Maintained but evolving | Checked-in installation, quickstart, examples, and contributor workflows are kept aligned with the live runtime, while broader documentation continues to be revised. |
 >
-> We recommend waiting for a stable release before using Artifex in production. For research and experimentation, proceed with the understanding that APIs will evolve.
+> Artifex is suitable for active research and repository development. It is not in a state where long-term API stability or production guarantees should be assumed.
 
 ---
 
@@ -39,10 +40,10 @@ Artifex is a modular library for generative modeling research, providing impleme
 
 - **Research First**: Designed for experimentation with clean, modular architecture
 - **Modern Stack**: Built on JAX/Flax NNX with full JIT compilation and automatic differentiation
-- **Type Safe**: Protocol-based design with comprehensive type annotations
+- **Typed Surfaces**: Protocol-based design with Pyright-checked source interfaces
 - **Multi-Modal**: Unified interface across images, text, audio, proteins, and more
 - **Extensible**: Easy to add new models, losses, and domain-specific constraints
-- **Well Tested**: Extensive test suite covering core functionality
+- **Actively Verified**: Blocking CI enforces repository contracts, packaging checks, and focused test suites
 
 ## Design Philosophy
 
@@ -57,11 +58,11 @@ Artifex prioritizes:
 
 ### Technical Principles
 
-- **Type Safety**: Protocol-based design with full type annotations
+- **Type Checking**: Pyright basic-mode reports track the supported source surface while repo-wide blocking enforcement is still being rebuilt
 - **JAX Native**: Leverages JAX's functional programming paradigm
 - **Flax NNX**: Modern object-oriented API for neural networks
 - **Configuration Management**: Frozen dataclass configs with validation
-- **Testing**: Test-driven development with comprehensive coverage
+- **Testing**: Blocking CI enforces repository contracts and a 70% repo-wide coverage floor while new changes target 80% coverage
 
 See [Design Philosophy](docs/development/philosophy.md) for detailed discussion.
 
@@ -94,18 +95,27 @@ See [Design Philosophy](docs/development/philosophy.md) for detailed discussion.
 - **Modular Losses**: Composable loss functions (reconstruction, adversarial, perceptual)
 - **Flexible Sampling**: Multiple sampling strategies (ancestral, MCMC, ODE/SDE)
 - **Extension System**: Domain-specific constraints and functionality
-- **Evaluation Framework**: Standardized metrics and benchmarks
+- **Evaluation Framework**: Standardized metrics and benchmarks with CalibraX-aligned composition
 
 ## Quick Start
 
 ### Installation
 
 ```bash
-# Clone the repository
+# Package users
+pip install artifex
+
+# Optional Linux NVIDIA GPU support
+pip install "artifex[cuda12]"
+```
+
+If you are contributing from a source checkout instead:
+
+```bash
 git clone https://github.com/avitai/artifex.git
 cd artifex
 
-# Run setup script (creates venv, installs dependencies, detects GPU)
+# Run setup script (creates .venv, syncs extras, chooses a backend policy)
 ./setup.sh
 
 # Activate the environment (must use 'source')
@@ -114,236 +124,156 @@ source ./activate.sh
 
 The setup script automatically:
 
-- Detects GPU/CUDA availability
+- Detects an appropriate backend policy
 - Creates a virtual environment with uv
-- Installs appropriate dependencies (CPU or GPU)
-- Configures environment variables
-- Creates the `activate.sh` script for future use
+- Syncs the right extras for CPU, CUDA 12, or Metal development
+- Writes a generated `.artifex.env` file and leaves `.env` for user-owned overrides
+- Re-sourcing `activate.sh` refreshes the managed backend state before applying user overrides
 
-For detailed setup options and GPU configuration, see the [Installation Guide](docs/getting-started/installation.md).
+For an explicit choice, use `./setup.sh --backend cpu`, `./setup.sh --backend cuda12`, or `./setup.sh --backend metal`.
 
-### Your First Model
+If you need to rebuild from scratch, use `./setup.sh --recreate`. If you also want to clear repo-local test and coverage artifacts without touching user-owned `.env` files, use `./setup.sh --force-clean`.
+
+For detailed package-user and source-checkout options, see the [Installation Guide](docs/getting-started/installation.md).
+
+### Start with the checked-in VAE quickstart
+
+The primary onboarding path is the live VAE quickstart under `docs/getting-started/quickstart.py` and `docs/getting-started/quickstart.ipynb`. It trains a VAE on MNIST with `TFDSEagerSource`, `VAETrainer`, and `train_epoch_staged`.
 
 ```python
-import jax
-from flax import nnx
+from datarax.sources import TFDSEagerSource
+from datarax.sources.tfds_source import TFDSEagerConfig
+from artifex.generative_models.core.configuration import DecoderConfig, EncoderConfig, VAEConfig
 from artifex.generative_models.models.vae import VAE
-from artifex.generative_models.core.configuration import (
-    VAEConfig,
-    EncoderConfig,
-    DecoderConfig,
-)
-
-# Create nested configuration using frozen dataclasses
-encoder_config = EncoderConfig(
-    name="encoder",
-    input_shape=(28, 28, 1),
-    latent_dim=64,
-    hidden_dims=(256, 128),
-    activation="relu",
-)
-
-decoder_config = DecoderConfig(
-    name="decoder",
-    output_shape=(28, 28, 1),
-    latent_dim=64,
-    hidden_dims=(128, 256),
-    activation="relu",
-)
-
-config = VAEConfig(
-    name="mnist_vae",
-    encoder=encoder_config,
-    decoder=decoder_config,
-    encoder_type="dense",  # Options: dense, cnn, resnet
-    kl_weight=1.0,
-)
-
-# Initialize model directly
-rngs = nnx.Rngs(0)
-model = VAE(config, rngs=rngs)
-
-# Forward pass
-batch = jax.random.normal(jax.random.key(0), (16, 28, 28, 1))
-outputs = model(batch)
-
-# Generate samples
-samples = model.sample(n_samples=16)
+from artifex.generative_models.training import train_epoch_staged
+from artifex.generative_models.training.trainers import VAETrainer, VAETrainingConfig
 ```
 
-See the [Quickstart Guide](docs/getting-started/quickstart.md) for more examples.
+From a source checkout, run the maintained quickstart pair directly:
+
+```bash
+uv run python docs/getting-started/quickstart.py
+uv run jupyter lab docs/getting-started/quickstart.ipynb
+```
+
+For the full walkthrough, see the [Quickstart Guide](docs/getting-started/quickstart.md).
 
 ## Documentation
 
-### Getting Started
+### Start Here
 
-- [Installation Guide](docs/getting-started/installation.md) - Setup instructions and requirements
-- [Quickstart Guide](docs/getting-started/quickstart.md) - Train your first model
-- [Core Concepts](docs/getting-started/core-concepts.md) - Architecture and design principles
+- [Installation Guide](docs/getting-started/installation.md) - Environment setup, backend policy, and package installation
+- [Quickstart Guide](docs/getting-started/quickstart.md) - VAE-first onboarding on MNIST
+- [Core Concepts](docs/getting-started/core-concepts.md) - Architecture, configuration, and runtime model
 
-### User Guides
+### User and API Guides
 
-- [Models Guide](docs/user-guide/models) - Detailed guides for each model type
-- [Data Pipeline](docs/user-guide/data) - Loading and preprocessing data
-- [Training Guide](docs/user-guide/training) - Training workflows and best practices
-- [Evaluation Guide](docs/benchmarks) - Metrics and benchmarking
+- [Examples Catalog](docs/examples/index.md) - Executable and documented example inventory
+- [Benchmarks](docs/benchmarks/index.md) - Evaluation suites and benchmark guidance
+- [Model Guides](docs/user-guide/models/vae-guide.md) - User-facing guides across model families
+- [Core API](docs/api/core/base.md) - Core runtime and protocol surfaces
+- [Models API](docs/api/models/vae.md) - Model-family API reference
+- [Training API](docs/api/training/trainer.md) - Training and optimization surfaces
 
-### API Reference
+### Contributor References
 
-- [Core API](docs/api/core) - Base classes and protocols
-- [Models API](docs/api/models) - Model implementations
-- [Training API](docs/api/training) - Trainers and optimization
-- [Data API](docs/api/data) - Datasets and loaders
-
-### Advanced Topics
-
-- [Scaling & Distribution](docs/scaling) - Multi-GPU/TPU training strategies
-- [Extensions System](docs/extensions) - Domain-specific functionality
-- [Fine-Tuning](docs/fine_tuning) - LoRA, prefix tuning, and adaptation
+- [Contributing Guide](CONTRIBUTING.md) - Setup, workflow, and contribution expectations
+- [Testing Guide](TESTING.md) - Supported pytest workflow and backend guidance
+- [Example Documentation Design](docs/development/example-documentation-design.md) - Reader-facing example standards
+- [Planned Modules](docs/roadmap/planned-modules.md) - Areas that remain intentionally unshipped or planned
 
 ## Architecture
 
-Artifex follows a modular, protocol-based architecture:
+Artifex keeps the public package surface relatively small at the top level and concentrates most runtime code under `artifex.generative_models`.
 
-```
+```text
 artifex/
-├── benchmarks/             # Evaluation framework and metrics
-├── cli/                    # Command-line interface
-├── configs/                # Configuration schemas and defaults
-├── data/                   # Data loading and preprocessing
-│   ├── augmentation/       # Data augmentation utilities
-│   ├── datasets/           # Dataset implementations (image, text, audio, video)
-│   ├── loaders/            # Data loading utilities
-│   ├── preprocessing/      # Preprocessing pipelines
-│   ├── protein/            # Protein-specific data handling
-│   └── tokenizers/         # Text tokenization
-├── generative_models/
-│   ├── core/               # Core abstractions
-│   │   ├── configuration/  # Frozen dataclass configs
-│   │   ├── distributions/  # Probability distributions
-│   │   ├── evaluation/     # Metrics and benchmarks
-│   │   ├── layers/         # Custom neural network layers
-│   │   ├── losses/         # Modular loss functions
-│   │   ├── protocols/      # Type-safe interfaces
-│   │   └── sampling/       # Sampling strategies
-│   ├── models/             # Model implementations
-│   │   ├── audio/          # Audio models (WaveNet)
-│   │   ├── autoregressive/ # Autoregressive models (PixelCNN, Transformer)
-│   │   ├── backbones/      # Shared architectures (UNet, DiT)
-│   │   ├── common/         # Shared model components
-│   │   ├── diffusion/      # Diffusion models (DDPM, DDIM, DiT)
-│   │   ├── energy/         # Energy-based models
-│   │   ├── flow/           # Normalizing flows (RealNVP, Glow, MAF)
-│   │   ├── gan/            # GAN variants (DCGAN, WGAN, StyleGAN)
-│   │   ├── geometric/      # Geometric models (point clouds, meshes)
-│   │   └── vae/            # VAE variants (VAE, β-VAE, VQ-VAE)
-│   ├── modalities/         # Multi-modal support
-│   │   ├── audio/          # Audio modality
-│   │   ├── image/          # Image modality
-│   │   ├── molecular/      # Molecular modality
-│   │   ├── multi_modal/    # Cross-modal generation
-│   │   ├── protein/        # Protein structure modality
-│   │   ├── tabular/        # Tabular data modality
-│   │   ├── text/           # Text modality
-│   │   └── timeseries/     # Time series modality
-│   ├── training/           # Training infrastructure
-│   │   ├── callbacks/      # Training callbacks
-│   │   ├── distributed/    # Distributed training utilities
-│   │   ├── optimizers/     # Custom optimizers
-│   │   ├── rl/             # Reinforcement learning trainers
-│   │   ├── schedulers/     # Learning rate schedulers
-│   │   └── trainers/       # Model-specific trainers
-│   ├── inference/          # Generation and serving
-│   ├── factory/            # Model creation utilities
-│   ├── extensions/         # Domain-specific extensions
-│   │   ├── audio_processing/
-│   │   ├── chemical/
-│   │   ├── nlp/
-│   │   ├── protein/
-│   │   └── vision/
-│   ├── fine_tuning/        # LoRA, adapters, RL
-│   ├── scaling/            # Distributed training
-│   ├── utils/              # Generative model utilities
-│   └── zoo/                # Pre-configured models
-├── utils/                  # Shared utilities
-└── visualization/          # Plotting and visualization
+├── src/artifex/
+│   ├── benchmarks/         # Benchmark foundations, adapters, datasets, and suites
+│   ├── cli/                # Supported `artifex` command-line entrypoint
+│   ├── configs/            # Checked-in config defaults and loader utilities
+│   ├── data/               # Shared data helpers and retained dataset surfaces
+│   ├── generative_models/
+│   │   ├── core/           # Configuration, protocols, losses, layers, sampling, evaluation
+│   │   ├── extensions/     # Audio, chemical, NLP, protein, and vision extensions
+│   │   ├── factory/        # Canonical model creation surface
+│   │   ├── inference/      # Inference and optimization helpers
+│   │   ├── modalities/     # Image, text, audio, protein, tabular, timeseries, multimodal
+│   │   ├── models/         # VAE, GAN, diffusion, flow, energy, autoregressive, geometric
+│   │   ├── scaling/        # Distributed and scaling helpers
+│   │   ├── training/       # Loops, callbacks, optimizers, schedulers, RL, trainers
+│   │   ├── utils/          # Logging, JAX helpers, visualization, analysis utilities
+│   │   └── zoo/            # Checked-in model zoo configs
+│   ├── utils/              # Shared package utilities
+│   └── visualization/      # Public visualization helpers
+├── docs/                   # User, API, and contributor documentation
+├── examples/               # Executable scripts and notebook pairs
+└── tests/                  # Package, integration, unit, and repo-contract coverage
 ```
 
-See [Architecture Overview](docs/core/architecture.md) for detailed information.
+See [Architecture Overview](docs/core/architecture.md) for more detail.
 
 ## Development
 
-### Running Tests
+### Verification workflow
 
 ```bash
-# Run all tests
-uv run pytest tests/ -v
+# Standard test suite
+uv run pytest
 
-# Run specific test suite
-uv run pytest tests/artifex/generative_models/models/vae/ -v
+# Focused contract checks
+uv run pytest tests/artifex/repo_contracts -q
 
-# Run with coverage
-uv run pytest --cov=src/artifex --cov-report=html
-
-# GPU-aware testing
-./scripts/smart_test_runner.sh tests/ -v
+# Docs validation
+uv run python scripts/validate_docs.py --check-only --config-path mkdocs.yml --docs-path docs --src-path src
 ```
 
-### Code Quality
+### Code quality
 
 ```bash
-# Run all quality checks
+# Run the repository hooks
 uv run pre-commit run --all-files
 
-# Individual checks
-uv run ruff check src/          # Linting
-uv run ruff format src/         # Formatting
-uv run pyright src/             # Type checking
+# Targeted quality tools
+uv run ruff check src tests
+uv run ruff format src tests
+uv run pyright
 ```
 
-See [Testing Guide](docs/development/testing.md) and [Contributing Guide](CONTRIBUTING.md) for more information.
+See [Testing Guide](TESTING.md) and [Contributing Guide](CONTRIBUTING.md) for the maintained contributor workflow.
 
-## Current Status
+## Project Status
 
-Artifex is undergoing a major refactoring effort. The library architecture is being restructured for better modularity and maintainability:
+Artifex is in active alpha development.
 
-- 🔄 Core model implementations (VAE, GAN, Diffusion, Flow, EBM, Autoregressive) - refactoring
-- 🔄 Multi-modal data pipeline - refactoring
-- 🔄 Unified configuration system - refactoring
-- 🔄 Test suite - being restructured
-- 🔄 Protocol-based architecture - refactoring
-- 🚧 Advanced scaling features (experimental)
-- 🚧 Benchmark suite (in progress)
-- 🚧 Documentation (outdated, being updated)
-- 📋 API stabilization (planned)
-- 📋 Performance optimizations (planned)
+- Checked-in installation, onboarding, example, and contributor guides are maintained against the live runtime.
+- Blocking CI enforces repository contracts and build verification.
+- Quality and security workflows remain reviewed but informational while broader release hardening continues.
+- Package surfaces can still evolve between commits when a simpler or more truthful runtime design requires it.
 
-See [Roadmap](docs/development/roadmap.md) for planned features and improvements.
+Use the [Installation Guide](docs/getting-started/installation.md), [Quickstart Guide](docs/getting-started/quickstart.md), [Testing Guide](TESTING.md), and [Planned Modules](docs/roadmap/planned-modules.md) as the current source of truth for supported workflows.
 
 ## Contributing
 
-We welcome contributions! Artifex is an open-source research project that benefits from community involvement.
+Artifex accepts contributions through the standard repository workflow.
 
-### How to Contribute
+1. Clone the repository and run `./setup.sh`.
+2. Activate the environment with `source ./activate.sh`.
+3. Create a feature branch for the change.
+4. Add or update tests and documentation with the code change.
+5. Run `uv run pytest` and `uv run pre-commit run --all-files`.
+6. Open a Pull Request.
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes with tests
-4. Run quality checks (`pre-commit run --all-files`)
-5. Commit your changes (`git commit -m 'Add amazing feature'`)
-6. Push to the branch (`git push origin feature/amazing-feature`)
-7. Open a Pull Request
-
-See [Contributing Guide](CONTRIBUTING.md) for detailed guidelines.
+See the [Contributing Guide](CONTRIBUTING.md) for the full contributor checklist and coding expectations.
 
 ## Citation
 
-If you use Artifex in your research, please cite:
+If you use Artifex in research, please cite:
 
 ```bibtex
 @software{artifex_2025,
-  title = {Artifex: A Modular Generative Modeling Library},
-  author = {Shafiei, Mahdi},
+  title = {Artifex: Generative Modeling Research Library},
+  author = {Shafiei, Mahdi and contributors},
   year = {2025},
   url = {https://github.com/avitai/artifex},
   version = {0.1.0}
@@ -356,13 +286,15 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments
 
-Artifex is built on excellent open-source projects:
+Artifex builds on several strong open-source projects:
 
-- [JAX](https://github.com/google/jax) - High-performance numerical computing
-- [Flax](https://github.com/google/flax) - Neural network library
-- [Optax](https://github.com/deepmind/optax) - Optimization library
+- [JAX](https://github.com/google/jax) - Numerical computing and transformations
+- [Flax](https://github.com/google/flax) - Neural network modules with NNX support
+- [Optax](https://github.com/deepmind/optax) - Optimization utilities
 - [Orbax](https://github.com/google/orbax) - Checkpointing
-- [BlackJAX](https://github.com/blackjax-devs/blackjax) - MCMC sampling
+- [BlackJAX](https://github.com/blackjax-devs/blackjax) - MCMC and energy-based sampling
+- [CalibraX](https://github.com/avitai/calibrax) - Evaluation and benchmark composition
+- [DataRax](https://github.com/avitai/datarax) - Dataset and source adapters used in onboarding workflows
 
 ---
 

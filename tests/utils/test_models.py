@@ -158,7 +158,7 @@ class SimpleNNXModel(nnx.Module):
 
         # Proper RNG handling following guidelines
         if rngs is not None and hasattr(rngs, "sample"):
-            sample_rng = rngs.sample.key.value
+            sample_rng = rngs.sample()
 
         # Generate samples based on configured input features
         if self.in_features == 2:
@@ -186,7 +186,7 @@ class SimpleNNXModel(nnx.Module):
         """
         sample_rng = jax.random.key(0)
         if rngs is not None and hasattr(rngs, "sample"):
-            sample_rng = rngs.sample.key.value
+            sample_rng = rngs.sample()
 
         x = jax.random.normal(sample_rng, (batch_size, self.in_features))
         return self.predict(x, rngs=rngs)
@@ -251,7 +251,7 @@ class SimpleModel(nnx.Module):
         # Use proper RNG handling
         sample_rng = rng_key if rng_key is not None else jax.random.PRNGKey(0)
         if rngs is not None and hasattr(rngs, "sample"):
-            sample_rng = rngs.sample.key.value
+            sample_rng = rngs.sample()
 
         # Generate random input and pass through model
         x = jax.random.normal(sample_rng, (batch_size, 10))
@@ -319,7 +319,7 @@ class MockProteinModel(nnx.Module):
         if rng_key is not None:
             key = rng_key
         elif rngs is not None and hasattr(rngs, "sample"):
-            key = rngs.sample.key.value
+            key = rngs.sample()
 
         # Generate random samples
         # Shape: [batch_size, num_residues, num_atoms, 3]

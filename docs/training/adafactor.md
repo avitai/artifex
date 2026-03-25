@@ -1,11 +1,11 @@
 # Adafactor
 
-**Module:** `generative_models.training.optimizers.adafactor`
+**Status:** `Coming soon`
 
-**Source:** `generative_models/training/optimizers/adafactor.py`
+**Planned module:** `artifex.generative_models.training.optimizers.adafactor`
 
-## Module Statistics
+**Current owner:** `artifex.generative_models.training.optimizers.factory`
 
-- **Classes:** 0
-- **Functions:** 0
-- **Imports:** 0
+`artifex.generative_models.training.optimizers.adafactor` is not shipped as a standalone runtime module today. Use the current owner above for the supported runtime surface until a dedicated module exists.
+
+See [Training Systems](index.md) for the current shared training docs.

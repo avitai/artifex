@@ -65,6 +65,8 @@ class MLPDecoder(nnx.Module):
             Reconstructed output
         """
         h = self.backbone(z)
+        if isinstance(h, tuple):
+            h = h[0]
         flat_output = self.output_layer(h)
 
         # Apply sigmoid to get values in [0, 1]
@@ -287,7 +289,7 @@ def create_decoder(
 
     Args:
         config: DecoderConfig with network architecture settings
-        decoder_type: Type of decoder (dense, cnn, resnet)
+        decoder_type: Type of decoder (dense, cnn, spatial)
         conditional: Whether to create conditional decoder
         num_classes: Number of classes for conditional decoder (one-hot dimension)
         rngs: Random number generators
@@ -315,7 +317,7 @@ def create_decoder(
     elif decoder_type == "cnn":
         decoder = CNNDecoder(config=config, rngs=rngs)
     elif decoder_type == "resnet":
-        decoder = ResNetDecoder(config=config, rngs=rngs)
+        raise ValueError('decoder_type="resnet" is not supported by the retained VAE surface')
     elif decoder_type == "spatial":
         from artifex.generative_models.models.vae.spatial_autoencoder import SpatialDecoder
 
@@ -325,6 +327,8 @@ def create_decoder(
 
     # Wrap in conditional decoder if needed
     if conditional:
+        if num_classes is None:
+            raise ValueError("num_classes is required when conditional=True")
         decoder = ConditionalDecoder(
             decoder=decoder,
             num_classes=num_classes,

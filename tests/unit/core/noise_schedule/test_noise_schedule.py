@@ -173,6 +173,17 @@ class TestLinearNoiseSchedule:
         expected_alphas = 1.0 - schedule.betas
         assert jnp.allclose(schedule.alphas, expected_alphas)
 
+    def test_extract_into_tensor_rejects_non_broadcastable_timestep_batch(self, config):
+        """Timestep extraction should fail on mismatched non-singleton batches."""
+        from artifex.generative_models.core.noise_schedule import LinearNoiseSchedule
+
+        schedule = LinearNoiseSchedule(config)
+        arr = jnp.arange(10, dtype=jnp.float32)
+        timesteps = jnp.array([1, 3], dtype=jnp.int32)
+
+        with pytest.raises(ValueError, match="timesteps batch"):
+            schedule._extract_into_tensor(arr, timesteps, (3, 2, 2))
+
 
 class TestCosineNoiseSchedule:
     """Tests for CosineNoiseSchedule."""

@@ -1,380 +1,104 @@
 # Data Modalities
 
-Modality-specific implementations for handling different data types in generative models, including adapters, evaluation metrics, and representation learning.
+The live Artifex modality registry currently exposes three runtime-backed
+modalities:
 
-## Overview
+- `image`
+- `molecular`
+- `protein`
 
-<div class="grid cards" markdown>
+This page documents that retained registry surface and then separates the
+family-scoped owner pages that still live under the shared `docs/modalities`
+folder.
 
-- :material-image:{ .lg .middle } **Image**
+## Registry-Backed Modalities
 
-    ---
+### Image
 
-    Convolutional architectures, FID/IS metrics, perceptual losses
-
-- :material-text:{ .lg .middle } **Text**
-
-    ---
-
-    Tokenization, transformers, perplexity metrics
-
-- :material-waveform:{ .lg .middle } **Audio**
-
-    ---
-
-    Spectrograms, MFCCs, audio quality metrics
-
-- :material-molecule:{ .lg .middle } **Protein**
-
-    ---
-
-    Sequence encoding, structure prediction, SE(3) equivariance
-
-</div>
-
-## Quick Start
-
-### Using Modalities
-
-```python
-from artifex.generative_models.modalities import get_modality
-
-# Get image modality handler
-image_modality = get_modality("image", rngs=rngs)
-
-# Get evaluation metrics
-evaluator = image_modality.get_evaluator()
-metrics = evaluator.evaluate(generated_images, real_images)
-
-# Get model adapter
-adapter = image_modality.get_adapter("vae")
-adapted_model = adapter.adapt(model, config)
-```
-
-## Image Modality
-
-Full support for image generation with specialized components.
-
-### Features
-
-- Convolutional encoder/decoder architectures
-- FID, Inception Score, LPIPS metrics
-- Image-specific augmentations
-- Perceptual losses with VGG features
-
-### Usage
-
-```python
-from artifex.generative_models.modalities.image import (
-    ImageModality,
-    ImageEvaluator,
-    ImageRepresentation,
-)
-
-# Create image modality
-modality = ImageModality(image_size=(256, 256), channels=3)
-
-# Evaluate generated images
-evaluator = ImageEvaluator()
-metrics = evaluator.evaluate(
-    generated=fake_images,
-    real=real_images,
-    metrics=["fid", "inception_score", "lpips"],
-)
-
-# Extract image representations
-repr_model = ImageRepresentation(pretrained="inception_v3")
-features = repr_model.extract(images)
-```
-
-### Modules
-
-| Module | Description |
-|--------|-------------|
-| [base](base.md) | Image modality base class |
-| [adapters](adapters.md) | Model adapters for images |
-| [datasets](datasets.md) | Image dataset utilities |
-| [evaluation](evaluation.md) | Image quality metrics |
-| [representations](representations.md) | Feature extraction |
+Use the registry-backed image modality for the default factory-ready example
+path across VAE, GAN, diffusion, and flow-family models.
 
 [:octicons-arrow-right-24: Image Modality Guide](../user-guide/modalities/image.md)
 
-## Text Modality
+### Molecular
 
-Support for text generation with language-specific components.
+Use the registry-backed molecular modality when you need typed chemical
+extension configuration and family-based adapter lookup.
 
-### Features
+[:octicons-arrow-right-24: Protein-Ligand Benchmark Example](../examples/protein/protein-ligand-benchmark-demo.md)
 
-- Multiple tokenization strategies (BPE, SentencePiece)
-- Transformer architectures
-- Perplexity and BLEU metrics
-- Language-specific preprocessing
+### Protein
 
-### Usage
-
-```python
-from artifex.generative_models.modalities.text import (
-    TextModality,
-    TextEvaluator,
-    TextRepresentation,
-)
-
-# Create text modality
-modality = TextModality(vocab_size=32000, max_length=512)
-
-# Evaluate generated text
-evaluator = TextEvaluator()
-metrics = evaluator.evaluate(
-    generated=generated_texts,
-    references=reference_texts,
-    metrics=["perplexity", "bleu", "rouge"],
-)
-
-# Extract text representations
-repr_model = TextRepresentation(model="bert-base")
-embeddings = repr_model.extract(texts)
-```
-
-### Modules
-
-| Module | Description |
-|--------|-------------|
-| [base](base.md) | Text modality base class |
-| [datasets](datasets.md) | Text dataset utilities |
-| [evaluation](evaluation.md) | Text quality metrics |
-| [representations](representations.md) | Text embeddings |
-
-[:octicons-arrow-right-24: Text Modality Guide](../user-guide/modalities/text.md)
-
-## Audio Modality
-
-Support for audio generation with signal processing components.
-
-### Features
-
-- Spectrogram representations (Mel, STFT)
-- Audio quality metrics (FAD, MOS prediction)
-- Time-frequency transformations
-- Audio-specific augmentations
-
-### Usage
-
-```python
-from artifex.generative_models.modalities.audio import (
-    AudioModality,
-    AudioEvaluator,
-    AudioRepresentation,
-)
-
-# Create audio modality
-modality = AudioModality(sample_rate=16000, n_mels=80)
-
-# Evaluate generated audio
-evaluator = AudioEvaluator()
-metrics = evaluator.evaluate(
-    generated=fake_audio,
-    real=real_audio,
-    metrics=["fad", "inception_score"],
-)
-
-# Extract audio representations
-repr_model = AudioRepresentation(model="vggish")
-features = repr_model.extract(audio)
-```
-
-### Modules
-
-| Module | Description |
-|--------|-------------|
-| [base](base.md) | Audio modality base class |
-| [datasets](datasets.md) | Audio dataset utilities |
-| [evaluation](evaluation.md) | Audio quality metrics |
-| [representations](representations.md) | Audio features |
-
-[:octicons-arrow-right-24: Audio Modality Guide](../user-guide/modalities/audio.md)
-
-## Protein Modality
-
-Support for protein structure generation with biological constraints.
-
-### Features
-
-- Amino acid sequence encoding
-- 3D structure representation
-- SE(3) equivariant operations
-- Structure quality metrics (RMSD, TM-score)
-
-### Usage
-
-```python
-from artifex.generative_models.modalities.protein import (
-    ProteinModality,
-    ProteinEvaluator,
-    ProteinRepresentation,
-)
-
-# Create protein modality
-modality = ProteinModality(max_length=256)
-
-# Evaluate generated structures
-evaluator = ProteinEvaluator()
-metrics = evaluator.evaluate(
-    generated=predicted_structures,
-    reference=native_structures,
-    metrics=["rmsd", "tm_score", "gdt_ts"],
-)
-
-# Extract protein representations
-repr_model = ProteinRepresentation(model="esm2")
-embeddings = repr_model.extract(sequences)
-```
-
-### Modules
-
-| Module | Description |
-|--------|-------------|
-| [adapters](adapters.md) | Model adapters for proteins |
-| [config](config.md) | Protein configuration |
-| [losses](losses.md) | Structure losses |
-| [modality](modality.md) | Protein modality class |
-| [utils](utils.md) | Protein utilities |
+Use the registry-backed protein modality when you need typed protein extension
+bundles and retained geometric or diffusion adapter lookup.
 
 [:octicons-arrow-right-24: Protein Modeling Guide](../guides/protein-modeling.md)
 
-## Multimodal
+## Quick Start
 
-Support for combining multiple modalities.
-
-### Features
-
-- Cross-modal attention
-- Joint embedding spaces
-- Multi-task learning
-- Modality alignment
-
-### Usage
+Use the registry-backed modality entrypoint:
 
 ```python
-from artifex.generative_models.modalities.multimodal import (
-    MultiModalModality,
-    MultiModalEvaluator,
-)
+from artifex.generative_models.modalities import get_modality, list_modalities
 
-# Create multimodal handler
-modality = MultiModalModality(
-    modalities=["image", "text"],
-)
+available = list_modalities()
+# ['image', 'molecular', 'protein']
 
-# Evaluate cross-modal generation
-evaluator = MultiModalEvaluator()
-metrics = evaluator.evaluate(
-    generated={"image": images, "text": captions},
-    real=real_data,
-)
+image_modality = get_modality('image', rngs=rngs)
+image_adapter = image_modality.get_adapter('vae')
+adapted_model = image_adapter.adapt(model, config)
 ```
 
-### Modules
+## Family-Scoped Owner Pages
 
-| Module | Description |
-|--------|-------------|
-| [adapters](adapters.md) | Cross-modal adapters |
-| [base](base.md) | Multimodal base class |
-| [datasets](datasets.md) | Multimodal datasets |
-| [evaluation](evaluation.md) | Cross-modal metrics |
-| [representations](representations.md) | Joint embeddings |
+The shared filenames in this catalog are not modality-generic.
 
-[:octicons-arrow-right-24: Multimodal Guide](../user-guide/modalities/multimodal.md)
+### Timeseries Helper Owners
 
-## Tabular Modality
+These pages document the retained timeseries helper package, which is not part
+of the shared registry-backed modality contract:
 
-Support for structured/tabular data generation.
+- [Timeseries Base](base.md)
+- [Timeseries Adapters](adapters.md)
+- [Timeseries Datasets](datasets.md)
+- [Timeseries Evaluation](evaluation.md)
+- [Timeseries Representations](representations.md)
 
-### Usage
+### Protein Owner Pages
 
-```python
-from artifex.generative_models.modalities.tabular import (
-    TabularModality,
-    TabularEvaluator,
-)
+These pages are protein-specific owners rather than shared modality categories:
 
-modality = TabularModality(
-    categorical_columns=["category", "type"],
-    continuous_columns=["value", "amount"],
-)
-```
+- [Protein Modality](modality.md)
+- [Protein Config](config.md)
+- [Protein Losses](losses.md)
+- [Protein Utils](utils.md)
 
-## Time Series Modality
-
-Support for temporal data generation.
-
-### Usage
-
-```python
-from artifex.generative_models.modalities.timeseries import (
-    TimeSeriesModality,
-    TimeSeriesEvaluator,
-)
-
-modality = TimeSeriesModality(
-    seq_length=100,
-    num_features=5,
-)
-```
-
-## Molecular Modality
-
-Support for molecular generation.
-
-### Usage
-
-```python
-from artifex.generative_models.modalities.molecular import (
-    MolecularModality,
-    MolecularAdapter,
-)
-
-modality = MolecularModality()
-adapter = modality.get_adapter("flow")
-```
+Image, text, audio, and multi-modal helper packages keep their own package-local docs.
+The shared owner pages above do not apply to them.
 
 ## Modality Registry
 
-Register and retrieve modalities:
+The registry is the authoritative surface for the retained modality set:
 
 ```python
 from artifex.generative_models.modalities import (
     get_modality,
-    register_modality,
     list_modalities,
+    register_modality,
 )
 
-# List available modalities
 available = list_modalities()
-# ['image', 'text', 'audio', 'protein', 'multimodal', 'tabular', 'timeseries', 'molecular']
+# ['image', 'molecular', 'protein']
 
-# Get modality by name
-modality = get_modality("image", rngs=rngs)
-
-# Register custom modality
-register_modality("custom", CustomModality)
+protein_modality = get_modality('protein', rngs=rngs)
+register_modality('custom', CustomModality)
 ```
 
-[:octicons-arrow-right-24: Registry](registry.md)
-
-## Module Reference
-
-| Modality | Modules |
-|----------|---------|
-| **Base** | [base](base.md), [registry](registry.md) |
-| **Image** | [adapters](adapters.md), [base](base.md), [datasets](datasets.md), [evaluation](evaluation.md), [representations](representations.md) |
-| **Text** | [base](base.md), [datasets](datasets.md), [evaluation](evaluation.md), [representations](representations.md) |
-| **Audio** | [base](base.md), [datasets](datasets.md), [evaluation](evaluation.md), [representations](representations.md) |
-| **Protein** | [adapters](adapters.md), [config](config.md), [losses](losses.md), [modality](modality.md), [utils](utils.md) |
-| **Multimodal** | [adapters](adapters.md), [base](base.md), [datasets](datasets.md), [evaluation](evaluation.md), [representations](representations.md) |
+[:octicons-arrow-right-24: Registry Owner](registry.md)
 
 ## Related Documentation
 
+- [Model Factory](../factory/index.md)
 - [Image Modality Guide](../user-guide/modalities/image.md)
-- [Text Modality Guide](../user-guide/modalities/text.md)
-- [Audio Modality Guide](../user-guide/modalities/audio.md)
-- [Multimodal Guide](../user-guide/modalities/multimodal.md)
+- [Protein Modeling Guide](../guides/protein-modeling.md)
+- [Protein-Ligand Benchmark Example](../examples/protein/protein-ligand-benchmark-demo.md)

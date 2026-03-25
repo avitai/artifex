@@ -1,14 +1,12 @@
 """Tests for the base loss module."""
 
+import importlib
+
 import jax.numpy as jnp
 import numpy as np
 import pytest
-from flax import nnx
 
-from artifex.generative_models.core.losses.base import (
-    LossCollection,
-    reduce_loss,
-)
+from artifex.generative_models.core.losses.base import reduce_loss
 
 
 class TestReduceLoss:
@@ -82,113 +80,15 @@ class TestReduceLoss:
             reduce_loss(loss, reduction="invalid")
 
 
-class TestLossCollection:
-    """Tests for the LossCollection class."""
+def test_base_module_only_exposes_reduce_loss_contract() -> None:
+    """The base loss module should not keep dead management helpers around."""
+    base_module = importlib.import_module("artifex.generative_models.core.losses.base")
 
-    def test_empty_collection(self):
-        """Test an empty loss collection."""
-        collection = LossCollection()
-        assert len(collection.losses) == 0
-
-    def test_add_loss(self):
-        """Test adding losses to the collection."""
-        collection = LossCollection()
-
-        def loss_fn(p, t):
-            return jnp.mean(jnp.square(p - t))
-
-        # Test method chaining
-        result = collection.add(loss_fn, weight=2.0, name="loss1")
-        assert result is collection
-        assert len(collection.losses) == 1
-        assert collection.losses[0][0] is loss_fn
-        assert collection.losses[0][1] == 2.0
-        assert collection.losses[0][2] == "loss1"
-
-        # Add another loss
-        collection.add(loss_fn, weight=0.5)
-        assert len(collection.losses) == 2
-        assert collection.losses[1][0] is loss_fn
-        assert collection.losses[1][1] == 0.5
-        assert collection.losses[1][2] == "loss_1"  # Auto-generated name
-
-    def test_call(self):
-        """Test calling the loss collection."""
-        collection = LossCollection()
-
-        # Define simple loss functions
-        def loss1(p, t):
-            return jnp.sum(jnp.square(p - t))
-
-        def loss2(p, t):
-            return jnp.sum(jnp.abs(p - t))
-
-        # Add losses to collection
-        collection.add(loss1, weight=2.0, name="l2")
-        collection.add(loss2, weight=0.5, name="l1")
-
-        # Test calling the collection
-        predictions = jnp.array([1.0, 2.0])
-        targets = jnp.array([0.0, 0.0])
-
-        total_loss, loss_dict = collection(predictions, targets)
-
-        # Expected values
-        expected_l2 = jnp.sum(jnp.square(predictions - targets))  # 5.0
-        expected_l1 = jnp.sum(jnp.abs(predictions - targets))  # 3.0
-        # Final calculation: 2*5.0 + 0.5*3.0 = 10.0 + 1.5 = 11.5
-        expected_total = 2.0 * expected_l2 + 0.5 * expected_l1
-
-        # Verify results
-        np.testing.assert_allclose(loss_dict["l2"], expected_l2)
-        np.testing.assert_allclose(loss_dict["l1"], expected_l1)
-        np.testing.assert_allclose(total_loss, expected_total)
-
-    def test_call_with_kwargs(self):
-        """Test calling collection with additional keyword arguments."""
-        collection = LossCollection()
-
-        # Define a loss function that takes additional kwargs
-        def loss_with_kwargs(p, t, scale=1.0):
-            return scale * jnp.sum(jnp.square(p - t))
-
-        collection.add(loss_with_kwargs, weight=1.0, name="loss")
-
-        # Test calling the collection with kwargs
-        predictions = jnp.array([1.0, 2.0])
-        targets = jnp.array([0.0, 0.0])
-
-        total_loss, loss_dict = collection(predictions, targets, scale=2.0)
-
-        # Expected value: 2.0 * (1^2 + 2^2) = 2.0 * 5.0 = 10.0
-        expected = 2.0 * jnp.sum(jnp.square(predictions - targets))
-
-        np.testing.assert_allclose(loss_dict["loss"], expected)
-        np.testing.assert_allclose(total_loss, expected)
-
-    def test_jit_compatibility(self):
-        """Test that collection is compatible with JAX transformations."""
-        collection = LossCollection()
-
-        # Define a simple loss function
-        def mse_loss(p, t):
-            return jnp.mean(jnp.square(p - t))
-
-        collection.add(mse_loss, weight=1.0)
-
-        # Create a jitted version
-        @nnx.jit
-        def jitted_loss(p, t):
-            return collection(p, t)[0]  # Return only total_loss
-
-        # Test with some data
-        predictions = jnp.array([1.0, 2.0, 3.0])
-        targets = jnp.array([0.0, 0.0, 0.0])
-
-        # Run the jitted function (should compile without errors)
-        result = jitted_loss(predictions, targets)
-
-        # Expected: mean((1^2 + 2^2 + 3^2) / 3) = 14/3
-        expected = jnp.mean(jnp.square(predictions - targets))
-
-        np.testing.assert_allclose(result, expected)
+    assert hasattr(base_module, "reduce_loss")
+    assert not hasattr(base_module, "LossCollection")
+    assert not hasattr(base_module, "LossMetrics")
+    assert not hasattr(base_module, "LossScheduler")
+    assert not hasattr(base_module, "LossRegistry")
+    assert not hasattr(base_module, "validate_loss_inputs")
+    assert not hasattr(base_module, "safe_log")
+    assert not hasattr(base_module, "safe_divide")

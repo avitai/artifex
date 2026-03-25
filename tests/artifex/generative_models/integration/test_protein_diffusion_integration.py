@@ -9,9 +9,9 @@ import pytest
 from flax import nnx
 
 from artifex.generative_models.core.configuration import (
-    ProteinConstraintConfig,
     ProteinDihedralConfig,
     ProteinExtensionConfig,
+    ProteinExtensionsConfig,
     ProteinPointCloudConfig,
 )
 from artifex.generative_models.core.configuration.geometric_config import (
@@ -28,9 +28,7 @@ from artifex.generative_models.models.geometric.point_cloud import (
 from artifex.generative_models.models.geometric.protein_point_cloud import (
     ProteinPointCloudModel,
 )
-from artifex.generative_models.utils.visualization.protein import (
-    ProteinVisualizer,
-)
+from artifex.visualization.protein_viz import ProteinVisualizer
 
 
 @pytest.fixture
@@ -52,11 +50,18 @@ def protein_config():
         dropout_rate=0.1,
         activation="gelu",
     )
-    constraint_config = ProteinConstraintConfig(
-        backbone_weight=1.0,
-        bond_weight=1.0,
-        angle_weight=0.5,
-        dihedral_weight=0.3,
+    extensions = ProteinExtensionsConfig(
+        name="protein_extensions",
+        backbone=ProteinExtensionConfig(
+            name="backbone_constraint",
+            weight=1.0,
+            bond_length_weight=1.0,
+            bond_angle_weight=0.5,
+        ),
+        dihedral=ProteinDihedralConfig(
+            name="dihedral_constraint",
+            weight=0.3,
+        ),
     )
     return ProteinPointCloudConfig(
         name="test_protein_point_cloud",
@@ -66,8 +71,7 @@ def protein_config():
         num_residues=10,
         num_atoms_per_residue=4,
         backbone_indices=(0, 1, 2, 3),
-        use_constraints=True,
-        constraint_config=constraint_config,
+        extensions=extensions,
     )
 
 
@@ -127,23 +131,26 @@ class TestProteinDiffusionIntegration:
 
     def test_constraint_model_integration(self, rng, protein_config, point_cloud_config):
         """Test integration of constraints with point cloud model."""
-        # Get constraint config from protein config
-        constraint_cfg = protein_config.constraint_config or ProteinConstraintConfig()
+        assert protein_config.extensions is not None
+        backbone_cfg = protein_config.extensions.backbone
+        dihedral_cfg = protein_config.extensions.dihedral
+        assert backbone_cfg is not None
+        assert dihedral_cfg is not None
 
         backbone_config = ProteinExtensionConfig(
             name="backbone_constraint",
-            weight=constraint_cfg.bond_weight,
+            weight=backbone_cfg.weight,
             enabled=True,
-            bond_length_weight=constraint_cfg.bond_weight,
-            bond_angle_weight=constraint_cfg.angle_weight,
+            bond_length_weight=backbone_cfg.bond_length_weight,
+            bond_angle_weight=backbone_cfg.bond_angle_weight,
         )
 
         dihedral_config = ProteinDihedralConfig(
             name="dihedral_constraint",
-            weight=constraint_cfg.dihedral_weight,
+            weight=dihedral_cfg.weight,
             enabled=True,
-            phi_weight=constraint_cfg.phi_weight,
-            psi_weight=constraint_cfg.psi_weight,
+            phi_weight=dihedral_cfg.phi_weight,
+            psi_weight=dihedral_cfg.psi_weight,
         )
 
         # Create constraint extensions (wrap in nnx.Dict for Flax NNX 0.12.0+)
@@ -198,24 +205,27 @@ class TestProteinDiffusionIntegration:
 
     def test_base_model_with_extensions(self, rng, protein_config, point_cloud_config, model_input):
         """Test base model with protein extensions."""
-        # Get constraint config from protein config
-        constraint_cfg = protein_config.constraint_config or ProteinConstraintConfig()
+        assert protein_config.extensions is not None
+        backbone_cfg = protein_config.extensions.backbone
+        dihedral_cfg = protein_config.extensions.dihedral
+        assert backbone_cfg is not None
+        assert dihedral_cfg is not None
 
         # Create extension configs using frozen dataclass configs
         backbone_config = ProteinExtensionConfig(
             name="backbone_constraint",
-            weight=constraint_cfg.bond_weight,
+            weight=backbone_cfg.weight,
             enabled=True,
-            bond_length_weight=constraint_cfg.bond_weight,
-            bond_angle_weight=constraint_cfg.angle_weight,
+            bond_length_weight=backbone_cfg.bond_length_weight,
+            bond_angle_weight=backbone_cfg.bond_angle_weight,
         )
 
         dihedral_config = ProteinDihedralConfig(
             name="dihedral_constraint",
-            weight=constraint_cfg.dihedral_weight,
+            weight=dihedral_cfg.weight,
             enabled=True,
-            phi_weight=constraint_cfg.phi_weight,
-            psi_weight=constraint_cfg.psi_weight,
+            phi_weight=dihedral_cfg.phi_weight,
+            psi_weight=dihedral_cfg.psi_weight,
         )
 
         # Create constraint extensions (wrap in nnx.Dict for Flax NNX 0.12.0+)
@@ -249,8 +259,6 @@ class TestProteinDiffusionIntegration:
 
     def test_loss_function_integration(self, rng, protein_config, model_input):
         """Test loss function integration with extensions."""
-        # Skip due to shape broadcasting issues
-        pytest.skip("Skipped due to shape broadcasting issues between (2, 40, 3) and (2, 10, 4, 3)")
 
         # Create protein model
         model = ProteinPointCloudModel(protein_config, rngs=nnx.Rngs(params=rng))
@@ -267,8 +275,8 @@ class TestProteinDiffusionIntegration:
         # Verify loss dictionary
         assert "total_loss" in loss_dict
         assert "mse_loss" in loss_dict
-        # Check for extension losses
-        assert any(key.startswith("protein") for key in loss_dict.keys())
+        assert "backbone" in loss_dict
+        assert "dihedral" in loss_dict
 
     def test_protein_model_sample(self, rng, protein_config):
         """Test sampling from protein model."""
@@ -343,8 +351,6 @@ class TestProteinDiffusionIntegration:
 
     def test_end_to_end_pipeline(self, rng, protein_config, model_input):
         """Test end-to-end protein diffusion pipeline."""
-        # Skip due to shape broadcasting issues
-        pytest.skip("Skipped due to shape broadcasting issues between (2, 40, 3) and (2, 10, 4, 3)")
 
         # Create model
         model = ProteinPointCloudModel(protein_config, rngs=nnx.Rngs(params=rng))
@@ -372,6 +378,6 @@ class TestProteinDiffusionIntegration:
 
         # Verify sample shapes
         assert samples.shape[0] == 2  # Batch dimension
-        assert samples.shape[1] == protein_config.metadata["num_residues"]  # Residues
-        assert samples.shape[2] == protein_config.metadata["num_atoms"]  # Atoms per residue
+        assert samples.shape[1] == protein_config.num_residues  # Residues
+        assert samples.shape[2] == protein_config.num_atoms_per_residue  # Atoms per residue
         assert samples.shape[3] == 3  # 3D coordinates

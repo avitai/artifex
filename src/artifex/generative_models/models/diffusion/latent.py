@@ -12,6 +12,7 @@ For 2D backbones, flat latent codes are automatically reshaped to spatial format
 """
 
 import math
+from dataclasses import replace
 
 import jax
 import jax.numpy as jnp
@@ -231,14 +232,18 @@ class LDMModel(DDPMModel):
             self.latent_dim, expected_channels
         )
 
+        latent_input_shape = (
+            self._latent_spatial_shape if self._uses_spatial_backbone else (self.latent_dim,)
+        )
+
         # Create encoder and decoder from nested configs
         self.encoder = MLPEncoder(config=config.encoder, rngs=rngs)
         self.decoder = MLPDecoder(config=config.decoder, rngs=rngs)
         self.use_pretrained_vae = False
 
         # Initialize parent DDPM model - operates in latent space
-        # The parent will use config.backbone for the UNet
-        super().__init__(config, rngs=rngs)
+        # The parent must validate against latent-space shapes, not the original image shape.
+        super().__init__(replace(config, input_shape=latent_input_shape), rngs=rngs)
 
         # Override input_dim for latent space operations
         # For spatial backbones, use spatial shape; otherwise use flat
@@ -427,7 +432,7 @@ class LDMModel(DDPMModel):
         # Apply diffusion in latent space
         if t is None:
             batch_size = x.shape[0]
-            t = jax.random.randint(rngs.time(), (batch_size,), 0, self.noise_steps)
+            t = jax.random.randint(rngs.timestep(), (batch_size,), 0, self.noise_steps)
 
         # Forward diffusion (uses self.rngs internally)
         z_noisy, noise = self.forward_diffusion(z, t)
@@ -440,9 +445,9 @@ class LDMModel(DDPMModel):
         x_recon = self.decode(z_recon / self.scale_factor)
 
         return {
-            "reconstruction": x_recon,
+            "reconstructed": x_recon,
             "mean": mean,
-            "logvar": logvar,
+            "log_var": logvar,
             "latent": z,
             "noisy_latent": z_noisy,
             "predicted_noise": predicted_noise,
@@ -532,7 +537,7 @@ class LDMModel(DDPMModel):
 
         # KL divergence loss
         kl_loss = -0.5 * jnp.mean(
-            1 + outputs["logvar"] - outputs["mean"] ** 2 - jnp.exp(outputs["logvar"])
+            1 + outputs["log_var"] - outputs["mean"] ** 2 - jnp.exp(outputs["log_var"])
         )
 
         # Total loss

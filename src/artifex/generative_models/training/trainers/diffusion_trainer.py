@@ -15,8 +15,9 @@ References:
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable, Literal
+from typing import Any, Literal
 
 import jax
 import jax.numpy as jnp
@@ -371,21 +372,23 @@ class DiffusionTrainer:
 
     def create_loss_fn(
         self,
-    ) -> Callable[[nnx.Module, dict[str, Any], jax.Array], tuple[jax.Array, dict[str, Any]]]:
-        """Create loss function compatible with base Trainer.
-
-        This enables integration with the base Trainer for callbacks,
-        checkpointing, logging, and other training infrastructure.
+    ) -> Callable[
+        [nnx.Module, dict[str, Any], jax.Array, jax.Array],
+        tuple[jax.Array, dict[str, Any]],
+    ]:
+        """Create a step-aware objective closure for shared training infrastructure.
 
         Returns:
-            Function with signature: (model, batch, rng) -> (loss, metrics)
+            Function with signature: (model, batch, rng, step) -> (loss, metrics)
         """
 
         def loss_fn(
             model: nnx.Module,
             batch: dict[str, Any],
             rng: jax.Array,
+            _step: jax.Array,
         ) -> tuple[jax.Array, dict[str, Any]]:
+            del _step
             return self.compute_loss(model, batch, rng)
 
         return loss_fn

@@ -1,8 +1,5 @@
 # Protein Extensions API
 
-!!! info "Coming Soon"
-    This page is under development. Check back for protein extensions API documentation.
-
 ## Overview
 
 API reference for protein modeling extensions.

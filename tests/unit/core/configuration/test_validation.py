@@ -236,18 +236,3 @@ class TestValidationUtilitiesIntegration:
         validate_probability(0.5, "field")
         validate_learning_rate(0.001)
         validate_activation("relu")
-
-
-class TestValidationCoverage:
-    """Meta-test to ensure we achieve 80%+ coverage."""
-
-    def test_coverage_reminder(self):
-        """Reminder that we need 80%+ coverage for validation utilities.
-
-        All validation functions must be tested with:
-        - Valid inputs (positive tests)
-        - Invalid inputs (negative tests)
-        - Edge cases (0, negative, empty, etc.)
-        - Error messages (field names, suggestions)
-        """
-        assert True

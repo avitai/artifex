@@ -1,28 +1,46 @@
 #!/usr/bin/env python
+# ---
+# jupyter:
+#   jupytext:
+#     formats: py:percent,ipynb
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+# ---
+
+# %%
 """Run benchmarks on protein models and establish baseline metrics.
 
 This script applies the benchmark suite to protein models and generates
 visualization outputs.
 """
 
+# %%
 import argparse
 import os
 
+# %%
 import flax.nnx as nnx
 import jax
 import matplotlib.pyplot as plt
 
+# %%
 from artifex.benchmarks.datasets.protein_dataset import (
     create_synthetic_protein_dataset,
 )
 from artifex.benchmarks.suites.protein_benchmarks import ProteinBenchmarkSuite
 from artifex.generative_models.core.configuration import (
     PointCloudNetworkConfig,
+    ProteinDihedralConfig,
+    ProteinExtensionConfig,
+    ProteinExtensionsConfig,
     ProteinPointCloudConfig,
 )
 from artifex.generative_models.models.geometric.protein_point_cloud import ProteinPointCloudModel
 
 
+# %%
 def parse_args():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description="Run benchmarks on protein generative models")
@@ -51,6 +69,7 @@ def parse_args():
     return parser.parse_args()
 
 
+# %%
 def create_test_model(config, seed=42):
     """Create a test protein model for benchmarking.
 
@@ -75,6 +94,20 @@ def create_test_model(config, seed=42):
         dropout_rate=config.get("dropout", 0.1),
     )
 
+    extensions = ProteinExtensionsConfig(
+        name="protein_extensions",
+        backbone=ProteinExtensionConfig(
+            name="backbone",
+            weight=config.get("backbone_weight", 1.0),
+            bond_length_weight=config.get("bond_weight", 1.0),
+            bond_angle_weight=config.get("angle_weight", 0.5),
+        ),
+        dihedral=ProteinDihedralConfig(
+            name="dihedral",
+            weight=config.get("dihedral_weight", 0.3),
+        ),
+    )
+
     # Create ProteinPointCloudConfig with proper nested config
     model_config = ProteinPointCloudConfig(
         name=f"protein_model_{config.get('model_variant', 'base')}",
@@ -83,7 +116,7 @@ def create_test_model(config, seed=42):
         num_residues=config["num_residues"],
         num_atoms_per_residue=config["num_atoms"],
         backbone_indices=tuple(config["backbone_indices"]),
-        use_constraints=config.get("use_constraints", True),
+        extensions=extensions,
         dropout_rate=config.get("dropout", 0.1),
     )
 
@@ -96,6 +129,7 @@ def create_test_model(config, seed=42):
     return model
 
 
+# %%
 def main():
     """Run the protein model benchmarks."""
     # Parse command line arguments
@@ -129,6 +163,7 @@ def main():
             "num_atoms": 4,
             "seed": seed,
             "batch_size": 32,
+            "demo_mode": True,
         },
     )
 
@@ -143,7 +178,6 @@ def main():
             "num_residues": 10,
             "num_atoms": 4,
             "backbone_indices": [0, 1, 2, 3],
-            "use_constraints": True,
             "embed_dim": 64,
             "num_layers": 3,
             "num_heads": 4,
@@ -154,7 +188,6 @@ def main():
             "num_residues": 10,
             "num_atoms": 4,
             "backbone_indices": [0, 1, 2, 3],
-            "use_constraints": True,
             "embed_dim": 128,
             "num_layers": 6,
             "num_heads": 8,
@@ -163,7 +196,11 @@ def main():
     ]
 
     # Initialize the benchmark suite
-    benchmark_suite = ProteinBenchmarkSuite(num_samples=args.num_samples, random_seed=seed)
+    benchmark_suite = ProteinBenchmarkSuite(
+        num_samples=args.num_samples,
+        random_seed=seed,
+        demo_mode=True,
+    )
 
     # Run benchmarks for each model configuration
     for config in model_configs:
@@ -230,5 +267,6 @@ def main():
     print("Benchmark completed successfully")
 
 
+# %%
 if __name__ == "__main__":
     main()

@@ -1,20 +1,22 @@
 """Benchmarks for generative models.
 
-This package provides a comprehensive benchmark system for evaluating
-generative models across different modalities and tasks.
+This package provides benchmark systems for evaluating generative models
+across different modalities and tasks.
 """
 
 import flax.nnx as nnx
 
-from artifex.benchmarks.base import (
+from artifex.benchmarks.core import (
     Benchmark,
     BenchmarkConfig,
     BenchmarkResult,
+    BenchmarkRunner,
     BenchmarkSuite,
+    PerformanceTracker,
 )
 from artifex.benchmarks.model_adapters import (
     adapt_model,
-    BenchmarkModelAdapter,
+    NNXGenerativeModelAdapter,
     register_adapter,
 )
 from artifex.benchmarks.registry import (
@@ -36,20 +38,24 @@ from artifex.benchmarks.suites.protein_ligand_suite import (
     ProteinLigandCoDesignBenchmark,
 )
 from artifex.generative_models.core.protocols.evaluation import (
+    BatchableDatasetProtocol,
+    BenchmarkModelProtocol,
     DatasetProtocol,
-    ModelProtocol,
 )
 
 
 __all__ = [
     "Benchmark",
     "BenchmarkConfig",
+    "BenchmarkModelProtocol",
     "BenchmarkResult",
+    "BenchmarkRunner",
     "BenchmarkSuite",
+    "PerformanceTracker",
+    "BatchableDatasetProtocol",
     "DatasetProtocol",
-    "ModelProtocol",
     "BenchmarkRegistry",
-    "BenchmarkModelAdapter",
+    "NNXGenerativeModelAdapter",
     "adapt_model",
     "register_adapter",
     "get_benchmark",
@@ -71,49 +77,22 @@ def create_benchmark_suite(
     *,
     rngs: nnx.Rngs,
 ) -> GeometricBenchmarkSuite | ProteinLigandBenchmarkSuite | MultiBetaVAEBenchmarkSuite:
-    """Create a benchmark suite of the specified type.
-
-    Args:
-        suite_type: Type of benchmark suite to create
-        config: Configuration for the benchmark suite
-        rngs: Random number generator keys
-
-    Returns:
-        Benchmark suite instance
-
-    Raises:
-        ValueError: If the specified suite type is not recognized
-    """
+    """Create a benchmark suite of the specified type."""
     if config is None:
         config = {}
 
     if suite_type == "geometric":
         return GeometricBenchmarkSuite(config=config, rngs=rngs)
-    elif suite_type == "protein_ligand":
+    if suite_type == "protein_ligand":
         return ProteinLigandBenchmarkSuite(
             dataset_config=config.get("dataset_config"),
             benchmark_config=config.get("benchmark_config"),
             rngs=rngs,
         )
-    elif suite_type == "multi_beta_vae":
+    if suite_type == "multi_beta_vae":
         return MultiBetaVAEBenchmarkSuite(
             dataset_config=config.get("dataset_config"),
             benchmark_config=config.get("benchmark_config"),
             rngs=rngs,
         )
-    else:
-        raise ValueError(f"Unknown benchmark suite type: {suite_type}")
-
-
-# Register built-in benchmarks
-def _register_builtin_benchmarks():
-    """Register built-in benchmarks with the registry."""
-    _ = BenchmarkRegistry()
-
-    # Register any built-in benchmarks here
-    # This is just a placeholder for now
-    pass
-
-
-# Initialize registry with built-in benchmarks
-_register_builtin_benchmarks()
+    raise ValueError(f"Unknown benchmark suite type: {suite_type}")

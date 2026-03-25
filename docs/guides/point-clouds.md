@@ -1,11 +1,8 @@
 # Point Clouds Guide
 
-!!! info "Coming Soon"
-    This guide is being developed. Check back for comprehensive point cloud documentation.
-
 ## Overview
 
-Learn about point cloud processing in Artifex:
+Learn about point cloud processing in Artifex. Point cloud support is implemented in `models.geometric.point_cloud` and `models.geometric.protein_point_cloud`.
 
 - Point cloud representation
 - PointNet and PointNet++ architectures

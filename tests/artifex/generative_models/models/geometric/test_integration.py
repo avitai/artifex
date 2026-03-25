@@ -59,7 +59,6 @@ def mesh_model():
         name="test_mesh",
         network=network,
         num_vertices=64,
-        num_faces=128,
         vertex_dim=3,
     )
     rngs = nnx.Rngs(params=jax.random.key(1))

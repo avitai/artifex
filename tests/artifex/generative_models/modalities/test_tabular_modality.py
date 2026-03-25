@@ -1,8 +1,11 @@
 """Tests for the tabular modality implementation."""
 
+import dataclasses
+
 import jax
 import jax.numpy as jnp
 import pytest
+from datarax.sources import MemorySource
 from flax import nnx
 
 from artifex.generative_models.core.evaluation.metrics.statistical import (
@@ -11,11 +14,12 @@ from artifex.generative_models.core.evaluation.metrics.statistical import (
 )
 from artifex.generative_models.modalities.tabular import (
     CategoricalEncoder,
+    compute_feature_statistics,
     compute_tabular_metrics,
     create_simple_tabular_dataset,
     create_synthetic_tabular_dataset,
+    generate_synthetic_tabular_data,
     NumericalProcessor,
-    SyntheticTabularDataset,
     TabularEvaluationSuite,
     TabularModality,
     TabularModalityConfig,
@@ -65,10 +69,27 @@ class TestTabularModalityConfig:
     def test_config_initialization(self, simple_config):
         """Test basic configuration initialization."""
         assert simple_config.num_features == 5
-        assert len(simple_config.numerical_features) == 2
-        assert len(simple_config.categorical_features) == 1
-        assert len(simple_config.ordinal_features) == 1
-        assert len(simple_config.binary_features) == 1
+        assert simple_config.numerical_features == ("age", "income")
+        assert simple_config.categorical_features == ("category",)
+        assert simple_config.ordinal_features == ("education",)
+        assert simple_config.binary_features == ("is_member",)
+
+    def test_config_is_frozen_and_supports_from_dict(self):
+        """Tabular runtime config should use the frozen typed config standard."""
+        config = TabularModalityConfig.from_dict(
+            {
+                "name": "tabular_runtime",
+                "num_features": 2,
+                "numerical_features": ["age"],
+                "binary_features": ["member"],
+            }
+        )
+
+        assert config.numerical_features == ("age",)
+        assert config.binary_features == ("member",)
+
+        with pytest.raises(dataclasses.FrozenInstanceError):
+            config.num_features = 3
 
     def test_config_validation(self):
         """Test configuration validation."""
@@ -134,6 +155,15 @@ class TestTabularModality:
         modality = TabularModality(config=simple_config, rngs=rngs)
         assert modality.config.num_features == 5
         assert isinstance(modality.rngs, nnx.Rngs)
+
+    def test_modality_requires_typed_config(self, rngs):
+        """The retained public constructor should require TabularModalityConfig."""
+        with pytest.raises(TypeError, match="unexpected keyword argument"):
+            TabularModality(
+                categorical_columns=("category",),
+                continuous_columns=("age",),
+                rngs=rngs,
+            )
 
     def test_get_feature_info(self, simple_config, rngs):
         """Test getting feature information."""
@@ -389,59 +419,42 @@ class TestTabularProcessor:
 
 
 class TestSyntheticTabularDataset:
-    """Test SyntheticTabularDataset."""
+    """Test synthetic tabular data generation and MemorySource wrapping."""
 
-    def test_dataset_initialization(self, simple_config, rngs):
-        """Test synthetic dataset initialization."""
-        dataset = SyntheticTabularDataset(
-            config=simple_config,
-            num_samples=100,
-            rngs=rngs,
-        )
-        assert len(dataset) == 100
-        assert set(dataset.data.keys()) == set(
-            ["age", "income", "category", "education", "is_member"]
-        )
+    def test_pure_generation(self, simple_config):
+        """Test pure data generation function."""
+        data = generate_synthetic_tabular_data(simple_config, num_samples=100)
+        assert set(data.keys()) == {"age", "income", "category", "education", "is_member"}
+        for arr in data.values():
+            assert arr.shape[0] == 100
 
-    def test_dataset_get_item(self, simple_config, rngs):
+    def test_dataset_via_factory(self, rngs):
+        """Test dataset creation via factory returns MemorySource."""
+        source, config = create_simple_tabular_dataset(num_samples=100, rngs=rngs)
+        assert isinstance(source, MemorySource)
+        assert len(source) == 100
+
+    def test_dataset_get_item(self, rngs):
         """Test getting individual samples."""
-        dataset = SyntheticTabularDataset(
-            config=simple_config,
-            num_samples=10,
-            rngs=rngs,
-        )
+        source, _ = create_simple_tabular_dataset(num_samples=10, rngs=rngs)
+        sample = source[0]
+        assert "age" in sample
+        assert "income" in sample
+        assert "category" in sample
+        assert sample["age"].shape == ()  # Scalar
 
-        sample = dataset[0]
-        assert set(sample.keys()) == set(dataset.data.keys())
-        for feature_name in sample.keys():
-            assert sample[feature_name].shape == ()  # Scalar
-
-    def test_dataset_get_batch(self, simple_config, rngs):
+    def test_dataset_get_batch(self, rngs):
         """Test getting batches."""
-        dataset = SyntheticTabularDataset(
-            config=simple_config,
-            num_samples=100,
-            rngs=rngs,
-        )
-
-        # Get full batch
-        full_batch = dataset.get_batch()
-        assert len(full_batch) == 5  # 5 features
-
-        # Get partial batch
-        batch = dataset.get_batch(batch_size=20)
+        source, _ = create_simple_tabular_dataset(num_samples=100, rngs=rngs)
+        batch = source.get_batch(20)
+        assert len(batch) == 5  # 5 features
         for feature_data in batch.values():
             assert feature_data.shape[0] == 20
 
-    def test_dataset_feature_statistics(self, simple_config, rngs):
+    def test_dataset_feature_statistics(self, simple_config):
         """Test feature statistics computation."""
-        dataset = SyntheticTabularDataset(
-            config=simple_config,
-            num_samples=1000,
-            rngs=rngs,
-        )
-
-        stats = dataset.get_feature_statistics()
+        data = generate_synthetic_tabular_data(simple_config, num_samples=1000)
+        stats = compute_feature_statistics(data, simple_config, num_samples=1000)
 
         # Check numerical feature stats
         assert "age" in stats
@@ -472,7 +485,7 @@ class TestTabularDatasetFactories:
             rngs=rngs,
         )
 
-        assert isinstance(dataset, SyntheticTabularDataset)
+        assert isinstance(dataset, MemorySource)
         assert isinstance(config, TabularModalityConfig)
         assert len(dataset) == 100
         assert config.num_features == 10
@@ -481,7 +494,7 @@ class TestTabularDatasetFactories:
         """Test simple dataset creation."""
         dataset, config = create_simple_tabular_dataset(num_samples=50, rngs=rngs)
 
-        assert isinstance(dataset, SyntheticTabularDataset)
+        assert isinstance(dataset, MemorySource)
         assert len(dataset) == 50
         assert config.num_features == 5
 
@@ -536,6 +549,31 @@ class TestTabularEvaluationSuite:
         assert "dcr_score" in metrics
         assert "memorization_score" in metrics
 
+    def test_evaluate_batch_stays_on_public_numerical_and_privacy_metric_set(
+        self,
+        simple_config,
+        sample_tabular_data,
+        rngs,
+    ):
+        """Categorical and ordinal helpers stay private until a real public contract exists."""
+        suite = TabularEvaluationSuite(config=simple_config)
+        generated_data = {
+            "age": sample_tabular_data["age"] + jax.random.normal(rngs.evaluation(), (5,)) * 0.1,
+            "income": sample_tabular_data["income"]
+            + jax.random.normal(rngs.evaluation(), (5,)) * 1000,
+            "category": sample_tabular_data["category"],
+            "education": sample_tabular_data["education"],
+            "is_member": sample_tabular_data["is_member"],
+        }
+
+        metrics = suite.evaluate_batch(sample_tabular_data, generated_data)
+
+        assert "chi2_stat_category" not in metrics
+        assert "mean_chi2_stat" not in metrics
+        assert "coverage_category" not in metrics
+        assert "coverage_education" not in metrics
+        assert "mean_coverage" not in metrics
+
     def test_ks_distance_computation(self, simple_config):
         """Test Kolmogorov-Smirnov distance computation."""
         TabularEvaluationSuite(config=simple_config)
@@ -588,6 +626,36 @@ class TestTabularMetricsFactory:
         assert "overall_quality" in metrics
         assert metrics["overall_quality"] >= 0.0
         assert metrics["overall_quality"] <= 1.0
+
+    def test_compute_tabular_metrics_matches_the_narrow_public_metric_surface(
+        self,
+        simple_config,
+        sample_tabular_data,
+        rngs,
+    ):
+        """The public factory helper should stay aligned with the retained evaluator output."""
+        generated_data = {}
+        for feature, data in sample_tabular_data.items():
+            if feature in simple_config.numerical_features:
+                noise = jax.random.normal(rngs.metrics(), data.shape) * 0.01
+                generated_data[feature] = data + noise
+            else:
+                generated_data[feature] = data
+
+        metrics = compute_tabular_metrics(
+            real_data=sample_tabular_data,
+            generated_data=generated_data,
+            config=simple_config,
+        )
+
+        assert "ks_distance_age" in metrics
+        assert "ks_distance_income" in metrics
+        assert "correlation_preservation" in metrics
+        assert "dcr_score" in metrics
+        assert "memorization_score" in metrics
+        assert "chi2_stat_category" not in metrics
+        assert "coverage_category" not in metrics
+        assert "coverage_education" not in metrics
 
 
 class TestTabularModalityIntegration:

@@ -13,6 +13,7 @@ before implementation. Tests are organized into:
 import copy
 
 import pytest
+from dacite.exceptions import UnexpectedDataError
 
 from artifex.generative_models.core.configuration import DiscriminatorConfig
 
@@ -33,7 +34,6 @@ class TestDiscriminatorConfigBasics:
         assert config.activation == "relu"
         assert config.input_shape == (1, 28, 28)
         assert config.leaky_relu_slope == 0.2  # default
-        assert config.use_spectral_norm is False  # default
 
     def test_create_with_all_fields(self) -> None:
         """Test creating DiscriminatorConfig with all fields specified."""
@@ -51,7 +51,6 @@ class TestDiscriminatorConfigBasics:
             # DiscriminatorConfig-specific
             input_shape=(3, 64, 64),
             leaky_relu_slope=0.3,
-            use_spectral_norm=True,
         )
         # Verify all fields
         assert config.name == "full_disc"
@@ -64,7 +63,6 @@ class TestDiscriminatorConfigBasics:
         assert config.dropout_rate == 0.3
         assert config.input_shape == (3, 64, 64)
         assert config.leaky_relu_slope == 0.3
-        assert config.use_spectral_norm is True
 
     def test_frozen_behavior(self) -> None:
         """Test that DiscriminatorConfig is immutable (frozen)."""
@@ -244,12 +242,27 @@ class TestDiscriminatorConfigDefaults:
         )
         assert config.leaky_relu_slope == 0.2
 
-    def test_default_use_spectral_norm(self) -> None:
-        """Test default use_spectral_norm value."""
-        config = DiscriminatorConfig(
-            name="test", hidden_dims=(128,), activation="relu", input_shape=(1, 28, 28)
-        )
-        assert config.use_spectral_norm is False
+    def test_removed_use_spectral_norm_surface(self) -> None:
+        """Test that the dead spectral-norm surface is removed."""
+        with pytest.raises(TypeError, match="use_spectral_norm"):
+            DiscriminatorConfig(
+                name="test",
+                hidden_dims=(128,),
+                activation="relu",
+                input_shape=(1, 28, 28),
+                use_spectral_norm=True,
+            )
+
+        with pytest.raises(UnexpectedDataError, match="use_spectral_norm"):
+            DiscriminatorConfig.from_dict(
+                {
+                    "name": "test",
+                    "hidden_dims": [128],
+                    "activation": "relu",
+                    "input_shape": [1, 28, 28],
+                    "use_spectral_norm": True,
+                }
+            )
 
     def test_default_batch_norm(self) -> None:
         """Test default batch_norm value from BaseNetworkConfig."""
@@ -282,7 +295,7 @@ class TestDiscriminatorConfigSerialization:
         assert config_dict["activation"] == "relu"
         assert config_dict["input_shape"] == (1, 28, 28)
         assert config_dict["leaky_relu_slope"] == 0.2
-        assert config_dict["use_spectral_norm"] is False
+        assert "use_spectral_norm" not in config_dict
 
     def test_to_dict_full(self) -> None:
         """Test to_dict with all fields specified."""
@@ -297,7 +310,6 @@ class TestDiscriminatorConfigSerialization:
             dropout_rate=0.3,
             input_shape=(3, 64, 64),
             leaky_relu_slope=0.3,
-            use_spectral_norm=True,
         )
         config_dict = config.to_dict()
 
@@ -312,7 +324,7 @@ class TestDiscriminatorConfigSerialization:
         assert config_dict["dropout_rate"] == 0.3
         assert config_dict["input_shape"] == (3, 64, 64)
         assert config_dict["leaky_relu_slope"] == 0.3
-        assert config_dict["use_spectral_norm"] is True
+        assert "use_spectral_norm" not in config_dict
 
     def test_from_dict_minimal(self) -> None:
         """Test from_dict with minimal config."""
@@ -329,7 +341,6 @@ class TestDiscriminatorConfigSerialization:
         assert config.activation == "relu"
         assert config.input_shape == (1, 28, 28)  # list → tuple
         assert config.leaky_relu_slope == 0.2  # default
-        assert config.use_spectral_norm is False  # default
 
     def test_from_dict_full(self) -> None:
         """Test from_dict with all fields."""
@@ -344,7 +355,6 @@ class TestDiscriminatorConfigSerialization:
             "dropout_rate": 0.3,
             "input_shape": [3, 64, 64],
             "leaky_relu_slope": 0.3,
-            "use_spectral_norm": True,
         }
         config = DiscriminatorConfig.from_dict(config_dict)
 
@@ -360,7 +370,6 @@ class TestDiscriminatorConfigSerialization:
         assert config.dropout_rate == 0.3
         assert config.input_shape == (3, 64, 64)
         assert config.leaky_relu_slope == 0.3
-        assert config.use_spectral_norm is True
 
     def test_from_dict_with_path_conversion(self) -> None:
         """Test from_dict does NOT automatically convert string paths in metadata.
@@ -393,7 +402,6 @@ class TestDiscriminatorConfigSerialization:
             dropout_rate=0.2,
             input_shape=(3, 64, 64),
             leaky_relu_slope=0.25,
-            use_spectral_norm=True,
         )
 
         config_dict = original.to_dict()
@@ -409,7 +417,6 @@ class TestDiscriminatorConfigSerialization:
         assert restored.activation == original.activation
         assert restored.input_shape == original.input_shape
         assert restored.leaky_relu_slope == original.leaky_relu_slope
-        assert restored.use_spectral_norm == original.use_spectral_norm
 
 
 class TestDiscriminatorConfigEdgeCases:

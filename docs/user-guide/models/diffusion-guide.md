@@ -1171,10 +1171,10 @@ samples = model.generate(n_samples=16)
 
     Hands-on tutorial with complete working example
 
-- :material-chart-line:{ .lg .middle } **[Advanced Topics](#)**
+- :material-map-outline:{ .lg .middle } **[Planned Example Topics](../../roadmap/planned-examples.md#advanced-diffusion-and-flow)**
 
     ---
 
-    Explore distillation, super-resolution, and more
+    Track still-unshipped advanced diffusion and flow example work
 
 </div>

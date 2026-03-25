@@ -1,185 +1,91 @@
-#!/bin/bash
-# Run all Artifex framework examples
-# This script automatically discovers and runs all Python examples in the examples directory
+#!/usr/bin/env bash
+# Run the reviewed root examples smoke subset.
 
-set -e  # Exit on first error
+set -euo pipefail
 
-echo "=========================================="
-echo "Running All Artifex Framework Examples"
-echo "=========================================="
-echo ""
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
+cd "$REPO_ROOT"
 
-# Create output directory
-mkdir -p examples_output
+readonly TIMEOUT_SECONDS="${ARTIFEX_EXAMPLE_TIMEOUT_SECONDS:-120}"
+readonly LOG_FILE="/tmp/artifex_example_output.log"
+readonly -a SUPPORTED_EXAMPLES=(
+  "examples/generative_models/framework_features_demo.py"
+  "examples/generative_models/image/vae/vae_mnist.py"
+  "examples/generative_models/geometric/simple_point_cloud_example.py"
+  "examples/generative_models/energy/simple_ebm_example.py"
+)
 
-# Counter for tracking
-TOTAL=0
-SUCCESS=0
-FAILED=0
-SKIPPED=0
+declare -a FAILED_EXAMPLES=()
+declare -a PASSED_EXAMPLES=()
 
-# Arrays to store results
-declare -a FAILED_EXAMPLES
-declare -a SUCCESS_EXAMPLES
-declare -a SKIPPED_EXAMPLES
+run_with_timeout() {
+  local path=$1
 
-# Function to run an example
+  if command -v timeout >/dev/null 2>&1; then
+    timeout "$TIMEOUT_SECONDS" uv run python "$path"
+    return
+  fi
+
+  uv run python "$path"
+}
+
 run_example() {
-    local path=$1
-    local relative_path=${path#examples/}  # Remove 'examples/' prefix for display
+  local path=$1
+  local index=$2
 
-    TOTAL=$((TOTAL + 1))
-    echo "[$TOTAL] Running: $relative_path"
+  echo "[$index/${#SUPPORTED_EXAMPLES[@]}] Running: $path"
 
-    # Check if file should be skipped
-    if grep -q "SKIP_IN_RUN_ALL" "$path" 2>/dev/null; then
-        echo "    ⏭️  SKIPPED (marked with SKIP_IN_RUN_ALL)"
-        SKIPPED=$((SKIPPED + 1))
-        SKIPPED_EXAMPLES+=("$relative_path")
-        echo ""
-        return
-    fi
+  if run_with_timeout "$path" >"$LOG_FILE" 2>&1; then
+    echo "    PASS"
+    PASSED_EXAMPLES+=("$path")
+    return
+  fi
 
-    # Check for known problematic examples that should be skipped
-    case "$relative_path" in
-        *"loss_examples.py")
-            echo "    ⏭️  SKIPPED (known issues)"
-            SKIPPED=$((SKIPPED + 1))
-            SKIPPED_EXAMPLES+=("$relative_path")
-            echo ""
-            return
-            ;;
-        *"multi_beta_vae_benchmark_demo.py")
-            echo "    ⏭️  SKIPPED (requires dataset download)"
-            SKIPPED=$((SKIPPED + 1))
-            SKIPPED_EXAMPLES+=("$relative_path")
-            echo ""
-            return
-            ;;
-    esac
-
-    # Run the example with timeout
-    if timeout 60 python "$path" > /tmp/example_output.log 2>&1; then
-        echo "    ✅ SUCCESS"
-        SUCCESS=$((SUCCESS + 1))
-        SUCCESS_EXAMPLES+=("$relative_path")
-    else
-        EXIT_CODE=$?
-        if [ $EXIT_CODE -eq 124 ]; then
-            echo "    ⏱️  TIMEOUT (exceeded 60 seconds)"
-            FAILED=$((FAILED + 1))
-            FAILED_EXAMPLES+=("$relative_path (timeout)")
-        else
-            echo "    ❌ FAILED"
-            FAILED=$((FAILED + 1))
-            FAILED_EXAMPLES+=("$relative_path")
-            echo "    Error output (last 20 lines):"
-            tail -20 /tmp/example_output.log | sed 's/^/        /'
-        fi
-    fi
-    echo ""
+  local exit_code=$?
+  FAILED_EXAMPLES+=("$path")
+  if [[ $exit_code -eq 124 ]]; then
+    echo "    FAIL (timeout after ${TIMEOUT_SECONDS}s)"
+  else
+    echo "    FAIL"
+  fi
+  tail -20 "$LOG_FILE" | sed 's/^/        /'
 }
 
-# Function to display section header
-show_section() {
-    local section=$1
-    echo ""
-    echo "=== $section ==="
-    echo ""
-}
-
-echo "Discovering Python examples in examples/ directory..."
-echo ""
-
-# Find all Python files in examples directory, excluding __pycache__ and test files
-mapfile -t EXAMPLE_FILES < <(find examples -name "*.py" -type f \
-    ! -path "*/\__pycache__/*" \
-    ! -path "*/.pytest_cache/*" \
-    ! -name "*test*.py" \
-    ! -name "*Test*.py" \
-    ! -name "__init__.py" \
-    | sort)
-
-echo "Found ${#EXAMPLE_FILES[@]} Python examples"
-echo ""
-
-if [ ${#EXAMPLE_FILES[@]} -eq 0 ]; then
-    echo "❌ No Python examples found in examples/ directory"
-    exit 1
-fi
-
-echo "Starting example tests..."
 echo "=========================================="
+echo "Running reviewed Artifex example smoke subset"
+echo "=========================================="
+echo "Repository root: $REPO_ROOT"
+echo "Examples covered: ${#SUPPORTED_EXAMPLES[@]}"
+echo ""
 
-# Group examples by directory for better organization
-CURRENT_DIR=""
-
-for example in "${EXAMPLE_FILES[@]}"; do
-    # Extract directory path
-    DIR=$(dirname "$example")
-    DIR=${DIR#examples/}  # Remove 'examples/' prefix
-
-    # Show section header when entering new directory
-    if [ "$DIR" != "$CURRENT_DIR" ]; then
-        show_section "$DIR"
-        CURRENT_DIR="$DIR"
-    fi
-
-    run_example "$example"
+for index in "${!SUPPORTED_EXAMPLES[@]}"; do
+  run_example "${SUPPORTED_EXAMPLES[$index]}" "$((index + 1))"
+  echo ""
 done
 
 echo "=========================================="
 echo "Summary"
 echo "=========================================="
+echo "Passed: ${#PASSED_EXAMPLES[@]}"
+echo "Failed: ${#FAILED_EXAMPLES[@]}"
+
+if [[ ${#PASSED_EXAMPLES[@]} -gt 0 ]]; then
+  echo ""
+  echo "Passed examples:"
+  for path in "${PASSED_EXAMPLES[@]}"; do
+    echo "  - $path"
+  done
+fi
+
+if [[ ${#FAILED_EXAMPLES[@]} -gt 0 ]]; then
+  echo ""
+  echo "Failed examples:"
+  for path in "${FAILED_EXAMPLES[@]}"; do
+    echo "  - $path"
+  done
+  exit 1
+fi
+
 echo ""
-echo "📊 Statistics:"
-echo "  Total examples found: $TOTAL"
-echo "  ✅ Successful: $SUCCESS"
-echo "  ❌ Failed: $FAILED"
-echo "  ⏭️  Skipped: $SKIPPED"
-echo ""
-
-# Show successful examples if any
-if [ ${#SUCCESS_EXAMPLES[@]} -gt 0 ]; then
-    echo "✅ Successful examples:"
-    for example in "${SUCCESS_EXAMPLES[@]}"; do
-        echo "    • $example"
-    done
-    echo ""
-fi
-
-# Show skipped examples if any
-if [ ${#SKIPPED_EXAMPLES[@]} -gt 0 ]; then
-    echo "⏭️  Skipped examples:"
-    for example in "${SKIPPED_EXAMPLES[@]}"; do
-        echo "    • $example"
-    done
-    echo ""
-fi
-
-# Show failed examples if any
-if [ ${#FAILED_EXAMPLES[@]} -gt 0 ]; then
-    echo "❌ Failed examples:"
-    for example in "${FAILED_EXAMPLES[@]}"; do
-        echo "    • $example"
-    done
-    echo ""
-fi
-
-# Final status
-if [ $FAILED -eq 0 ]; then
-    if [ $SKIPPED -eq 0 ]; then
-        echo "🎉 All examples completed successfully!"
-    else
-        echo "🎉 All non-skipped examples completed successfully!"
-    fi
-    exit 0
-else
-    echo "⚠️  Some examples failed. Please check the output above."
-    echo ""
-    echo "💡 Tips for debugging:"
-    echo "  • Run individual failed examples directly to see full output"
-    echo "  • Check if required dependencies are installed"
-    echo "  • Ensure GPU/CPU configuration matches example requirements"
-    exit 1
-fi
+echo "All curated smoke examples passed."

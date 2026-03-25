@@ -300,21 +300,8 @@ def test_fallback_rng_handling():
         rngs=None,  # No RNGs provided
     )
 
-    # Test sampling with no RNGs (should use fallback)
-    sample = transformed_dist.sample(rngs=None)
-    assert sample.shape == ()
+    with pytest.raises(ValueError, match="rngs must be provided"):
+        transformed_dist.sample(rngs=None)
 
-    # Test with empty RNGs object
-    empty_rngs = nnx.Rngs()
-    sample_empty = transformed_dist.sample(rngs=empty_rngs)
-    assert sample_empty.shape == ()
-
-
-if __name__ == "__main__":
-    test_affine_transform(0)
-    test_transformed_distribution_with_bijector(1)
-    test_affine_transform_edge_cases()
-    test_transformed_distribution_edge_cases()
-    test_affine_transform_with_batch_dimensions()
-    test_error_conditions()
-    test_fallback_rng_handling()
+    with pytest.raises(ValueError, match="sample or default"):
+        transformed_dist.sample(rngs=nnx.Rngs(params=jax.random.key(0)))

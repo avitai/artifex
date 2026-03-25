@@ -21,7 +21,7 @@ r"""
 
 ## Overview
 
-This comprehensive example demonstrates production-ready training patterns using the
+This complete example demonstrates production-ready training patterns using the
 Artifex framework. Learn how to implement robust training loops, manage optimizer
 configurations, track metrics, and implement checkpointing strategies.
 
@@ -84,13 +84,15 @@ pip install artifex[examples]
 Run the Python script directly:
 
 ```bash
-python examples/generative_models/advanced_training_example.py
+source ./activate.sh
+uv run python examples/generative_models/advanced_training_example.py
 ```
 
 Or open the notebook:
 
 ```bash
-jupyter notebook examples/generative_models/advanced_training_example.ipynb
+source ./activate.sh
+uv run jupyter notebook examples/generative_models/advanced_training_example.ipynb
 ```
 """
 
@@ -102,7 +104,9 @@ Import required modules from JAX, Flax NNX, and Artifex.
 """
 
 # %%
+import logging
 import os
+from dataclasses import dataclass
 from pathlib import Path
 
 import jax
@@ -113,11 +117,30 @@ import optax
 from flax import nnx
 
 from artifex.generative_models.core.configuration import (
-    ModelConfig,
     OptimizerConfig,
     SchedulerConfig,
     TrainingConfig,
 )
+
+
+logging.basicConfig(level=logging.INFO, format="%(message)s")
+LOGGER = logging.getLogger(__name__)
+
+
+def echo(message: object = "") -> None:
+    """Emit example output through the standard example logger."""
+    LOGGER.info("%s", message)
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class ClassifierConfig:
+    """Local config for the toy classifier used in this training-loop example."""
+
+    name: str = "classifier"
+    input_dim: int = 784
+    hidden_dims: tuple[int, ...] = (256, 128)
+    output_dim: int = 10
+    dropout_rate: float = 0.1
 
 
 # %% [markdown]
@@ -459,7 +482,7 @@ def save_checkpoint(model, optimizer, epoch, checkpoint_dir):
     checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
     # In real implementation, you'd use orbax or similar
-    print(f"Checkpoint saved at epoch {epoch} to {checkpoint_dir}")
+    echo(f"Checkpoint saved at epoch {epoch} to {checkpoint_dir}")
 
 
 # %% [markdown]
@@ -473,22 +496,21 @@ Execute the complete training pipeline with all components integrated.
 # %%
 def main():
     """Run the advanced training example."""
-    print("=" * 60)
-    print("Advanced Training Example")
-    print("=" * 60)
+    echo("=" * 60)
+    echo("Advanced Training Example")
+    echo("=" * 60)
 
     # Configuration
-    print("\n1. Setting up configuration...")
+    echo()
+    echo("1. Setting up configuration...")
 
     # Model configuration
-    model_config = ModelConfig(
+    model_config = ClassifierConfig(
         name="classifier",
-        model_class="simple_classifier",
         input_dim=784,
-        hidden_dims=[256, 128],
+        hidden_dims=(256, 128),
         output_dim=10,
         dropout_rate=0.1,
-        parameters={},
     )
 
     # Optimizer configuration
@@ -520,31 +542,39 @@ def main():
         save_frequency=5,
     )
 
-    print(f"  Model: {model_config.name}")
-    print(f"  Optimizer: {optimizer_config.optimizer_type}")
-    print(f"  Scheduler: {scheduler_config.scheduler_type}")
-    print(f"  Epochs: {training_config.num_epochs}")
-    print(f"  Batch size: {training_config.batch_size}")
+    echo(f"  Model: {model_config.name}")
+    echo(f"  Optimizer: {optimizer_config.optimizer_type}")
+    echo(f"  Scheduler: {scheduler_config.scheduler_type}")
+    echo(f"  Epochs: {training_config.num_epochs}")
+    echo(f"  Batch size: {training_config.batch_size}")
 
     # Create dataset
-    print("\n2. Creating synthetic dataset...")
+    echo()
+    echo("2. Creating synthetic dataset...")
     train_data, val_data, test_data = create_synthetic_dataset(
         num_samples=1000, input_dim=784, num_classes=10
     )
-    print(f"  Train samples: {len(train_data[0])}")
-    print(f"  Validation samples: {len(val_data[0])}")
-    print(f"  Test samples: {len(test_data[0])}")
+    echo(f"  Train samples: {len(train_data[0])}")
+    echo(f"  Validation samples: {len(val_data[0])}")
+    echo(f"  Test samples: {len(test_data[0])}")
 
     # Create model
-    print("\n3. Creating model...")
+    echo()
+    echo("3. Creating model...")
     key = jax.random.key(42)
     rngs = nnx.Rngs(params=key, dropout=key)
 
-    model = SimpleClassifier(input_dim=784, hidden_dims=[256, 128], num_classes=10, rngs=rngs)
-    print(f"  Model created with {len(model_config.hidden_dims)} hidden layers")
+    model = SimpleClassifier(
+        input_dim=model_config.input_dim,
+        hidden_dims=list(model_config.hidden_dims),
+        num_classes=model_config.output_dim,
+        rngs=rngs,
+    )
+    echo(f"  Model created with {len(model_config.hidden_dims)} hidden layers")
 
     # Create optimizer
-    print("\n4. Setting up optimizer and scheduler...")
+    echo()
+    echo("4. Setting up optimizer and scheduler...")
     base_optimizer = create_optimizer(optimizer_config)
     optimizer_with_schedule = create_scheduler(base_optimizer, scheduler_config)
     optimizer = nnx.Optimizer(model, optimizer_with_schedule, wrt=nnx.All(nnx.Param))
@@ -553,8 +583,9 @@ def main():
     metrics = TrainingMetrics()
 
     # Training loop
-    print("\n5. Starting training...")
-    print("-" * 40)
+    echo()
+    echo("5. Starting training...")
+    echo("-" * 40)
 
     for epoch in range(training_config.num_epochs):
         # Training
@@ -592,44 +623,47 @@ def main():
         )
 
         # Print progress
-        print(f"Epoch {epoch + 1}/{training_config.num_epochs}")
-        print(f"  Train - Loss: {train_loss:.4f}, Acc: {train_acc:.4f}")
-        print(f"  Val   - Loss: {val_loss:.4f}, Acc: {val_acc:.4f}")
+        echo(f"Epoch {epoch + 1}/{training_config.num_epochs}")
+        echo(f"  Train - Loss: {train_loss:.4f}, Acc: {train_acc:.4f}")
+        echo(f"  Val   - Loss: {val_loss:.4f}, Acc: {val_acc:.4f}")
 
         # Save checkpoint
         if (epoch + 1) % training_config.save_frequency == 0:
             save_checkpoint(model, optimizer, epoch + 1, training_config.checkpoint_dir)
 
-    print("-" * 40)
+    echo("-" * 40)
 
     # Final evaluation on test set
-    print("\n6. Evaluating on test set...")
+    echo()
+    echo("6. Evaluating on test set...")
     test_loader = create_data_loader(
         test_data, batch_size=training_config.batch_size, shuffle=False
     )
     test_loss, test_acc = evaluate(model, test_loader)
-    print(f"  Test Loss: {test_loss:.4f}")
-    print(f"  Test Accuracy: {test_acc:.4f}")
+    echo(f"  Test Loss: {test_loss:.4f}")
+    echo(f"  Test Accuracy: {test_acc:.4f}")
 
     # Plot training curves
-    print("\n7. Plotting training curves...")
+    echo()
+    echo("7. Plotting training curves...")
     output_dir = "examples_output"
     os.makedirs(output_dir, exist_ok=True)
 
     metrics.plot(save_path=f"{output_dir}/training_curves.png")
-    print(f"  Training curves saved to {output_dir}/training_curves.png")
+    echo(f"  Training curves saved to {output_dir}/training_curves.png")
 
-    print()
-    print("=" * 60)
-    print("✅ Advanced training example completed successfully!")
-    print("=" * 60)
+    echo()
+    echo("=" * 60)
+    echo("✅ Advanced training example completed successfully!")
+    echo("=" * 60)
 
-    print("\nKey takeaways:")
-    print("- Use configuration objects for all settings")
-    print("- Implement proper training and validation loops")
-    print("- Track metrics throughout training")
-    print("- Save checkpoints regularly")
-    print("- Evaluate on held-out test set")
+    echo()
+    echo("Key takeaways:")
+    echo("- Use configuration objects for all settings")
+    echo("- Implement proper training and validation loops")
+    echo("- Track metrics throughout training")
+    echo("- Save checkpoints regularly")
+    echo("- Evaluate on held-out test set")
 
 
 # %% [markdown]

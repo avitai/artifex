@@ -6,14 +6,14 @@ specific types of data.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Iterator, Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 import jax
 import jax.numpy as jnp
 from flax import nnx
 
 from artifex.generative_models.core.base import GenerativeModel
-from artifex.generative_models.core.protocols.configuration import BaseModalityConfig
+from artifex.generative_models.core.configuration import BaseModalityConfig
 from artifex.generative_models.extensions.base import ModelExtension
 
 
@@ -25,11 +25,23 @@ class ModelAdapter(Protocol):
     data modalities by adding extensions and modifying behavior.
     """
 
+    def adapt(self, model: Any, config: Any) -> Any:
+        """Adapt an already-built model instance for this modality.
+
+        Args:
+            model: The built model instance.
+            config: Typed model configuration.
+
+        Returns:
+            The adapted model instance.
+        """
+        ...
+
     def create(self, config: Any, *, rngs: nnx.Rngs, **kwargs: Any) -> GenerativeModel:
         """Create a model with modality-specific adaptations.
 
         Args:
-            config: Model configuration (must be ModelConfiguration).
+            config: Typed model configuration.
             rngs: Random number generator keys.
             **kwargs: Additional keyword arguments for model creation.
 
@@ -61,14 +73,18 @@ class Modality(Protocol):
         """
         ...
 
-    def get_adapter(self, model_cls: type[GenerativeModel]) -> ModelAdapter:
-        """Get an adapter for the specified model class.
+    def get_adapter(
+        self,
+        model_cls: str | type[GenerativeModel] | None = None,
+    ) -> ModelAdapter:
+        """Get an adapter for the specified model identifier or class.
 
         Args:
-            model_cls: The model class to adapt.
+            model_cls: A model-family identifier, a model class, or `None`
+                for the default adapter.
 
         Returns:
-            A model adapter for the specified model class.
+            A model adapter for the specified model.
         """
         ...
 
@@ -105,85 +121,6 @@ class BaseGenerationProtocol(Protocol):
             Log-likelihood values
         """
         ...
-
-
-class BaseDataset(ABC):
-    """Abstract base class for modality datasets.
-
-    Note: This is a data container class and does NOT inherit from nnx.Module.
-    Datasets store JAX arrays in list/dict attributes which would cause
-    "unexpected Arrays in static attribute" errors if they inherited from nnx.Module.
-    """
-
-    def __init__(
-        self,
-        config: BaseModalityConfig,
-        split: str = "train",
-        *,
-        rngs: nnx.Rngs,
-    ):
-        """Initialize dataset.
-
-        Args:
-            config: Modality configuration
-            split: Dataset split ('train', 'val', 'test')
-            rngs: Random number generators
-        """
-        self.config = config
-        self.split = split
-        self.rngs = rngs
-
-    @abstractmethod
-    def __len__(self) -> int:
-        """Return dataset size."""
-        ...
-
-    @abstractmethod
-    def __iter__(self) -> Iterator[dict[str, jax.Array]]:
-        """Iterate over dataset samples."""
-        ...
-
-    @abstractmethod
-    def get_batch(self, batch_size: int) -> dict[str, jax.Array]:
-        """Get a batch of samples.
-
-        Args:
-            batch_size: Number of samples in batch
-
-        Returns:
-            Batch dictionary with modality-specific data
-        """
-        ...
-
-    def get_sample(self, index: int) -> dict[str, jax.Array]:
-        """Get a single sample by index.
-
-        Args:
-            index: Sample index
-
-        Returns:
-            Sample data
-        """
-        if index < 0 or index >= len(self):
-            raise IndexError(f"Index {index} out of range [0, {len(self)})")
-
-        # Default implementation - subclasses can override for efficiency
-        for i, sample in enumerate(self):
-            if i == index:
-                return sample
-        raise IndexError(f"Sample {index} not found")
-
-    def get_data_statistics(self) -> dict[str, Any]:
-        """Get dataset statistics.
-
-        Returns:
-            Dictionary with dataset statistics
-        """
-        return {
-            "size": len(self),
-            "split": self.split,
-            "config": self.config,
-        }
 
 
 class BaseEvaluationSuite(nnx.Module, ABC):
@@ -235,7 +172,7 @@ class BaseEvaluationSuite(nnx.Module, ABC):
         """
         # Default implementation - subclasses should override
         return {
-            "data_shape": str(data.shape),
+            "num_elements": float(data.size),
             "data_mean": float(jnp.mean(data)),
             "data_std": float(jnp.std(data)),
         }
@@ -363,7 +300,7 @@ class BaseModalityImplementation:
             Dictionary of extension configurations
 
         Raises:
-            TypeError: If config is not a BaseConfiguration subclass
+            TypeError: If config is not a typed modality configuration
         """
         # Config validation is now handled by dataclass __post_init__
         return {}
@@ -500,7 +437,6 @@ __all__ = [
     "BaseGenerationProtocol",
     # Abstract base classes
     "BaseModalityConfig",
-    "BaseDataset",
     "BaseEvaluationSuite",
     "BaseProcessor",
     "BaseModalityImplementation",

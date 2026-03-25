@@ -1,4 +1,4 @@
-# Diffusion
+# Audio Diffusion
 
 **Module:** `generative_models.models.audio.diffusion`
 
@@ -6,164 +6,66 @@
 
 ## Overview
 
-Audio diffusion model for parallel audio generation.
+`AudioDiffusionModel` is the audio-specific diffusion wrapper built on the
+shared `DiffusionModel` base. The shipped public surface is intentionally
+small:
 
-## Classes
+- `AudioDiffusionConfig` for the typed audio diffusion configuration
+- `create_audio_diffusion_config(...)` for constructing the nested config tree
+- `AudioDiffusionModel` for waveform diffusion inference and generation
 
-### AudioDiffusionConfig
+The runtime uses `UNet1DBackboneConfig` through the shared diffusion backbone
+factory plus `AudioModalityConfig` for waveform length and normalization
+behavior.
 
-```python
-class AudioDiffusionConfig
-```
+## Public Surface
 
-### AudioDiffusionModel
+### `AudioDiffusionConfig`
 
-```python
-class AudioDiffusionModel
-```
+Typed configuration for audio diffusion models.
 
-### AudioUNet1D
+Retained fields include:
 
-```python
-class AudioUNet1D
-```
+- `backbone`: a `UNet1DBackboneConfig`
+- `noise_schedule`: a `NoiseScheduleConfig`
+- `input_shape`: the waveform shape `(sequence_length,)`
+- `modality_config`: the required `AudioModalityConfig`
 
-### ConvBlock1D
+### `create_audio_diffusion_config(...)`
 
-```python
-class ConvBlock1D
-```
+Factory helper that builds the full audio diffusion config tree from an
+`AudioModalityConfig`, diffusion schedule parameters, and the requested
+`unet_channels` width.
 
-### DownBlock1D
+### `AudioDiffusionModel`
 
-```python
-class DownBlock1D
-```
+Audio diffusion model for parallel waveform generation.
 
-### TimeEmbedding1D
+Retained behavior:
 
-```python
-class TimeEmbedding1D
-```
+- `__call__(x, timesteps, *, conditioning=None, **kwargs)` returns the shared
+  diffusion output dictionary with `predicted_noise`
+- `generate(n_samples=1, duration=None, *, clip_denoised=True)` returns audio
+  waveforms shaped to the requested duration
+- `preprocess_audio(audio)` normalizes raw audio into the expected input range
+- `postprocess_audio(audio)` clips generated audio to `[-1.0, 1.0]`
 
-### UpBlock1D
-
-```python
-class UpBlock1D
-```
-
-## Functions
-
-### **call**
+## Example
 
 ```python
-def __call__()
+from flax import nnx
+
+from artifex.generative_models.modalities.audio import AudioModalityConfig
+from artifex.generative_models.models.audio import (
+    AudioDiffusionModel,
+    create_audio_diffusion_config,
+)
+
+modality_config = AudioModalityConfig(sample_rate=16000, duration=1.0)
+config = create_audio_diffusion_config(
+    modality_config=modality_config,
+    num_timesteps=100,
+    unet_channels=32,
+)
+model = AudioDiffusionModel(config, rngs=nnx.Rngs(0))
 ```
-
-### **call**
-
-```python
-def __call__()
-```
-
-### **call**
-
-```python
-def __call__()
-```
-
-### **call**
-
-```python
-def __call__()
-```
-
-### **call**
-
-```python
-def __call__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### create_audio_unet_backbone
-
-```python
-def create_audio_unet_backbone()
-```
-
-### generate
-
-```python
-def generate()
-```
-
-### get_num_groups
-
-```python
-def get_num_groups()
-```
-
-### get_num_groups
-
-```python
-def get_num_groups()
-```
-
-### postprocess_audio
-
-```python
-def postprocess_audio()
-```
-
-### preprocess_audio
-
-```python
-def preprocess_audio()
-```
-
-### setup_noise_schedule
-
-```python
-def setup_noise_schedule()
-```
-
-## Module Statistics
-
-- **Classes:** 7
-- **Functions:** 18
-- **Imports:** 5

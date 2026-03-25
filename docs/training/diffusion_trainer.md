@@ -1,6 +1,10 @@
 # Diffusion Trainer
 
+**Status:** `Supported runtime training surface`
+
 **Module:** `artifex.generative_models.training.trainers.diffusion_trainer`
+
+**Source:** `src/artifex/generative_models/training/trainers/diffusion_trainer.py`
 
 The Diffusion Trainer provides state-of-the-art training utilities for diffusion models, including multiple prediction types, advanced timestep sampling strategies, loss weighting schemes, and EMA model updates.
 
@@ -38,14 +42,14 @@ config = DiffusionTrainingConfig(
     snr_gamma=5.0,
 )
 
-trainer = DiffusionTrainer(model, optimizer, noise_schedule, config)
+trainer = DiffusionTrainer(noise_schedule, config)
 
 # Training loop
 key = jax.random.key(0)
 
 for step, batch in enumerate(train_loader):
     key, subkey = jax.random.split(key)
-    loss, metrics = trainer.train_step(batch, subkey)
+    loss, metrics = trainer.train_step(model, optimizer, batch, subkey)
 
     if step % 100 == 0:
         print(f"Step {step}: loss={metrics['loss']:.4f}")
@@ -246,10 +250,11 @@ schedule = CosineNoiseSchedule(num_timesteps=1000)
 
 ## Integration with Base Trainer
 
-Use `create_loss_fn()` for integration with callbacks and checkpointing:
+Use the step-aware `create_loss_fn()` closure for integration with callbacks and checkpointing:
 
 ```python
 from artifex.generative_models.training import Trainer
+from artifex.generative_models.training.callbacks import CallbackList
 from artifex.generative_models.training.trainers import (
     DiffusionTrainer,
     DiffusionTrainingConfig,
@@ -264,15 +269,22 @@ diff_config = DiffusionTrainingConfig(
     prediction_type="v_prediction",
     loss_weighting="min_snr",
 )
-diff_trainer = DiffusionTrainer(model, optimizer, noise_schedule, diff_config)
+diff_trainer = DiffusionTrainer(noise_schedule, diff_config)
 
 # Get loss function for base Trainer
 loss_fn = diff_trainer.create_loss_fn()
 
 # Use with base Trainer for callbacks
-callbacks = [
-    ModelCheckpoint(CheckpointConfig(dirpath="checkpoints", monitor="loss")),
-]
+callbacks = CallbackList(
+    [ModelCheckpoint(CheckpointConfig(dirpath="checkpoints", monitor="val_loss"))]
+)
+
+trainer = Trainer(
+    model=model,
+    training_config=training_config,
+    loss_fn=loss_fn,
+    callbacks=callbacks,
+)
 ```
 
 ## Model Requirements
@@ -290,10 +302,15 @@ class DiffusionModel(nnx.Module):
 
         Args:
             x_noisy: Noisy data, shape (batch, ...).
-            t: Integer timesteps, shape (batch,).
+            t: Integer timesteps, shape (batch,) or (1,).
 
         Returns:
             Prediction matching prediction_type, shape (batch, ...).
+
+        Contract:
+            `t` must have shape `(batch,)` or `(1,)`. Shared noise-schedule
+            helpers only broadcast one timestep across the batch; otherwise
+            timesteps must match the data batch size or contain one element.
         """
         ...
 ```

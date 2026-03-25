@@ -270,18 +270,18 @@ class TestMAF:
         assert log_prob.shape == (batch_size,)
         assert jnp.isfinite(log_prob).all()
 
-    def test_maf_log_likelihood(self, setup_maf):
-        """Test MAF log likelihood (alias for log_prob)."""
+    def test_maf_exposes_only_log_prob(self, setup_maf):
+        """Test MAF keeps one canonical log-density API."""
         maf, config = setup_maf
 
         batch_size = 4
         input_dim = config.input_dim
         x = jax.random.normal(jax.random.PRNGKey(123), (batch_size, input_dim))
 
-        log_likelihood = maf.log_likelihood(x)
         log_prob = maf.log_prob(x)
 
-        assert jnp.allclose(log_likelihood, log_prob)
+        assert log_prob.shape == (batch_size,)
+        assert not hasattr(maf, "log_likelihood")
 
     def test_maf_gradient_computation(self, setup_maf):
         """Test that gradients can be computed through MAF."""

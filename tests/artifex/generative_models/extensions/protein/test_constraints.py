@@ -200,6 +200,20 @@ class TestProteinBackboneConstraint:
         assert "ca_c_length_mean" in result
         assert "n_ca_c_angle_mean" in result
 
+    def test_call_raises_for_invalid_coordinate_shape(self, backbone_constraint):
+        """Constraint metrics should fail loudly on malformed coordinate tensors."""
+        invalid_coords = jnp.ones((2, 10, 4))
+
+        with pytest.raises((IndexError, ValueError)):
+            backbone_constraint(inputs={}, model_outputs=invalid_coords)
+
+    def test_call_rejects_ambiguous_flattened_positions_dict(self, backbone_constraint):
+        """Dict outputs must use explicit atom_positions for protein coordinates."""
+        flattened_point_cloud = {"positions": jnp.ones((2, 40, 3))}
+
+        with pytest.raises(ValueError, match="atom_positions"):
+            backbone_constraint(inputs={}, model_outputs=flattened_point_cloud)
+
     def test_loss_fn(self, backbone_constraint, dummy_coords):
         """Test loss_fn method."""
         # Calculate loss
@@ -363,6 +377,13 @@ class TestProteinDihedralConstraint:
         assert "psi_mean" in result
         assert "omega_mean" in result
 
+    def test_call_rejects_ambiguous_flattened_positions_dict(self, dihedral_constraint):
+        """Dict outputs must use explicit atom_positions for protein coordinates."""
+        flattened_point_cloud = {"positions": jnp.ones((2, 40, 3))}
+
+        with pytest.raises(ValueError, match="atom_positions"):
+            dihedral_constraint(inputs={}, model_outputs=flattened_point_cloud)
+
     def test_call_with_mask(self, dihedral_constraint, dummy_coords, dummy_mask):
         """Test __call__ method with mask provided."""
         # Call constraint with mask in inputs
@@ -373,6 +394,13 @@ class TestProteinDihedralConstraint:
         assert "phi_mean" in result
         assert "psi_mean" in result
         assert "omega_mean" in result
+
+    def test_call_raises_for_invalid_coordinate_shape(self, dihedral_constraint):
+        """Dihedral metrics should fail loudly on malformed coordinate tensors."""
+        invalid_coords = jnp.ones((2, 10, 4))
+
+        with pytest.raises((IndexError, ValueError)):
+            dihedral_constraint(inputs={}, model_outputs=invalid_coords)
 
     def test_loss_fn(self, dihedral_constraint, dummy_coords):
         """Test loss_fn method."""

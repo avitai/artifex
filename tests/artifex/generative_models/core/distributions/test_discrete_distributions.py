@@ -42,7 +42,7 @@ class TestBernoulli:
         # Test initialization with default parameters
         default_bernoulli = Bernoulli()
         assert isinstance(default_bernoulli.logits, nnx.Param)
-        assert jnp.allclose(default_bernoulli.logits.value, 0.0)
+        assert jnp.allclose(default_bernoulli.logits[...], 0.0)
 
     def test_invalid_initialization(self):
         """Test invalid initialization."""
@@ -117,7 +117,7 @@ class TestCategorical:
         # Test initialization with num_classes
         default_categorical = Categorical(num_classes=3)
         assert isinstance(default_categorical.logits, nnx.Param)
-        assert default_categorical.logits.value.shape == (3,)
+        assert default_categorical.logits[...].shape == (3,)
 
     def test_invalid_initialization(self):
         """Test invalid initialization."""

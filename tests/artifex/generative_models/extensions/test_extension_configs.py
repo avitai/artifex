@@ -26,6 +26,8 @@ from artifex.generative_models.core.configuration import (
     ModalityExtensionConfig,
     ProteinDihedralConfig,
     ProteinExtensionConfig,
+    ProteinExtensionsConfig,
+    ProteinMixinConfig,
     SamplingExtensionConfig,
     TextEmbeddingConfig,
 )
@@ -410,6 +412,44 @@ class TestProteinExtensionConfig:
 
         assert config.ideal_bond_lengths["N-CA"] == 1.458
         assert config.ideal_bond_angles["N-CA-C"] == 1.94
+
+
+class TestProteinExtensionsConfig:
+    """Tests for the typed protein extension bundle config."""
+
+    def test_create_with_defaults(self):
+        """Test the protein bundle defaults to no enabled extensions."""
+        config = ProteinExtensionsConfig(name="protein_extensions")
+
+        assert config.bond_length is None
+        assert config.bond_angle is None
+        assert config.backbone is None
+        assert config.dihedral is None
+        assert config.mixin is None
+
+    def test_from_dict_builds_nested_configs(self):
+        """Test nested bundle config construction from YAML-shaped mappings."""
+        config = ProteinExtensionsConfig.from_dict(
+            {
+                "name": "protein_extensions",
+                "bond_length": {
+                    "name": "bond_length",
+                    "weight": 1.2,
+                    "bond_length_weight": 1.2,
+                },
+                "mixin": {
+                    "name": "protein_mixin",
+                    "embedding_dim": 32,
+                    "use_one_hot": False,
+                },
+            }
+        )
+
+        assert isinstance(config.bond_length, ProteinExtensionConfig)
+        assert config.bond_length.weight == 1.2
+        assert isinstance(config.mixin, ProteinMixinConfig)
+        assert config.mixin.embedding_dim == 32
+        assert config.mixin.use_one_hot is False
 
 
 # =============================================================================

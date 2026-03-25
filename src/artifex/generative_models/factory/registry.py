@@ -1,12 +1,5 @@
-"""Model type registry for factory system.
+"""Internal registry types for the explicit model factory implementation."""
 
-This module provides the registry for model builders. Builders accept dataclass-based
-configurations directly (e.g., DDPMConfig, VAEConfig, EBMConfig). The config type
-determines which model to build.
-"""
-
-import importlib
-import pkgutil
 from typing import Any, Protocol, runtime_checkable
 
 from flax import nnx
@@ -110,29 +103,3 @@ class ModelTypeRegistry:
     def clear(self) -> None:
         """Clear all registered builders."""
         self._builders.clear()
-
-    def discover_builders(self, package_name: str) -> None:
-        """Discover and register builders from a package.
-
-        Args:
-            package_name: Name of the package to scan for builders
-        """
-        try:
-            package = importlib.import_module(package_name)
-        except ImportError:
-            return
-
-        # Scan all modules in the package
-        for _, module_name, _ in pkgutil.iter_modules(package.__path__):
-            full_module_name = f"{package_name}.{module_name}"
-            module = importlib.import_module(full_module_name)
-
-            # Look for builder classes
-            for attr_name in dir(module):
-                if attr_name.endswith("Builder") and not attr_name.startswith("_"):
-                    attr = getattr(module, attr_name)
-                    if isinstance(attr, type) and issubclass(attr, ModelBuilder):
-                        # Extract model type from class name
-                        model_type = attr_name.replace("Builder", "").lower()
-                        if model_type and model_type not in self._builders:
-                            self.register(model_type, attr())

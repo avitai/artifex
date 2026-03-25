@@ -1,114 +1,81 @@
 #!/usr/bin/env python3
-"""
-Validation script for portable VS Code configuration.
-Checks if all tools and configurations are properly detected.
-Only recommends verified extensions from trusted publishers.
-"""
+# ruff: noqa: T201
+"""Validate the Artifex-local VS Code workspace contract."""
 
-import os
+from __future__ import annotations
+
 import subprocess
-import sys
 from pathlib import Path
 
 
-def check_file_exists(path: str, description: str) -> bool:
-    """Check if a file exists and report status."""
-    exists = Path(path).exists()
+def check_file_exists(path: Path, description: str) -> bool:
+    """Check whether one required workspace file exists."""
+    exists = path.exists()
     status = "✅" if exists else "❌"
     print(f"{status} {description}: {path}")
     return exists
 
 
-def check_command(cmd: list[str], description: str) -> bool:
-    """Check if a command is available and report status."""
+def check_command(command: list[str], description: str) -> bool:
+    """Check whether one uv-based workspace command succeeds."""
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
-        status = "✅" if result.returncode == 0 else "❌"
-        print(f"{status} {description}: {' '.join(cmd)}")
-        return result.returncode == 0
-    except (subprocess.TimeoutExpired, FileNotFoundError):
-        print(f"❌ {description}: {' '.join(cmd)} (not found)")
+        result = subprocess.run(command, capture_output=True, text=True, timeout=20, check=False)
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        print(f"❌ {description}: {' '.join(command)}")
         return False
 
+    status = "✅" if result.returncode == 0 else "❌"
+    print(f"{status} {description}: {' '.join(command)}")
+    return result.returncode == 0
 
-def main():
-    """Validate VS Code configuration setup."""
-    print("🔍 Validating Portable VS Code Configuration")
+
+def main() -> int:
+    """Validate the checked-in Artifex VS Code workspace assumptions."""
+    workspace = Path.cwd()
+
+    print("🔍 Validating Artifex VS Code Workspace")
     print("=" * 50)
 
-    workspace = Path.cwd()
-    venv_bin = workspace / ".venv" / "bin"
-    if os.name == "nt":  # Windows
-        venv_bin = workspace / ".venv" / "Scripts"
-
-    print("\n📁 Configuration Files:")
-    config_files = [
-        (".vscode/settings.json", "VS Code Settings"),
-        (".vscode/tasks.json", "VS Code Tasks"),
-        (".vscode/extensions.json", "VS Code Extensions"),
-        (".vscode/launch.json", "VS Code Launch Config"),
-        ("pyproject.toml", "Project Configuration"),
-        (".pre-commit-config.yaml", "Pre-commit Configuration"),
+    print("\n📁 Workspace Files:")
+    required_files = [
+        (workspace / ".vscode" / "settings.json", "VS Code settings"),
+        (workspace / ".vscode" / "tasks.json", "VS Code tasks"),
+        (workspace / ".vscode" / "extensions.json", "VS Code extensions"),
+        (workspace / ".vscode" / "launch.json", "VS Code launch config"),
+        (workspace / "pyproject.toml", "Project configuration"),
+        (workspace / ".pre-commit-config.yaml", "Pre-commit configuration"),
     ]
+    files_ok = all(check_file_exists(path, description) for path, description in required_files)
 
-    config_ok = all(check_file_exists(str(workspace / path), desc)
-                   for path, desc in config_files)
-
-    print("\n🔧 Development Tools:")
-    tool_commands = [
-        ([str(venv_bin / "python"), "--version"], "Python Interpreter"),
-        ([str(venv_bin / "ruff"), "--version"], "Ruff Linter/Formatter"),
-        ([str(venv_bin / "pyright"), "--version"], "Pyright Type Checker"),
-        ([str(venv_bin / "pre-commit"), "--version"], "Pre-commit"),
-        ([str(venv_bin / "pytest"), "--version"], "Pytest"),
+    print("\n🔧 uv Workspace Commands:")
+    command_checks = [
+        (["uv", "--version"], "uv available"),
+        (["uv", "run", "python", "--version"], "workspace Python"),
+        (["uv", "run", "ruff", "--version"], "workspace Ruff"),
+        (["uv", "run", "pyright", "--version"], "workspace Pyright"),
+        (["uv", "run", "pre-commit", "--version"], "workspace Pre-commit"),
+        (["uv", "run", "pytest", "--version"], "workspace Pytest"),
     ]
+    commands_ok = all(
+        check_command(command, description) for command, description in command_checks
+    )
 
-    tools_ok = all(check_command(cmd, desc) for cmd, desc in tool_commands)
-
-    print("\n📋 Configuration Validation:")
-
-    # Check settings.json (VS Code supports JSONC format with comments)
-    settings_path = workspace / ".vscode" / "settings.json"
-    if settings_path.exists():
-        try:
-            with open(settings_path) as f:
-                content = f.read()
-
-            # Check for key configurations (simple string search since VS Code uses JSONC)
-            ruff_enabled = "ruff.enable" in content and "true" in content
-            pyright_enabled = "python.analysis.typeCheckingMode" in content
-            precommit_enabled = "pre-commit.enabled" in content and "true" in content
-
-            print(f"{'✅' if ruff_enabled else '❌'} Ruff integration enabled")
-            print(f"{'✅' if pyright_enabled else '❌'} Pyright integration enabled")
-            print(f"{'✅' if precommit_enabled else '❌'} Pre-commit integration enabled")
-
-        except Exception as e:
-            print(f"❌ Error reading settings.json: {e}")
-
-    # Check pyproject.toml for tool configuration
-    pyproject_path = workspace / "pyproject.toml"
-    if pyproject_path.exists():
-        with open(pyproject_path) as f:
-            content = f.read()
-
-        has_ruff_config = "[tool.ruff" in content
-        has_pyright_config = "[tool.pyright" in content
-
-        print(f"{'✅' if has_ruff_config else '❌'} Ruff configuration in pyproject.toml")
-        print(f"{'✅' if has_pyright_config else '❌'} Pyright configuration in pyproject.toml")
+    print("\n📋 Workspace Notes:")
+    artifex_env = workspace / ".artifex.env"
+    if artifex_env.exists():
+        print(f"✅ Generated runtime env present: {artifex_env}")
+    else:
+        print("⚠️  .artifex.env not found. Run ./setup.sh if you want the managed backend layer.")
 
     print("\n" + "=" * 50)
-
-    if config_ok and tools_ok:
-        print("🎉 Configuration is fully portable and ready to use!")
-        print("💡 You can copy the .vscode/ folder to any Python project.")
+    if files_ok and commands_ok:
+        print("🎉 Artifex VS Code workspace configuration looks ready.")
         return 0
-    else:
-        print("⚠️  Some issues detected. Check the items above.")
-        print("💡 Run 'pre-commit install' and ensure your virtual environment is set up.")
-        return 1
+
+    print("⚠️  Some Artifex workspace checks failed.")
+    print("💡 Run ./setup.sh or uv sync, then retry this validator.")
+    return 1
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    raise SystemExit(main())

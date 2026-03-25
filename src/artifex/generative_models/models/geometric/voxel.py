@@ -1,4 +1,4 @@
-"""Voxel generative model."""
+"""Learned voxel generative model."""
 
 from typing import Any
 
@@ -14,7 +14,7 @@ from artifex.generative_models.models.geometric.base import GeometricModel
 
 
 class VoxelModel(GeometricModel):
-    """Model for generating 3D voxel grids.
+    """Model for generating 3D voxel grids from learned latent decodes.
 
     Voxel grids are 3D arrays where each cell represents the presence or
     density of material at that location.
@@ -31,6 +31,7 @@ class VoxelModel(GeometricModel):
             TypeError: If config is not a VoxelConfig
         """
         super().__init__(config, rngs=rngs)
+        assert config.network is not None
 
         # Model parameters from dataclass config
         self.resolution = config.voxel_size
@@ -60,14 +61,16 @@ class VoxelModel(GeometricModel):
         # Initial reshape module
         class Reshape(nnx.Module):
             def __init__(self, shape):
+                super().__init__()
                 self.shape = shape
 
             def __call__(self, x):
                 return x.reshape(self.shape)
 
-        # Reshape to 5D: batch, channels, height, width, depth
+        # Reshape to 5D channel-last format expected by Flax NNX 3D convolutions:
+        # batch, height, width, depth, channels.
         h = w = d = self.init_size
-        reshape_dims = (-1, channels[0], h, w, d)
+        reshape_dims = (-1, h, w, d, channels[0])
         self.reshape = Reshape(reshape_dims)
 
         # Deconvolution layers
@@ -103,12 +106,12 @@ class VoxelModel(GeometricModel):
                     self.bn_layers.append(None)
 
                 # Use callable function directly
-                self.activations.append(jax.nn.relu)
+                self.activations.append(nnx.relu)
 
             # Final activation is sigmoid to get values in [0, 1]
             elif i == len(channels) - 2:
                 self.bn_layers.append(None)
-                self.activations.append(jax.nn.sigmoid)
+                self.activations.append(nnx.sigmoid)
             else:
                 self.bn_layers.append(None)
                 self.activations.append(None)
@@ -176,9 +179,9 @@ class VoxelModel(GeometricModel):
             if act is not None:
                 x_val = act(x_val)
 
-        # Final shape: [batch, 1, res, res, res]
+        # Final shape: [batch, res, res, res, 1]
         # Remove channel dimension to get [batch, res, res, res]
-        voxels = jnp.squeeze(x_val, axis=1)
+        voxels = jnp.squeeze(x_val, axis=-1)
 
         return voxels, {"latent": latent}
 
@@ -207,16 +210,9 @@ class VoxelModel(GeometricModel):
         # Get the params key for random number generation
         key = rngs.params()
 
-        # Generate voxel data
-        voxels = jax.random.uniform(
-            key,
-            shape=(
-                n_samples,
-                self.resolution,
-                self.resolution,
-                self.resolution,
-            ),
-        )
+        # Sample latent vectors and decode them through the learned voxel model.
+        latents = jax.random.normal(key, shape=(n_samples, self.latent_dim))
+        voxels, _ = self(latents, rngs=rngs, deterministic=True)
 
         # Apply optional threshold
         if threshold is not None:
@@ -260,13 +256,16 @@ class VoxelModel(GeometricModel):
         Returns:
             Voxel loss function
         """
+        config = self.config
+        assert isinstance(config, VoxelConfig)
+
         # Get loss type and params from dataclass config
-        loss_type = self.config.loss_type
+        loss_type = config.loss_type
 
         # Get loss-specific parameters
         kwargs = {}
         if loss_type == "focal":
-            kwargs["focal_gamma"] = self.config.focal_gamma
+            kwargs["focal_gamma"] = config.focal_gamma
 
         # Get the voxel loss function
         return get_voxel_loss(loss_type, **kwargs)

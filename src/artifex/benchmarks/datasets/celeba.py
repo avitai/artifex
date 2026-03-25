@@ -2,8 +2,11 @@
 
 This module provides a dataset implementation for the CelebA dataset,
 which is used for face generation and attribute manipulation benchmarks.
+Structurally conforms to calibrax DatasetProtocol.
 """
 
+import logging
+import os
 from typing import Any
 
 import jax.numpy as jnp
@@ -12,10 +15,11 @@ from datasets import load_dataset
 from flax import nnx
 from PIL import Image
 
-from artifex.generative_models.core.protocols.evaluation import DatasetProtocol
+
+logger = logging.getLogger(__name__)
 
 
-class CelebADataset(DatasetProtocol):
+class CelebADataset:
     """CelebA dataset for face generation benchmarks.
 
     This dataset provides access to the CelebA dataset, which contains
@@ -115,14 +119,12 @@ class CelebADataset(DatasetProtocol):
         """Initialize the dataset by loading real data."""
         self._load_celeba_data()
 
-    def _load_celeba_data(self):
+    def _load_celeba_data(self) -> None:
         """Load the CelebA dataset from Hugging Face."""
         try:
-            import os
-
             cache_dir = os.environ.get("HF_DATASETS_CACHE", "~/.cache/huggingface/datasets")
-            print("Loading CelebA dataset from Hugging Face...")
-            print(f"Using cache directory: {cache_dir}")
+            logger.info("Loading CelebA dataset from Hugging Face...")
+            logger.info("Using cache directory: %s", cache_dir)
 
             # Determine which HF split to load
             if self.split in ["train", "val", "test"]:
@@ -133,10 +135,7 @@ class CelebADataset(DatasetProtocol):
                 # Load all splits and combine them
                 hf_split = "train"
 
-            # Load dataset from Hugging Face with cache directory
             # Pin revision for security and reproducibility
-            import os
-
             revision = os.environ.get("CELEBA_DATASET_REVISION", "main")
             ds = load_dataset(  # nosec B615 - revision is pinned via environment variable
                 "flwrlabs/celeba",
@@ -151,7 +150,7 @@ class CelebADataset(DatasetProtocol):
                 ds = ds.select(range(self.num_samples))
             actual_num_samples = len(ds)
 
-            print(f"Loading {actual_num_samples} images...")
+            logger.info("Loading %d images...", actual_num_samples)
 
             # Load and process images
             images = []
@@ -222,9 +221,9 @@ class CelebADataset(DatasetProtocol):
             # Update num_samples to actual count
             self.num_samples = actual_num_samples
 
-            print(f"Successfully loaded {actual_num_samples} CelebA images")
+            logger.info("Successfully loaded %d CelebA images", actual_num_samples)
 
-        except Exception as e:
+        except (OSError, ValueError, ImportError) as e:
             raise RuntimeError(f"Failed to load CelebA dataset from Hugging Face: {e}") from e
 
     def __len__(self) -> int:

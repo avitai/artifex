@@ -23,6 +23,14 @@ from artifex.generative_models.models.vae.spatial_autoencoder import (
 )
 
 
+def _preferred_text_encoder_heads(embedding_dim: int, preferred_heads: int = 8) -> int:
+    """Pick the largest supported text-attention head count for an embedding width."""
+    for num_heads in range(min(preferred_heads, embedding_dim), 0, -1):
+        if embedding_dim % num_heads == 0:
+            return num_heads
+    return 1
+
+
 class StableDiffusionModel(nnx.Module):
     """Stable Diffusion Model.
 
@@ -60,6 +68,7 @@ class StableDiffusionModel(nnx.Module):
         self.guidance_scale = config.guidance_scale
         self.use_guidance = config.use_guidance
         self.noise_steps = config.noise_schedule.num_timesteps
+        self.backbone_config = config.backbone
 
         # Input/output dimensions
         self.input_shape = config.input_shape
@@ -78,26 +87,27 @@ class StableDiffusionModel(nnx.Module):
         self.sqrt_one_minus_alphas_cumprod = jnp.sqrt(1.0 - self.alphas_cumprod)
 
         # Initialize Text Encoder (CLIP-style)
+        text_encoder_num_heads = _preferred_text_encoder_heads(self.text_embedding_dim)
         self.text_encoder = CLIPTextEncoder(
             vocab_size=self.vocab_size,
             max_length=self.text_max_length,
             embedding_dim=self.text_embedding_dim,
             num_layers=6,  # Smaller for testing
-            num_heads=8,
+            num_heads=text_encoder_num_heads,
             rngs=rngs,
         )
 
-        # Initialize UNet with cross-attention
-        # UNet operates in latent space, so use latent_channels for in/out
-        hidden_dims = config.backbone.hidden_dims
+        # Stable Diffusion owns one retained conditioned-backbone contract end to end.
+        hidden_dims = self.backbone_config.hidden_dims
         self.unet = UNet2DCondition(
-            in_channels=latent_channels,
-            out_channels=latent_channels,
+            in_channels=self.backbone_config.in_channels,
+            out_channels=self.backbone_config.out_channels,
             hidden_dims=list(hidden_dims),
-            num_res_blocks=2,
-            attention_levels=[0, 1, 2] if len(hidden_dims) >= 3 else list(range(len(hidden_dims))),
-            cross_attention_dim=self.text_embedding_dim,
-            num_heads=8,
+            num_res_blocks=self.backbone_config.num_res_blocks,
+            attention_levels=list(self.backbone_config.attention_levels),
+            cross_attention_dim=self.backbone_config.cross_attention_dim,
+            num_heads=self.backbone_config.num_heads,
+            time_embedding_dim=self.backbone_config.time_embedding_dim,
             rngs=rngs,
         )
 
@@ -260,7 +270,7 @@ class StableDiffusionModel(nnx.Module):
             text_tokens: Text token IDs [batch_size, seq_len]
 
         Returns:
-            Dictionary containing 'loss'
+            Dictionary containing canonical loss terms.
         """
         batch_size = images.shape[0]
 
@@ -271,7 +281,7 @@ class StableDiffusionModel(nnx.Module):
         # Sample noise and timesteps
         noise = jax.random.normal(self.rngs.noise(), latents.shape)
         timesteps = jax.random.randint(
-            self.rngs.time(),
+            self.rngs.timestep(),
             (batch_size,),
             0,
             self.noise_steps,
@@ -290,4 +300,4 @@ class StableDiffusionModel(nnx.Module):
         # Compute MSE loss
         loss = jnp.mean((noise_pred - noise) ** 2)
 
-        return {"loss": loss}
+        return {"total_loss": loss, "mse_loss": loss}

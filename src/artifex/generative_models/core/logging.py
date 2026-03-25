@@ -9,7 +9,6 @@ from artifex.generative_models.utils.logging import (
     ConsoleLogger,
     create_logger,
     FileLogger,
-    get_default_metrics,
     log_distribution_metrics,
     Logger,
     MetricsLogger,
@@ -26,6 +25,5 @@ __all__ = [
     "WandbLogger",
     "create_logger",
     "MetricsLogger",
-    "get_default_metrics",
     "log_distribution_metrics",
 ]

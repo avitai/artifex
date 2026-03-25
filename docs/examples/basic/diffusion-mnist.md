@@ -20,8 +20,8 @@ This tutorial provides a complete, production-ready example of training a DDPM (
 ## Quick Start
 
 ```bash
-# Activate Artifex environment
-source activate.sh
+# Install Artifex if needed
+pip install artifex
 
 # Run the Python script
 python examples/generative_models/image/diffusion/diffusion_mnist_training.py
@@ -127,10 +127,10 @@ Before diving into the code, let's understand why we use specific techniques:
 
 ```bash
 # Install Artifex with CUDA support (recommended)
-uv sync --extra cuda-dev
+pip install "artifex[cuda12]"
 
 # Or CPU-only
-uv sync
+pip install artifex
 ```
 
 ### GPU Memory Configuration
@@ -174,7 +174,7 @@ from artifex.generative_models.training.trainers.diffusion_trainer import (
 
 # DataRax imports for data loading
 from datarax import from_source
-from datarax.sources import TFDSSource, TfdsDataSourceConfig
+from datarax.sources import from_tfds
 
 print(f"JAX backend: {jax.default_backend()}")
 print(f"Devices: {jax.devices()}")
@@ -218,14 +218,15 @@ We use [DataRax](https://github.com/avitai/datarax) for efficient data loading w
 # Initialize RNG for data loading
 data_rngs = nnx.Rngs(SEED)
 
-# Configure MNIST data source using DataRax
-train_source_config = TfdsDataSourceConfig(
-    name="mnist",
-    split="train",
-    shuffle=True,              # Shuffle training data
-    shuffle_buffer_size=10000, # Buffer size for shuffling
+# Create the MNIST training source with DataRax's live TFDS helper
+train_source = from_tfds(
+    "mnist",
+    "train",
+    eager=False,
+    shuffle=True,
+    seed=SEED,
+    rngs=data_rngs,
 )
-train_source = TFDSSource(train_source_config, rngs=data_rngs)
 
 print(f"📊 MNIST train dataset loaded: {len(train_source)} samples")
 ```
@@ -806,7 +807,7 @@ In this tutorial, you learned:
 
     ---
 
-    Comprehensive guide to diffusion models in Artifex
+    Complete guide to diffusion models in Artifex
 
 - :material-api:{ .lg .middle } **[API Reference](../../api/models/diffusion.md)**
 

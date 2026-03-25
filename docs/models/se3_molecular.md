@@ -1,4 +1,4 @@
-# Se3 Molecular
+# SE3 Molecular Flow
 
 **Module:** `generative_models.models.flow.se3_molecular`
 
@@ -6,86 +6,50 @@
 
 ## Overview
 
-SE(3)-Equivariant Molecular Flow for conformation generation.
+`SE3MolecularFlow` is a simplified molecular conformation flow baseline built
+from geometry-conditioned helper layers and affine coordinate transforms.
 
-## Classes
+The current runtime is useful as a molecular flow baseline, but it does not
+provide verified global rotation or translation guarantees.
 
-### SE3CouplingLayer
+## Public Surface
 
-```python
-class SE3CouplingLayer
-```
+### `SE3MolecularFlow`
 
-### SE3EquivariantLayer
+Module-local molecular flow model for conformation scoring and sampling.
 
-```python
-class SE3EquivariantLayer
-```
+Retained behavior:
 
-### SE3MolecularFlow
+- `log_prob(coordinates, atom_types, atom_mask)` scores molecular coordinates
+  under the current affine-coupling flow
+- `sample(atom_types, atom_mask, num_samples, *, rngs)` draws molecular
+  coordinate samples for the provided atom template
+- `generate(n_samples=1, *, rngs, atom_types=..., atom_mask=...)` wraps the
+  sampling path required by the shared generative-model interface
+- `loss_fn(batch, model_outputs, **kwargs)` returns the canonical flow loss
+  dictionary with `total_loss`, `nll_loss`, `log_prob`, and `avg_log_prob`
 
-```python
-class SE3MolecularFlow
-```
+Helper classes in this module remain implementation details for the retained
+molecular flow runtime.
 
-## Functions
-
-### **call**
-
-```python
-def __call__()
-```
-
-### **call**
+## Example
 
 ```python
-def __call__()
+from flax import nnx
+import jax.numpy as jnp
+
+from artifex.generative_models.models.flow.se3_molecular import SE3MolecularFlow
+
+model = SE3MolecularFlow(
+    hidden_dim=64,
+    num_layers=3,
+    num_coupling_layers=4,
+    max_atoms=29,
+    atom_types=5,
+    rngs=nnx.Rngs(0),
+)
+
+atom_types = jnp.ones((2, 29), dtype=jnp.int32)
+atom_mask = jnp.ones((2, 29), dtype=jnp.bool_)
+samples = model.generate(2, rngs=nnx.Rngs(1), atom_types=atom_types, atom_mask=atom_mask)
 ```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### generate
-
-```python
-def generate()
-```
-
-### log_prob
-
-```python
-def log_prob()
-```
-
-### loss_fn
-
-```python
-def loss_fn()
-```
-
-### sample
-
-```python
-def sample()
-```
-
-## Module Statistics
-
-- **Classes:** 3
-- **Functions:** 9
-- **Imports:** 5

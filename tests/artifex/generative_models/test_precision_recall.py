@@ -13,7 +13,7 @@ import jax.numpy as jnp
 import numpy as np
 from sklearn.datasets import make_blobs
 
-from artifex.benchmarks.base import BenchmarkResult
+from artifex.benchmarks import BenchmarkResult
 from artifex.benchmarks.metrics.precision_recall import (
     compute_precision_recall,
     KMeansModule,

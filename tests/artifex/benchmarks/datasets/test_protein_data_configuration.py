@@ -32,6 +32,7 @@ def protein_config():
             "seed": 42,
             "batch_size": 8,
             "type": "synthetic_protein",
+            "demo_mode": True,
         },
     )
 
@@ -131,7 +132,13 @@ class TestProteinDatasetWithDifferentConfigs:
             dataset_name="small_protein",
             data_dir=Path("./test_data"),
             split="train",
-            metadata={"num_samples": 50, "num_residues": 5, "num_atoms": 3, "batch_size": 4},
+            metadata={
+                "num_samples": 50,
+                "num_residues": 5,
+                "num_atoms": 3,
+                "batch_size": 4,
+                "demo_mode": True,
+            },
         )
 
         dataset = SyntheticProteinDataset(data_path=str(config.data_dir), config=config, rngs=rngs)
@@ -147,7 +154,13 @@ class TestProteinDatasetWithDifferentConfigs:
             dataset_name="large_protein",
             data_dir=Path("./test_data"),
             split="train",
-            metadata={"num_samples": 200, "num_residues": 20, "num_atoms": 5, "batch_size": 16},
+            metadata={
+                "num_samples": 200,
+                "num_residues": 20,
+                "num_atoms": 5,
+                "batch_size": 16,
+                "demo_mode": True,
+            },
         )
 
         dataset = SyntheticProteinDataset(data_path=str(config.data_dir), config=config, rngs=rngs)

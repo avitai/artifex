@@ -1,7 +1,9 @@
 """Base classes and protocols for text modality.
 
-This module defines the core interfaces and base classes for text generation,
-following the established modality patterns in the framework.
+The retained text modality surface is a typed-config preprocessing and
+lightweight feature-processing helper. `TextModality` does not expose a
+standalone `generate()` method; model-specific generation remains model-owned
+through `TextGenerationProtocol`.
 """
 
 from enum import Enum
@@ -32,6 +34,39 @@ class TokenizationStrategy(Enum):
     SENTENCEPIECE = "sentencepiece"  # SentencePiece tokenization
 
 
+DEFAULT_PAD_TOKEN_ID = 0
+DEFAULT_UNK_TOKEN_ID = 1
+DEFAULT_BOS_TOKEN_ID = 2
+DEFAULT_EOS_TOKEN_ID = 3
+DEFAULT_HANDLE_OOV = "unk"
+
+
+def create_default_text_params(
+    *,
+    vocab_size: int = 10000,
+    max_length: int = 512,
+    min_length: int = 1,
+    representation: str = TextRepresentation.WORD_LEVEL.value,
+    tokenization_strategy: str = TokenizationStrategy.SIMPLE.value,
+    case_sensitive: bool = False,
+    handle_oov: str = DEFAULT_HANDLE_OOV,
+) -> dict[str, int | str | bool]:
+    """Create the default retained text parameter contract."""
+    return {
+        "representation": representation,
+        "vocab_size": vocab_size,
+        "max_length": max_length,
+        "min_length": min_length,
+        "tokenization_strategy": tokenization_strategy,
+        "pad_token_id": DEFAULT_PAD_TOKEN_ID,
+        "unk_token_id": DEFAULT_UNK_TOKEN_ID,
+        "bos_token_id": DEFAULT_BOS_TOKEN_ID,
+        "eos_token_id": DEFAULT_EOS_TOKEN_ID,
+        "case_sensitive": case_sensitive,
+        "handle_oov": handle_oov,
+    }
+
+
 def create_default_text_modality_config() -> ModalityConfig:
     """Create default text modality configuration.
 
@@ -48,19 +83,7 @@ def create_default_text_modality_config() -> ModalityConfig:
             {"type": "pad", "max_length": 512},
         ],
         metadata={
-            "text_params": {
-                "representation": "word_level",
-                "vocab_size": 10000,
-                "max_length": 512,
-                "min_length": 1,
-                "tokenization_strategy": "simple",
-                "pad_token_id": 0,
-                "unk_token_id": 1,
-                "bos_token_id": 2,
-                "eos_token_id": 3,
-                "case_sensitive": False,
-                "handle_oov": "unk",
-            }
+            "text_params": create_default_text_params(),
         },
     )
 
@@ -119,10 +142,11 @@ class TextGenerationProtocol(Protocol):
 
 
 class TextModality(nnx.Module):
-    """Text modality for generative models.
+    """Text preprocessing helper for generative-model workflows.
 
-    This class provides text-specific functionality for generative models,
-    including tokenization, sequence processing, and evaluation metrics.
+    `TextModality` owns tokenization, detokenization, and lightweight
+    fusion-oriented processing. It is not a standalone text generator; model-
+    owned generation remains outside this helper surface.
     """
 
     def __init__(
@@ -146,12 +170,12 @@ class TextModality(nnx.Module):
         self.vocab_size = text_params.get("vocab_size", 10000)
         self.max_length = text_params.get("max_length", 512)
         self.min_length = text_params.get("min_length", 1)
-        self.pad_token_id = text_params.get("pad_token_id", 0)
-        self.unk_token_id = text_params.get("unk_token_id", 1)
-        self.bos_token_id = text_params.get("bos_token_id", 2)
-        self.eos_token_id = text_params.get("eos_token_id", 3)
+        self.pad_token_id = text_params.get("pad_token_id", DEFAULT_PAD_TOKEN_ID)
+        self.unk_token_id = text_params.get("unk_token_id", DEFAULT_UNK_TOKEN_ID)
+        self.bos_token_id = text_params.get("bos_token_id", DEFAULT_BOS_TOKEN_ID)
+        self.eos_token_id = text_params.get("eos_token_id", DEFAULT_EOS_TOKEN_ID)
         self.case_sensitive = text_params.get("case_sensitive", False)
-        self.handle_oov = text_params.get("handle_oov", "unk")
+        self.handle_oov = text_params.get("handle_oov", DEFAULT_HANDLE_OOV)
 
     def get_extensions(self, config: BaseConfig) -> dict[str, Any]:
         """Get text-specific extensions.

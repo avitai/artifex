@@ -141,7 +141,7 @@ class CLIPTextEncoder(nnx.Module):
         token_emb = self.token_embedding(input_ids)
 
         # Add positional embeddings: [seq_len, embedding_dim]
-        pos_emb = self.positional_embedding.value[:seq_len, :]
+        pos_emb = self.positional_embedding[:seq_len, :]
 
         # Combine: [batch_size, seq_len, embedding_dim]
         x = token_emb + pos_emb[None, :, :]

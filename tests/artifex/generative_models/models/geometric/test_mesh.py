@@ -28,7 +28,6 @@ def mesh_config():
         name="test_mesh",
         network=network,
         num_vertices=256,
-        num_faces=512,
         vertex_dim=3,
     )
 
@@ -116,7 +115,6 @@ class TestMeshModel:
             name="test_mesh_custom",
             network=custom_network,
             num_vertices=num_vertices,
-            num_faces=256,
             vertex_dim=3,
         )
 
@@ -135,3 +133,61 @@ class TestMeshModel:
 
         # Check shapes match custom template
         assert generated.shape == (batch_size, num_vertices, 3)
+
+    def test_face_topology_tracks_vertex_budget(self):
+        """The retained mesh topology should derive from the vertex budget only."""
+        network = MeshNetworkConfig(
+            name="mesh_network",
+            hidden_dims=(128, 64),
+            embed_dim=64,
+            num_heads=4,
+            num_layers=2,
+            edge_features_dim=32,
+            activation="gelu",
+        )
+        coarse = MeshModel(
+            MeshConfig(name="coarse_mesh", network=network, num_vertices=64, vertex_dim=3),
+            rngs=nnx.Rngs(params=jax.random.key(5)),
+        )
+        fine = MeshModel(
+            MeshConfig(name="fine_mesh", network=network, num_vertices=100, vertex_dim=3),
+            rngs=nnx.Rngs(params=jax.random.key(6)),
+        )
+
+        assert coarse.faces.shape == (98, 3)
+        assert fine.faces.shape == (162, 3)
+        assert coarse.faces.shape != fine.faces.shape
+
+    def test_removed_num_faces_kwarg_is_rejected(self):
+        """MeshConfig should reject the removed decorative face-count knob."""
+        network = MeshNetworkConfig(
+            name="mesh_network",
+            hidden_dims=(128, 64),
+            embed_dim=64,
+            num_heads=4,
+            num_layers=2,
+            edge_features_dim=32,
+            activation="gelu",
+        )
+
+        with pytest.raises(TypeError, match="num_faces"):
+            MeshConfig(
+                name="invalid_mesh",
+                network=network,
+                num_vertices=128,
+                num_faces=256,
+                vertex_dim=3,
+            )
+
+    def test_get_loss_fn_uses_typed_vertex_reconstruction_contract(self, mesh_model):
+        """Mesh runtime loss should work with typed configs and return total_loss."""
+        batch_size = 2
+        target_vertices = jnp.zeros((batch_size, mesh_model.num_vertices, 3))
+        outputs = mesh_model(target_vertices, deterministic=True)
+
+        losses = mesh_model.get_loss_fn()({"vertices": target_vertices}, outputs)
+
+        assert set(losses) == {"total_loss", "vertex_mse_loss"}
+        assert jnp.isfinite(losses["total_loss"])
+        assert jnp.isfinite(losses["vertex_mse_loss"])
+        assert jnp.allclose(losses["total_loss"], losses["vertex_mse_loss"])

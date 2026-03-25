@@ -1,5 +1,7 @@
 """Tests for audio modality implementation."""
 
+import dataclasses
+
 import jax
 import jax.numpy as jnp
 import pytest
@@ -10,8 +12,9 @@ from artifex.generative_models.modalities.audio import (
     AudioModalityConfig,
     AudioRepresentation,
     compute_audio_metrics,
+    create_audio_dataset,
     create_audio_modality,
-    SyntheticAudioDataset,
+    SpectrogramProcessor,
 )
 
 
@@ -59,6 +62,23 @@ class TestAudioModalityConfig:
         assert config.sample_rate == 22050
         assert config.duration == 3.0
         assert config.normalize is False
+
+    def test_config_is_frozen_and_supports_from_dict(self):
+        """Audio runtime config should use the frozen typed config standard."""
+        config = AudioModalityConfig.from_dict(
+            {
+                "representation": "stft",
+                "sample_rate": 22050,
+                "duration": 1.5,
+            }
+        )
+
+        assert config.representation == AudioRepresentation.STFT
+        assert config.sample_rate == 22050
+        assert config.duration == 1.5
+
+        with pytest.raises(dataclasses.FrozenInstanceError):
+            config.sample_rate = 44100
 
 
 class TestAudioModality:
@@ -141,11 +161,26 @@ class TestAudioModality:
 
         model_outputs = {"audio": jax.random.normal(rngs.sample(), (batch_size, audio_length))}
 
-        loss = modality.loss_fn(batch, model_outputs)
+        losses = modality.loss_fn(batch, model_outputs)
 
-        assert isinstance(loss, float) or jnp.isscalar(loss)
+        assert "total_loss" in losses
+        assert "mse" in losses
+        assert jnp.isscalar(losses["total_loss"])
+        assert jnp.isfinite(losses["total_loss"])
+        assert losses["total_loss"] >= 0.0
+
+    def test_loss_fn_is_jittable(self, audio_config, rngs):
+        """Audio modality loss must stay compatible with JAX/NNX transforms."""
+        modality = AudioModality(config=audio_config, rngs=rngs)
+        batch = {"audio": jax.random.normal(rngs.sample(), (2, 16000))}
+        model_outputs = {"audio": jax.random.normal(rngs.sample(), (2, 16000))}
+
+        @nnx.jit
+        def jit_loss(mod, loss_batch, outputs):
+            return mod.loss_fn(loss_batch, outputs)["total_loss"]
+
+        loss = jit_loss(modality, batch, model_outputs)
         assert jnp.isfinite(loss)
-        assert loss >= 0.0  # MSE loss should be non-negative
 
 
 class TestCreateAudioModality:
@@ -183,49 +218,52 @@ class TestCreateAudioModality:
 
 
 class TestSyntheticAudioDataset:
-    """Test synthetic audio dataset."""
+    """Test synthetic audio dataset via MemorySource factory."""
 
-    def test_dataset_creation(self, audio_config):
+    def test_dataset_creation(self, rngs):
         """Test synthetic dataset creation."""
-        dataset = SyntheticAudioDataset(
-            config=audio_config, n_samples=10, audio_types=["sine", "noise"]
+        dataset = create_audio_dataset(
+            "synthetic",
+            rngs=rngs,
+            n_samples=10,
+            sample_rate=16000,
+            duration=1.0,
+            audio_types=("sine", "noise"),
         )
 
         assert len(dataset) == 10
-        assert dataset.name == "SyntheticAudioDataset"
 
-    def test_dataset_item_access(self, audio_config):
+    def test_dataset_item_access(self, rngs):
         """Test accessing dataset items."""
-        dataset = SyntheticAudioDataset(
-            config=audio_config,
+        dataset = create_audio_dataset(
+            "synthetic",
+            rngs=rngs,
             n_samples=5,
+            sample_rate=16000,
+            duration=1.0,
         )
 
         item = dataset[0]
 
         assert isinstance(item, dict)
         assert "audio" in item
-        assert "audio_type" in item
-        assert "sample_rate" in item
-        assert "duration" in item
-
         assert item["audio"].shape == (16000,)  # 1 second at 16kHz
-        assert item["sample_rate"] == 16000
-        assert item["duration"] == 1.0
 
-    def test_dataset_collate(self, audio_config):
-        """Test dataset collation for batching."""
-        dataset = SyntheticAudioDataset(
-            config=audio_config,
+    def test_dataset_batch(self, rngs):
+        """Test dataset batching."""
+        dataset = create_audio_dataset(
+            "synthetic",
+            rngs=rngs,
             n_samples=5,
+            sample_rate=16000,
+            duration=1.0,
         )
 
-        batch = [dataset[i] for i in range(3)]
-        collated = dataset.collate_fn(batch)
+        batch = dataset.get_batch(3)
 
-        assert "audio" in collated
-        assert collated["audio"].shape == (3, 16000)  # Batch of 3 samples
-        assert jnp.isfinite(collated["audio"]).all()
+        assert "audio" in batch
+        assert batch["audio"].shape == (3, 16000)  # Batch of 3 samples
+        assert jnp.isfinite(batch["audio"]).all()
 
 
 class TestAudioMetrics:
@@ -249,6 +287,43 @@ class TestAudioMetrics:
         for key, value in metrics.items():
             assert jnp.isfinite(value), f"Metric {key} is not finite: {value}"
 
+
+class TestSpectrogramProcessor:
+    """Test retained spectrogram reconstruction helpers."""
+
+    @pytest.mark.parametrize(
+        ("representation", "n_mel_channels"),
+        [
+            (AudioRepresentation.STFT, 80),
+            (AudioRepresentation.MEL_SPECTROGRAM, 32),
+        ],
+    )
+    def test_from_representation_reconstructs_finite_waveform(
+        self,
+        representation,
+        n_mel_channels,
+        rngs,
+    ):
+        """Retained spectral processor helpers should round-trip to finite waveforms."""
+        config = AudioModalityConfig(
+            representation=representation,
+            sample_rate=16000,
+            duration=2048 / 16000,
+            n_fft=256,
+            hop_length=64,
+            n_mel_channels=n_mel_channels,
+        )
+        processor = SpectrogramProcessor(config=config, rngs=rngs)
+
+        t = jnp.linspace(0.0, config.duration, 2048)
+        waveform = jnp.sin(2 * jnp.pi * 440.0 * t)[None, :]
+
+        features = processor.to_representation(waveform)
+        reconstructed = processor.from_representation(features)
+
+        assert reconstructed.shape == waveform.shape
+        assert jnp.isfinite(reconstructed).all()
+
     def test_metrics_with_reference(self, audio_config):
         """Test metrics computation with reference audio."""
         key = jax.random.key(42)
@@ -265,7 +340,3 @@ class TestAudioMetrics:
 
         for key, value in metrics.items():
             assert jnp.isfinite(value), f"Metric {key} is not finite: {value}"
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

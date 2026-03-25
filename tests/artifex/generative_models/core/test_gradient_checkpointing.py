@@ -120,7 +120,7 @@ class TestApplyRemat:
         grads_remated = nnx.grad(loss_with_remat)(simple_module, x)
 
         # Compare gradient values on the linear layer kernel
-        orig_kernel_grad = grads_original.linear.kernel.value
-        remat_kernel_grad = grads_remated.linear.kernel.value
+        orig_kernel_grad = grads_original.linear.kernel[...]
+        remat_kernel_grad = grads_remated.linear.kernel[...]
 
         assert jnp.allclose(orig_kernel_grad, remat_kernel_grad, atol=1e-5)

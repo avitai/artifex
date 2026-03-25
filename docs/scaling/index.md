@@ -1,10 +1,10 @@
 # Scaling & Distributed Training
 
-Comprehensive tools for scaling generative model training across multiple devices and accelerators.
+Mesh utilities, sharding strategies, and configuration helpers for multi-device Artifex experiments.
 
 ## Overview
 
-Artifex provides robust infrastructure for scaling model training from single-GPU experiments to multi-node distributed setups. The scaling module offers:
+Artifex provides retained helpers for mesh construction, explicit sharding strategies, and multi-axis configuration. The scaling module offers:
 
 <div class="grid cards" markdown>
 

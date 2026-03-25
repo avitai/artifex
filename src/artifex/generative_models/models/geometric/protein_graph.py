@@ -1,17 +1,19 @@
 """Protein-specific graph model implementation."""
 
+import logging
 from typing import Any
 
 import jax
 import jax.numpy as jnp
 from flax import nnx
 
+
+logger = logging.getLogger(__name__)
+
 from artifex.generative_models.core.configuration import (
-    ProteinConstraintConfig,
-    ProteinDihedralConfig,
-    ProteinExtensionConfig,
     ProteinGraphConfig,
 )
+from artifex.generative_models.extensions.protein import create_protein_extensions
 from artifex.generative_models.extensions.protein.constraints import (
     ProteinBackboneConstraint,
     ProteinDihedralConstraint,
@@ -52,43 +54,13 @@ class ProteinGraphModel(GraphModel):
         self.backbone_indices = list(config.backbone_indices)
         self.total_num_atoms = config.total_atoms
 
-        # Get constraint config (use default if not provided)
-        constraint_config = config.constraint_config or ProteinConstraintConfig()
-
-        # Create protein-specific extensions if enabled
-        extensions = {}
-        if config.use_constraints:
-            # Create backbone constraint config using ProteinExtensionConfig
-            # Use default backbone atoms (N, CA, C, O) - config has indices not atom names
-            backbone_config = ProteinExtensionConfig(
-                name="backbone_constraint",
-                weight=constraint_config.backbone_weight,
-                enabled=True,
-                bond_length_weight=constraint_config.bond_weight,
-                bond_angle_weight=constraint_config.angle_weight,
-            )
-            # Add backbone constraint
-            extensions["backbone"] = ProteinBackboneConstraint(
-                backbone_config,
-                rngs=rngs,
-            )
-
-            # Create dihedral constraint config using ProteinDihedralConfig
-            dihedral_config = ProteinDihedralConfig(
-                name="dihedral_constraint",
-                weight=constraint_config.dihedral_weight,
-                enabled=True,
-                phi_weight=constraint_config.phi_weight,
-                psi_weight=constraint_config.psi_weight,
-            )
-            # Add dihedral constraint
-            extensions["dihedral"] = ProteinDihedralConstraint(
-                dihedral_config,
-                rngs=rngs,
-            )
+        extensions_dict = None
+        if config.extensions is not None:
+            built_extensions = create_protein_extensions(config.extensions, rngs=rngs)
+            if len(built_extensions):
+                extensions_dict = built_extensions
 
         # Initialize base GraphModel with extensions (wrap in nnx.Dict for Flax 0.12.0+)
-        extensions_dict = nnx.Dict(extensions) if extensions else None
         super().__init__(config, extensions=extensions_dict, rngs=rngs)
 
         # Amino acid type embedding
@@ -130,11 +102,22 @@ class ProteinGraphModel(GraphModel):
             Dictionary with model outputs
         """
         if x is None:
-            # Explicitly cast the return value to Dict[str, Any]
-            result: dict[str, Any] = super().__call__(
-                None, rngs=rngs, deterministic=deterministic, batch_size=batch_size
+            base_outputs = self._forward_graph_core(
+                None,
+                rngs=rngs,
+                deterministic=deterministic,
+                batch_size=batch_size,
             )
-            return result
+            protein_outputs = self._graph_to_protein(base_outputs)
+            outputs: dict[str, Any] = dict(base_outputs)
+            outputs.update(protein_outputs)
+
+            if hasattr(self, "extension_modules") and self.extension_modules:
+                processed_outputs, extension_outputs = self.apply_extensions({}, outputs)
+                outputs.update(processed_outputs)
+                outputs["extension_outputs"] = extension_outputs
+
+            return outputs
 
         # Special handling for the test_forward_pass in test_protein_model.py
         # If inputs match format in that test (node_features, edge_features, etc.)
@@ -143,16 +126,16 @@ class ProteinGraphModel(GraphModel):
                 # Try direct mode for non-protein inputs (e.g. from test cases)
                 outputs = super().__call__(x, rngs=rngs, deterministic=deterministic)
                 return outputs
-            except Exception as e:
+            except (RuntimeError, ValueError, TypeError, AttributeError) as e:
                 # Log the error but don't fail, try protein format instead
-                print(f"Error in direct forward pass: {e}")
+                logger.warning("Error in direct forward pass: %s", e)
                 # Continue with protein conversion
 
         # Convert protein format to graph format
         graph_inputs = self._protein_to_graph(x)
 
         # Process through the base graph model
-        base_outputs: dict[str, Any] = super().__call__(
+        base_outputs: dict[str, Any] = self._forward_graph_core(
             graph_inputs, rngs=rngs, deterministic=deterministic
         )
 
@@ -162,6 +145,11 @@ class ProteinGraphModel(GraphModel):
         # Update outputs with protein-specific format
         outputs: dict[str, Any] = dict(base_outputs)
         outputs.update(protein_outputs)
+
+        if hasattr(self, "extension_modules") and self.extension_modules:
+            processed_outputs, extension_outputs = self.apply_extensions(x, outputs)
+            outputs.update(processed_outputs)
+            outputs["extension_outputs"] = extension_outputs
 
         return outputs
 
@@ -494,77 +482,59 @@ class ProteinGraphModel(GraphModel):
         return self.protein_sample(n_samples=batch_size, rngs=rngs)
 
     def get_loss_fn(self, auxiliary: dict[str, Any] | None = None) -> Any:
-        """Get the loss function for the model.
-
-        Args:
-            auxiliary: Optional auxiliary outputs to use in the loss
-
-        Returns:
-            Loss function for protein graph generation
-        """
+        """Get the loss function for protein graph generation."""
         base_loss_fn = super().get_loss_fn(auxiliary)
 
         def protein_loss_fn(
             batch: dict[str, jax.Array], outputs: Any, **kwargs
         ) -> dict[str, jax.Array]:
-            """Calculate loss for protein graph generation.
+            """Calculate protein graph losses without fabricating placeholders."""
+            graph_batch = self._protein_batch_to_loss_targets(batch)
+            losses: dict[str, jax.Array] = base_loss_fn(graph_batch, outputs, **kwargs)
 
-            Args:
-                batch: Batch of data with ground truth
-                outputs: Model outputs
-                **kwargs: Additional keyword arguments
-
-            Returns:
-                Dictionary with losses
-            """
-            # Get base losses from graph model
-            losses: dict[str, jax.Array] = base_loss_fn(batch, outputs, **kwargs)
-
-            # Add default losses if not present
-            # This is needed for test_protein_graph_model_loss_fn test
-            if "coord_loss" not in losses:
-                # Calculate coordinate loss if we can
-                if "coordinates" in batch and "coordinates" in outputs:
-                    target_coords = batch["coordinates"]
-                    pred_coords = outputs["coordinates"]
-                    coord_loss = jnp.mean((pred_coords - target_coords) ** 2)
-                    losses["coord_loss"] = coord_loss
-                else:
-                    # Default to zero if not calculable
-                    losses["coord_loss"] = jnp.zeros(
-                        (),
-                    )
-
-            if "feat_loss" not in losses:
-                # Add default feature loss
-                losses["feat_loss"] = jnp.zeros(())
-
-            # Reshape outputs and targets to protein format for specific losses
             if "atom_positions" in batch and "atom_positions" in outputs:
                 target_pos = batch["atom_positions"]
                 pred_pos = outputs["atom_positions"]
 
-                # Calculate additional protein-specific losses here
-                # For example: RMSD, structure validity, etc.
-
-                # Apply atom mask if available
                 if "atom_mask" in batch:
                     mask = batch["atom_mask"]
-                    # Calculate per-atom RMSD with mask
                     squared_diff = ((pred_pos - target_pos) ** 2) * mask[:, :, :, None]
                     total_atoms = jnp.sum(mask)
                     atom_rmsd = jnp.sqrt(jnp.sum(squared_diff) / jnp.maximum(total_atoms, 1.0))
                 else:
-                    # Calculate unmasked RMSD
                     atom_rmsd = jnp.sqrt(jnp.mean((pred_pos - target_pos) ** 2))
 
                 losses["atom_rmsd"] = atom_rmsd
 
-            # Update total loss
-            losses["total_loss"] = sum(
-                loss for name, loss in losses.items() if name != "total_loss"
-            )
-
             return losses
 
         return protein_loss_fn
+
+    def _protein_batch_to_loss_targets(self, batch: dict[str, jax.Array]) -> dict[str, jax.Array]:
+        """Normalize protein batches into graph loss targets."""
+        loss_batch: dict[str, jax.Array] = {}
+
+        if "coordinates" in batch:
+            loss_batch["coordinates"] = batch["coordinates"]
+        elif "atom_positions" in batch:
+            atom_positions = batch["atom_positions"]
+            batch_size, num_residues, num_atoms, coord_dim = atom_positions.shape
+            loss_batch["coordinates"] = atom_positions.reshape(
+                batch_size, num_residues * num_atoms, coord_dim
+            )
+
+        if "mask" in batch:
+            loss_batch["mask"] = batch["mask"]
+        elif "atom_mask" in batch:
+            atom_mask = batch["atom_mask"]
+            batch_size, num_residues, num_atoms = atom_mask.shape
+            loss_batch["mask"] = atom_mask.reshape(batch_size, num_residues * num_atoms)
+            loss_batch["atom_mask"] = atom_mask
+
+        if "atom_mask" in batch and "atom_mask" not in loss_batch:
+            loss_batch["atom_mask"] = batch["atom_mask"]
+
+        if "node_features" in batch:
+            loss_batch["node_features"] = batch["node_features"]
+
+        return loss_batch

@@ -1,8 +1,5 @@
 # Extensions API
 
-!!! info "Coming Soon"
-    This page is under development. Check back for comprehensive extensions API documentation.
-
 ## Overview
 
 API reference for the extensions system.

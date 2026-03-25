@@ -6,7 +6,8 @@ device meshes across multiple accelerators in distributed training settings.
 
 from __future__ import annotations
 
-from typing import Any, Sequence
+from collections.abc import Sequence
+from typing import Any
 
 import jax
 import numpy as np

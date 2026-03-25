@@ -409,7 +409,7 @@ class TestEnergyBasedModel:
         # Check loss components
         assert isinstance(loss_dict, dict)
         expected_keys = [
-            "loss",
+            "total_loss",
             "contrastive_divergence",
             "regularization",
             "real_energy_mean",
@@ -478,5 +478,5 @@ class TestEnergyBasedModel:
 
         # Check loss output
         assert isinstance(loss_dict, dict)
-        assert "loss" in loss_dict
-        assert jnp.isfinite(loss_dict["loss"])
+        assert "total_loss" in loss_dict
+        assert jnp.isfinite(loss_dict["total_loss"])

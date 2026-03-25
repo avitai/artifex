@@ -6,12 +6,12 @@
 
 ## Overview
 
-This example demonstrates advanced integration patterns between BlackJAX samplers and Artifex's distribution framework. It compares two approaches: using BlackJAX's API directly for maximum control and visual feedback, versus using Artifex's functional API for simplicity and maximum performance.
+This example demonstrates advanced integration patterns between BlackJAX samplers and Artifex's distribution framework. It compares two approaches: using BlackJAX's API directly for maximum control and visual feedback, versus using Artifex's functional API for simplicity and maximum performance. Pass an explicit JAX key or `nnx.Rngs` to every Artifex helper call; the wrapper layer does not fabricate fallback RNG state.
 
 ## Files
 
-- Python script: [`examples/generative_models/sampling/blackjax_integration_examples.py`](https://github.com/avitai/artifex/examples/generative_models/sampling/blackjax_integration_examples.py)
-- Jupyter notebook: [`examples/generative_models/sampling/blackjax_integration_examples.ipynb`](https://github.com/avitai/artifex/examples/generative_models/sampling/blackjax_integration_examples.ipynb)
+- Python script: [`examples/generative_models/sampling/blackjax_integration_examples.py`](https://github.com/avitai/artifex/blob/main/examples/generative_models/sampling/blackjax_integration_examples.py)
+- Jupyter notebook: [`examples/generative_models/sampling/blackjax_integration_examples.ipynb`](https://github.com/avitai/artifex/blob/main/examples/generative_models/sampling/blackjax_integration_examples.ipynb)
 
 ## Quick Start
 
@@ -232,23 +232,20 @@ true_mean = jnp.array([2.0])
 true_scale = jnp.array([1.0])
 normal_dist_1d = Normal(loc=true_mean, scale=true_scale)
 
-# Create NUTS sampler with memory constraints
+# Create NUTS sampler for a small 1D problem
 inverse_mass_matrix = jnp.array([1.0])
 nuts = blackjax.nuts(
     normal_dist_1d.log_prob,
     step_size=0.8,
     inverse_mass_matrix=inverse_mass_matrix,
-    max_depth=5,  # Lower to reduce memory usage
 )
 ```
 
 **Key Points:**
 
 - NUTS stores trajectory information, requiring more memory
-- Use `max_depth` parameter to control memory usage (default: 10)
 - Start with lower-dimensional problems for testing
-- Reduce `max_depth` if encountering memory errors
-- For production, use smaller `n_samples` or increase system memory
+- For production, use smaller `n_samples`, smaller warmup windows, or simpler targets before reaching for lower-level engine tuning
 
 ### Example 5: Multimodal Distribution Comparison
 
@@ -349,7 +346,7 @@ This comparison is supported by extensive MCMC research:
    - Showed MALA struggles with modes separated by low-probability regions
 
 2. **Neal (2011)** - "MCMC Using Hamiltonian Dynamics" (Handbook of MCMC)
-   - Comprehensive treatment of HMC advantages for exploration
+   - Complete treatment of HMC advantages for exploration
    - Explains energy conservation constraints limiting extreme mode-switching
 
 3. **Hoffman & Gelman (2014)** - "The No-U-Turn Sampler" (JMLR 15:1593-1623)
@@ -413,9 +410,9 @@ Timing: 1.23s total (812.3 samples/sec)
 
 **NUTS:**
 
-- Stores trajectory tree: memory = $O(2^{\text{max\_depth}} \times \text{dimension})$
-- Reduce `max_depth` from default 10 to 5-7 for memory-constrained systems
+- Trajectory storage grows quickly with problem difficulty and dimension
 - Use smaller dimensions for testing (1D-5D)
+- Reduce sample count or warmup length before moving to lower-level engine-specific tuning
 
 ### Tuning Recommendations
 
@@ -465,17 +462,11 @@ state, _ = hmc.step(key, state)  # Too slow!
 **Solution**:
 
 ```python
-# Reduce max_depth
-nuts = blackjax.nuts(
-    log_prob_fn,
-    step_size=0.8,
-    inverse_mass_matrix=mass_matrix,
-    max_depth=5,  # Lower from default 10
-)
+# Reduce retained work first
+n_samples = 500  # Instead of 2000
+n_burnin = 200
 
 # Or reduce problem dimension for testing
-# Or use fewer samples
-n_samples = 500  # Instead of 2000
 ```
 
 ### Poor Mixing on Mixture
@@ -537,7 +528,7 @@ def production_inference(data):
 
 1. **Compare timing**: Measure Direct API vs Functional API performance on same problem
 
-2. **Memory profiling**: Test NUTS with different `max_depth` values and monitor memory usage
+2. **Memory profiling**: Test NUTS with different sample counts and dimensions, then monitor memory usage
 
 3. **Multimodal exploration**: Visualize how different samplers explore the mixture distribution
 
@@ -596,9 +587,9 @@ def production_inference(data):
 
 If you encounter issues:
 
-1. Check that BlackJAX is installed: `pip install blackjax`
+1. Check that BlackJAX is importable: `python -c "import blackjax; print(blackjax.__version__)"`
 2. Verify JAX GPU/CPU setup is correct
-3. For memory errors, reduce `max_depth` in NUTS or problem dimension
+3. For memory errors, reduce problem dimension, burn-in, or sample count
 4. For slow performance, ensure step functions are JIT-compiled
 5. Check progress bar behavior matches API expectations
 6. Consult Artifex documentation or open an issue

@@ -1,4 +1,8 @@
-"""Base tabular modality implementation."""
+"""Base tabular modality implementation.
+
+The retained public constructor is the typed `TabularModalityConfig` path; the
+removed quick-start keyword constructor is not part of the supported surface.
+"""
 
 from dataclasses import dataclass, field
 from enum import Enum
@@ -7,7 +11,9 @@ from typing import Any
 import jax.numpy as jnp
 from flax import nnx
 
-from ..base import BaseModalityConfig, BaseModalityImplementation
+from artifex.generative_models.core.configuration import BaseModalityConfig
+
+from ..base import BaseModalityImplementation
 
 
 class ColumnType(Enum):
@@ -19,7 +25,7 @@ class ColumnType(Enum):
     BINARY = "binary"
 
 
-@dataclass
+@dataclass(frozen=True, slots=True, kw_only=True)
 class TabularModalityConfig(BaseModalityConfig):
     """Configuration for tabular modality.
 
@@ -37,19 +43,28 @@ class TabularModalityConfig(BaseModalityConfig):
     """
 
     num_features: int = 0
-    numerical_features: list[str] = field(default_factory=list)
-    categorical_features: list[str] = field(default_factory=list)
-    ordinal_features: list[str] = field(default_factory=list)
-    binary_features: list[str] = field(default_factory=list)
+    numerical_features: tuple[str, ...] = field(default_factory=tuple)
+    categorical_features: tuple[str, ...] = field(default_factory=tuple)
+    ordinal_features: tuple[str, ...] = field(default_factory=tuple)
+    binary_features: tuple[str, ...] = field(default_factory=tuple)
     categorical_vocab_sizes: dict[str, int] = field(default_factory=dict)
-    ordinal_orders: dict[str, list[str]] = field(default_factory=dict)
+    ordinal_orders: dict[str, tuple[str, ...]] = field(default_factory=dict)
     normalization_type: str = "standard"
     handle_missing: str = "impute"
     max_categorical_cardinality: int = 100
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Initialize and validate the configuration."""
-        super().__post_init__()
+        BaseModalityConfig.__post_init__(self)
+        object.__setattr__(self, "numerical_features", tuple(self.numerical_features))
+        object.__setattr__(self, "categorical_features", tuple(self.categorical_features))
+        object.__setattr__(self, "ordinal_features", tuple(self.ordinal_features))
+        object.__setattr__(self, "binary_features", tuple(self.binary_features))
+        object.__setattr__(
+            self,
+            "ordinal_orders",
+            {feature: tuple(order) for feature, order in self.ordinal_orders.items()},
+        )
         if self.num_features <= 0:
             raise ValueError("num_features must be positive")
 
@@ -93,9 +108,9 @@ class TabularModalityConfig(BaseModalityConfig):
 class TabularModality(BaseModalityImplementation):
     """Tabular modality for structured data generation and processing.
 
-    This modality handles mixed-type tabular data including numerical, categorical,
-    ordinal, and binary features. It provides preprocessing, normalization, encoding,
-    and evaluation capabilities for tabular data generation tasks.
+    This modality handles typed-config validation and encoding for mixed-type
+    tabular data. Public evaluation remains narrower than the internal helper
+    set and currently stays on the numerical/correlation/privacy surface.
     """
 
     def __init__(

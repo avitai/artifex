@@ -4,7 +4,7 @@ Provides shared initialization logic and least-squares solvers used
 across all KAN layer variants (DRY extraction from jaxKAN).
 """
 
-from typing import Callable
+from collections.abc import Callable
 
 import jax
 import jax.numpy as jnp

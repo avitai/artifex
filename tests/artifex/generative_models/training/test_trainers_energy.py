@@ -89,7 +89,6 @@ class TestEnergyTrainingConfig:
 
         config = EnergyTrainingConfig()
         assert config.training_method == "cd"
-        assert config.mcmc_sampler == "langevin"
         assert config.mcmc_steps == 20
         assert config.step_size == 0.01
         assert config.noise_scale == 0.005
@@ -98,6 +97,7 @@ class TestEnergyTrainingConfig:
         assert config.replay_buffer_init_prob == 0.95
         assert config.energy_regularization == 0.0
         assert config.gradient_penalty_weight == 0.0
+        assert not hasattr(config, "mcmc_sampler")
 
     def test_config_custom_values(self) -> None:
         """EnergyTrainingConfig should accept custom values."""
@@ -107,7 +107,6 @@ class TestEnergyTrainingConfig:
 
         config = EnergyTrainingConfig(
             training_method="pcd",
-            mcmc_sampler="langevin",
             mcmc_steps=50,
             step_size=0.02,
             noise_scale=0.01,
@@ -125,6 +124,15 @@ class TestEnergyTrainingConfig:
         assert config.replay_buffer_size == 5000
         assert config.energy_regularization == 0.01
         assert config.gradient_penalty_weight == 10.0
+
+    def test_config_rejects_removed_mcmc_sampler(self) -> None:
+        """EnergyTrainingConfig should reject sampler names the runtime ignores."""
+        from artifex.generative_models.training.trainers.energy_trainer import (
+            EnergyTrainingConfig,
+        )
+
+        with pytest.raises(TypeError, match="mcmc_sampler"):
+            EnergyTrainingConfig(mcmc_sampler="langevin")
 
     def test_config_all_training_methods(self) -> None:
         """EnergyTrainingConfig should support all training methods."""
@@ -458,14 +466,14 @@ class TestEnergyTrainStep:
 
         # Get initial params
         initial_params = nnx.state(simple_energy_model, nnx.Param)
-        initial_kernel = initial_params["layer1"]["kernel"].value.copy()
+        initial_kernel = initial_params["layer1"]["kernel"][...].copy()
 
         # Run train step
         trainer.train_step(simple_energy_model, optimizer, sample_batch, sample_key)
 
         # Get updated params
         updated_params = nnx.state(simple_energy_model, nnx.Param)
-        updated_kernel = updated_params["layer1"]["kernel"].value
+        updated_kernel = updated_params["layer1"]["kernel"][...]
 
         # Params should have changed
         assert not jnp.allclose(initial_kernel, updated_kernel)
@@ -577,10 +585,10 @@ class TestEnergyLossFunctionIntegration:
         # Should be able to create a loss function for the base Trainer
         loss_fn = trainer.create_loss_fn()
 
-        # Loss function should have correct signature: (model, batch, rng) -> (loss, metrics)
+        # Loss function should have correct signature: (model, batch, rng, step)
         batch = {"data": jax.random.normal(jax.random.key(0), (8, 16))}
         rng = jax.random.key(42)
-        loss, metrics = loss_fn(simple_energy_model, batch, rng)
+        loss, metrics = loss_fn(simple_energy_model, batch, rng, jnp.array(0))
 
         assert isinstance(loss, jax.Array)
         assert "energy_data" in metrics

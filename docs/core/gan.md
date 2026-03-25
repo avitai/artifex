@@ -1,70 +1,50 @@
-# Gan
+# GAN Configuration
 
-**Module:** `generative_models.core.configuration.gan`
+Supported owner: `artifex.generative_models.core.configuration.gan_config`
 
-**Source:** `generative_models/core/configuration/gan.py`
+Public imports for these config types are re-exported from
+`artifex.generative_models.core.configuration`.
 
 ## Overview
 
-GAN-specific configurations for the unified configuration system.
+The GAN configuration layer uses frozen dataclasses built on the shared typed
+config foundation. The retained public types are:
 
-This module provides configuration classes for various GAN architectures
-that extend the base ModelConfig.
+- `GANConfig`
+- `DCGANConfig`
+- `WGANConfig`
+- `LSGANConfig`
+- `ConditionalGANConfig`
+- `CycleGANConfig`
 
-## Classes
+These configs compose the shared network config objects such as
+`GeneratorConfig`, `DiscriminatorConfig`, `ConvGeneratorConfig`, and
+`ConvDiscriminatorConfig` rather than relying on a deleted unified helper
+module.
 
-### ConditionalGANConfiguration
-
-```python
-class ConditionalGANConfiguration
-```
-
-### CycleGANConfiguration
-
-```python
-class CycleGANConfiguration
-```
-
-### DCGANConfiguration
+## Typical Imports
 
 ```python
-class DCGANConfiguration
+from artifex.generative_models.core.configuration import (
+    ConditionalGANConfig,
+    CycleGANConfig,
+    DCGANConfig,
+    GANConfig,
+    LSGANConfig,
+    WGANConfig,
+)
 ```
 
-### GANConfiguration
+## Notes
 
-```python
-class GANConfiguration
-```
+- the canonical module path is
+  `artifex.generative_models.core.configuration.gan_config`
+- legacy configuration-class aliases are not part of the supported runtime
+- helper facades from the removed unified-config story are not shipped in the
+  current config surface
 
-### LSGANConfiguration
+## Related Pages
 
-```python
-class LSGANConfiguration
-```
-
-### WGANConfiguration
-
-```python
-class WGANConfiguration
-```
-
-## Functions
-
-### create_gan_config_from_model_config
-
-```python
-def create_gan_config_from_model_config()
-```
-
-### image_shape
-
-```python
-def image_shape()
-```
-
-## Module Statistics
-
-- **Classes:** 6
-- **Functions:** 2
-- **Imports:** 2
+- [Configuration Overview](configuration.md)
+- [API Configuration Reference](../api/core/configuration.md)
+- [Training Configuration Guide](../user-guide/training/configuration.md)

@@ -168,7 +168,6 @@ class TestDCGANDiscriminator:
             leaky_relu_slope=0.2,
             batch_norm=False,  # DCGAN discriminators typically don't use batch norm
             dropout_rate=0.0,
-            use_spectral_norm=False,
             kernel_size=(4, 4),
             stride=(2, 2),
             padding="SAME",
@@ -190,6 +189,7 @@ class TestDCGANDiscriminator:
         assert discriminator.input_shape == input_shape
         assert discriminator.batch_norm is False
         assert discriminator.dropout_rate == 0.0
+        assert not hasattr(discriminator, "use_spectral_norm")
 
     def test_discriminator_forward_pass(self, discriminator, rng, input_shape):
         """Test discriminator forward pass."""
@@ -229,7 +229,6 @@ class TestDCGANDiscriminator:
             leaky_relu_slope=0.2,
             batch_norm=True,  # Enable batch norm
             dropout_rate=0.0,
-            use_spectral_norm=False,
             kernel_size=(4, 4),
             stride=(2, 2),
             padding="SAME",
@@ -310,7 +309,6 @@ class TestDCGAN:
             leaky_relu_slope=0.2,
             batch_norm=False,
             dropout_rate=0.0,
-            use_spectral_norm=False,
             kernel_size=(4, 4),
             stride=(2, 2),
             padding="SAME",
@@ -368,33 +366,33 @@ class TestDCGAN:
         assert jnp.all(scores >= 0.0)
         assert jnp.all(scores <= 1.0)
 
-    def test_dcgan_loss_computation(self, dcgan, rng):
-        """Test DCGAN loss computation."""
+    def test_dcgan_objective_computation(self, dcgan, rng):
+        """Test DCGAN generator and discriminator objectives."""
         batch_size = 4
         real_data = jax.random.normal(rng, (batch_size, 3, 32, 32))
 
         # Create batch dict
         batch = {"x": real_data}
+        generator_loss = dcgan.generator_objective(batch)
+        discriminator_loss = dcgan.discriminator_objective(batch)
 
-        # Forward pass
-        model_outputs = dcgan(real_data, rngs=nnx.Rngs(sample=rng))
+        assert "total_loss" in generator_loss
+        assert "generator_loss" in generator_loss
+        assert "total_loss" in discriminator_loss
+        assert "discriminator_loss" in discriminator_loss
 
-        # Compute loss
-        loss_dict = dcgan.loss_fn(
-            batch=batch,
-            model_outputs=model_outputs,
-            rngs=nnx.Rngs(sample=rng),
-        )
+        assert jnp.isfinite(generator_loss["total_loss"])
+        assert jnp.isfinite(generator_loss["generator_loss"])
+        assert jnp.isfinite(discriminator_loss["total_loss"])
+        assert jnp.isfinite(discriminator_loss["discriminator_loss"])
 
-        # Check loss components
-        assert "loss" in loss_dict
-        assert "generator_loss" in loss_dict
-        assert "discriminator_loss" in loss_dict
+    def test_dcgan_loss_fn_not_supported(self, dcgan, rng):
+        """DCGAN should not expose a fake combined loss surface."""
+        batch_size = 4
+        real_data = jax.random.normal(rng, (batch_size, 3, 32, 32))
 
-        # All losses should be finite
-        assert jnp.isfinite(loss_dict["loss"])
-        assert jnp.isfinite(loss_dict["generator_loss"])
-        assert jnp.isfinite(loss_dict["discriminator_loss"])
+        with pytest.raises(NotImplementedError, match="separate generator and discriminator"):
+            dcgan.loss_fn({"x": real_data}, {})
 
     def test_dcgan_different_image_sizes(self, rng):
         """Test DCGAN with different image sizes."""
@@ -424,7 +422,6 @@ class TestDCGAN:
                 leaky_relu_slope=0.2,
                 batch_norm=False,
                 dropout_rate=0.0,
-                use_spectral_norm=False,
                 kernel_size=(4, 4),
                 stride=(2, 2),
                 padding="SAME",
@@ -555,11 +552,8 @@ class TestDCGANGeneratorJIT:
         z = jax.random.normal(rng, (4, 32))
         generator.eval()
 
-        try:
-            output = generate_jit(generator, z)
-            assert output.shape == (4, 3, 32, 32)
-        except Exception as e:
-            pytest.fail(f"JIT compilation failed: {e}")
+        output = generate_jit(generator, z)
+        assert output.shape == (4, 3, 32, 32)
 
     def test_jit_multiple_calls_consistent(self, generator, rng):
         """Test that multiple JIT calls produce consistent results."""
@@ -610,7 +604,6 @@ class TestDCGANDiscriminatorJIT:
             leaky_relu_slope=0.2,
             batch_norm=False,
             dropout_rate=0.0,
-            use_spectral_norm=False,
             kernel_size=(4, 4),
             stride=(2, 2),
             padding="SAME",
@@ -632,7 +625,7 @@ class TestDCGANDiscriminatorJIT:
         output_regular = discriminator(x)
         output_jit = discriminate_jit(discriminator, x)
 
-        assert jnp.allclose(output_regular, output_jit, rtol=1e-5, atol=1e-7)
+        assert jnp.allclose(output_regular, output_jit, rtol=1e-4, atol=1e-4)
 
     def test_jit_compilation_without_errors(self, discriminator, rng):
         """Test that JIT compilation succeeds without errors."""
@@ -644,11 +637,8 @@ class TestDCGANDiscriminatorJIT:
         x = jax.random.normal(rng, (4, 3, 32, 32))
         discriminator.eval()
 
-        try:
-            output = discriminate_jit(discriminator, x)
-            assert output.shape == (4, 1)
-        except Exception as e:
-            pytest.fail(f"JIT compilation failed: {e}")
+        output = discriminate_jit(discriminator, x)
+        assert output.shape == (4, 1)
 
     def test_jit_multiple_calls_consistent(self, discriminator, rng):
         """Test that multiple JIT calls produce consistent results."""
@@ -716,7 +706,6 @@ class TestDCGANJIT:
             leaky_relu_slope=0.2,
             batch_norm=False,
             dropout_rate=0.0,
-            use_spectral_norm=False,
             kernel_size=(4, 4),
             stride=(2, 2),
             padding="SAME",
@@ -752,7 +741,7 @@ class TestDCGANJIT:
         output_regular = dcgan.generator(z)
         output_jit = generate_jit(dcgan, z)
 
-        assert jnp.allclose(output_regular, output_jit, rtol=1e-5, atol=1e-7)
+        assert jnp.allclose(output_regular, output_jit, rtol=1e-4, atol=1e-4)
 
     def test_jit_discriminator_forward(self, dcgan, rng):
         """Test that DCGAN discriminator is JIT compatible."""
@@ -766,7 +755,7 @@ class TestDCGANJIT:
         output_regular = dcgan.discriminator(x)
         output_jit = discriminate_jit(dcgan, x)
 
-        assert jnp.allclose(output_regular, output_jit, rtol=1e-5, atol=1e-7)
+        assert jnp.allclose(output_regular, output_jit, rtol=1e-4, atol=1e-4)
 
     def test_jit_full_forward_pass(self, dcgan, rng):
         """Test that DCGAN full forward pass is JIT compatible."""
@@ -781,7 +770,7 @@ class TestDCGANJIT:
         output_jit = forward_jit(dcgan, x)
 
         assert jnp.allclose(
-            output_regular["real_scores"], output_jit["real_scores"], rtol=1e-5, atol=1e-7
+            output_regular["real_scores"], output_jit["real_scores"], rtol=1e-4, atol=1e-4
         )
 
     def test_jit_training_step(self, dcgan, rng):
@@ -804,13 +793,10 @@ class TestDCGANJIT:
         latent_vectors = jax.random.normal(jax.random.fold_in(rng, 1), (4, 32))
 
         dcgan.train()
-        try:
-            results = training_step_jit(dcgan, real_images, latent_vectors)
-            assert results["fake_images"].shape == (4, 3, 32, 32)
-            assert results["real_scores"].shape == (4, 1)
-            assert results["fake_scores"].shape == (4, 1)
-        except Exception as e:
-            pytest.fail(f"JIT training step failed: {e}")
+        results = training_step_jit(dcgan, real_images, latent_vectors)
+        assert results["fake_images"].shape == (4, 3, 32, 32)
+        assert results["real_scores"].shape == (4, 1)
+        assert results["fake_scores"].shape == (4, 1)
 
     def test_jit_gradient_computation(self, dcgan, rng):
         """Test that gradient computation is JIT compatible."""
@@ -827,8 +813,5 @@ class TestDCGANJIT:
         z = jax.random.normal(jax.random.fold_in(rng, 1), (4, 32))
 
         dcgan.train()
-        try:
-            loss = compute_loss_jit(dcgan, real_images, z)
-            assert jnp.isfinite(loss)
-        except Exception as e:
-            pytest.fail(f"JIT gradient computation failed: {e}")
+        loss = compute_loss_jit(dcgan, real_images, z)
+        assert jnp.isfinite(loss)

@@ -8,6 +8,11 @@ image-to-image translation, and other generative models.
 
 import jax
 import jax.numpy as jnp
+from calibrax.metrics.functional.regression import (
+    huber_loss as _calibrax_huber_loss,
+    mae as _calibrax_mae,
+    mse as _calibrax_mse,
+)
 
 from artifex.generative_models.core.losses.base import reduce_loss
 
@@ -40,6 +45,9 @@ def mse_loss(
         >>> targ = jnp.array([0.0, 0.0, 0.0])
         >>> mse_loss(pred, targ)  # Returns 4.66...
     """
+    if reduction == "mean" and weights is None and axis is None:
+        return _calibrax_mse(predictions, targets)
+
     squared_error = jnp.square(predictions - targets)
     return reduce_loss(squared_error, reduction, weights, axis)
 
@@ -72,6 +80,9 @@ def mae_loss(
         >>> targ = jnp.array([0.0, 0.0, 0.0])
         >>> mae_loss(pred, targ)  # Returns 2.0
     """
+    if reduction == "mean" and weights is None and axis is None:
+        return _calibrax_mae(predictions, targets)
+
     absolute_error = jnp.abs(predictions - targets)
     return reduce_loss(absolute_error, reduction, weights, axis)
 
@@ -109,6 +120,9 @@ def huber_loss(
         >>> targ = jnp.array([0.0, 0.0, 0.0])
         >>> huber_loss(pred, targ, delta=1.5)
     """
+    if reduction == "mean" and weights is None and axis is None:
+        return _calibrax_huber_loss(predictions, targets, delta=delta)
+
     error = predictions - targets
     abs_error = jnp.abs(error)
 

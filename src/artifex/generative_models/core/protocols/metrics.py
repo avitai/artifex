@@ -1,72 +1,63 @@
-"""Metric protocol definitions for artifex.generative_models.core."""
+"""Metric protocol definitions for artifex.generative_models.core.
 
-from abc import ABC, abstractmethod
+MetricBase is the single shared runtime base for Artifex metrics. It owns only
+metric metadata and call semantics; config adaptation belongs to the concrete
+runtime layers that choose to use configs.
+"""
+
+from __future__ import annotations
 
 import flax.nnx as nnx
 
-from artifex.generative_models.core.configuration import EvaluationConfig
 
+class MetricBase(nnx.Module):
+    """Single shared runtime base class for Artifex metrics."""
 
-class MetricBase(nnx.Module, ABC):
-    """Abstract base class for all metrics following NNX patterns.
+    def __init__(
+        self,
+        *,
+        name: str | None = None,
+        batch_size: int = 32,
+        rngs: nnx.Rngs | None = None,
+        modality: str = "unknown",
+        higher_is_better: bool = True,
+    ) -> None:
+        super().__init__()
 
-    This class defines the standard interface for metrics in the
-    comprehensive generative models benchmark system. All metrics
-    must follow proper RNG handling and JAX-compatible operations.
+        if name is None:
+            raise TypeError("name must be provided")
+        if not isinstance(name, str) or not name.strip():
+            raise ValueError("name must be a non-empty string")
+        if not isinstance(batch_size, int) or batch_size <= 0:
+            raise ValueError("batch_size must be a positive integer")
+        if not isinstance(modality, str) or not modality.strip():
+            raise ValueError("modality must be a non-empty string")
+        if not isinstance(higher_is_better, bool):
+            raise TypeError("higher_is_better must be a bool")
 
-    Attributes:
-        name: Metric name identifier
-        modality: Target modality (image, text, audio, etc.)
-        higher_is_better: Whether higher values indicate better performance
-        config: Metric-specific configuration
-        rngs: NNX Rngs for stochastic operations
-    """
-
-    def __init__(self, config: EvaluationConfig, *, rngs: nnx.Rngs):
-        """Initialize metric protocol.
-
-        Args:
-            config: Evaluation configuration
-            rngs: NNX Rngs for stochastic operations
-        """
-        if not isinstance(config, EvaluationConfig):
-            # Also check for class name to handle dynamic module loading
-            if type(config).__name__ != "EvaluationConfig":
-                raise TypeError(f"config must be EvaluationConfig, got {type(config).__name__}")
-
-        # Extract metric information from EvaluationConfig
-        self.name = config.name
-        self.config = config
+        self._name = name
+        self.batch_size = batch_size
         self.rngs = rngs
+        self.modality = modality
+        self._higher_is_better = higher_is_better
 
-        # Extract metric-specific parameters from config.metric_params
-        metric_params = config.metric_params or {}
-        self.modality = metric_params.get("modality", "unknown")
-        self.higher_is_better = metric_params.get("higher_is_better", True)
+    @property
+    def name(self) -> str:
+        """Metric name identifier."""
+        return self._name
 
-    @abstractmethod
-    def compute(self, real_data, generated_data, **kwargs) -> dict[str, float]:
-        """Compute metric values.
+    @property
+    def higher_is_better(self) -> bool:
+        """Whether higher values indicate better performance."""
+        return self._higher_is_better
 
-        Args:
-            real_data: Ground truth data
-            generated_data: Generated/predicted data
-            **kwargs: Additional metric-specific parameters
+    def compute(self, *args, **kwargs) -> dict[str, float]:
+        """Compute metric values."""
+        raise NotImplementedError("Subclasses must implement compute().")
 
-        Returns:
-            Dictionary of computed metric values
-        """
-        pass
+    def validate_inputs(self, *args, **kwargs) -> None:
+        """Validate input compatibility for the metric."""
 
-    @abstractmethod
-    def validate_inputs(self, real_data, generated_data) -> bool:
-        """Validate input data compatibility.
-
-        Args:
-            real_data: Ground truth data
-            generated_data: Generated/predicted data
-
-        Returns:
-            True if inputs are valid for this metric
-        """
-        pass
+    def __call__(self, *args, **kwargs) -> dict[str, float]:
+        """Alias for compute to keep metric usage uniform."""
+        return self.compute(*args, **kwargs)

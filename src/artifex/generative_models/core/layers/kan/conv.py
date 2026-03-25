@@ -7,7 +7,7 @@ transformation over local patches.
 This layer is new to Artifex (not in jaxKAN).
 """
 
-from typing import Callable
+from collections.abc import Callable
 
 import jax
 from flax import nnx

@@ -154,19 +154,18 @@ class TestGeometricMetricsUnifiedConfig:
         metric = PointCloudMetrics(rngs=rngs, config=config)
         real_points, generated_points = test_point_clouds
 
-        # Valid inputs
-        assert metric.validate_inputs(real_points, generated_points)
+        # Valid inputs — should not raise
+        metric.validate_inputs(real_points, generated_points)
 
         # Invalid inputs - not arrays
-        assert not metric.validate_inputs([1, 2, 3], generated_points)
+        with pytest.raises(ValueError):
+            metric.validate_inputs([1, 2, 3], generated_points)
 
         # Invalid inputs - wrong dimensions (needs 3D)
-        assert not metric.validate_inputs(real_points[0], generated_points[0])
+        with pytest.raises(ValueError):
+            metric.validate_inputs(real_points[0], generated_points[0])
 
         # Invalid inputs - last dimension not 3
         wrong_dim = jnp.ones((10, 100, 2))
-        assert not metric.validate_inputs(wrong_dim, generated_points)
-
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+        with pytest.raises(ValueError):
+            metric.validate_inputs(wrong_dim, generated_points)

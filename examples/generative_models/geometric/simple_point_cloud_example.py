@@ -23,7 +23,7 @@ PointCloudModel with JAX and Flax NNX.
 - ✅ Configure and instantiate PointCloudModel
 - ✅ Generate 3D point clouds with transformer-based architecture
 - ✅ Visualize point clouds in 3D
-- ✅ Control sampling diversity with temperature
+- ✅ Generate multiple point clouds in one call
 
 ## Prerequisites
 
@@ -149,7 +149,7 @@ def main():
     key = jax.random.key(seed)
     rngs = nnx.Rngs(params=key)
 
-    print("Creating point cloud model...")
+    print("Creating point cloud model...")  # noqa: T201
     # Create a point cloud model with frozen dataclass configuration
     network_config = PointCloudNetworkConfig(
         name="point_cloud_network",
@@ -172,25 +172,24 @@ def main():
         rngs=rngs,
     )
 
-    print("Generating point clouds...")
+    print("Generating point clouds...")  # noqa: T201
     # Generate point clouds
     point_clouds = model.generate(
         rngs=rngs,
         n_samples=2,  # Generate two point clouds
-        temperature=0.8,  # Temperature for sampling (higher = more diverse)
     )
 
     # Convert to numpy for visualization
     point_clouds_np = np.array(point_clouds)
 
     # Visualize the results
-    print("Visualizing point clouds...")
+    print("Visualizing point clouds...")  # noqa: T201
     for i in range(len(point_clouds_np)):
         points = point_clouds_np[i]
         plot_point_cloud(points, f"point_cloud_{i + 1}.png")
         plt.show()
 
-    print("Example completed! Point clouds saved as PNG files.")
+    print("Example completed! Point clouds saved as PNG files.")  # noqa: T201
 
 
 # %% [markdown]
@@ -226,7 +225,7 @@ pass
 #
 # 1. **Point Cloud Representation**: Unordered sets of 3D coordinates
 # 2. **Transformer Architecture**: Self-attention for point relationships
-# 3. **Generation Process**: Using learned distributions with temperature control
+# 3. **Generation Process**: Batched sampling from learned point representations
 # 4. **3D Visualization**: Plotting and saving point clouds
 #
 # ### Understanding the Architecture
@@ -247,7 +246,7 @@ pass
 # ### Next Steps
 #
 # - Try different `num_points` values (256, 1024, 2048)
-# - Experiment with `temperature` for diversity control
+# - Compare outputs across different random seeds
 # - Explore `protein_point_cloud_example.py` for domain-specific modeling
 # - See `geometric_losses_demo.py` for specialized loss functions
 

@@ -1,17 +1,14 @@
 name: default_point_cloud_model
-description: Default configuration for point cloud generation model
-
-model_type: point_cloud
-latent_dim: 256
-use_conditioning: false
-
-# Point cloud specific parameters
-embed_dim: 256
-num_points: 1024
-num_layers: 6
-num_heads: 8
-dropout: 0.1
-use_positional_encoding: true
-
-# Loss function parameters
-loss_type: chamfer
+description: Default typed config for point-cloud generation models.
+network:
+  name: point_cloud_network
+  hidden_dims: [128, 128, 128, 128]
+  activation: gelu
+  embed_dim: 128
+  num_heads: 4
+  num_layers: 4
+  dropout_rate: 0.1
+  use_positional_encoding: true
+num_points: 512
+point_dim: 3
+dropout_rate: 0.1

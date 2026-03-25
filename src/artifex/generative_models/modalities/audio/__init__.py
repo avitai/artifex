@@ -1,9 +1,9 @@
 """Audio modality for generative models.
 
-This module provides comprehensive audio generation capabilities including:
+This module provides complete audio generation capabilities including:
 - Multiple representation support (waveforms, spectrograms)
 - WaveNet and diffusion-based generation models
-- Comprehensive audio evaluation metrics
+- Complete audio evaluation metrics
 - Integration with benchmark framework
 
 Example:
@@ -20,9 +20,8 @@ from .base import (
     create_audio_modality,
 )
 from .datasets import (
-    AudioDataset,
     create_audio_dataset,
-    SyntheticAudioDataset,
+    generate_synthetic_audio,
 )
 from .evaluation import (
     AudioEvaluationSuite,
@@ -48,8 +47,7 @@ __all__ = [
     "WaveformProcessor",
     "SpectrogramProcessor",
     # Dataset handling
-    "AudioDataset",
-    "SyntheticAudioDataset",
+    "generate_synthetic_audio",
     "create_audio_dataset",
     # Evaluation
     "AudioEvaluationSuite",

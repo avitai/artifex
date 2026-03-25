@@ -1,1 +1,1 @@
-"""Tests for artifex.generative_models.fine_tuning."""
+"""Tests for fine-tuning-related training surfaces."""

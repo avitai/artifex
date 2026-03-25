@@ -7,15 +7,15 @@ import unittest
 class TestCoreImports(unittest.TestCase):
     """Test cases for verifying imports work correctly."""
 
-    def test_interfaces_import(self):
-        """Test importing the interfaces module."""
-        module = importlib.import_module("artifex.generative_models.core.interfaces")
+    def test_distributions_base_import(self):
+        """Test importing the canonical distribution base module."""
+        module = importlib.import_module("artifex.generative_models.core.distributions.base")
         self.assertTrue(hasattr(module, "Distribution"))
         self.assertTrue(isinstance(getattr(module, "Distribution"), type))
 
     def test_distributions_import(self):
-        """Test importing the distributions module."""
-        module = importlib.import_module("artifex.generative_models.core.distributions.base")
+        """Test importing the distributions package."""
+        module = importlib.import_module("artifex.generative_models.core.distributions")
         self.assertTrue(hasattr(module, "Distribution"))
         self.assertTrue(isinstance(getattr(module, "Distribution"), type))
 
@@ -34,7 +34,7 @@ class TestCoreImports(unittest.TestCase):
     def test_import_all_together(self):
         """Test importing multiple modules together to verify no circular imports."""
         # These imports should not raise any exceptions
-        from artifex.generative_models.core.interfaces import Distribution
+        from artifex.generative_models.core.distributions.base import Distribution
         from artifex.generative_models.core.sampling.ancestral import ancestral_sampling
         from artifex.generative_models.core.sampling.mcmc import mcmc_sampling
 
@@ -42,7 +42,3 @@ class TestCoreImports(unittest.TestCase):
         self.assertTrue(isinstance(Distribution, type))
         self.assertTrue(callable(mcmc_sampling))
         self.assertTrue(callable(ancestral_sampling))
-
-
-if __name__ == "__main__":
-    unittest.main()

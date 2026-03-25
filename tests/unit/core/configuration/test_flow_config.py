@@ -626,16 +626,6 @@ class TestGlowConfigDefaults:
             activation="relu",
         )
 
-    def test_default_num_scales(self, coupling_network):
-        """Test num_scales defaults to 3."""
-        config = GlowConfig(
-            name="test_glow",
-            coupling_network=coupling_network,
-            input_dim=3 * 32 * 32,
-            image_shape=(32, 32, 3),
-        )
-        assert config.num_scales == 3
-
     def test_default_blocks_per_scale(self, coupling_network):
         """Test blocks_per_scale defaults to 6."""
         config = GlowConfig(
@@ -668,15 +658,15 @@ class TestGlowConfigValidation:
                 input_dim=3 * 32 * 32,
             )
 
-    def test_invalid_num_scales(self, coupling_network):
-        """Test that non-positive num_scales raises ValueError."""
-        with pytest.raises(ValueError, match="num_scales"):
+    def test_removed_num_scales_argument_is_rejected(self, coupling_network):
+        """Stale multi-scale constructor arguments should fail explicitly."""
+        with pytest.raises(TypeError, match="num_scales"):
             GlowConfig(
                 name="test_glow",
                 coupling_network=coupling_network,
                 input_dim=3 * 32 * 32,
                 image_shape=(32, 32, 3),
-                num_scales=0,
+                num_scales=2,
             )
 
     def test_invalid_blocks_per_scale(self, coupling_network):
@@ -710,7 +700,6 @@ class TestGlowConfigSerialization:
             coupling_network=coupling_network,
             input_dim=3 * 64 * 64,
             image_shape=(64, 64, 3),
-            num_scales=4,
             blocks_per_scale=8,
         )
         data = original.to_dict()

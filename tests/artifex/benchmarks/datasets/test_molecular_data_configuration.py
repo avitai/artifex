@@ -25,7 +25,13 @@ def qm9_config():
         data_dir=Path("./test_qm9_data"),
         split="train",
         num_workers=2,
-        metadata={"max_atoms": 29, "batch_size": 8, "num_conformations": 10, "type": "qm9"},
+        metadata={
+            "max_atoms": 29,
+            "batch_size": 8,
+            "num_conformations": 10,
+            "type": "qm9",
+            "demo_mode": True,
+        },
     )
 
 
@@ -45,6 +51,7 @@ def crossdocked_config():
             "num_samples": 100,
             "batch_size": 4,
             "type": "crossdocked",
+            "demo_mode": True,
         },
     )
 

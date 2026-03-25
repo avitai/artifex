@@ -1,85 +1,41 @@
 # Pipeline
 
-**Module:** `generative_models.core.evaluation.metrics.pipeline`
+`EvaluationPipeline` is the retained orchestration layer for explicit
+evaluation dependencies. It lives in
+`artifex.generative_models.core.evaluation.metrics.pipeline` and builds a
+small set of supported runtime metrics.
 
-**Source:** `generative_models/core/evaluation/metrics/pipeline.py`
+## Current Contract
 
-## Overview
+- metrics must use explicit `modality:metric` specs
+- supported metric specs are `image:fid`, `image:is`, and
+  `text:perplexity`
+- caller-supplied dependencies are required for `feature_extractor`,
+  `classifier`, and `model`
+- unsupported metric specs raise during initialization instead of being
+  skipped
+- registry ownership lives in `calibrax.metrics.MetricRegistry`, not in a
+  parallel Artifex wrapper
 
-Evaluation pipeline and metric composition for artifex.generative_models.core.evaluation.
+## Supported Payload Shapes
 
-## Classes
+- `image:fid` expects `{"real": ..., "generated": ...}`
+- `image:is` expects `{"generated": ...}`
+- `text:perplexity` expects `{"inputs": ...}` or `{"log_probs": ...}`
+  and may also receive `{"mask": ...}`
 
-### EvaluationPipeline
-
-```python
-class EvaluationPipeline
-```
-
-### MetricComposer
-
-```python
-class MetricComposer
-```
-
-### ModalityMetrics
-
-```python
-class ModalityMetrics
-```
-
-## Functions
-
-### **init**
+## Example
 
 ```python
-def __init__()
+results = pipeline.evaluate(
+    {
+        "image": {
+            "real": real_images,
+            "generated": generated_images,
+        },
+        "text": {
+            "inputs": token_ids,
+        },
+    }
+)
 ```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### aggregate_modalities
-
-```python
-def aggregate_modalities()
-```
-
-### compose
-
-```python
-def compose()
-```
-
-### evaluate
-
-```python
-def evaluate()
-```
-
-### get_supported_modalities
-
-```python
-def get_supported_modalities()
-```
-
-### select_metrics
-
-```python
-def select_metrics()
-```
-
-## Module Statistics
-
-- **Classes:** 3
-- **Functions:** 8
-- **Imports:** 7

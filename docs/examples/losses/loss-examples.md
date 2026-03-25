@@ -6,7 +6,7 @@
 
 ## Overview
 
-This example provides a comprehensive guide to loss functions in Artifex, covering everything from simple functional losses to advanced composable loss systems. Learn how to use built-in losses, create custom compositions, and apply specialized losses for VAEs, GANs, and geometric models.
+This example provides a complete guide to loss functions in Artifex, covering everything from simple functional losses to advanced composable loss systems. Learn how to use built-in losses, create custom compositions, and apply specialized losses for VAEs, GANs, and geometric models.
 
 ## What You'll Learn
 
@@ -62,8 +62,8 @@ This example is available in two formats:
 ### Run the Python Script
 
 ```bash
-# Activate environment
-source activate.sh
+# Install Artifex if needed
+pip install artifex
 
 # Run the example
 python examples/generative_models/loss_examples.py
@@ -72,8 +72,8 @@ python examples/generative_models/loss_examples.py
 ### Run the Jupyter Notebook
 
 ```bash
-# Activate environment
-source activate.sh
+# Install Artifex if needed
+pip install artifex
 
 # Launch Jupyter
 jupyter lab examples/generative_models/loss_examples.ipynb
@@ -101,41 +101,29 @@ loss = mae_loss(predictions, targets, reduction="sum")
 - `"sum"`: Sum all elements
 - `"none"`: Return per-element losses
 
-### 2. Weighted Losses
+### 2. Weighted Loss Terms
 
 Apply fixed weights to loss components:
 
 ```python
-from artifex.generative_models.core.losses import WeightedLoss
-
-# Create weighted loss
-weighted_mse = WeightedLoss(
-    loss_fn=mse_loss,
-    weight=2.0,
-    name="weighted_reconstruction"
-)
-
-# Compute weighted loss
-loss_value = weighted_mse(predictions, targets)
+weighted_mse = 2.0 * mse_loss(predictions, targets)
 ```
 
-### 3. Composite Losses
+### 3. Explicit Multi-Term Objectives
 
 Combine multiple loss functions:
 
 $$L_{\text{total}} = \sum_{i=1}^{n} w_i \cdot L_i(\theta)$$
 
 ```python
-from artifex.generative_models.core.losses import CompositeLoss
+reconstruction_loss = mse_loss(predictions, targets)
+l1_penalty = mae_loss(predictions, targets)
 
-composite = CompositeLoss([
-    WeightedLoss(mse_loss, weight=1.0, name="reconstruction"),
-    WeightedLoss(mae_loss, weight=0.5, name="l1_penalty"),
-], return_components=True)
-
-# Get total loss and components
-total_loss, components = composite(predictions, targets)
-# components = {"reconstruction": 0.15, "l1_penalty": 0.08}
+total_loss = reconstruction_loss + 0.5 * l1_penalty
+components = {
+    "reconstruction": reconstruction_loss,
+    "l1_penalty": l1_penalty,
+}
 ```
 
 ### 4. VAE Losses
@@ -165,51 +153,39 @@ def vae_loss(reconstruction, targets, mean, logvar, beta=1.0):
 
 ### 5. GAN Losses
 
-Artifex provides pre-configured GAN loss suites:
+Artifex keeps generator and discriminator objectives explicit:
 
 ```python
-from artifex.generative_models.core.losses import create_gan_loss_suite
-
-# Create GAN losses
-gen_loss, disc_loss = create_gan_loss_suite(
-    generator_loss_type="lsgan",
-    discriminator_loss_type="lsgan"
+from artifex.generative_models.core.losses import (
+    least_squares_discriminator_loss,
+    least_squares_generator_loss,
 )
 
 # Generator loss (want discriminator to output 1 for fake)
-g_loss = gen_loss(fake_scores)
+g_loss = least_squares_generator_loss(fake_scores)
 
 # Discriminator loss (real→1, fake→0)
-d_loss = disc_loss(real_scores, fake_scores)
+d_loss = least_squares_discriminator_loss(real_scores, fake_scores)
 ```
 
 **Available GAN Loss Types:**
 
-- `"standard"`: Binary cross-entropy (original GAN)
+- `"vanilla"`: Binary cross-entropy (original GAN)
 - `"lsgan"`: Least-squares GAN (more stable)
 - `"wgan"`: Wasserstein GAN (requires gradient penalty)
 
-### 6. Scheduled Losses
+### 6. Scheduled Loss Terms
 
 Time-varying loss weights for curriculum learning:
 
 ```python
-from artifex.generative_models.core.losses import ScheduledLoss
-
 # Define schedule function
 def warmup_schedule(step):
     """Linear warmup from 0 to 1 over 1000 steps."""
     return jnp.minimum(1.0, step / 1000.0)
 
-# Create scheduled loss
-scheduled_loss = ScheduledLoss(
-    loss_fn=perceptual_loss,
-    schedule_fn=warmup_schedule,
-    name="scheduled_perceptual"
-)
-
-# Loss weight increases with training steps
-loss_value = scheduled_loss(..., step=500)  # weight = 0.5
+base_loss = perceptual_loss(...)
+loss_value = warmup_schedule(step=500) * base_loss  # weight = 0.5
 ```
 
 ### 7. Geometric Losses
@@ -317,21 +293,29 @@ The example demonstrates seven loss usage patterns:
 1. **Adjust Loss Weights**
 
    ```python
-   # Try different β values for VAE
-   composite = CompositeLoss([
-       WeightedLoss(recon_loss, weight=1.0, name="recon"),
-       WeightedLoss(kl_loss, weight=4.0, name="kl"),  # β = 4.0
-   ])
+   # Try different β values for VAE ELBO
+   reconstruction_loss = mse_loss(reconstructed, targets, reduction="batch_sum")
+   kl_loss = gaussian_kl_divergence(mean, log_var, reduction="batch_sum")
+   total_loss = reconstruction_loss + 4.0 * kl_loss  # β = 4.0
    ```
 
 2. **Compare GAN Loss Types**
 
    ```python
-   # Standard GAN
-   gen_loss, disc_loss = create_gan_loss_suite("standard", "standard")
+   from artifex.generative_models.core.losses import (
+       least_squares_discriminator_loss,
+       least_squares_generator_loss,
+       vanilla_discriminator_loss,
+       vanilla_generator_loss,
+   )
+
+   # Vanilla GAN
+   g_loss = vanilla_generator_loss(fake_scores)
+   d_loss = vanilla_discriminator_loss(real_scores, fake_scores)
 
    # LS-GAN (often more stable)
-   gen_loss, disc_loss = create_gan_loss_suite("lsgan", "lsgan")
+   g_loss = least_squares_generator_loss(fake_scores)
+   d_loss = least_squares_discriminator_loss(real_scores, fake_scores)
    ```
 
 3. **Custom Schedule Functions**
@@ -432,19 +416,27 @@ kl_loss = -0.5 * jnp.sum(1 + logvar - mean**2 - jnp.exp(logvar))
 **Solution:** Try LS-GAN loss instead of standard GAN
 
 ```python
+from artifex.generative_models.core.losses import (
+    least_squares_discriminator_loss,
+    least_squares_generator_loss,
+)
+
 # LS-GAN is often more stable
-gen_loss, disc_loss = create_gan_loss_suite("lsgan", "lsgan")
+g_loss = least_squares_generator_loss(fake_scores)
+d_loss = least_squares_discriminator_loss(real_scores, fake_scores)
 ```
 
-### Composite Loss Component Mismatch
+### Missing Loss Components
 
-**Symptom:** `KeyError` when accessing loss components
+**Symptom:** Metrics dictionaries do not contain the component you want to log
 
-**Solution:** Set `return_components=True` in CompositeLoss
+**Solution:** Build the component dictionary explicitly alongside `total_loss`
 
 ```python
-composite = CompositeLoss([...], return_components=True)
-total, components = composite(pred, target)  # Returns tuple
+components = {
+    "reconstruction": reconstruction_loss,
+    "l1_penalty": l1_penalty,
+}
 ```
 
 ## Additional Resources
@@ -455,7 +447,7 @@ total, components = composite(pred, target)  # Returns tuple
 
 ### Related Examples
 
-- [Framework Features Demo](../framework/framework-features-demo.md) - Composable loss system
+- [Framework Features Demo](../framework/framework-features-demo.md) - Explicit loss composition
 - [VAE MNIST Tutorial](../basic/vae-mnist.md) - VAE loss in practice
 - [GAN MNIST Tutorial](../basic/simple-gan.md) - GAN loss in practice
 - [Geometric Benchmark](../geometric/geometric-benchmark-demo.md) - Geometric losses

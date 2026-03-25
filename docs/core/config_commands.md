@@ -1,20 +1,22 @@
 # Config Commands
 
-**Module:** `generative_models.core.cli.config_commands`
+**Module:** `artifex.generative_models.core.cli.config_commands`
 
-**Source:** `generative_models/core/cli/config_commands.py`
+**Source:** `src/artifex/generative_models/core/cli/config_commands.py`
 
 ## Overview
 
-Reusable CLI functions for configuration management.
+Reusable CLI functions for the retained typed config wrapper.
+
+The module deliberately works with:
+
+- typed config templates exposed through `template_manager`
+- supported typed config documents under the Artifex config runtime
+
+It deliberately does not bless arbitrary YAML mappings or dead bundled template
+files.
 
 ## Functions
-
-### apply_overrides
-
-```python
-def apply_overrides()
-```
 
 ### create_config
 
@@ -46,12 +48,6 @@ def get_config_registry()
 def list_configs()
 ```
 
-### parse_override
-
-```python
-def parse_override()
-```
-
 ### show_config
 
 ```python
@@ -73,5 +69,5 @@ def version_config()
 ## Module Statistics
 
 - **Classes:** 0
-- **Functions:** 10
-- **Imports:** 7
+- **Functions:** 8
+- **Imports:** 13

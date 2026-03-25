@@ -7,10 +7,10 @@ metrics, and other information during model training and evaluation.
 
 import csv
 import logging
-import os
 import sys
 from abc import ABC, abstractmethod
 from datetime import datetime
+from pathlib import Path
 from typing import Any
 
 import jax
@@ -46,7 +46,7 @@ class Logger(ABC):
 
         # Create log directory if it doesn't exist
         if log_dir is not None:
-            os.makedirs(log_dir, exist_ok=True)
+            Path(log_dir).mkdir(parents=True, exist_ok=True)
 
         # Initialize Python's built-in logger for console output
         self._logger = logging.getLogger(name)
@@ -277,7 +277,7 @@ class FileLogger(Logger):
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             filename = f"{name}_{timestamp}.log"
 
-        self.log_file = os.path.join(log_dir, filename)
+        self.log_file = str(Path(log_dir) / filename)
 
         # Add file handler
         file_handler = logging.FileHandler(self.log_file)
@@ -287,7 +287,7 @@ class FileLogger(Logger):
         self._logger.addHandler(file_handler)
 
         # Create a separate CSV file for scalar metrics
-        self.metrics_file = os.path.join(log_dir, f"{name}_{timestamp}_metrics.csv")
+        self.metrics_file = str(Path(log_dir) / f"{name}_{timestamp}_metrics.csv")
         self.metrics_header_written = False
 
         self.info(f"Log file created at {self.log_file}")
@@ -326,7 +326,7 @@ class FileLogger(Logger):
         row.update({k: str(v) for k, v in scalars.items()})
 
         # Write to CSV file
-        file_exists = os.path.isfile(self.metrics_file)
+        file_exists = Path(self.metrics_file).is_file()
         with open(self.metrics_file, mode="a", newline="") as f:
             writer = csv.DictWriter(f, fieldnames=fieldnames)
 
@@ -352,8 +352,8 @@ class FileLogger(Logger):
             import numpy as np
 
             # Create images directory
-            images_dir = os.path.join(self.log_dir, "images")  # type: ignore[arg-type]
-            os.makedirs(images_dir, exist_ok=True)
+            images_dir = Path(self.log_dir) / "images"  # type: ignore[arg-type]
+            images_dir.mkdir(parents=True, exist_ok=True)
 
             if isinstance(image, list):
                 # Save a grid of images
@@ -376,7 +376,7 @@ class FileLogger(Logger):
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                 step_suffix = f"_step{step}" if step is not None else ""
                 filename = f"{name}_{timestamp}{step_suffix}.png"
-                fig.savefig(os.path.join(images_dir, filename), bbox_inches="tight")
+                fig.savefig(images_dir / filename, bbox_inches="tight")
                 plt.close(fig)
 
             else:
@@ -397,7 +397,7 @@ class FileLogger(Logger):
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                 step_suffix = f"_step{step}" if step is not None else ""
                 filename = f"{name}_{timestamp}{step_suffix}.png"
-                fig.savefig(os.path.join(images_dir, filename), bbox_inches="tight")
+                fig.savefig(images_dir / filename, bbox_inches="tight")
                 plt.close(fig)
 
         except ImportError:
@@ -428,8 +428,8 @@ class FileLogger(Logger):
             import numpy as np
 
             # Create histograms directory
-            histograms_dir = os.path.join(self.log_dir, "histograms")  # type: ignore[arg-type]
-            os.makedirs(histograms_dir, exist_ok=True)
+            histograms_dir = Path(self.log_dir) / "histograms"  # type: ignore[arg-type]
+            histograms_dir.mkdir(parents=True, exist_ok=True)
 
             # Plot histogram
             fig, ax = plt.subplots(figsize=(8, 6))
@@ -443,7 +443,7 @@ class FileLogger(Logger):
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             step_suffix = f"_step{step}" if step is not None else ""
             filename = f"{name}_{timestamp}{step_suffix}.png"
-            fig.savefig(os.path.join(histograms_dir, filename), bbox_inches="tight")
+            fig.savefig(histograms_dir / filename, bbox_inches="tight")
             plt.close(fig)
 
         except ImportError:
@@ -457,14 +457,14 @@ class FileLogger(Logger):
         # Also save to separate text file for longer content
         try:
             # Create texts directory
-            texts_dir = os.path.join(self.log_dir, "texts")  # type: ignore[arg-type]
-            os.makedirs(texts_dir, exist_ok=True)
+            texts_dir = Path(self.log_dir) / "texts"  # type: ignore[arg-type]
+            texts_dir.mkdir(parents=True, exist_ok=True)
 
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             step_suffix = f"_step{step}" if step is not None else ""
             filename = f"{name}_{timestamp}{step_suffix}.txt"
 
-            with open(os.path.join(texts_dir, filename), "w") as f:
+            with open(texts_dir / filename, "w") as f:
                 f.write(text)
         except Exception as e:
             self.warning(f"Failed to save text to file: {e}")
@@ -480,7 +480,7 @@ class FileLogger(Logger):
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             filename = f"hyperparams_{timestamp}.txt"
 
-            with open(os.path.join(self.log_dir, filename), "w") as f:  # type: ignore[arg-type]
+            with open(Path(self.log_dir) / filename, "w") as f:  # type: ignore[arg-type]
                 for name, value in params.items():
                     f.write(f"{name}: {value}\n")
         except Exception as e:
@@ -509,7 +509,7 @@ def create_logger(
         A Logger instance.
     """
     if log_to_file and log_dir is None:
-        log_dir = os.path.join("logs", name)
+        log_dir = str(Path("logs") / name)
 
     if log_to_console and not log_to_file:
         return ConsoleLogger(name, log_dir, level)

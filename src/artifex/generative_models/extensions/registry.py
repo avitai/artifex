@@ -6,11 +6,18 @@ extensions across different modalities in the generative models framework.
 
 import enum
 from datetime import datetime
-from typing import Any, Type
+from typing import Any
 
 from flax import nnx
 
-from artifex.generative_models.core.configuration import ExtensionConfig
+from artifex.generative_models.core.configuration import (
+    ChemicalConstraintConfig,
+    ExtensionConfig,
+    ImageAugmentationConfig,
+    ProteinDihedralConfig,
+    ProteinExtensionConfig,
+    ProteinMixinConfig,
+)
 
 
 class ExtensionType(enum.Enum):
@@ -48,7 +55,7 @@ class ExtensionsRegistry:
     def register_extension(
         self,
         name: str,
-        extension_class: Type[nnx.Module],
+        extension_class: type[nnx.Module],
         modalities: list[str],
         capabilities: list[str],
         extension_type: ExtensionType | None = None,
@@ -139,13 +146,30 @@ class ExtensionsRegistry:
 
         # Handle configuration
         if config is None:
-            # Use default ExtensionConfig with extension name
-            config = ExtensionConfig(name=name)
+            config = self._create_default_config(name)
         elif not isinstance(config, ExtensionConfig):
             raise TypeError(f"config must be ExtensionConfig, got {type(config).__name__}")
 
         # Create extension with typed config
         return extension_class(config, rngs=rngs)
+
+    def _create_default_config(self, name: str) -> ExtensionConfig:
+        """Create the default typed config for a registered extension."""
+        if name in {
+            "protein_bond_length",
+            "protein_bond_angle",
+            "protein_backbone_constraint",
+        }:
+            return ProteinExtensionConfig(name=name)
+        if name == "protein_dihedral_constraint":
+            return ProteinDihedralConfig(name=name)
+        if name == "protein_mixin":
+            return ProteinMixinConfig(name=name)
+        if name == "chemical_constraints":
+            return ChemicalConstraintConfig(name=name)
+        if name == "image_augmentation":
+            return ImageAugmentationConfig(name=name)
+        return ExtensionConfig(name=name)
 
     def list_all_extensions(self) -> dict[str, dict[str, Any]]:
         """List all registered extensions with their metadata.
@@ -188,6 +212,65 @@ class ExtensionsRegistry:
 
     def _register_core_extensions(self):
         """Register the core extensions provided by the framework."""
+        try:
+            # Protein Extensions
+            from .protein import (
+                BondAngleExtension,
+                BondLengthExtension,
+                ProteinBackboneConstraint,
+                ProteinDihedralConstraint,
+                ProteinMixinExtension,
+            )
+
+            self.register_extension(
+                "protein_bond_length",
+                BondLengthExtension,
+                modalities=["protein", "geometric"],
+                capabilities=["constraints", "protein_geometry", "bond_length"],
+                extension_type=ExtensionType.CONSTRAINT,
+                description="Bond-length monitoring for protein backbone geometry",
+            )
+
+            self.register_extension(
+                "protein_bond_angle",
+                BondAngleExtension,
+                modalities=["protein", "geometric"],
+                capabilities=["constraints", "protein_geometry", "bond_angle"],
+                extension_type=ExtensionType.CONSTRAINT,
+                description="Bond-angle monitoring for protein backbone geometry",
+            )
+
+            self.register_extension(
+                "protein_backbone_constraint",
+                ProteinBackboneConstraint,
+                modalities=["protein", "geometric"],
+                capabilities=["constraints", "protein_geometry", "backbone"],
+                extension_type=ExtensionType.CONSTRAINT,
+                description="Backbone geometry constraint for protein structure generation",
+            )
+
+            self.register_extension(
+                "protein_dihedral_constraint",
+                ProteinDihedralConstraint,
+                modalities=["protein", "geometric"],
+                capabilities=["constraints", "protein_geometry", "dihedral"],
+                extension_type=ExtensionType.CONSTRAINT,
+                description="Dihedral-angle constraint for protein structure generation",
+            )
+
+            self.register_extension(
+                "protein_mixin",
+                ProteinMixinExtension,
+                modalities=["protein", "geometric"],
+                capabilities=["feature_extraction", "protein_sequence", "protein_features"],
+                extension_type=ExtensionType.MODEL,
+                description="Amino-acid feature integration for protein-aware models",
+            )
+
+        except ImportError:
+            # Protein extensions not available
+            pass
+
         try:
             # Chemical Extensions
             from .chemical.constraints import ChemicalConstraints

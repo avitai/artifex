@@ -1,5 +1,5 @@
 """
-Comprehensive tests for Flash Attention implementation.
+Complete tests for Flash Attention implementation.
 
 Tests cover:
 - Correctness against reference implementation
@@ -11,8 +11,9 @@ Tests cover:
 """
 
 import functools
+import inspect
 import time
-from typing import Optional, Tuple
+from typing import Optional
 
 import jax
 import jax.numpy as jnp
@@ -21,9 +22,8 @@ import pytest
 from flax import nnx
 
 from artifex.generative_models.core.layers.flash_attention import (
-    AttentionBackend,
     create_attention_mask,
-    flash_attention_triton,
+    flash_attention,
     FlashAttentionConfig,
     FlashMultiHeadAttention,
     PADDING_SEGMENT_ID,
@@ -99,7 +99,7 @@ def generate_segment_ids(
     num_segments: int,
     num_pad_tokens: int = 0,
     rng_key: Optional[jax.random.PRNGKey] = None,
-) -> Tuple[jnp.ndarray, jnp.ndarray]:
+) -> tuple[jnp.ndarray, jnp.ndarray]:
     """Generate segment IDs and positions for testing document masks."""
 
     if rng_key is None:
@@ -270,7 +270,7 @@ class TestFlashAttentionCorrectness:
         ref_output = reference_attention(inputs["query"], inputs["key"], inputs["value"], mask)
 
         # Flash Attention - explicitly pass causal parameter
-        flash_output = flash_attention_triton(
+        flash_output = flash_attention(
             inputs["query"],
             inputs["key"],
             inputs["value"],
@@ -300,7 +300,7 @@ class TestFlashAttentionCorrectness:
 
         def loss_fn_flash(q, k, v):
             # Explicitly use causal=False to match reference
-            out = flash_attention_triton(q, k, v, causal=False)
+            out = flash_attention(q, k, v, causal=False)
             return jnp.sum(out)
 
         # Compute gradients
@@ -368,7 +368,7 @@ class TestDocumentMasks:
             batch_size, seq_len, num_segments=1, num_pad_tokens=num_pad_tokens
         )
 
-        output = flash_attention_triton(
+        output = flash_attention(
             inputs["query"],
             inputs["key"],
             inputs["value"],
@@ -405,7 +405,7 @@ class TestDocumentMasks:
         # Create segment IDs for multiple documents
         segment_ids, positions = generate_segment_ids(batch_size, seq_len, num_segments)
 
-        output = flash_attention_triton(
+        output = flash_attention(
             inputs["query"],
             inputs["key"],
             inputs["value"],
@@ -447,7 +447,7 @@ class TestPerformanceCharacteristics:
         )
 
         # Should not OOM even with large sequence
-        output = flash_attention_triton(
+        output = flash_attention(
             inputs["query"],
             inputs["key"],
             inputs["value"],
@@ -478,7 +478,7 @@ class TestPerformanceCharacteristics:
             head_dim=head_dim,
         )
 
-        output = flash_attention_triton(
+        output = flash_attention(
             inputs["query"],
             inputs["key"],
             inputs["value"],
@@ -569,21 +569,9 @@ class TestModuleIntegration:
         for out in outputs:
             assert out.shape == (batch_size, 1, features)
 
-    def test_backend_selection(self, rngs):
-        """Test different attention backends."""
-
-        for backend in [AttentionBackend.FLASH_TRITON, AttentionBackend.FALLBACK]:
-            module = FlashMultiHeadAttention(
-                num_heads=4,
-                in_features=256,
-                backend=backend,
-                rngs=rngs,
-            )
-
-            x = jnp.ones((2, 64, 256))
-            output = module(x)
-
-            assert output.shape == x.shape
+    def test_constructor_does_not_expose_backend_switch(self):
+        """Flash attention should not publish a fake backend selector."""
+        assert "backend" not in inspect.signature(FlashMultiHeadAttention.__init__).parameters
 
 
 # ============================================================================
@@ -676,7 +664,6 @@ def benchmark_attention_forward(
     seq_len: int = 1024,
     num_heads: int = 16,
     head_dim: int = 64,
-    backend: AttentionBackend = AttentionBackend.FLASH_TRITON,
     num_warmup: int = 10,
     num_runs: int = 100,
 ) -> dict:
@@ -690,10 +677,7 @@ def benchmark_attention_forward(
         head_dim=head_dim,
     )
 
-    if backend == AttentionBackend.FLASH_TRITON:
-        fn = functools.partial(flash_attention_triton, causal=True)
-    else:
-        fn = reference_attention
+    fn = functools.partial(flash_attention, causal=True)
 
     # JIT compile
     fn_jit = jax.jit(fn)
@@ -718,8 +702,3 @@ def benchmark_attention_forward(
         "avg_time": avg_time,
         "tflops": tflops,
     }
-
-
-if __name__ == "__main__":
-    # Run tests with pytest
-    pytest.main([__file__, "-v"])

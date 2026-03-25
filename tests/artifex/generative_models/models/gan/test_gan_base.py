@@ -61,7 +61,6 @@ def discriminator_config():
         leaky_relu_slope=0.2,
         batch_norm=False,
         dropout_rate=0.1,
-        use_spectral_norm=False,
     )
 
 
@@ -172,7 +171,7 @@ class TestDiscriminator:
         assert discriminator.leaky_relu_slope == discriminator_config.leaky_relu_slope
         assert discriminator.batch_norm == discriminator_config.batch_norm
         assert discriminator.dropout_rate == discriminator_config.dropout_rate
-        assert discriminator.use_spectral_norm == discriminator_config.use_spectral_norm
+        assert not hasattr(discriminator, "use_spectral_norm")
 
         # Check that layers were pre-allocated (not lazy)
         assert len(discriminator.layers) == len(discriminator_config.hidden_dims)
@@ -201,25 +200,19 @@ class TestDiscriminator:
         # Check output range (should be between 0 and 1 due to sigmoid)
         assert jnp.all((output >= 0.0) & (output <= 1.0))
 
-    def test_spectral_norm(self, rngs, input_data):
-        """Test with spectral normalization option."""
-        config = DiscriminatorConfig(
-            name="test_disc_spectral",
-            input_shape=input_data.shape,
-            hidden_dims=(128, 64),
-            activation="leaky_relu",
-            leaky_relu_slope=0.2,
-            batch_norm=False,
-            dropout_rate=0.3,
-            use_spectral_norm=True,
-        )
-        discriminator = Discriminator(config=config, rngs=rngs)
-
-        # Forward pass
-        output = discriminator(input_data)
-
-        # Check output shape
-        assert output.shape == (input_data.shape[0], 1)
+    def test_removed_spectral_norm_surface(self):
+        """Test that the dead spectral-norm config surface is removed."""
+        with pytest.raises(TypeError, match="use_spectral_norm"):
+            DiscriminatorConfig(
+                name="test_disc_spectral",
+                input_shape=(4, 3, 32, 32),
+                hidden_dims=(128, 64),
+                activation="leaky_relu",
+                leaky_relu_slope=0.2,
+                batch_norm=False,
+                dropout_rate=0.3,
+                use_spectral_norm=True,
+            )
 
     def test_with_batch_norm(self, rngs, input_data):
         """Test Discriminator with batch normalization."""
@@ -231,7 +224,6 @@ class TestDiscriminator:
             leaky_relu_slope=0.2,
             batch_norm=True,
             dropout_rate=0.0,
-            use_spectral_norm=False,
         )
         discriminator = Discriminator(config=config, rngs=rngs)
 
@@ -301,8 +293,8 @@ class TestGAN:
         expected_shape = (batch_size, *gan_config.generator.output_shape[1:])
         assert samples.shape == expected_shape
 
-    def test_loss_fn_vanilla(self, rngs, input_data):
-        """Test loss function with vanilla GAN loss."""
+    def test_generator_objective_vanilla(self, rngs, input_data):
+        """Test generator objective with vanilla GAN loss."""
         gen_config = GeneratorConfig(
             name="gen_vanilla",
             latent_dim=32,
@@ -320,7 +312,6 @@ class TestGAN:
             leaky_relu_slope=0.2,
             batch_norm=False,
             dropout_rate=0.1,
-            use_spectral_norm=False,
         )
         config = GANConfig(
             name="gan_vanilla",
@@ -331,22 +322,18 @@ class TestGAN:
         )
         gan = GAN(config=config, rngs=rngs)
 
-        # Compute loss
-        result = gan.loss_fn(input_data, None)
+        result = gan.generator_objective(input_data)
 
-        # Check loss value is a scalar and finite
-        loss = result["loss"]
+        loss = result["total_loss"]
         assert jnp.isscalar(loss) or loss.shape == ()
         assert jnp.isfinite(loss)
 
-        # Check auxiliary outputs
         assert "generator_loss" in result
-        assert "discriminator_loss" in result
         assert jnp.isfinite(result["generator_loss"])
-        assert jnp.isfinite(result["discriminator_loss"])
+        assert jnp.isclose(result["total_loss"], result["generator_loss"])
 
-    def test_loss_fn_least_squares(self, rngs, input_data):
-        """Test loss function with least squares GAN loss."""
+    def test_discriminator_objective_vanilla(self, rngs, input_data):
+        """Test discriminator objective with vanilla GAN loss."""
         gen_config = GeneratorConfig(
             name="gen_ls",
             latent_dim=32,
@@ -364,28 +351,26 @@ class TestGAN:
             leaky_relu_slope=0.2,
             batch_norm=False,
             dropout_rate=0.1,
-            use_spectral_norm=False,
         )
         config = GANConfig(
-            name="gan_ls",
+            name="gan_vanilla",
             generator=gen_config,
             discriminator=disc_config,
-            loss_type="least_squares",
+            loss_type="vanilla",
             gradient_penalty_weight=0.0,
         )
         gan = GAN(config=config, rngs=rngs)
 
-        # Compute loss
-        result = gan.loss_fn(input_data, None)
+        result = gan.discriminator_objective(input_data)
 
-        # Check loss values
-        loss = result["loss"]
+        loss = result["total_loss"]
         assert jnp.isfinite(loss)
-        assert jnp.isfinite(result["generator_loss"])
         assert jnp.isfinite(result["discriminator_loss"])
+        assert jnp.isclose(result["total_loss"], result["discriminator_loss"])
 
-    def test_loss_fn_wasserstein(self, rngs, input_data):
-        """Test loss function with Wasserstein GAN loss."""
+    @pytest.mark.parametrize("loss_type", ["least_squares", "wasserstein", "hinge"])
+    def test_objectives_support_all_loss_types(self, rngs, input_data, loss_type):
+        """Generator and discriminator objectives should support all configured GAN losses."""
         gen_config = GeneratorConfig(
             name="gen_wgan",
             latent_dim=32,
@@ -403,64 +388,30 @@ class TestGAN:
             leaky_relu_slope=0.2,
             batch_norm=False,
             dropout_rate=0.1,
-            use_spectral_norm=False,
         )
         config = GANConfig(
-            name="gan_wgan",
+            name=f"gan_{loss_type}",
             generator=gen_config,
             discriminator=disc_config,
-            loss_type="wasserstein",
+            loss_type=loss_type,
             gradient_penalty_weight=0.0,
         )
         gan = GAN(config=config, rngs=rngs)
 
-        # Compute loss
-        result = gan.loss_fn(input_data, None)
+        generator_result = gan.generator_objective(input_data)
+        discriminator_result = gan.discriminator_objective(input_data)
 
-        # Check loss values
-        loss = result["loss"]
-        assert jnp.isfinite(loss)
-        assert jnp.isfinite(result["generator_loss"])
-        assert jnp.isfinite(result["discriminator_loss"])
+        assert jnp.isfinite(generator_result["total_loss"])
+        assert jnp.isfinite(discriminator_result["total_loss"])
+        assert jnp.isfinite(generator_result["generator_loss"])
+        assert jnp.isfinite(discriminator_result["discriminator_loss"])
 
-    def test_loss_fn_hinge(self, rngs, input_data):
-        """Test loss function with hinge GAN loss."""
-        gen_config = GeneratorConfig(
-            name="gen_hinge",
-            latent_dim=32,
-            hidden_dims=(64, 128),
-            output_shape=(1, 3, 32, 32),
-            activation="relu",
-            batch_norm=True,
-            dropout_rate=0.0,
-        )
-        disc_config = DiscriminatorConfig(
-            name="disc_hinge",
-            input_shape=(4, 3, 32, 32),
-            hidden_dims=(128, 64),
-            activation="leaky_relu",
-            leaky_relu_slope=0.2,
-            batch_norm=False,
-            dropout_rate=0.1,
-            use_spectral_norm=False,
-        )
-        config = GANConfig(
-            name="gan_hinge",
-            generator=gen_config,
-            discriminator=disc_config,
-            loss_type="hinge",
-            gradient_penalty_weight=0.0,
-        )
-        gan = GAN(config=config, rngs=rngs)
+    def test_loss_fn_not_supported_for_multi_objective_training(self, rngs, gan_config, input_data):
+        """Combined GAN loss_fn should not exist as a fake single-objective API."""
+        gan = GAN(config=gan_config, rngs=rngs)
 
-        # Compute loss
-        result = gan.loss_fn(input_data, None)
-
-        # Check loss values
-        loss = result["loss"]
-        assert jnp.isfinite(loss)
-        assert jnp.isfinite(result["generator_loss"])
-        assert jnp.isfinite(result["discriminator_loss"])
+        with pytest.raises(NotImplementedError, match="separate generator and discriminator"):
+            gan.loss_fn(input_data, None)
 
     def test_invalid_loss_type(self, rngs, input_data):
         """Test that invalid loss type raises an error at config creation."""
@@ -481,7 +432,6 @@ class TestGAN:
             leaky_relu_slope=0.2,
             batch_norm=False,
             dropout_rate=0.1,
-            use_spectral_norm=False,
         )
 
         # Check that error is raised at config creation (validation in __post_init__)

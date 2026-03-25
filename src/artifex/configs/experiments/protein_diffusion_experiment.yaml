@@ -1,9 +1,9 @@
 experiment_name: protein_diffusion_cath
 seed: 42
-output_dir: ./outputs/protein_diffusion_cath/
+output_dir: "{ARTIFEX_OUTPUT_ROOT}/protein_diffusion_cath/"
 
 # Reference to config files
-model_config: models/diffusion/point_cloud_diffusion.yaml
+model_config: models/geometric/protein_point_cloud.yaml
 data_config: data/protein_dataset.yaml
 training_config: training/protein_diffusion_training.yaml
 inference_config: inference/protein_diffusion_inference.yaml
@@ -17,25 +17,21 @@ wandb_project: protein-diffusion
 overrides:
   # Model overrides
   model:
-    max_seq_length: 256
-    timesteps: 200
+    num_residues: 150
+    num_points: 600
 
   # Data overrides
   data:
-    train_dataset:
-      data_path: ./data/cath_dataset/
-      cache_dir: ./cache/cath_dataset/
-      splits_file: ./data/cath_dataset/chain_set_splits.json
-    validation_dataset:
-      data_path: ./data/cath_dataset/
-      cache_dir: ./cache/cath_dataset/
-      splits_file: ./data/cath_dataset/chain_set_splits.json
+    data_dir: "{ARTIFEX_DATA_ROOT}/cath_dataset"
+    metadata:
+      cache_dir: "{ARTIFEX_CACHE_ROOT}/cath_dataset"
+      splits_file: "{ARTIFEX_DATA_ROOT}/cath_dataset/chain_set_splits.json"
+      max_seq_length: 150
 
   # Training overrides
   training:
     num_epochs: 50
     batch_size: 64
-    eval_freq: 500
 
   # Inference overrides
   inference:

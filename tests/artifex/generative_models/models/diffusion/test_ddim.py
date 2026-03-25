@@ -194,6 +194,38 @@ class TestDDIM:
         # Transformation should have occurred (output differs from input)
         assert not jnp.allclose(encoded, x0)
 
+    def test_generate_uses_retained_ddim_fast_sampling_contract(self, ddim_config):
+        """The ordinary generate(...) path should honor the configured DDIM fast-sampling owner."""
+        model_generate = DDIMModel(config=ddim_config, rngs=nnx.Rngs(default=jax.random.PRNGKey(7)))
+        model_ddim = DDIMModel(config=ddim_config, rngs=nnx.Rngs(default=jax.random.PRNGKey(7)))
+
+        generated = model_generate.generate(n_samples=2)
+        direct_ddim = model_ddim.ddim_sample(2, steps=model_ddim.ddim_steps, eta=model_ddim.eta)
+
+        assert generated.shape == direct_ddim.shape
+        assert jnp.allclose(generated, direct_ddim)
+
+    def test_generate_accepts_rng_override(self, ddim_config):
+        """DDIM generate(...) should accept the shared diffusion RNG override contract."""
+        model_generate = DDIMModel(
+            config=ddim_config, rngs=nnx.Rngs(default=jax.random.PRNGKey(11))
+        )
+        model_ddim = DDIMModel(config=ddim_config, rngs=nnx.Rngs(default=jax.random.PRNGKey(11)))
+
+        generated = model_generate.generate(
+            n_samples=2,
+            rngs=nnx.Rngs(default=jax.random.PRNGKey(99)),
+        )
+        direct_ddim = model_ddim.ddim_sample(
+            2,
+            steps=model_ddim.ddim_steps,
+            eta=model_ddim.eta,
+            rngs=nnx.Rngs(default=jax.random.PRNGKey(99)),
+        )
+
+        assert generated.shape == direct_ddim.shape
+        assert jnp.allclose(generated, direct_ddim)
+
     def test_ddim_different_step_counts(self, ddim_config, rngs):
         """Test DDIM with different numbers of sampling steps."""
         model = DDIMModel(config=ddim_config, rngs=rngs)

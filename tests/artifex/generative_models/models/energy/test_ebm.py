@@ -156,7 +156,7 @@ class TestEBM:
         # Check loss components
         assert isinstance(loss_dict, dict)
         expected_keys = [
-            "loss",
+            "total_loss",
             "contrastive_divergence",
             "regularization",
             "real_energy_mean",
@@ -258,6 +258,10 @@ class TestEBM:
 
         # Check configuration components
         assert isinstance(retrieved_config, dict)
+        assert retrieved_config["name"] == "test_ebm_mlp"
+        assert retrieved_config["input_dim"] == 10
+        assert retrieved_config["energy_network"]["network_type"] == "mlp"
+        assert retrieved_config["energy_network"]["hidden_dims"] == (32, 16)
         assert retrieved_config["sample_buffer_capacity"] == 128
         assert retrieved_config["sample_buffer_reinit_prob"] == 0.1
         assert retrieved_config["mcmc_steps"] == 60
@@ -394,7 +398,6 @@ class TestDeepEBM:
             activation="silu",
             network_type="cnn",
             use_residual=True,
-            use_spectral_norm=True,
         )
 
         config = DeepEBMConfig(
@@ -430,7 +433,7 @@ class TestDeepCNNEnergyFunction:
         assert deep_cnn.input_channels == 3
         assert deep_cnn.hidden_dims == [16, 32, 64]
         assert deep_cnn.use_residual is True
-        assert deep_cnn.use_spectral_norm is True
+        assert not hasattr(deep_cnn, "use_spectral_norm")
 
     @jax_required
     def test_deep_cnn_energy_function_forward_pass(self, energy_rngs: nnx.Rngs):
@@ -460,7 +463,6 @@ class TestDeepCNNEnergyFunction:
             hidden_dims=[8, 16],
             input_channels=1,
             use_residual=False,
-            use_spectral_norm=False,
             activation=nnx.gelu,
             rngs=energy_rngs,
         )
@@ -648,6 +650,9 @@ class TestFactoryFunctions:
         )
         assert isinstance(ebm_cifar, DeepEBM)
 
+        with pytest.raises(TypeError, match="use_spectral_norm"):
+            create_cifar_ebm(rngs=energy_rngs, use_spectral_norm=True)
+
         # Test simple with custom parameters
         ebm_simple = create_simple_ebm(
             input_dim=10,
@@ -691,7 +696,7 @@ class TestEBMIntegration:
 
         # Training step (uses internal rngs)
         loss_dict = ebm.train_step(energy_training_batch)
-        assert jnp.isfinite(loss_dict["loss"])
+        assert jnp.isfinite(loss_dict["total_loss"])
 
         # Add samples to buffer (simulate training)
         ebm.sample_buffer.update_buffer(energy_training_batch["data"])
@@ -738,7 +743,7 @@ class TestEBMIntegration:
 
         # Training step (uses internal rngs)
         loss_dict = deep_ebm.train_step(image_batch)
-        assert jnp.isfinite(loss_dict["loss"])
+        assert jnp.isfinite(loss_dict["total_loss"])
 
         # Generate samples (uses internal rngs)
         generated = deep_ebm.generate(

@@ -32,6 +32,7 @@ classifiers = [
 ]
 dependencies = [
   "blackjax>=1.2.5",
+  "calibrax @ git+https://github.com/avitai/calibrax.git",
   "dacite>=1.8.0",
   "datasets>=2.14.0",
   "datarax @ git+https://github.com/avitai/datarax",
@@ -41,7 +42,6 @@ dependencies = [
   "graphviz>=0.20",
   "huggingface-hub>=0.25.0",
   "jax>=0.4.0",
-  "jaxlib>=0.4.0",
   "jax-triton>=0.2.0; sys_platform == 'linux'",
   "jaxtyping>=0.2.20",
   "matplotlib>=3.8",
@@ -54,8 +54,10 @@ dependencies = [
   "pandas>=2.2.2",
   "pre-commit>=4.2",
   "py3dmol>=1",
+  "pyasn1>=0.6.3",
   "pydantic>=2",
   "pytest>=8.3.5",
+  "requests>=2.33.0",
   "pytest-benchmark>=5.1",
   "pytest-cov>=6.1.1",
   "pytest-xdist>=3.7",
@@ -89,11 +91,11 @@ version = "0.1.0"
 
 [project.optional-dependencies]
 # Platform-specific installation:
-# - Linux with GPU: pip install artifex[all]
-# - macOS (Apple Silicon): pip install artifex[all-macos]
-# - macOS/Linux CPU-only: pip install artifex[all-cpu]
+# - Linux with GPU: uv pip install "artifex[cuda12]"
+# - macOS (Apple Silicon): uv pip install artifex[all-macos]
+# - macOS/Linux CPU-only: uv pip install artifex[all-cpu]
 all = [
-  "artifex[dev,docs,gpu,test]"
+  "artifex[cuda-dev,docs]"
 ]
 all-cpu = [
   # CPU-only installation (no GPU acceleration)
@@ -105,14 +107,18 @@ all-macos = [
   "artifex[dev,docs,metal,test]"
 ]
 cuda-dev = [
-  # Comprehensive CUDA development environment
-  # Includes all dev tools, testing, and GPU support
-  # Automatically configured via scripts/fresh_cuda_setup.sh
-  "artifex[dev,gpu]"
+  # Complete Linux CUDA development environment
+  "artifex[dev,test,cuda12]"
+]
+cuda12 = [
+  # Linux CUDA runtime managed through the official JAX extra.
+  "jax[cuda12]>=0.9.1; sys_platform == 'linux'"
 ]
 dev = [
   "build>=1.0.3",
   "coverage>=7",
+  "import-linter>=2.0",
+  "interrogate>=1.5",
   "ipykernel>=6.29.5",
   "jupyter>=1.1.1",
   "jupytext>=1.16.6",
@@ -125,9 +131,11 @@ dev = [
   "pytest-cov>=6.1.1",
   "pytest-env>=1.0.1",
   "pytest-json-report>=1.5.0",
+  "pytest-randomly>=3.15",
   "pytest-timeout>=2.1",
   "pytest-xdist>=3.6",
   "python-dotenv>=1",
+  "radon>=6.0",
   "ruff>=0.1.5",
   "twine>=4.0.2"
 ]
@@ -143,30 +151,10 @@ docs = [
   "mkdocstrings-python>=1.1.2",
   "pymdown-extensions>=10.14.3"
 ]
-gpu = [
-  # GPU dependencies - Complete CUDA stack installed locally in venv
-  # JAX with CUDA 12 support (uses venv CUDA libraries via LD_LIBRARY_PATH)
-  "jax-cuda12-plugin>=0.7.0",
-  "jax-cuda12-pjrt>=0.7.0",
-  # Individual CUDA libraries - installed in .venv for complete isolation
-  "nvidia-cublas-cu12>=12.6",
-  "nvidia-cuda-cupti-cu12>=12.6",
-  "nvidia-cuda-nvcc-cu12>=12.6", # CUDA compiler
-  "nvidia-cuda-nvrtc-cu12>=12.6", # CUDA runtime compiler
-  "nvidia-cuda-runtime-cu12>=12.6",
-  "nvidia-cudnn-cu12>=9.1",
-  "nvidia-cufft-cu12>=11.3", # Compatible with latest CUDA stack
-  "nvidia-curand-cu12>=10.3",
-  "nvidia-cusolver-cu12>=11.7",
-  "nvidia-cusparse-cu12>=12.3",
-  "nvidia-nccl-cu12>=2.20", # Additional CUDA ML libraries
-  "nvidia-nvjitlink-cu12>=12.6",
-  "nvidia-nvtx-cu12>=12.6"
-]
 metal = [
   # Metal acceleration for Apple Silicon Macs (M1/M2/M3+)
   # Provides GPU-like acceleration on macOS
-  "jax-metal>=0.1.0"
+  "jax-metal>=0.1.0; sys_platform == 'darwin' and platform_machine == 'arm64'"
 ]
 test = [
   "beartype>=0.14.1",
@@ -182,24 +170,68 @@ test = [
 ]
 
 [project.scripts]
-artifex-cuda-test = "scripts.run_tests_with_cuda:main"
-artifex-fresh-setup = "scripts.fresh_cuda_setup:main"
-artifex-setup-env = "scripts.setup_env:main"
-artifex-smart-test = "scripts.smart_test_runner:main"
+artifex = "artifex.cli.__main__:main"
 
 [project.urls]
 repository = "https://github.com/avitai/artifex"
 
-[tool.artifex.cuda]
-auto_detect = true
-documentation = "docs/setup/cuda-setup.md"
-environment_file = ".env"
-fallback_to_cpu = true
-setup_scripts = [
-  "scripts/fresh_cuda_setup.sh",
-  "scripts/setup_env.py",
-  "scripts/run_tests_with_cuda.sh"
+[tool.artifex.ci]
+blocking_workflows = [
+  ".github/workflows/ci.yml",
+  ".github/workflows/build-verification.yml",
+  ".github/workflows/security.yml"
 ]
+compatibility_python = ["3.11", "3.12"]
+informational_workflows = [
+  ".github/workflows/quality-checks.yml"
+]
+pyright_enforcement = "informational"
+smoke_exports = ["generative_models"]
+smoke_package = "artifex"
+tooling_python = "3.11"
+
+[tool.artifex.ci.security]
+mode = "blocking"
+
+[[tool.artifex.ci.security.reviewed_ignores]]
+id = "CVE-2025-53000"
+owner = "repo-maintainers"
+rationale = "nbconvert vulnerability is Windows-only and has no released upstream fix yet"
+review_after = "2026-06-30"
+
+[[tool.artifex.ci.security.reviewed_ignores]]
+id = "CVE-2026-0994"
+owner = "repo-maintainers"
+rationale = "protobuf fix exists upstream but has not been released yet"
+review_after = "2026-06-30"
+
+[[tool.artifex.ci.security.reviewed_ignores]]
+id = "CVE-2026-4539"
+owner = "repo-maintainers"
+rationale = "Pygments is a transitive dependency from Flax and Typer in the current runtime surface, and the reported advisory still has no released upstream fix version."
+review_after = "2026-06-30"
+
+[tool.artifex.repo_standards]
+line_length = 100
+
+[tool.artifex.repo_standards.coverage]
+# The repo-wide floor stays honest about current enforcement while new work
+# is still expected to meet the stronger per-change target.
+new_code_target = 80
+project_fail_under = 70
+
+[tool.artifex.repo_standards.docs]
+development_strict = false
+main_strict = true
+rtd_fail_on_warning = true
+
+[tool.artifex.repo_standards.interpreter]
+docs = "3.11"
+minimum_supported = "3.11"
+tooling = "3.11"
+
+[tool.artifex.repo_standards.typing]
+pyright_mode = "basic"
 
 [tool.bandit]
 exclude_dirs = ["tests", "examples", "notebooks", "scripts"]
@@ -225,8 +257,8 @@ exclude_lines = [
   "pass",
   "raise ImportError"
 ]
-# Adjusted for large codebase with focused testing approach
-fail_under = 20
+# Canonical values live in [tool.artifex.repo_standards.coverage].
+fail_under = 70
 precision = 2
 show_missing = true
 skip_covered = false
@@ -261,6 +293,22 @@ packages = ["src/artifex"]
 [tool.hatch.metadata]
 allow-direct-references = true
 
+[tool.importlinter]
+root_packages = ["artifex"]
+
+[[tool.importlinter.contracts]]
+forbidden_modules = ["artifex.generative_models.models"]
+name = "Core config must not import concrete models"
+source_modules = ["artifex.generative_models.core.configuration"]
+type = "forbidden"
+
+[tool.interrogate]
+exclude = ["tests", "scripts", "examples", "notebooks"]
+fail-under = 80
+ignore-init-method = true
+ignore-init-module = true
+ignore-magic = true
+
 [tool.pydocstyle]
 add-ignore = [
   "D100", # Missing docstring in public module
@@ -289,21 +337,23 @@ match = "(?!test_).*\\.py"
 match-dir = "(?!tests|scripts|examples|notebooks).*"
 
 [tool.pyright]
-exclude = ["tests", "src/artifex"]
+exclude = ["tests"]
 include = ["src"]
+# Canonical values live in [tool.artifex.repo_standards.interpreter] and
+# [tool.artifex.repo_standards.typing].
 pythonVersion = "3.11"
 reportFunctionMemberAccess = false
 reportIncompatibleMethodOverride = false
 reportIncompatibleVariableOverride = false # Incompatible with eqx.AbstractVar
 reportMissingImports = false
 reportMissingTypeStubs = false
-typeCheckingMode = "off"
+typeCheckingMode = "basic"
 
 [tool.pytest.ini_options]
 # Configuration with smart parallel execution and coverage
 # Note: -n auto removed to prevent GPU conflicts. Removed --maxfail=1 to run all tests
-# Coverage threshold set to 30% with timeout and JSON reporting
-addopts = "--strict-markers --strict-config --verbose --tb=short --color=yes --durations=10 --disable-warnings --cov=artifex --cov-report=term-missing --cov-report=html --cov-fail-under=30 --timeout=300 --json-report --json-report-file=temp/test-results.json --json-report-indent=2"
+# Canonical coverage values live in [tool.artifex.repo_standards.coverage].
+addopts = "--strict-markers --strict-config --verbose --tb=short --color=yes --durations=10 --disable-warnings --cov=artifex --cov-report=term-missing --cov-report=html --cov-fail-under=70 --timeout=300 --json-report --json-report-file=temp/test-results.json --json-report-indent=2"
 cache_dir = ".pytest_cache"
 # Additional settings
 console_output_style = "progress"
@@ -321,10 +371,10 @@ filterwarnings = [
 log_cli = true
 log_cli_level = "INFO"
 markers = [
-  "blackjax: marks tests that use BlackJAX integration (skipped by default unless ENABLE_BLACKJAX_TESTS is set)",
+  "blackjax: marks tests that use BlackJAX integration",
   "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-  "gpu: marks tests that require GPU (deselect with '-m \"not gpu\"') - automatically detected via conftest.py",
-  "gpu_required: marks tests as requiring GPU (will fail if GPU unavailable)",
+  "gpu: marks tests that require GPU and should be skipped when no GPU backend is available",
+  "requires_gpu: marks tests as requiring GPU to run",
   "cuda: marks tests that specifically test CUDA functionality",
   "cpu: marks tests that should run on CPU only",
   "integration: marks tests as integration tests",
@@ -357,22 +407,24 @@ warmup = true
 warmup_iterations = 3
 
 [tool.pytest-env]
+ARTIFEX_MATMUL_PRECISION = "float32"
 JAX_ENABLE_X64 = "0"
-# JAX_SKIP_CUDA_CONSTRAINTS_CHECK = "1"  # Disabled to catch CUDA version mismatches
-# Use venv CUDA libraries instead of system ones
-# This path is relative to the project root where pytest runs
-LD_LIBRARY_PATH = ".venv/lib/python3.12/site-packages/nvidia/cublas/lib:.venv/lib/python3.12/site-packages/nvidia/cusolver/lib:.venv/lib/python3.12/site-packages/nvidia/cusparse/lib:.venv/lib/python3.12/site-packages/nvidia/cudnn/lib:.venv/lib/python3.12/site-packages/nvidia/cufft/lib:.venv/lib/python3.12/site-packages/nvidia/curand/lib:.venv/lib/python3.12/site-packages/nvidia/nccl/lib:.venv/lib/python3.12/site-packages/nvidia/nvjitlink/lib:.venv/lib/python3.12/site-packages/nvidia/cuda_runtime/lib:.venv/lib/python3.12/site-packages/nvidia/cuda_nvrtc/lib:.venv/lib/python3.12/site-packages/nvidia/cuda_cupti/lib:.venv/lib/python3.12/site-packages/nvidia/nvtx/lib"
+PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION = "python"
 TF_CPP_MIN_LOG_LEVEL = "1"
+TF_ENABLE_ONEDNN_OPTS = "0"
+TF_FORCE_GPU_ALLOW_GROWTH = "true"
 XLA_PYTHON_CLIENT_MEM_FRACTION = "0.75"
 XLA_PYTHON_CLIENT_PREALLOCATE = "false"
 
 [tool.ruff]
 extend-include = ["*.ipynb"]
+# Canonical value lives in [tool.artifex.repo_standards].
 line-length = 100
 src = []
 target-version = "py311"
 
 [tool.ruff.format]
+exclude = ["*.ipynb"]
 indent-style = "space"
 line-ending = "auto"
 quote-style = "double"
@@ -380,7 +432,7 @@ skip-magic-trailing-comma = false
 
 [tool.ruff.lint]
 # Add W291, W292, W293 to fixable to handle whitespace issues
-fixable = ["I001", "F401", "E", "W", "W291", "W292", "W293", "F841"]
+fixable = ["I001", "F401", "E", "W", "W291", "W292", "W293", "F841", "UP006", "UP007", "UP035"]
 ignore = [
   "E402", # Module level import not at top of file
   "E721", # Do not compare types directly
@@ -389,19 +441,15 @@ ignore = [
   "F722", # Forward annotation syntax error
   "W391", # Blank line at end of file
   "E203", # Whitespace before ':'
-  # Typing modernization warnings - can be fixed later in a dedicated PR
-  "UP006", # Use `list` instead of `List` for type annotation
-  "UP007", # Use `X | Y` for type annotations
   "UP015", # Unnecessary open mode parameters
   "UP024", # Replace aliased errors with `OSError`
-  "UP035", # Import from `collections.abc` instead
   "RUF005" # Consider using unpacked tuple instead of concatenation
 ]
 # E: Pyflakes and pycodestyle errors
 # F: Pyflakes
 # I: isort
 # W: pycodestyle warnings
-select = ["E", "F", "I", "W", "F841"]
+select = ["E", "F", "I", "W", "F841", "UP006", "UP007", "UP035", "BLE001", "T201"]
 
 [tool.ruff.lint.isort]
 combine-as-imports = true
@@ -411,16 +459,25 @@ lines-after-imports = 2
 order-by-type = false
 
 [tool.ruff.lint.per-file-ignores]
-"*.ipynb" = ["F821", "F541"] # Notebooks: undefined names (cross-cell context), f-strings without placeholders
-"tests/*" = ["E501"] # Line too long in tests
-"tests/artifex/generative_models/core/sampling/test_blackjax_samplers.py" = ["E501", "E402"] # Line too long and imports not at top for BlackJAX tests
+"*.ipynb" = ["F821", "F541", "T201", "UP006", "UP035", "BLE001"] # Notebooks are interactive examples with cross-cell context and user-facing output
+"docs/**/*.py" = ["T201"] # Documentation scripts intentionally print user-facing progress and results
+"examples/**/*.py" = ["T201", "BLE001"] # Example scripts intentionally print user-facing progress, results, and demo error wrappers
+# BASELINE: Existing BLE001 (blind except) violations
+# T201 remains blocking for maintained runtime code under src/
+"src/artifex/cli/__main__.py" = ["T201"]
+"src/artifex/configs/utils/templates.py" = ["T201"]
+"src/artifex/generative_models/core/cli/config_commands.py" = ["T201"]
+"src/artifex/generative_models/core/device_testing.py" = ["BLE001"]
+"src/artifex/generative_models/core/performance.py" = ["BLE001"]
+"src/artifex/generative_models/extensions/protein/constraints.py" = ["BLE001"]
+"src/artifex/generative_models/modalities/timeseries/base.py" = ["BLE001"]
+"src/artifex/generative_models/utils/logging/logger.py" = ["BLE001"]
+"src/artifex/generative_models/utils/logging/metrics.py" = ["BLE001"]
+"src/artifex/generative_models/utils/logging/mlflow.py" = ["BLE001"]
+"src/artifex/generative_models/utils/logging/wandb.py" = ["BLE001"]
+"tests/*.py" = ["E501", "T201", "BLE001"] # Tests allow debugging output, broad assertion wrappers, and long fixtures
+"tests/**/*.py" = ["E501", "T201", "BLE001"] # Tests allow debugging output, broad assertion wrappers, and long fixtures
+"tests/artifex/generative_models/core/sampling/test_blackjax_samplers.py" = ["E501", "E402", "T201", "BLE001"] # BlackJAX tests use custom imports and debug-style assertions
 
 [tool.uv]
-dev-dependencies = [
-  "pytest-xdist>=3.8.0"
-]
 python-preference = "only-managed"
-
-# Configure for GPU package installation
-[tool.uv.pip]
-find-links = ["https://storage.googleapis.com/jax-releases/jax_cuda_releases.html"]

@@ -20,8 +20,8 @@ This example demonstrates how to build a Variational Autoencoder (VAE) on MNIST 
 ## Quick Start
 
 ```bash
-# Activate Artifex environment
-source activate.sh
+# Install Artifex if needed
+pip install artifex
 
 # Run the Python script
 python examples/generative_models/image/vae/vae_mnist.py
@@ -460,9 +460,9 @@ The forward pass demonstrates the full VAE pipeline:
 
 **Output Dictionary:**
 
-- `reconstructed` or `reconstruction`: Reconstructed images x̂
+- `reconstructed`: Reconstructed images x̂
 - `mean`: Latent distribution mean μ
-- `log_var` or `logvar`: Latent distribution log variance log σ²
+- `log_var`: Latent distribution log variance log σ²
 - `z`: Sampled latent codes (used for reconstruction)
 
 !!! warning "RNG for Sampling"
@@ -477,10 +477,7 @@ The forward pass demonstrates the full VAE pipeline:
     # The 'sample' RNG stream is used internally for the reparameterization trick
     outputs = model(test_batch)
 
-    # Extract reconstructions (check both possible keys)
-    reconstructed = outputs.get("reconstructed")
-    if reconstructed is None:
-        reconstructed = outputs["reconstruction"]
+    reconstructed = outputs["reconstructed"]
     print(f"  ✅ Reconstruction shape: {reconstructed.shape}")
 
     # Extract latent codes

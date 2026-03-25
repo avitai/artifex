@@ -1,7 +1,7 @@
 """Chemical constraint validation and enforcement.
 
 This module provides chemical validation and constraint enforcement
-for molecular generation tasks following the Week 13 implementation plan.
+for molecular generation tasks following the v0.13 implementation plan.
 """
 
 from typing import Any
@@ -10,9 +10,9 @@ import jax
 import jax.numpy as jnp
 from flax import nnx
 
+from artifex.generative_models.core.configuration import ChemicalConstraintConfig
 from artifex.generative_models.extensions.base.extensions import (
     ConstraintExtension,
-    ExtensionConfig,
 )
 
 
@@ -21,53 +21,69 @@ class ChemicalConstraints(ConstraintExtension):
 
     def __init__(
         self,
-        config: ExtensionConfig,
+        config: ChemicalConstraintConfig,
         *,
         rngs: nnx.Rngs,
     ):
         """Initialize chemical constraints module.
 
         Args:
-            config: Extension configuration with constraint parameters:
-                - weight: Weight for the constraint loss (default: 1.0)
-                - enabled: Whether the extension is enabled (default: True)
-                - extensions.constraints.constraint_types: Types of constraints to validate
-                - extensions.constraints.tolerance_levels: Tolerance levels for each constraint type
+            config: Typed chemical constraint configuration.
             rngs: Random number generator keys
         """
-        # Handle configuration
-        if not isinstance(config, ExtensionConfig):
-            raise TypeError(f"config must be ExtensionConfig, got {type(config).__name__}")
+        if not isinstance(config, ChemicalConstraintConfig):
+            raise TypeError(f"config must be ChemicalConstraintConfig, got {type(config).__name__}")
 
         super().__init__(config, rngs=rngs)
-
-        # Get constraint parameters from extensions field
-        constraint_params = getattr(config, "extensions", {}).get("constraints", {})
         self.rngs = rngs
-
-        # Default constraint types
-        self.constraint_types = constraint_params.get(
-            "constraint_types",
-            [
-                "bond_length",
-                "valence",
-                "stereochemistry",
-                "ring_strain",
-            ],
-        )
-
-        # Default tolerance levels
-        self.tolerance_levels = constraint_params.get(
-            "tolerance_levels",
-            {
-                "bond_length": 0.2,  # Angstroms
-                "valence": 0.1,  # Valence error tolerance
-                "angle": 15.0,  # Degrees
-                "dihedral": 30.0,  # Degrees
-            },
-        )
+        self.enforce_valence = config.enforce_valence
+        self.enforce_bond_lengths = config.enforce_bond_lengths
+        self.enforce_ring_closure = config.enforce_ring_closure
+        self.max_ring_size = config.max_ring_size
+        self.constraint_types = self._constraint_types_from_config(config)
+        self.tolerance_levels = {
+            "bond_length": 0.2,
+            "valence": config.tolerance,
+            "angle": 15.0,
+            "dihedral": 30.0,
+        }
 
         self._load_chemical_databases()
+
+    def _constraint_types_from_config(self, config: ChemicalConstraintConfig) -> list[str]:
+        """Derive the active validation set from the typed config."""
+        constraint_types = ["stereochemistry"]
+        if config.enforce_bond_lengths:
+            constraint_types.append("bond_length")
+        if config.enforce_valence:
+            constraint_types.append("valence")
+        if config.enforce_ring_closure:
+            constraint_types.append("ring_strain")
+        return constraint_types
+
+    def _atom_count_from_coordinates(self, coordinates: jax.Array) -> int:
+        """Infer the atom axis width from coordinate tensors."""
+        if coordinates.ndim < 2:
+            return int(coordinates.shape[0])
+        return int(coordinates.shape[-2])
+
+    def _require_coordinates(self, outputs: dict[str, Any]) -> jax.Array:
+        """Extract coordinates or positions from a model-output mapping."""
+        coordinates = outputs.get("coordinates")
+        if coordinates is None:
+            coordinates = outputs.get("positions")
+        if coordinates is None:
+            raise ValueError(
+                "ChemicalConstraints requires `coordinates` or `positions` in model outputs"
+            )
+        return coordinates
+
+    def _get_atom_types(self, outputs: dict[str, Any], *, coordinates: jax.Array) -> jax.Array:
+        """Extract atom types or synthesize a zero placeholder."""
+        atom_types = outputs.get("atom_types")
+        if atom_types is not None:
+            return atom_types
+        return jnp.zeros(self._atom_count_from_coordinates(coordinates), dtype=jnp.int32)
 
     def _load_chemical_databases(self):
         """Load chemical databases and reference data."""
@@ -123,12 +139,12 @@ class ChemicalConstraints(ConstraintExtension):
         self, coordinates: jax.Array, atom_types: jax.Array, bonds: jax.Array | None = None
     ) -> float:
         """Check if bond lengths are within acceptable ranges."""
-        if bonds is None:
-            # Infer bonds from distances (simple threshold-based)
-            bonds = self._infer_bonds_from_distance(coordinates, atom_types)
+        bond_matrix = (
+            bonds if bonds is not None else self._infer_bonds_from_distance(coordinates, atom_types)
+        )
 
         # Calculate actual bond lengths
-        bond_indices = jnp.where(bonds > 0)
+        bond_indices = jnp.where(bond_matrix > 0)
         if len(bond_indices[0]) == 0:
             return 1.0  # No bonds to validate
 
@@ -247,18 +263,19 @@ class ChemicalConstraints(ConstraintExtension):
         """
         # Extract coordinates and atom types from model outputs
         if isinstance(model_outputs, dict):
-            coordinates = model_outputs.get("coordinates", model_outputs.get("positions"))
-            atom_types = model_outputs.get(
-                "atom_types", jnp.zeros(coordinates.shape[0], dtype=jnp.int32)
-            )
+            coordinates = self._require_coordinates(model_outputs)
+            atom_types = self._get_atom_types(model_outputs, coordinates=coordinates)
             bonds = model_outputs.get("bonds")
         else:
             # Assume model_outputs is coordinates directly
             coordinates = model_outputs
             atom_types = (
-                inputs.get("atom_types", jnp.zeros(coordinates.shape[0], dtype=jnp.int32))
+                inputs.get(
+                    "atom_types",
+                    jnp.zeros(self._atom_count_from_coordinates(coordinates), dtype=jnp.int32),
+                )
                 if isinstance(inputs, dict)
-                else jnp.zeros(coordinates.shape[0], dtype=jnp.int32)
+                else jnp.zeros(self._atom_count_from_coordinates(coordinates), dtype=jnp.int32)
             )
             bonds = None
 
@@ -270,7 +287,7 @@ class ChemicalConstraints(ConstraintExtension):
             "extension_type": "chemical_constraints",
         }
 
-    def validate(self, outputs: Any) -> dict[str, jax.Array]:
+    def validate(self, outputs: Any) -> dict[str, float]:
         """Validate outputs against constraints.
 
         Args:
@@ -281,12 +298,12 @@ class ChemicalConstraints(ConstraintExtension):
         """
         # Extract coordinates and atom types
         if isinstance(outputs, dict):
-            coordinates = outputs.get("coordinates", outputs.get("positions"))
-            atom_types = outputs.get("atom_types", jnp.zeros(coordinates.shape[0], dtype=jnp.int32))
+            coordinates = self._require_coordinates(outputs)
+            atom_types = self._get_atom_types(outputs, coordinates=coordinates)
             bonds = outputs.get("bonds")
         else:
             coordinates = outputs
-            atom_types = jnp.zeros(coordinates.shape[0], dtype=jnp.int32)
+            atom_types = jnp.zeros(self._atom_count_from_coordinates(coordinates), dtype=jnp.int32)
             bonds = None
 
         return self.validate_molecular_structure(coordinates, atom_types, bonds)
@@ -305,8 +322,8 @@ class ChemicalConstraints(ConstraintExtension):
 
         # Extract coordinates and atom types
         if isinstance(outputs, dict):
-            coordinates = outputs.get("coordinates", outputs.get("positions"))
-            atom_types = outputs.get("atom_types", jnp.zeros(coordinates.shape[0], dtype=jnp.int32))
+            coordinates = self._require_coordinates(outputs)
+            atom_types = self._get_atom_types(outputs, coordinates=coordinates)
             constraint_strength = 1.0
 
             # Apply constraints
@@ -323,7 +340,7 @@ class ChemicalConstraints(ConstraintExtension):
             return outputs_copy
         else:
             # Assume outputs is coordinates directly
-            atom_types = jnp.zeros(outputs.shape[0], dtype=jnp.int32)
+            atom_types = jnp.zeros(self._atom_count_from_coordinates(outputs), dtype=jnp.int32)
             return self.apply_constraints(outputs, atom_types, 1.0)
 
     def apply_constraints(

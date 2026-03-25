@@ -5,7 +5,8 @@ equations (SDEs). SDE-based sampling is useful for score-based generative
 models and stochastic processes like Brownian motion.
 """
 
-from typing import Callable, Literal
+from collections.abc import Callable
+from typing import Literal
 
 import jax
 import jax.numpy as jnp

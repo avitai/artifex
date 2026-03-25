@@ -2,19 +2,16 @@
 
 Complete API documentation for autoregressive models in Artifex.
 
-!!! info "Coming Soon"
-    Autoregressive model implementations are planned for a future release. This documentation will be updated when the feature is available.
-
 ## Overview
 
-Autoregressive models will include:
+Autoregressive models include:
 
 - **PixelCNN**: Pixel-by-pixel image generation
 - **WaveNet**: Audio waveform generation
 - **Transformer-based**: GPT-style text generation
 - **MAR (Masked Autoregressive)**: Masked autoregressive models
 
-## Planned API
+## API
 
 ### Base Class
 

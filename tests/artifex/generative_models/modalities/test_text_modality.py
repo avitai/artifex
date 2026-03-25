@@ -1,27 +1,30 @@
 """Tests for text modality implementation.
 
-This module provides comprehensive tests for the text modality,
+This module provides complete tests for the text modality,
 covering all components and functionality.
 """
 
 import jax.numpy as jnp
 import pytest
+from datarax.sources import MemorySource
 from flax import nnx
 
 from artifex.generative_models.core.configuration import ModalityConfig
+from artifex.generative_models.modalities import text as text_pkg
 from artifex.generative_models.modalities.text import (
     compute_text_metrics,
     create_text_dataset,
     create_text_modality,
     create_text_processor,
+    generate_synthetic_text_data,
+    generate_text_from_strings,
     PositionEncodingProcessor,
     SequenceAugmentationProcessor,
-    SimpleTextDataset,
-    SyntheticTextDataset,
     TextEvaluationSuite,
     TextMetrics,
     TextModality,
     TextProcessor,
+    TextRepresentation,
     TokenizationProcessor,
 )
 
@@ -114,6 +117,31 @@ class TestTextModality:
         modality = TextModality(rngs=rngs)
         assert modality.config is not None
         assert modality.vocab_size == 10000
+        assert modality.pad_token_id == 0
+        assert modality.unk_token_id == 1
+        assert modality.bos_token_id == 2
+        assert modality.eos_token_id == 3
+
+    def test_direct_keyword_constructor_is_not_supported(self, rngs):
+        """The public surface should not drift back to direct kwargs like vocab_size=."""
+        with pytest.raises(TypeError, match="unexpected keyword argument"):
+            TextModality(vocab_size=32000, max_length=512, rngs=rngs)
+
+    def test_modality_is_not_a_standalone_text_generator(self, rngs):
+        """Text generation remains model-owned rather than a TextModality method."""
+        modality = TextModality(rngs=rngs)
+
+        assert not hasattr(modality, "generate")
+        assert not hasattr(modality, "generate_text")
+
+    def test_public_surface_keeps_real_evaluator_and_representation_owners(self):
+        """The text package should expose the surviving evaluator and enum owners only."""
+        assert hasattr(text_pkg, "TextEvaluationSuite")
+        assert not hasattr(text_pkg, "TextEvaluator")
+        assert isinstance(TextRepresentation.WORD_LEVEL, TextRepresentation)
+
+        with pytest.raises(TypeError, match="unexpected keyword argument"):
+            TextRepresentation(model="bert-base")
 
     def test_get_extensions(self, config, rngs):
         """Test extension configuration."""
@@ -262,144 +290,136 @@ class TestTextModality:
 
 
 class TestSyntheticTextDataset:
-    """Test synthetic text dataset."""
+    """Test synthetic text data generation and MemorySource wrapping."""
 
-    def test_initialization(self, config, rngs):
-        """Test dataset initialization."""
-        dataset = SyntheticTextDataset(
-            config=config,
-            dataset_size=100,
-            pattern_type="random_sentences",
+    def test_generation(self, rngs):
+        """Test dataset creation and length."""
+        source = create_text_dataset(
+            "synthetic",
             rngs=rngs,
+            dataset_size=100,
+            vocab_size=1000,
+            max_length=128,
+            pattern_type="random_sentences",
         )
-        assert len(dataset) == 100
-        assert dataset.pattern_type == "random_sentences"
+        assert isinstance(source, MemorySource)
+        assert len(source) == 100
 
-    def test_different_patterns(self, simple_config, rngs):
+    def test_different_patterns(self, rngs):
         """Test different pattern types."""
         patterns = ["random_sentences", "repeated_phrases", "sequences", "palindromes"]
 
         for pattern in patterns:
-            dataset = SyntheticTextDataset(
-                config=simple_config,
-                dataset_size=10,
-                pattern_type=pattern,
+            source = create_text_dataset(
+                "synthetic",
                 rngs=rngs,
+                dataset_size=10,
+                vocab_size=100,
+                max_length=32,
+                pattern_type=pattern,
             )
-            assert len(dataset) == 10
+            assert len(source) == 10
 
             # Test data generation
-            sample = next(iter(dataset))
+            sample = source[0]
             assert "text_tokens" in sample
-            assert "text" in sample
-            assert sample["text_tokens"].shape == (get_text_params(simple_config)["max_length"],)
+            assert sample["text_tokens"].shape == (32,)
 
-    def test_iteration(self, simple_config, rngs):
+    def test_iteration(self, rngs):
         """Test dataset iteration."""
-        dataset = SyntheticTextDataset(
-            config=simple_config,
-            dataset_size=5,
+        source = create_text_dataset(
+            "synthetic",
             rngs=rngs,
+            dataset_size=5,
+            vocab_size=100,
+            max_length=32,
         )
 
-        samples = list(dataset)
+        samples = list(source)
         assert len(samples) == 5
 
         for sample in samples:
             assert "text_tokens" in sample
-            assert "text" in sample
             assert "index" in sample
             assert sample["text_tokens"].dtype == jnp.int32
 
-    def test_get_batch(self, simple_config, rngs):
+    def test_get_batch(self, rngs):
         """Test batch generation."""
-        dataset = SyntheticTextDataset(
-            config=simple_config,
+        source = create_text_dataset(
+            "synthetic",
+            rngs=rngs,
             dataset_size=20,
-            rngs=rngs,
+            vocab_size=100,
+            max_length=32,
         )
 
-        batch = dataset.get_batch(batch_size=4)
+        batch = source.get_batch(4)
         assert "text_tokens" in batch
-        assert "texts" in batch
-        assert "indices" in batch
-        assert batch["text_tokens"].shape == (4, get_text_params(simple_config)["max_length"])
-        assert len(batch["texts"]) == 4
+        assert batch["text_tokens"].shape == (4, 32)
 
-    def test_vocab_stats(self, simple_config, rngs):
-        """Test vocabulary statistics."""
-        dataset = SyntheticTextDataset(
-            config=simple_config,
-            dataset_size=10,
-            rngs=rngs,
-        )
-
-        stats = dataset.get_vocab_stats()
-        assert "unique_tokens" in stats
-        assert "vocab_coverage" in stats
-        assert "total_sequences" in stats
-        assert stats["total_sequences"] == 10
-        assert stats["unique_tokens"] > 0
-
-    def test_get_sample_text(self, simple_config, rngs):
-        """Test getting sample text."""
-        dataset = SyntheticTextDataset(
-            config=simple_config,
-            dataset_size=5,
-            rngs=rngs,
-        )
-
-        text = dataset.get_sample_text(0)
-        assert isinstance(text, str)
-        assert len(text) > 0
-
-        # Test invalid index
-        with pytest.raises(IndexError):
-            dataset.get_sample_text(10)
+    def test_pure_generation_function(self) -> None:
+        """Test the pure data generation function directly."""
+        data = generate_synthetic_text_data(10, vocab_size=100, max_length=32)
+        assert "text_tokens" in data
+        assert "index" in data
+        assert data["text_tokens"].shape == (10, 32)
+        assert data["index"].shape == (10,)
 
 
 class TestSimpleTextDataset:
-    """Test simple text dataset."""
+    """Test simple text dataset via MemorySource."""
 
-    def test_initialization(self, config, rngs):
-        """Test dataset initialization."""
+    def test_creation(self, rngs):
+        """Test dataset creation from strings."""
         texts = ["hello world", "machine learning", "deep learning"]
-        dataset = SimpleTextDataset(
-            config=config,
-            texts=texts,
+        source = create_text_dataset(
+            "simple",
             rngs=rngs,
+            texts=texts,
+            vocab_size=1000,
+            max_length=128,
         )
-        assert len(dataset) == 3
-        assert dataset.texts == texts
+        assert isinstance(source, MemorySource)
+        assert len(source) == 3
 
-    def test_iteration(self, simple_config, rngs):
+    def test_iteration(self, rngs):
         """Test dataset iteration."""
         texts = ["hello", "world"]
-        dataset = SimpleTextDataset(
-            config=simple_config,
-            texts=texts,
+        source = create_text_dataset(
+            "simple",
             rngs=rngs,
+            texts=texts,
+            vocab_size=100,
+            max_length=32,
         )
 
-        samples = list(dataset)
+        samples = list(source)
         assert len(samples) == 2
 
-        for i, sample in enumerate(samples):
-            assert sample["text"] == texts[i]
-            assert sample["text_tokens"].shape == (get_text_params(simple_config)["max_length"],)
+        for sample in samples:
+            assert "text_tokens" in sample
+            assert sample["text_tokens"].shape == (32,)
 
-    def test_get_batch(self, simple_config, rngs):
+    def test_get_batch(self, rngs):
         """Test batch generation."""
         texts = ["hello world", "machine learning", "deep neural networks"]
-        dataset = SimpleTextDataset(
-            config=simple_config,
-            texts=texts,
+        source = create_text_dataset(
+            "simple",
             rngs=rngs,
+            texts=texts,
+            vocab_size=100,
+            max_length=32,
         )
 
-        batch = dataset.get_batch(batch_size=2)
-        assert batch["text_tokens"].shape == (2, get_text_params(simple_config)["max_length"])
-        assert len(batch["texts"]) == 2
+        batch = source.get_batch(2)
+        assert batch["text_tokens"].shape == (2, 32)
+
+    def test_pure_generation_function(self) -> None:
+        """Test the pure data generation function directly."""
+        texts = ["hello world", "machine learning"]
+        data = generate_text_from_strings(texts, vocab_size=100, max_length=32)
+        assert data["text_tokens"].shape == (2, 32)
+        assert data["index"].shape == (2,)
 
 
 class TestTextEvaluationSuite:
@@ -644,38 +664,36 @@ class TestTextProcessors:
 class TestTextDatasetFactory:
     """Test text dataset factory functions."""
 
-    def test_create_synthetic_dataset(self, simple_config, rngs):
+    def test_create_synthetic_dataset(self, rngs):
         """Test synthetic dataset creation."""
-        dataset = create_text_dataset(
-            config=simple_config,
-            dataset_type="synthetic",
+        source = create_text_dataset(
+            "synthetic",
             rngs=rngs,
             dataset_size=10,
+            vocab_size=100,
+            max_length=32,
             pattern_type="random_sentences",
         )
-        assert isinstance(dataset, SyntheticTextDataset)
-        assert len(dataset) == 10
+        assert isinstance(source, MemorySource)
+        assert len(source) == 10
 
-    def test_create_simple_dataset(self, simple_config, rngs):
+    def test_create_simple_dataset(self, rngs):
         """Test simple dataset creation."""
         texts = ["hello world", "machine learning"]
-        dataset = create_text_dataset(
-            config=simple_config,
-            dataset_type="simple",
+        source = create_text_dataset(
+            "simple",
             rngs=rngs,
             texts=texts,
+            vocab_size=100,
+            max_length=32,
         )
-        assert isinstance(dataset, SimpleTextDataset)
-        assert len(dataset) == 2
+        assert isinstance(source, MemorySource)
+        assert len(source) == 2
 
-    def test_invalid_dataset_type(self, simple_config, rngs):
+    def test_invalid_dataset_type(self, rngs):
         """Test invalid dataset type."""
         with pytest.raises(ValueError, match="Unknown dataset type"):
-            create_text_dataset(
-                config=simple_config,
-                dataset_type="invalid",
-                rngs=rngs,
-            )
+            create_text_dataset("invalid", rngs=rngs)
 
 
 class TestTextMetricsFactory:
@@ -701,19 +719,21 @@ class TestTextModalityIntegration:
 
     def test_end_to_end_workflow(self, simple_config, rngs):
         """Test complete end-to-end workflow."""
+        text_params = get_text_params(simple_config)
         # Create modality
         modality = create_text_modality(config=simple_config, rngs=rngs)
 
         # Create dataset
-        dataset = create_text_dataset(
-            config=simple_config,
-            dataset_type="synthetic",
+        source = create_text_dataset(
+            "synthetic",
             rngs=rngs,
             dataset_size=5,
+            vocab_size=text_params.get("vocab_size", 100),
+            max_length=text_params.get("max_length", 32),
         )
 
         # Get batch
-        batch = dataset.get_batch(batch_size=2)
+        batch = source.get_batch(2)
         generated_tokens = batch["text_tokens"]
 
         # Compute metrics
@@ -725,7 +745,7 @@ class TestTextModalityIntegration:
 
         # Verify everything works
         assert isinstance(modality, TextModality)
-        assert generated_tokens.shape == (2, get_text_params(simple_config)["max_length"])
+        assert generated_tokens.shape == (2, text_params["max_length"])
         assert isinstance(metrics, TextMetrics)
         assert metrics.avg_length > 0
 

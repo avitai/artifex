@@ -5,8 +5,8 @@ import jax.numpy as jnp
 import pytest
 
 from artifex.generative_models.core.configuration import (
-    AugmentationExtensionConfig,
     ExtensionConfig,
+    ImageAugmentationConfig,
     ModalityConfig,
 )
 from artifex.generative_models.extensions.base import (
@@ -174,34 +174,16 @@ class TestAdvancedImageAugmentation:
         """Create RNG for tests."""
         return nnx.Rngs(42)
 
-    @pytest.fixture
-    def augmentation_config(self):
-        """Create augmentation configuration."""
-        return ModalityConfig(
-            name="image_modality",
-            modality_name="image",
-            supported_models=["vae", "gan"],
-            preprocessing_steps=[],
-            default_metrics=["fid", "is"],
-            extensions={
-                "augmentation": {
-                    "rotation_range": 30.0,
-                    "translation_range": 0.2,
-                    "scale_range": (0.7, 1.3),
-                    "brightness_range": 0.3,
-                    "noise_level": 0.05,
-                }
-            },
-        )
-
-    def test_augmentation_with_typed_config(self, augmentation_config, rngs):
+    def test_augmentation_with_typed_config(self, rngs):
         """Test image augmentation with typed configuration."""
-        # Create AugmentationExtensionConfig with custom parameters
-        config = AugmentationExtensionConfig(
+        config = ImageAugmentationConfig(
             name="image_augmentation",
             weight=1.0,
             enabled=True,
             probability=1.0,
+            color_jitter=True,
+            brightness_range=(0.8, 1.2),
+            contrast_range=(0.9, 1.1),
         )
 
         augmentation = AdvancedImageAugmentation(config, rngs=rngs)
@@ -209,11 +191,12 @@ class TestAdvancedImageAugmentation:
         # Check basic configuration was applied
         assert augmentation.weight == 1.0
         assert augmentation.enabled is True
+        assert isinstance(augmentation.config, ImageAugmentationConfig)
 
     def test_augmentation_call(self, rngs):
         """Test augmentation forward pass."""
         # Create with default config
-        config = AugmentationExtensionConfig(name="test_augmentation")
+        config = ImageAugmentationConfig(name="test_augmentation")
         augmentation = AdvancedImageAugmentation(config, rngs=rngs)
 
         # Create test images
@@ -229,7 +212,7 @@ class TestAdvancedImageAugmentation:
 
     def test_augmentation_methods(self, rngs):
         """Test individual augmentation methods."""
-        config = AugmentationExtensionConfig(name="test_augmentation_methods")
+        config = ImageAugmentationConfig(name="test_augmentation_methods")
         augmentation = AdvancedImageAugmentation(config, rngs=rngs)
         images = jnp.ones((2, 32, 32, 3))
 
@@ -246,6 +229,45 @@ class TestAdvancedImageAugmentation:
             ["geometric", "color", "invalid", "noise"]
         )
         assert sequence == ["geometric", "color", "noise"]
+
+    def test_augmentation_rejects_modality_config_entrypoint(self, rngs):
+        """The runtime augmentation surface should not accept modality configs directly."""
+        config = ModalityConfig(name="image", modality_name="image")
+
+        with pytest.raises(TypeError, match="ImageAugmentationConfig"):
+            AdvancedImageAugmentation(config, rngs=rngs)
+
+    def test_augmentation_probability_zero_skips_runtime_changes(self, rngs):
+        """Probability should control whether augmentation is applied at all."""
+        config = ImageAugmentationConfig(
+            name="zero_probability",
+            probability=0.0,
+            color_jitter=True,
+            brightness_range=(0.5, 1.5),
+            contrast_range=(0.5, 1.5),
+        )
+        augmentation = AdvancedImageAugmentation(config, rngs=rngs)
+        images = jnp.arange(2 * 8 * 8 * 3, dtype=jnp.float32).reshape(2, 8, 8, 3) / 255.0
+
+        augmented = augmentation(images)
+
+        assert jnp.allclose(augmented, images)
+
+    def test_augmentation_config_level_deterministic_flag_skips_runtime_changes(self, rngs):
+        """The typed deterministic field should bypass stochastic augmentation."""
+        config = ImageAugmentationConfig(
+            name="deterministic",
+            deterministic=True,
+            color_jitter=True,
+            brightness_range=(0.5, 1.5),
+            contrast_range=(0.5, 1.5),
+        )
+        augmentation = AdvancedImageAugmentation(config, rngs=rngs)
+        images = jnp.arange(2 * 8 * 8 * 3, dtype=jnp.float32).reshape(2, 8, 8, 3) / 255.0
+
+        augmented = augmentation(images)
+
+        assert jnp.allclose(augmented, images)
 
 
 class TestExtensionsRegistry:
@@ -350,6 +372,13 @@ class TestExtensionsRegistry:
 
         assert extension.config.weight == 0.7
         assert extension.config.enabled is False
+
+    def test_registry_default_augmentation_extension_config_is_typed(self, registry, rngs):
+        """The image augmentation registry entry should materialize the typed image config."""
+        extension = registry.create_extension("image_augmentation", rngs=rngs)
+
+        assert isinstance(extension, AdvancedImageAugmentation)
+        assert isinstance(extension.config, ImageAugmentationConfig)
 
     def test_extension_pipeline(self, registry, rngs):
         """Test creating extension pipeline with typed configs."""

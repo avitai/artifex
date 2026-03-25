@@ -1,79 +1,22 @@
 # Benchmarks
 
-**Module:** `generative_models.core.protocols.benchmarks`
+The benchmark foundation moved out of `artifex.generative_models.core` and
+now lives in `artifex.benchmarks.core`.
 
-**Source:** `generative_models/core/protocols/benchmarks.py`
+## Retained Owners
 
-## Overview
+- `Benchmark`, `BenchmarkConfig`, `BenchmarkResult`, and `BenchmarkSuite`
+  live in `artifex.benchmarks.core.foundation`.
+- `BenchmarkBase` and `BenchmarkWithValidation` live in
+  `artifex.benchmarks.core.nnx` and keep the Artifex-specific NNX glue.
+- `BenchmarkRunner` and `PerformanceTracker` live in
+  `artifex.benchmarks.core.runner`.
 
-Benchmark protocol definitions for artifex.generative_models.core.
+## Core Boundary
 
-## Classes
+`core.evaluation` is metrics-only. `core.protocols` no longer owns a
+benchmark base layer.
 
-### BenchmarkBase
+## Use This Surface
 
-```python
-class BenchmarkBase
-```
-
-### BenchmarkWithValidation
-
-```python
-class BenchmarkWithValidation
-```
-
-## Functions
-
-### **init**
-
-```python
-def __init__()
-```
-
-### get_benchmark_info
-
-```python
-def get_benchmark_info()
-```
-
-### get_performance_targets
-
-```python
-def get_performance_targets()
-```
-
-### register
-
-```python
-def register()
-```
-
-### run_evaluation
-
-```python
-def run_evaluation()
-```
-
-### run_training
-
-```python
-def run_training()
-```
-
-### validate_performance
-
-```python
-def validate_performance()
-```
-
-### validate_targets_achieved
-
-```python
-def validate_targets_achieved()
-```
-
-## Module Statistics
-
-- **Classes:** 2
-- **Functions:** 8
-- **Imports:** 4
+Import from `artifex.benchmarks.core` in benchmark and suite code.

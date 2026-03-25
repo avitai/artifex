@@ -366,3 +366,64 @@ def ns_vanilla_discriminator_loss(
 
     loss = real_loss + fake_loss
     return reduce_loss(loss, reduction, weights)
+
+
+def generator_loss(
+    fake_scores: jax.Array,
+    *,
+    loss_type: str,
+    reduction: str = "mean",
+    weights: jax.Array | None = None,
+) -> jax.Array:
+    """Dispatch to the configured generator adversarial loss."""
+    if loss_type == "vanilla":
+        return vanilla_generator_loss(fake_scores, reduction=reduction, weights=weights)
+    if loss_type == "least_squares":
+        return least_squares_generator_loss(fake_scores, reduction=reduction, weights=weights)
+    if loss_type == "wasserstein":
+        return wasserstein_generator_loss(fake_scores, reduction=reduction, weights=weights)
+    if loss_type == "hinge":
+        return hinge_generator_loss(fake_scores, reduction=reduction, weights=weights)
+
+    raise ValueError(f"Unsupported loss type: {loss_type}")
+
+
+def discriminator_loss(
+    real_scores: jax.Array,
+    fake_scores: jax.Array,
+    *,
+    loss_type: str,
+    reduction: str = "mean",
+    weights: jax.Array | None = None,
+) -> jax.Array:
+    """Dispatch to the configured discriminator adversarial loss."""
+    if loss_type == "vanilla":
+        return vanilla_discriminator_loss(
+            real_scores,
+            fake_scores,
+            reduction=reduction,
+            weights=weights,
+        )
+    if loss_type == "least_squares":
+        return least_squares_discriminator_loss(
+            real_scores,
+            fake_scores,
+            reduction=reduction,
+            weights=weights,
+        )
+    if loss_type == "wasserstein":
+        return wasserstein_discriminator_loss(
+            real_scores,
+            fake_scores,
+            reduction=reduction,
+            weights=weights,
+        )
+    if loss_type == "hinge":
+        return hinge_discriminator_loss(
+            real_scores,
+            fake_scores,
+            reduction=reduction,
+            weights=weights,
+        )
+
+    raise ValueError(f"Unsupported loss type: {loss_type}")

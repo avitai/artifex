@@ -6,9 +6,9 @@ from collections import Counter
 import flax.nnx as nnx
 import jax.numpy as jnp
 
+from artifex.benchmarks.metrics.core import _init_metric_from_config, MetricBase
+from artifex.benchmarks.runtime_guards import demo_mode_from_mapping, require_demo_mode
 from artifex.generative_models.core.configuration import EvaluationConfig
-
-from .core import MetricBase
 
 
 class BLEUMetric(MetricBase):
@@ -21,33 +21,36 @@ class BLEUMetric(MetricBase):
             config: Evaluation configuration (must be EvaluationConfig)
             rngs: NNX Rngs for stochastic operations
         """
-        if not isinstance(config, EvaluationConfig):
-            raise TypeError(f"config must be an EvaluationConfig, got {type(config).__name__}")
-
-        # Initialize base class with the EvaluationConfig
-        super().__init__(config=config, rngs=rngs)
-        self.eval_batch_size = config.eval_batch_size
+        bleu_params = _init_metric_from_config(
+            self,
+            config=config,
+            rngs=rngs,
+            metric_key="bleu",
+            modality="text",
+            higher_is_better=True,
+        )
 
         # BLEU parameters from config
-        bleu_params = config.metric_params.get("bleu", {})
         self.max_n = bleu_params.get("max_n", 4)
         self.smooth = bleu_params.get("smooth", True)
         self.weights = bleu_params.get("weights", [0.25, 0.25, 0.25, 0.25])
 
-    def validate_inputs(self, real_data, generated_data) -> bool:
-        """Validate input data for BLEU computation."""
+    def validate_inputs(self, real_data, generated_data) -> None:
+        """Validate input data for BLEU computation.
+
+        Raises:
+            ValueError: If inputs are invalid
+        """
         if not isinstance(real_data, list) or not isinstance(generated_data, list):
-            return False
+            raise ValueError("Both inputs must be lists")
         if len(real_data) == 0 or len(generated_data) == 0:
-            return False
+            raise ValueError("Inputs must be non-empty")
         if len(real_data) != len(generated_data):
-            return False
-        # Check that all elements are strings
+            raise ValueError("Input lengths must match")
         if not all(isinstance(text, str) for text in real_data):
-            return False
+            raise ValueError("All reference items must be strings")
         if not all(isinstance(text, str) for text in generated_data):
-            return False
-        return True
+            raise ValueError("All generated items must be strings")
 
     def compute(self, real_data, generated_data, **kwargs) -> dict[str, float]:
         """Compute BLEU score between reference and generated text."""
@@ -131,33 +134,35 @@ class ROUGEMetric(MetricBase):
             config: Evaluation configuration (must be EvaluationConfig)
             rngs: NNX Rngs for stochastic operations
         """
-        if not isinstance(config, EvaluationConfig):
-            raise TypeError(f"config must be an EvaluationConfig, got {type(config).__name__}")
-
-        # Initialize base class with minimal config to satisfy MetricBase requirements
-        # Initialize base class with the EvaluationConfig
-        super().__init__(config=config, rngs=rngs)
-        self.eval_batch_size = config.eval_batch_size
+        rouge_params = _init_metric_from_config(
+            self,
+            config=config,
+            rngs=rngs,
+            metric_key="rouge",
+            modality="text",
+            higher_is_better=True,
+        )
 
         # ROUGE parameters from config
-        rouge_params = config.metric_params.get("rouge", {})
         self.rouge_types = rouge_params.get("rouge_types", ["rouge1", "rouge2", "rougeL"])
         self.use_stemmer = rouge_params.get("use_stemmer", True)
 
-    def validate_inputs(self, real_data, generated_data) -> bool:
-        """Validate input data for ROUGE computation."""
+    def validate_inputs(self, real_data, generated_data) -> None:
+        """Validate input data for ROUGE computation.
+
+        Raises:
+            ValueError: If inputs are invalid
+        """
         if not isinstance(real_data, list) or not isinstance(generated_data, list):
-            return False
+            raise ValueError("Both inputs must be lists")
         if len(real_data) == 0 or len(generated_data) == 0:
-            return False
+            raise ValueError("Inputs must be non-empty")
         if len(real_data) != len(generated_data):
-            return False
-        # Check that all elements are strings
+            raise ValueError("Input lengths must match")
         if not all(isinstance(text, str) for text in real_data):
-            return False
+            raise ValueError("All reference items must be strings")
         if not all(isinstance(text, str) for text in generated_data):
-            return False
-        return True
+            raise ValueError("All generated items must be strings")
 
     def compute(self, real_data, generated_data, **kwargs) -> dict[str, float]:
         """Compute ROUGE scores between reference and generated text."""
@@ -251,28 +256,47 @@ class PerplexityMetric(MetricBase):
             config: Evaluation configuration (must be EvaluationConfig)
             rngs: NNX Rngs for stochastic operations
         """
-        if not isinstance(config, EvaluationConfig):
-            raise TypeError(f"config must be an EvaluationConfig, got {type(config).__name__}")
-
-        # Initialize base class with the EvaluationConfig
-        super().__init__(config=config, rngs=rngs)
-        self.eval_batch_size = config.eval_batch_size
+        perplexity_params = _init_metric_from_config(
+            self,
+            config=config,
+            rngs=rngs,
+            metric_key="perplexity",
+            modality="text",
+            higher_is_better=False,
+        )
 
         # Perplexity parameters from config
-        perplexity_params = config.metric_params.get("perplexity", {})
         self.model_name = perplexity_params.get("model_name", "mock")
-        self.use_mock = perplexity_params.get("use_mock", True)
+        self.use_mock = perplexity_params.get("use_mock", False)
+        self.demo_mode = demo_mode_from_mapping(perplexity_params)
 
-    def validate_inputs(self, real_data, generated_data) -> bool:
-        """Validate input data for perplexity computation."""
+        if self.use_mock:
+            require_demo_mode(
+                enabled=self.demo_mode,
+                component="PerplexityMetric",
+                detail=(
+                    "The retained perplexity path uses a mock language-model probability backend "
+                    "and is demo-only."
+                ),
+            )
+        else:
+            raise RuntimeError(
+                "PerplexityMetric does not ship a benchmark-grade language-model backend. Pass "
+                "use_mock=True only for the retained demo workflow."
+            )
+
+    def validate_inputs(self, real_data, generated_data) -> None:
+        """Validate input data for perplexity computation.
+
+        Raises:
+            ValueError: If inputs are invalid
+        """
         if not isinstance(generated_data, list):
-            return False
+            raise ValueError("Generated data must be a list")
         if len(generated_data) == 0:
-            return False
-        # Check that all elements are strings
+            raise ValueError("Generated data must be non-empty")
         if not all(isinstance(text, str) for text in generated_data):
-            return False
-        return True
+            raise ValueError("All generated items must be strings")
 
     def compute(self, real_data, generated_data, **kwargs) -> dict[str, float]:
         """Compute perplexity of generated text."""
@@ -322,28 +346,31 @@ class DiversityMetric(MetricBase):
             config: Evaluation configuration (must be EvaluationConfig)
             rngs: NNX Rngs for stochastic operations
         """
-        if not isinstance(config, EvaluationConfig):
-            raise TypeError(f"config must be an EvaluationConfig, got {type(config).__name__}")
-
-        # Initialize base class with the EvaluationConfig
-        super().__init__(config=config, rngs=rngs)
-        self.eval_batch_size = config.eval_batch_size
+        diversity_params = _init_metric_from_config(
+            self,
+            config=config,
+            rngs=rngs,
+            metric_key="diversity",
+            modality="text",
+            higher_is_better=True,
+        )
 
         # Diversity parameters from config
-        diversity_params = config.metric_params.get("diversity", {})
         self.n_gram_sizes = diversity_params.get("n_gram_sizes", [1, 2, 3])
         self.measure_self_bleu = diversity_params.get("measure_self_bleu", False)
 
-    def validate_inputs(self, real_data, generated_data) -> bool:
-        """Validate input data for diversity computation."""
+    def validate_inputs(self, real_data, generated_data) -> None:
+        """Validate input data for diversity computation.
+
+        Raises:
+            ValueError: If inputs are invalid
+        """
         if not isinstance(generated_data, list):
-            return False
+            raise ValueError("Generated data must be a list")
         if len(generated_data) < 2:
-            return False  # Need at least 2 samples for diversity
-        # Check that all elements are strings
+            raise ValueError("Need at least 2 samples for diversity")
         if not all(isinstance(text, str) for text in generated_data):
-            return False
-        return True
+            raise ValueError("All generated items must be strings")
 
     def compute(self, real_data, generated_data, **kwargs) -> dict[str, float]:
         """Compute diversity metrics for generated text."""
@@ -489,7 +516,7 @@ def create_perplexity_metric(
     *,
     rngs: nnx.Rngs,
     model_name: str = "mock",
-    use_mock: bool = True,
+    use_mock: bool = False,
     batch_size: int = 8,
     config_name: str = "perplexity_metric",
 ) -> PerplexityMetric:

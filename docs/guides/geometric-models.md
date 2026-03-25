@@ -1,11 +1,8 @@
 # Geometric Models Guide
 
-!!! info "Coming Soon"
-    This guide is being developed. Check back for comprehensive geometric modeling documentation.
-
 ## Overview
 
-Learn about geometric deep learning in Artifex:
+Learn about geometric deep learning in Artifex. Geometric model implementations include point cloud, graph, mesh, voxel, and protein-specific modules in `models.geometric`.
 
 - Point cloud processing
 - Graph neural networks

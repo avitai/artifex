@@ -16,7 +16,7 @@ from .validation import (
 )
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class BaseNetworkConfig(BaseConfig):
     """Base configuration for neural network architectures.
 
@@ -54,7 +54,7 @@ class BaseNetworkConfig(BaseConfig):
             ValueError: If validation fails
         """
         # Call parent validation first (validates name field)
-        super().__post_init__()
+        super(BaseNetworkConfig, self).__post_init__()
 
         # Validate required fields (check for dummy defaults)
         if not self.hidden_dims:

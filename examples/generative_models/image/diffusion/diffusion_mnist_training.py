@@ -2,6 +2,7 @@
 # ---
 # jupyter:
 #   jupytext:
+#     formats: py:percent,ipynb
 #     text_representation:
 #       extension: .py
 #       format_name: percent
@@ -70,7 +71,8 @@ uv sync
 ---
 """
 
-# %%
+import logging
+
 import jax
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
@@ -79,7 +81,7 @@ import optax
 
 # DataRax imports for data loading
 from datarax import from_source
-from datarax.sources import TfdsDataSourceConfig, TFDSSource
+from datarax.sources import from_tfds
 from flax import nnx
 from tqdm import tqdm
 
@@ -96,10 +98,24 @@ from artifex.generative_models.training.trainers.diffusion_trainer import (
 )
 
 
-print("=" * 70)
-print("Artifex Diffusion Training - MNIST")
-print("Using: DiffusionTrainer, DDPMModel, nnx.jit")
-print("=" * 70)
+logging.basicConfig(level=logging.INFO, format="%(message)s")
+LOGGER = logging.getLogger(__name__)
+
+
+def echo(message: object = "") -> None:
+    """Emit example output through the standard example logger."""
+    LOGGER.info("%s", message)
+
+
+def echo_rule(width: int = 70, *, char: str = "=") -> None:
+    """Emit a separator line for script and notebook parity."""
+    echo(char * width)
+
+
+echo_rule()
+echo("Artifex Diffusion Training - MNIST")
+echo("Using: DiffusionTrainer, DDPMModel, nnx.jit")
+echo_rule()
 
 # %% [markdown]
 r"""
@@ -120,12 +136,13 @@ IMAGE_SIZE = 32  # Pad MNIST to 32x32 (original DDPM used 32x32 images)
 BASE_LR = 1e-4  # Conservative LR (labml.ai uses 2e-5 at batch 64)
 WARMUP_STEPS = 500  # ~2 epochs of warmup (234 batches/epoch)
 
-print("\nConfiguration:")
-print(f"  Epochs: {NUM_EPOCHS}")
-print(f"  Batch size: {BATCH_SIZE}")
-print(f"  Image size: {IMAGE_SIZE}x{IMAGE_SIZE} (MNIST padded)")
-print(f"  Timesteps: {NUM_TIMESTEPS}")
-print(f"  Learning rate: {BASE_LR} (with {WARMUP_STEPS} warmup steps)")
+echo()
+echo("Configuration:")
+echo(f"  Epochs: {NUM_EPOCHS}")
+echo(f"  Batch size: {BATCH_SIZE}")
+echo(f"  Image size: {IMAGE_SIZE}x{IMAGE_SIZE} (MNIST padded)")
+echo(f"  Timesteps: {NUM_TIMESTEPS}")
+echo(f"  Learning rate: {BASE_LR} (with {WARMUP_STEPS} warmup steps)")
 
 # %% [markdown]
 r"""
@@ -140,23 +157,25 @@ Pad to 32x32 for optimal UNet downsampling (32 -> 16 -> 8 -> 4).
 # Initialize RNG for data loading
 data_rngs = nnx.Rngs(SEED)
 
-# Configure MNIST data source using DataRax
-train_source_config = TfdsDataSourceConfig(
-    name="mnist",
-    split="train",
-    shuffle=True,  # Shuffle training data
-    shuffle_buffer_size=10000,  # Buffer size for shuffling
+# Create the MNIST training source with the live DataRax TFDS helper
+train_source = from_tfds(
+    "mnist",
+    "train",
+    eager=False,
+    shuffle=True,
+    seed=SEED,
+    rngs=data_rngs,
 )
-train_source = TFDSSource(train_source_config, rngs=data_rngs)
 
-print(f"\n📊 MNIST train dataset loaded: {len(train_source)} samples")
+echo()
+echo(f"MNIST train dataset loaded: {len(train_source)} samples")
 
 # Create training pipeline with batching and JIT compilation
 train_pipeline = from_source(train_source, batch_size=BATCH_SIZE, jit_compile=True)
 
 # Calculate number of batches per epoch
 n_batches = len(train_source) // BATCH_SIZE
-print(f"  ✅ Training pipeline created: {n_batches} batches per epoch")
+echo(f"  Training pipeline created: {n_batches} batches per epoch")
 
 
 # %%
@@ -188,11 +207,11 @@ def preprocess_batch(batch):
 
 
 # Test the pipeline
-print("  Testing pipeline...")
+echo("  Testing pipeline...")
 for raw_batch in train_pipeline:
     batch = preprocess_batch(raw_batch)
-    print(f"  ✅ Batch shape: {batch['image'].shape}")
-    print(
+    echo(f"  Batch shape: {batch['image'].shape}")
+    echo(
         f"  ✅ Value range: [{float(batch['image'].min()):.2f}, {float(batch['image'].max()):.2f}]"
     )
     break
@@ -252,14 +271,15 @@ ddpm_config = DDPMConfig(
 # Create model
 model = DDPMModel(ddpm_config, rngs=rngs)
 
-print("\n✅ DDPMModel created:")
-print(f"   UNet: hidden_dims={backbone_config.hidden_dims}")
-print(f"   Channel mults: {backbone_config.channel_mult}")
-print(f"   Noise schedule: {noise_schedule_config.schedule_type}")
-print(f"   Loss type: {ddpm_config.loss_type}")
-print(f"   Timesteps: {NUM_TIMESTEPS}")
-print(f"   JAX backend: {jax.default_backend()}")
-print(f"   Devices: {jax.devices()}")
+echo()
+echo("DDPMModel created:")
+echo(f"   UNet: hidden_dims={backbone_config.hidden_dims}")
+echo(f"   Channel mults: {backbone_config.channel_mult}")
+echo(f"   Noise schedule: {noise_schedule_config.schedule_type}")
+echo(f"   Loss type: {ddpm_config.loss_type}")
+echo(f"   Timesteps: {NUM_TIMESTEPS}")
+echo(f"   JAX backend: {jax.default_backend()}")
+echo(f"   Devices: {jax.devices()}")
 
 # %% [markdown]
 r"""
@@ -274,7 +294,7 @@ noise_schedule = create_noise_schedule(noise_schedule_config)
 
 # Calculate total training steps for learning rate schedule
 total_steps = NUM_EPOCHS * n_batches
-print(f"   Total training steps: {total_steps}")
+echo(f"   Total training steps: {total_steps}")
 
 # Learning rate schedule: warmup + cosine decay
 # This prevents early training instability and allows gradual learning
@@ -295,7 +315,7 @@ optimizer = nnx.Optimizer(
     ),
     wrt=nnx.Param,
 )
-print(f"   Optimizer: AdamW with warmup ({WARMUP_STEPS} steps) + cosine decay")
+echo(f"   Optimizer: AdamW with warmup ({WARMUP_STEPS} steps) + cosine decay")
 
 # %% [markdown]
 r"""
@@ -318,11 +338,12 @@ trainer = DiffusionTrainer(noise_schedule, diffusion_config)
 # JIT-compile training step
 jit_train_step = nnx.jit(trainer.train_step)
 
-print("\n✅ DiffusionTrainer initialized:")
-print(f"   Prediction: {diffusion_config.prediction_type}")
-print(f"   Timestep sampling: {diffusion_config.timestep_sampling}")
-print(f"   Loss weighting: {diffusion_config.loss_weighting}")
-print("   Training step JIT-compiled")
+echo()
+echo("DiffusionTrainer initialized:")
+echo(f"   Prediction: {diffusion_config.prediction_type}")
+echo(f"   Timestep sampling: {diffusion_config.timestep_sampling}")
+echo(f"   Loss weighting: {diffusion_config.loss_weighting}")
+echo("   Training step JIT-compiled")
 
 # %% [markdown]
 r"""
@@ -336,8 +357,9 @@ history = {"step": [], "loss": [], "epoch": [], "lr": []}
 train_key = jax.random.key(999)
 global_step = 0
 
-print(f"\nTraining for {NUM_EPOCHS} epochs ({total_steps} steps)...")
-print("-" * 60)
+echo()
+echo(f"Training for {NUM_EPOCHS} epochs ({total_steps} steps)...")
+echo_rule(60, char="-")
 
 for epoch in range(NUM_EPOCHS):
     epoch_losses = []
@@ -373,10 +395,10 @@ for epoch in range(NUM_EPOCHS):
 
     avg_loss = np.mean(epoch_losses)
     current_lr = float(lr_schedule(global_step - 1))
-    print(f"Epoch {epoch + 1}/{NUM_EPOCHS}: avg_loss = {avg_loss:.4f}, lr = {current_lr:.2e}")
+    echo(f"Epoch {epoch + 1}/{NUM_EPOCHS}: avg_loss = {avg_loss:.4f}, lr = {current_lr:.2e}")
 
-print("-" * 60)
-print("Training complete!")
+echo_rule(60, char="-")
+echo("Training complete!")
 
 # %% [markdown]
 r"""
@@ -386,7 +408,8 @@ Use DDIM for fast sampling with good quality.
 """
 
 # %%
-print("\nGenerating samples...")
+echo()
+echo("Generating samples...")
 n_samples = 16
 
 # Use DDIM for faster sampling with more steps for better quality
@@ -396,7 +419,7 @@ samples = model.sample(
     steps=100,  # More steps for better quality
 )
 
-print(f"✅ Generated {n_samples} samples")
+echo(f"Generated {n_samples} samples")
 
 # %% [markdown]
 r"""
@@ -431,7 +454,7 @@ def visualize_samples(images, title="Samples", n_cols=4, save_path=None):
 
     if save_path:
         fig.savefig(save_path, dpi=150, bbox_inches="tight")
-        print(f"Saved: {save_path}")
+        echo(f"Saved: {save_path}")
 
     plt.close()
     return fig
@@ -486,7 +509,7 @@ ax1.set_title(
 )
 plt.tight_layout()
 fig.savefig("examples_output/diffusion_training_curve.png", dpi=150, bbox_inches="tight")
-print("Saved: examples_output/diffusion_training_curve.png")
+echo("Saved: examples_output/diffusion_training_curve.png")
 plt.close()
 
 # %% [markdown]
@@ -515,12 +538,14 @@ r"""
 """
 
 # %%
-print("\n" + "=" * 70)
-print("Training Summary")
-print("=" * 70)
-print(f"Final loss: {history['loss'][-1]:.4f}")
-print(f"Total steps: {global_step}")
-print("Samples saved: examples_output/diffusion_samples.png")
-print("Training curve: examples_output/diffusion_training_curve.png")
-print("=" * 70)
-print("\nDone!")
+echo()
+echo_rule()
+echo("Training Summary")
+echo_rule()
+echo(f"Final loss: {history['loss'][-1]:.4f}")
+echo(f"Total steps: {global_step}")
+echo("Samples saved: examples_output/diffusion_samples.png")
+echo("Training curve: examples_output/diffusion_training_curve.png")
+echo_rule()
+echo()
+echo("Done!")

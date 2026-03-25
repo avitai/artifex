@@ -1,16 +1,18 @@
-"""Text modality for generative models.
+"""Typed-config text modality helpers for sequence preprocessing.
 
-This module provides comprehensive text generation capabilities including:
-- Multiple tokenization strategies (word-level, subword, character)
-- Integration with Transformer, RNN, and Autoregressive models
-- Comprehensive text evaluation metrics (BLEU, ROUGE, perplexity)
-- Position encoding and attention extensions
-- Integration with benchmark framework
+This package provides tokenization, sequence handling, evaluation helpers, and
+processor utilities for text data. `TextModality` supports the default-config
+path or an explicit `ModalityConfig`; direct keyword shortcuts like
+`vocab_size=` are not part of the supported surface. Standalone text generation
+remains model-owned through `TextGenerationProtocol`, public evaluation lives in
+`TextEvaluationSuite`, and `TextRepresentation` is an enum rather than an
+extractor object.
 
 Example:
-    >>> from artifex.generative_models.modalities.text import TextModality, TextRepresentation
-    >>> modality = TextModality(max_length=512, vocab_size=10000)
-    >>> text = modality.generate(n_samples=4)
+    >>> from flax import nnx
+    >>> from artifex.generative_models.modalities.text import TextModality
+    >>> modality = TextModality(rngs=nnx.Rngs(0))
+    >>> tokens = modality.preprocess_text(["hello world"])
 """
 
 from .base import (
@@ -22,9 +24,9 @@ from .base import (
 )
 from .datasets import (
     create_text_dataset,
-    SimpleTextDataset,
-    SyntheticTextDataset,
-    TextDataset,
+    generate_synthetic_text_data,
+    generate_text_from_strings,
+    simple_tokenize,
 )
 from .evaluation import (
     compute_text_metrics,
@@ -48,9 +50,9 @@ __all__ = [
     "TokenizationStrategy",
     "create_text_modality",
     # Dataset handling
-    "TextDataset",
-    "SyntheticTextDataset",
-    "SimpleTextDataset",
+    "generate_synthetic_text_data",
+    "generate_text_from_strings",
+    "simple_tokenize",
     "create_text_dataset",
     # Evaluation
     "TextEvaluationSuite",

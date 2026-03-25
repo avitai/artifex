@@ -109,7 +109,7 @@ class TestBSplineBasis:
         bspline = BSplineBasis(k=3)
         grid = EfficientKANGrid(n_nodes=N_IN, k=3, grid_intervals=5)
         x = jnp.ones((BATCH, N_IN))
-        result = bspline(x, grid.knots.value)
+        result = bspline(x, grid.knots[...])
         assert result.shape == (BATCH, N_IN, 5 + 3)  # G + k
 
     def test_jit(self):
@@ -120,7 +120,7 @@ class TestBSplineBasis:
 
         @jax.jit
         def evaluate(x_):
-            return bspline(x_, grid.knots.value)
+            return bspline(x_, grid.knots[...])
 
         result = evaluate(x)
         assert result.shape == (BATCH, N_IN, 8)
@@ -133,7 +133,7 @@ class TestBSplineBasis:
         grid = EfficientKANGrid(n_nodes=1, k=k, grid_intervals=grid_intervals)
         # Points in the interior of the grid
         x = jnp.linspace(-0.8, 0.8, 50).reshape(-1, 1)
-        basis = bspline(x, grid.knots.value)  # (50, 1, G+k)
+        basis = bspline(x, grid.knots[...])  # (50, 1, G+k)
         sums = basis.sum(axis=-1)  # (50, 1)
         npt.assert_allclose(sums, 1.0, atol=1e-5)
 
@@ -147,14 +147,14 @@ class TestDenseKANGrid:
     def test_knot_shape(self):
         """Test initial knot shape."""
         grid = DenseKANGrid(n_in=N_IN, n_out=N_OUT, k=3, grid_intervals=5)
-        assert grid.knots.value.shape == (N_IN * N_OUT, 5 + 2 * 3 + 1)
+        assert grid.knots[...].shape == (N_IN * N_OUT, 5 + 2 * 3 + 1)
 
     def test_update(self):
         """Test grid update changes knot shape."""
         grid = DenseKANGrid(n_in=N_IN, n_out=N_OUT, k=3, grid_intervals=5)
         x = jax.random.normal(jax.random.key(0), (BATCH, N_IN))
         grid.update(x, new_intervals=8)
-        assert grid.knots.value.shape == (N_IN * N_OUT, 8 + 2 * 3 + 1)
+        assert grid.knots[...].shape == (N_IN * N_OUT, 8 + 2 * 3 + 1)
         assert grid.grid_intervals == 8
 
 
@@ -164,14 +164,14 @@ class TestEfficientKANGrid:
     def test_knot_shape(self):
         """Test initial knot shape."""
         grid = EfficientKANGrid(n_nodes=N_IN, k=3, grid_intervals=5)
-        assert grid.knots.value.shape == (N_IN, 5 + 2 * 3 + 1)
+        assert grid.knots[...].shape == (N_IN, 5 + 2 * 3 + 1)
 
     def test_update(self):
         """Test grid update changes knot shape."""
         grid = EfficientKANGrid(n_nodes=N_IN, k=3, grid_intervals=5)
         x = jax.random.normal(jax.random.key(0), (BATCH, N_IN))
         grid.update(x, new_intervals=8)
-        assert grid.knots.value.shape == (N_IN, 8 + 2 * 3 + 1)
+        assert grid.knots[...].shape == (N_IN, 8 + 2 * 3 + 1)
 
 
 class TestRBFKANGrid:
@@ -180,14 +180,14 @@ class TestRBFKANGrid:
     def test_knot_shape(self):
         """Test initial center shape."""
         grid = RBFKANGrid(n_nodes=N_IN, num_centers=7)
-        assert grid.knots.value.shape == (N_IN, 7)
+        assert grid.knots[...].shape == (N_IN, 7)
 
     def test_update(self):
         """Test grid update changes center shape."""
         grid = RBFKANGrid(n_nodes=N_IN, num_centers=7)
         x = jax.random.normal(jax.random.key(0), (BATCH, N_IN))
         grid.update(x, new_num_centers=10)
-        assert grid.knots.value.shape == (N_IN, 10)
+        assert grid.knots[...].shape == (N_IN, 10)
 
 
 # ---------------------------------------------------------------------------
@@ -408,8 +408,8 @@ class TestFourierKANLayer:
         """Test initialisation."""
         layer = FourierKANLayer(n_in=N_IN, n_out=N_OUT, D=5, rngs=rngs)
         assert layer.D == 5
-        assert layer.c_cos.value.shape == (N_OUT, N_IN, 5)
-        assert layer.c_sin.value.shape == (N_OUT, N_IN, 5)
+        assert layer.c_cos[...].shape == (N_OUT, N_IN, 5)
+        assert layer.c_sin[...].shape == (N_OUT, N_IN, 5)
 
     def test_forward_shape(self, rngs, sample_x):
         """Test output shape."""
@@ -510,7 +510,7 @@ class TestRBFKANLayer:
         """Test initialisation."""
         layer = RBFKANLayer(n_in=N_IN, n_out=N_OUT, D=7, rngs=rngs)
         assert layer.D == 7
-        assert layer.grid.knots.value.shape == (N_IN, 7)
+        assert layer.grid.knots[...].shape == (N_IN, 7)
 
     def test_forward_shape(self, rngs, sample_x):
         """Test output shape."""
@@ -564,8 +564,8 @@ class TestSineKANLayer:
         """Test initialisation."""
         layer = SineKANLayer(n_in=N_IN, n_out=N_OUT, D=5, rngs=rngs)
         assert layer.D == 5
-        assert layer.omega.value.shape == (5, 1)
-        assert layer.phase.value.shape == (5, 1)
+        assert layer.omega[...].shape == (5, 1)
+        assert layer.phase[...].shape == (5, 1)
 
     def test_forward_shape(self, rngs, sample_x):
         """Test output shape."""

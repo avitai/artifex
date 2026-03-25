@@ -8,8 +8,8 @@
 
 Multi-β VAE controllable generation benchmark suite.
 
-This module provides a comprehensive benchmark suite for evaluating
-multi-β VAE controllable generation models, targeting the Week 9-12 objectives:
+This module provides a complete benchmark suite for evaluating
+multi-β VAE controllable generation models, targeting the v0.9-v0.12 objectives:
 
 - MIG Score >0.3 (Mutual Information Gap for disentanglement)
 - FID Score <50 on CelebA (Fréchet Inception Distance)

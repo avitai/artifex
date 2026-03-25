@@ -1,115 +1,33 @@
-# Representations
+# Timeseries Representations
 
-**Module:** `generative_models.modalities.timeseries.representations`
+**Status:** `Supported family-scoped modality owner`
 
-**Source:** `generative_models/modalities/timeseries/representations.py`
+**Scope:** `Timeseries helper owner`
 
-## Overview
+**Module:** `artifex.generative_models.modalities.timeseries.representations`
 
-Temporal representations and processors for timeseries modality.
+**Source:** `src/artifex/generative_models/modalities/timeseries/representations.py`
 
-## Classes
+Representation processors for the timeseries helper package.
 
-### FourierProcessor
+## Top-Level Module Exports
 
-```python
-class FourierProcessor
-```
+- `TimeseriesProcessor`
+- `FourierProcessor`
+- `MultiScaleProcessor`
+- `TrendDecompositionProcessor`
 
-### MultiScaleProcessor
+## Class APIs
 
-```python
-class MultiScaleProcessor
-```
+### `TimeseriesProcessor`
 
-### TimeseriesProcessor
+- `process()`
+- `reverse()`
 
-```python
-class TimeseriesProcessor
-```
+### `MultiScaleProcessor`
 
-### TrendDecompositionProcessor
+- `reconstruct()`
 
-```python
-class TrendDecompositionProcessor
-```
+### `TrendDecompositionProcessor`
 
-## Functions
-
-### **call**
-
-```python
-def __call__()
-```
-
-### **call**
-
-```python
-def __call__()
-```
-
-### **call**
-
-```python
-def __call__()
-```
-
-### **call**
-
-```python
-def __call__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### process
-
-```python
-def process()
-```
-
-### reconstruct
-
-```python
-def reconstruct()
-```
-
-### reconstruct
-
-```python
-def reconstruct()
-```
-
-### reverse
-
-```python
-def reverse()
-```
-
-## Module Statistics
-
-- **Classes:** 4
-- **Functions:** 12
-- **Imports:** 4
+- `reconstruct()`

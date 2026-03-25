@@ -4,6 +4,7 @@ This package provides implementations of various probability distributions
 used in generative models, including continuous and discrete distributions.
 """
 
+from artifex.generative_models.core.distributions.base import Distribution
 from artifex.generative_models.core.distributions.continuous import (
     Beta,
     Normal,
@@ -24,6 +25,7 @@ from artifex.generative_models.core.distributions.transformations import (
 
 
 __all__ = [
+    "Distribution",
     # Continuous distributions
     "Normal",
     "Beta",

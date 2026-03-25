@@ -68,7 +68,7 @@ Then open a Pull Request on GitHub.
 
 - Follow PEP 8 guidelines
 - Use type annotations for all functions
-- Maximum line length: 88 characters (Black formatter)
+- Maximum line length: 100 characters (Ruff formatter)
 - Use descriptive variable names
 
 ### Framework Requirements
@@ -158,8 +158,8 @@ uv run pyright src/
 ### Running Tests
 
 ```bash
-# Run all tests
-uv run pytest tests/ -v
+# Run the standard suite
+uv run pytest
 
 # Run specific test file
 uv run pytest tests/path/to/test.py -xvs
@@ -167,15 +167,18 @@ uv run pytest tests/path/to/test.py -xvs
 # Run with coverage
 uv run pytest --cov=src/artifex --cov-report=html
 
-# GPU-aware testing
-./scripts/smart_test_runner.sh tests/ -v
+# Marker-focused runs
+uv run pytest -m gpu
+uv run pytest -m blackjax
 ```
 
 ### Test Organization
 
-- `tests/standalone/`: Isolated component tests
-- `tests/artifex/`: Integrated system tests
+- `tests/artifex/`: package, integration, and repo-contract tests over live Artifex owners
+- `tests/unit/`: narrower low-level unit coverage where that layout already exists
+- Use `test_device` for device-aware tests and `gpu_test_fixture` for explicitly GPU-required tests
 - Mark GPU tests with `@pytest.mark.gpu`
+- Do not add local replica suites or shadow suites that bypass live imports
 
 ## Documentation
 
@@ -204,21 +207,31 @@ When contributing new examples, use the templates in `docs/examples/templates/`:
 - `example_template.py` - Python script with Jupytext markers
 - `example_template.ipynb` - Jupyter notebook version
 
+The canonical authoring guide is the
+[Example Documentation Design Guide](docs/development/example-documentation-design.md).
+Use it as the standard for example structure, device labeling, docs layout, and
+sync workflow.
+
 ### Example Guidelines
 
-1. **Use dual-format**: Examples should work as both `.py` scripts and `.ipynb` notebooks via Jupytext
+1. **Use dual-format for tutorials**: Reader-facing tutorial examples should ship as `.py` and `.ipynb` Jupytext pairs. Verification or maintenance scripts under `examples/` may remain `.py` only.
 2. **Follow the template structure**: Include learning objectives, prerequisites, step-by-step implementation, and exercises
 3. **Use Flax NNX patterns**: Follow the module initialization and RNG handling patterns shown in the template
 4. **Add educational content**: Explain concepts, not just code
+5. **Use current repo workflows**: Show `source ./activate.sh` and `uv run ...` commands
+6. **Sync dual-format examples with the repo tool**: Regenerate paired notebooks with `scripts/jupytext_converter.py`
 
 ### Running Examples
 
 ```bash
-# Run as Python script
-python examples/path/to/example.py
+# Activate the repo environment
+source ./activate.sh
 
-# Convert to notebook (if needed)
-jupytext --to notebook examples/path/to/example.py
+# Run as Python script
+uv run python examples/path/to/example.py
+
+# Sync the paired notebook for dual-format tutorial examples
+uv run python scripts/jupytext_converter.py sync examples/path/to/example.py
 ```
 
 ## Pull Request Guidelines

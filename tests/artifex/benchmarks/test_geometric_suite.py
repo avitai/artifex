@@ -17,7 +17,8 @@ from artifex.benchmarks.suites.geometric_suite import (
 from artifex.generative_models.core.configuration import (
     DataConfig,
     EvaluationConfig,
-    ModelConfig,
+    PointCloudConfig,
+    PointCloudNetworkConfig,
 )
 
 
@@ -37,25 +38,22 @@ def sample_config():
             "num_points": 512,
             "mock_samples": 100,
             "normalize": True,
+            "data_source": "synthetic",
+            "demo_mode": True,
         },
     )
 
-    model_config = ModelConfig(
+    model_config = PointCloudConfig(
         name="test_pointcloud_model",
-        model_class="artifex.generative_models.models.geometric.PointCloudModel",
-        input_dim=(512, 3),
-        hidden_dims=[128, 256, 128],
-        output_dim=(512, 3),
-        activation="relu",
-        metadata={
-            "geometric_params": {
-                "embed_dim": 128,
-                "num_points": 512,
-                "num_layers": 3,
-                "num_heads": 4,
-                "dropout": 0.1,
-            }
-        },
+        network=PointCloudNetworkConfig(
+            name="test_pointcloud_network",
+            hidden_dims=(128, 256, 128),
+            activation="relu",
+            embed_dim=128,
+            num_layers=3,
+            num_heads=4,
+        ),
+        num_points=2048,
     )
 
     eval_config = EvaluationConfig(
@@ -366,6 +364,66 @@ class TestPointCloudGenerationBenchmark:
         assert "targets" in info
         assert "config" in info
 
+    def test_benchmark_uses_supplied_demo_dataset_config_and_path(self, rngs, tmp_path):
+        """Benchmark initialization should honor the typed dataset spec instead of local defaults."""
+        from pathlib import Path
+
+        from artifex.generative_models.core.configuration import (
+            DataConfig,
+            EvaluationConfig,
+            PointCloudConfig,
+            PointCloudNetworkConfig,
+        )
+
+        dataset_path = tmp_path / "demo_shapenet"
+        dataset_config = DataConfig(
+            name="test_shapenet",
+            dataset_name="shapenet",
+            metadata={
+                "num_points": 128,
+                "mock_samples": 12,
+                "data_source": "synthetic",
+                "demo_mode": True,
+            },
+        )
+        model_config = PointCloudConfig(
+            name="test_pointcloud_model",
+            network=PointCloudNetworkConfig(
+                name="test_pointcloud_network",
+                hidden_dims=(32,),
+                activation="relu",
+                embed_dim=32,
+                num_layers=1,
+                num_heads=4,
+            ),
+            num_points=2048,
+        )
+        eval_config = EvaluationConfig(
+            name="test_geometric_eval",
+            metrics=["1nn_accuracy", "coverage", "chamfer_distance"],
+            metric_params={
+                "1nn_accuracy": {"k": 1},
+                "coverage": {"threshold": 0.01},
+                "chamfer_distance": {"reduction": "mean"},
+            },
+            eval_batch_size=2,
+        )
+
+        benchmark = PointCloudGenerationBenchmark(
+            config={
+                "dataset_path": str(dataset_path),
+                "dataset_config": dataset_config,
+                "model_config": model_config,
+                "eval_config": eval_config,
+            },
+            rngs=rngs,
+        )
+
+        assert benchmark.dataset.data_path == Path(dataset_path)
+        assert benchmark.dataset.demo_mode is True
+        assert benchmark.dataset.num_points == 128
+        assert benchmark.model.config.num_points == 128
+
     def test_training_execution(self, sample_config, rngs):
         """Test training phase execution."""
         # Use smaller config for faster testing
@@ -441,8 +499,9 @@ class TestGeometricBenchmarkSuite:
         from artifex.generative_models.core.configuration import (
             DataConfig,
             EvaluationConfig,
-            ModelConfig,
             OptimizerConfig,
+            PointCloudConfig,
+            PointCloudNetworkConfig,
             TrainingConfig,
         )
 
@@ -450,17 +509,25 @@ class TestGeometricBenchmarkSuite:
         dataset_config = DataConfig(
             name="test_shapenet",
             dataset_name="shapenet",
-            metadata={"num_points": 256, "mock_samples": 50},
+            metadata={
+                "num_points": 256,
+                "mock_samples": 50,
+                "data_source": "synthetic",
+                "demo_mode": True,
+            },
         )
 
-        model_config = ModelConfig(
+        model_config = PointCloudConfig(
             name="test_pointcloud_model",
-            model_class="artifex.generative_models.models.geometric.PointCloudModel",
-            input_dim=(256, 3),
-            hidden_dims=[64],
-            output_dim=(256, 3),
-            activation="relu",
-            metadata={"geometric_params": {"embed_dim": 64, "num_layers": 2}},
+            network=PointCloudNetworkConfig(
+                name="test_pointcloud_network",
+                hidden_dims=(64,),
+                activation="relu",
+                embed_dim=64,
+                num_layers=2,
+                num_heads=4,
+            ),
+            num_points=2048,
         )
 
         eval_config = EvaluationConfig(
@@ -504,8 +571,9 @@ class TestGeometricBenchmarkSuite:
         from artifex.generative_models.core.configuration import (
             DataConfig,
             EvaluationConfig,
-            ModelConfig,
             OptimizerConfig,
+            PointCloudConfig,
+            PointCloudNetworkConfig,
             TrainingConfig,
         )
 
@@ -513,17 +581,25 @@ class TestGeometricBenchmarkSuite:
         dataset_config = DataConfig(
             name="test_shapenet",
             dataset_name="shapenet",
-            metadata={"num_points": 128, "mock_samples": 20},
+            metadata={
+                "num_points": 128,
+                "mock_samples": 20,
+                "data_source": "synthetic",
+                "demo_mode": True,
+            },
         )
 
-        model_config = ModelConfig(
+        model_config = PointCloudConfig(
             name="test_pointcloud_model",
-            model_class="artifex.generative_models.models.geometric.PointCloudModel",
-            input_dim=(128, 3),
-            hidden_dims=[32],
-            output_dim=(128, 3),
-            activation="relu",
-            metadata={"geometric_params": {"embed_dim": 32, "num_layers": 1}},
+            network=PointCloudNetworkConfig(
+                name="test_pointcloud_network",
+                hidden_dims=(32,),
+                activation="relu",
+                embed_dim=32,
+                num_layers=1,
+                num_heads=4,
+            ),
+            num_points=2048,
         )
 
         eval_config = EvaluationConfig(
@@ -569,8 +645,8 @@ class TestGeometricBenchmarkSuite:
         assert "validation" in benchmark_result
         assert "info" in benchmark_result
 
-    def test_suite_summary_generation(self, rngs):
-        """Test suite summary generation."""
+    def test_suite_summary_generation(self, rngs, monkeypatch):
+        """Summary generation should not require eager benchmark initialization."""
         # Mock results for testing
         mock_results = {
             "point_cloud_generation": {
@@ -585,7 +661,18 @@ class TestGeometricBenchmarkSuite:
             }
         }
 
+        from artifex.benchmarks.suites import geometric_suite as geometric_suite_module
         from artifex.generative_models.core.configuration import EvaluationConfig
+
+        class UnexpectedBenchmarkInstantiation:
+            def __init__(self, *args, **kwargs):
+                raise AssertionError("summary generation should not instantiate benchmarks")
+
+        monkeypatch.setattr(
+            geometric_suite_module,
+            "PointCloudGenerationBenchmark",
+            UnexpectedBenchmarkInstantiation,
+        )
 
         # Create proper evaluation configuration
         eval_config = EvaluationConfig(
@@ -626,19 +713,24 @@ class TestGeometricDatasetRegistry:
         assert "shapenet" in datasets
         assert isinstance(datasets, list)
 
-    def test_dataset_retrieval(self, rngs):
+    def test_dataset_retrieval(self, rngs, tmp_path):
         """Test retrieving dataset by name."""
         from artifex.generative_models.core.configuration import DataConfig
 
         config = DataConfig(
             name="test_shapenet",
             dataset_name="shapenet",
-            metadata={"num_points": 256, "mock_samples": 10},
+            metadata={
+                "num_points": 256,
+                "mock_samples": 10,
+                "data_source": "synthetic",
+                "demo_mode": True,
+            },
         )
 
         dataset = GeometricDatasetRegistry.get_dataset(
             name="shapenet",
-            data_path="data/test",
+            data_path=str(tmp_path / "demo_shapenet"),
             config=config,
             rngs=rngs,
         )

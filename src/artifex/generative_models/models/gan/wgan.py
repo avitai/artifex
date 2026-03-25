@@ -6,6 +6,7 @@ import flax.nnx as nnx
 import jax
 import jax.numpy as jnp
 
+from artifex.generative_models.core.base import get_activation_function
 from artifex.generative_models.core.configuration.gan_config import WGANConfig
 from artifex.generative_models.core.configuration.network_configs import (
     ConvDiscriminatorConfig,
@@ -58,7 +59,7 @@ class WGANGenerator(Generator):
         batch_norm_use_running_avg = config.batch_norm_use_running_avg
 
         # Store WGAN-specific convolutional architecture attributes
-        self.wgan_activation_fn = self._get_activation_fn(config.activation)
+        self.wgan_activation_fn = get_activation_function(config.activation)
 
         # Calculate initial spatial dimensions
         channels, height, width = self.output_shape
@@ -280,7 +281,7 @@ class WGANDiscriminator(Discriminator):
 
         # First conv layer (no normalization)
         x = self.conv_layers[0](x)
-        x = jax.nn.leaky_relu(x, negative_slope=self.leaky_relu_slope)
+        x = nnx.leaky_relu(x, negative_slope=self.leaky_relu_slope)
 
         # Subsequent conv layers with normalization
         norm_idx = 0
@@ -291,7 +292,7 @@ class WGANDiscriminator(Discriminator):
                 x = self.norm_layers[norm_idx](x)
                 norm_idx += 1
 
-            x = jax.nn.leaky_relu(x, negative_slope=self.leaky_relu_slope)
+            x = nnx.leaky_relu(x, negative_slope=self.leaky_relu_slope)
 
         # Final output layer (no activation - raw scores for Wasserstein distance)
         x = self.output_conv(x)

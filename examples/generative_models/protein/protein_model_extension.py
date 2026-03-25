@@ -33,6 +33,8 @@
 # %%
 """Protein model extension example."""
 
+import logging
+
 import jax
 import jax.numpy as jnp
 from flax import nnx
@@ -53,6 +55,15 @@ from artifex.generative_models.extensions.protein.constraints import (
 from artifex.generative_models.models.geometric.point_cloud import (
     PointCloudModel,
 )
+
+
+logging.basicConfig(level=logging.INFO, format="%(message)s")
+LOGGER = logging.getLogger(__name__)
+
+
+def echo(message: object = "") -> None:
+    """Log example progress without relying on raw print statements."""
+    LOGGER.info("%s", message)
 
 
 # %% [markdown]
@@ -179,7 +190,7 @@ extensions_dict["bond_angle"] = BondAngleExtension(
 
 # Wrap extensions in nnx.Dict for Flax NNX 0.12.0+ compatibility
 extensions = nnx.Dict(extensions_dict)
-print(f"Created extensions: {', '.join(extensions.keys())}")
+echo(f"Created extensions: {', '.join(extensions.keys())}")
 
 
 # %% [markdown]
@@ -192,7 +203,7 @@ print(f"Created extensions: {', '.join(extensions.keys())}")
 # Create the point cloud model with protein extensions
 key, model_key = jax.random.split(key)
 model = PointCloudModel(model_config, extensions=extensions, rngs=nnx.Rngs(params=model_key))
-print(f"Created model: {model.__class__.__name__}")
+echo(f"Created model: {model.__class__.__name__}")
 
 
 # %% [markdown]
@@ -239,16 +250,16 @@ batch = {
 outputs = model(batch)
 
 # Check model outputs
-print("\nModel outputs:")
+echo("\nModel outputs:")
 main_output_shape = outputs["positions"].shape
-print(f"- Main output shape: {main_output_shape}")
+echo(f"- Main output shape: {main_output_shape}")
 
 # Check extension outputs
 if "extension_outputs" in outputs:
     ext_outputs = outputs["extension_outputs"]
-    print("- Extension outputs:")
+    echo("- Extension outputs:")
     for ext_name in ext_outputs.keys():
-        print(f"  - {ext_name}")
+        echo(f"  - {ext_name}")
 
 
 # %% [markdown]
@@ -265,27 +276,25 @@ if "extension_outputs" in outputs:
 loss_fn = model.get_loss_fn()
 loss_outputs = loss_fn(batch, outputs)
 
-print("\nLoss calculation:")
-print(f"- Available loss keys: {list(loss_outputs.keys())}")
+echo("\nLoss calculation:")
+echo(f"- Available loss keys: {list(loss_outputs.keys())}")
 
 # Print main loss
 if "total_loss" in loss_outputs:
-    print(f"- Total loss: {loss_outputs['total_loss']:.2f}")
+    echo(f"- Total loss: {loss_outputs['total_loss']:.2f}")
 elif "mse_loss" in loss_outputs:
-    print(f"- MSE loss: {loss_outputs['mse_loss']:.2f}")
-elif "loss" in loss_outputs:
-    print(f"- Main loss: {loss_outputs['loss']:.2f}")
+    echo(f"- MSE loss: {loss_outputs['mse_loss']:.2f}")
 
 # Print all loss components
 for loss_key, value in loss_outputs.items():
     if "loss" in loss_key.lower():
-        print(f"- {loss_key}: {value:.2f}")
+        echo(f"- {loss_key}: {value:.2f}")
 
 # Check extension losses
 if "extension_losses" in loss_outputs:
-    print("- Extension losses:")
+    echo("- Extension losses:")
     for ext_name, ext_loss in loss_outputs["extension_losses"].items():
-        print(f"  - {ext_name}: {ext_loss:.2f}")
+        echo(f"  - {ext_name}: {ext_loss:.2f}")
 
 
 # %% [markdown]
@@ -307,4 +316,4 @@ if "extension_losses" in loss_outputs:
 
 
 # %%
-print("\nProtein model extension demo completed successfully!")
+echo("\nProtein model extension demo completed successfully!")

@@ -40,7 +40,6 @@ class GANTrainingConfig:
             - "wasserstein": Wasserstein distance (requires gradient penalty)
             - "hinge": Hinge loss (used in BigGAN, StyleGAN2)
             - "lsgan": Least squares GAN
-        n_critic: Discriminator updates per generator update.
         gp_weight: Gradient penalty weight (for WGAN-GP).
         gp_target: Target gradient norm (usually 1.0).
         r1_weight: R1 regularization weight.
@@ -48,7 +47,6 @@ class GANTrainingConfig:
     """
 
     loss_type: Literal["vanilla", "wasserstein", "hinge", "lsgan"] = "vanilla"
-    n_critic: int = 1
     gp_weight: float = 10.0
     gp_target: float = 1.0
     r1_weight: float = 0.0
@@ -65,7 +63,6 @@ class GANTrainer:
 
     Features:
         - Multiple loss types (vanilla, wasserstein, hinge, lsgan)
-        - Configurable discriminator/generator update ratio
         - WGAN-GP gradient penalty
         - R1 regularization for discriminator
         - Label smoothing
@@ -79,7 +76,6 @@ class GANTrainer:
 
         config = GANTrainingConfig(
             loss_type="wasserstein",
-            n_critic=5,
             gp_weight=10.0,
         )
         trainer = GANTrainer(config)
@@ -96,10 +92,9 @@ class GANTrainer:
             d_loss, d_metrics = trainer.discriminator_step(
                 generator, discriminator, d_optimizer, real_batch, z, d_key
             )
-            if step % config.n_critic == 0:
-                g_loss, g_metrics = trainer.generator_step(
-                    generator, discriminator, g_optimizer, z
-                )
+            g_loss, g_metrics = trainer.generator_step(
+                generator, discriminator, g_optimizer, z
+            )
         ```
 
     Example (JIT-compiled):
@@ -112,10 +107,9 @@ class GANTrainer:
             d_loss, d_metrics = jit_d_step(
                 generator, discriminator, d_optimizer, real_batch, z, d_key
             )
-            if step % config.n_critic == 0:
-                g_loss, g_metrics = jit_g_step(
-                    generator, discriminator, g_optimizer, z
-                )
+            g_loss, g_metrics = jit_g_step(
+                generator, discriminator, g_optimizer, z
+            )
         ```
     """
 

@@ -4,12 +4,6 @@ This module provides models for generating 3D geometric structures
 like point clouds, meshes, voxels, and graphs.
 """
 
-from artifex.generative_models.extensions.protein import (
-    BondAngleExtension,
-    BondLengthExtension,
-    create_protein_extensions,
-    ProteinMixinExtension,
-)
 from artifex.generative_models.models.geometric.base import (
     GeometricModel,
 )
@@ -38,19 +32,4 @@ __all__ = [
     # Protein-specific geometric models
     "ProteinGraphModel",
     "ProteinPointCloudModel",
-    # Extension compatibility
-    "BondAngleExtension",
-    "BondLengthExtension",
-    "ProteinMixinExtension",
-    "create_protein_extensions",
 ]
-
-# Deprecation warning
-import warnings
-
-
-warnings.warn(
-    "Protein-specific constraints have been moved to artifex.generative_models.extensions.protein.",
-    DeprecationWarning,
-    stacklevel=2,
-)

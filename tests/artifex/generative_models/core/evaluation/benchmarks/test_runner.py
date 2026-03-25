@@ -4,14 +4,10 @@ import flax.nnx as nnx
 import jax
 import jax.numpy as jnp
 import pytest
+from calibrax.metrics import MetricEntry, MetricRegistry, MetricTier
 
+from artifex.benchmarks.core import BenchmarkBase, BenchmarkRunner, PerformanceTracker
 from artifex.generative_models.core.configuration import EvaluationConfig
-from artifex.generative_models.core.evaluation.benchmarks.runner import (
-    BenchmarkRunner,
-    PerformanceTracker,
-)
-from artifex.generative_models.core.evaluation.metrics.registry import MetricsRegistry
-from artifex.generative_models.core.protocols.benchmarks import BenchmarkBase
 
 
 @pytest.fixture
@@ -203,65 +199,72 @@ class TestPerformanceTracker:
         assert achieved is False
 
 
-class TestMetricsRegistry:
-    """Test MetricsRegistry functionality."""
+class TestCalibraxMetricRegistry:
+    """Test CalibraX metric registry integration."""
 
-    def test_metrics_registry_singleton(self):
-        """Test metrics registry singleton pattern."""
-        registry1 = MetricsRegistry()
-        registry2 = MetricsRegistry()
+    def test_metric_registry_singleton(self):
+        registry1 = MetricRegistry()
+        registry2 = MetricRegistry()
 
         assert registry1 is registry2
 
-    def test_register_metric_computer(self):
-        """Test metric computer registration."""
-        registry = MetricsRegistry()
+    def test_register_metric_entry(self):
+        registry = MetricRegistry()
 
         def dummy_metric(data):
-            return {"dummy": 1.0}
+            return 1.0
 
-        registry.register_metric_computer("dummy_metric", dummy_metric)
+        metric_name = "artifex_test_dummy_metric_runner"
+        registry.register(
+            metric_name,
+            MetricEntry(
+                name=metric_name,
+                fn=dummy_metric,
+                tier=MetricTier.PURE_FUNCTION,
+                domain="testing",
+            ),
+        )
 
-        assert "dummy_metric" in registry.metric_computers
-        assert registry.metric_computers["dummy_metric"] == dummy_metric
+        assert registry.has(metric_name)
+        assert registry.get(metric_name).fn is dummy_metric
 
-    def test_compute_metrics(self):
-        """Test metrics computation."""
-        registry = MetricsRegistry()
+    def test_get_function(self):
+        registry = MetricRegistry()
 
-        # Register test metric
         def test_accuracy(predictions, targets):
             correct = jnp.sum(predictions == targets)
-            return {"accuracy": correct / len(targets)}
+            return float(correct / len(targets))
 
-        registry.register_metric_computer("accuracy", test_accuracy)
+        metric_name = "artifex_test_accuracy_runner"
+        registry.register(
+            metric_name,
+            MetricEntry(
+                name=metric_name,
+                fn=test_accuracy,
+                tier=MetricTier.PURE_FUNCTION,
+                domain="testing",
+            ),
+        )
 
-        # Test computation
         predictions = jnp.array([1, 0, 1, 1])
         targets = jnp.array([1, 0, 0, 1])
+        fn = registry.get_function(metric_name)
+        assert fn(predictions, targets) == 0.75
 
-        metrics = registry.compute_metrics("accuracy", predictions, targets)
-        assert "accuracy" in metrics
-        assert metrics["accuracy"] == 0.75
+    def test_list_names_includes_registered_metric(self):
+        registry = MetricRegistry()
+        metric_name = "artifex_test_list_metric_runner"
+        registry.register(
+            metric_name,
+            MetricEntry(
+                name=metric_name,
+                fn=lambda data: 1.0,
+                tier=MetricTier.PURE_FUNCTION,
+                domain="testing",
+            ),
+        )
 
-    def test_list_available_metrics(self):
-        """Test listing available metrics."""
-        registry = MetricsRegistry()
-
-        # Clear registry for clean test
-        registry.metric_computers.clear()
-
-        available = registry.list_available_metrics()
-        assert len(available) == 0
-
-        # Register some metrics
-        registry.register_metric_computer("metric1", lambda x: {"m1": 1.0})
-        registry.register_metric_computer("metric2", lambda x: {"m2": 2.0})
-
-        available = registry.list_available_metrics()
-        assert len(available) == 2
-        assert "metric1" in available
-        assert "metric2" in available
+        assert metric_name in registry.list_names()
 
 
 class TestBenchmarkRunner:
@@ -343,14 +346,22 @@ class TestBenchmarkIntegration:
         # Create benchmark
         benchmark = MockBenchmark(config=sample_config, rngs=rngs)
 
-        # Create metrics registry
-        registry = MetricsRegistry()
+        # Register a custom metric in the CalibraX registry
+        registry = MetricRegistry()
 
-        # Register a custom metric
         def custom_metric(data):
-            return {"custom_score": 0.88}
+            return 0.88
 
-        registry.register_metric_computer("custom", custom_metric)
+        metric_name = "artifex_test_custom_metric_runner"
+        registry.register(
+            metric_name,
+            MetricEntry(
+                name=metric_name,
+                fn=custom_metric,
+                tier=MetricTier.PURE_FUNCTION,
+                domain="testing",
+            ),
+        )
 
         # Create runner and execute
         runner = BenchmarkRunner(benchmark=benchmark)
@@ -361,10 +372,9 @@ class TestBenchmarkIntegration:
         assert "training_results" in results
         assert "evaluation_results" in results
 
-        # Test custom metric computation
-        custom_metrics = registry.compute_metrics("custom", {"dummy": "data"})
-        assert "custom_score" in custom_metrics
-        assert custom_metrics["custom_score"] == 0.88
+        # Test custom metric computation through the upstream registry
+        custom_metric_fn = registry.get_function(metric_name)
+        assert custom_metric_fn({"dummy": "data"}) == 0.88
 
     def test_hardware_requirements_validation(self, sample_config, rngs):
         """Test hardware requirements validation."""

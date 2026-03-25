@@ -1,4 +1,4 @@
-"""Tests for NNXModelAdapter in benchmarks."""
+"""Tests for NNXGenerativeModelAdapter in benchmarks."""
 
 import flax.nnx as nnx
 import jax
@@ -7,7 +7,7 @@ import pytest
 
 from artifex.benchmarks.model_adapters import (
     adapt_model,
-    NNXModelAdapter,
+    NNXGenerativeModelAdapter,
 )
 from tests.utils.test_models import SimpleNNXModel
 
@@ -52,7 +52,7 @@ class NNXModelWithPredict(nnx.Module):
         # Proper RNG handling following guidelines
         sample_rng = None
         if rngs is not None and hasattr(rngs, "sample"):
-            sample_rng = rngs.sample.key.value
+            sample_rng = rngs.sample()
         else:
             sample_rng = jax.random.key(0)
 
@@ -60,8 +60,8 @@ class NNXModelWithPredict(nnx.Module):
         return self.predict(x, rngs=rngs)
 
 
-class TestNNXModelAdapter:
-    """Tests for the NNXModelAdapter."""
+class TestNNXGenerativeModelAdapter:
+    """Tests for the NNXGenerativeModelAdapter."""
 
     def setup_method(self):
         """Set up for each test."""
@@ -72,26 +72,26 @@ class TestNNXModelAdapter:
         """Test the can_adapt method."""
         # Should be able to adapt an nnx.Module
         model = SimpleNNXModel(features=5, rngs=self.rngs)
-        assert NNXModelAdapter.can_adapt(model)
+        assert NNXGenerativeModelAdapter.can_adapt(model)
 
         # Should not be able to adapt a non-nnx model
         class NonNNXModel:
             pass
 
         non_nnx_model = NonNNXModel()
-        assert not NNXModelAdapter.can_adapt(non_nnx_model)
+        assert not NNXGenerativeModelAdapter.can_adapt(non_nnx_model)
 
     def test_adapt_model(self):
         """Test adapting an NNX model."""
         model = SimpleNNXModel(features=5, rngs=self.rngs)
         adapter = adapt_model(model)
 
-        assert isinstance(adapter, NNXModelAdapter)
+        assert isinstance(adapter, NNXGenerativeModelAdapter)
 
     def test_predict(self):
         """Test the predict method."""
         model = SimpleNNXModel(features=5, rngs=self.rngs)
-        adapter = NNXModelAdapter(model)
+        adapter = NNXGenerativeModelAdapter(model)
 
         # Test without rngs
         x = jnp.ones((3, 10))
@@ -102,7 +102,7 @@ class TestNNXModelAdapter:
     def test_predict_with_predict_method(self):
         """Test the predict method with a model that has a predict method."""
         model = NNXModelWithPredict(features=5, rngs=self.rngs)
-        adapter = NNXModelAdapter(model)
+        adapter = NNXGenerativeModelAdapter(model)
 
         x = jnp.ones((3, 10))
         test_rngs = nnx.Rngs(dropout=jax.random.PRNGKey(1))
@@ -112,7 +112,7 @@ class TestNNXModelAdapter:
     def test_sample(self):
         """Test the sample method."""
         model = SimpleNNXModel(features=5, rngs=self.rngs)
-        adapter = NNXModelAdapter(model)
+        adapter = NNXGenerativeModelAdapter(model)
 
         # Test with rngs
         test_rngs = nnx.Rngs(dropout=jax.random.PRNGKey(1))
@@ -128,7 +128,7 @@ class TestNNXModelAdapter:
     def test_sample_with_generate_method(self):
         """Test the sample method with a model that has a generate method."""
         model = NNXModelWithPredict(features=5, rngs=self.rngs)
-        adapter = NNXModelAdapter(model)
+        adapter = NNXGenerativeModelAdapter(model)
 
         test_rngs = nnx.Rngs(dropout=jax.random.PRNGKey(1))
         samples = adapter.sample(batch_size=3, rngs=test_rngs)
@@ -141,7 +141,7 @@ class TestNNXModelAdapter:
             pass
 
         model = EmptyModel()
-        adapter = NNXModelAdapter(model)
+        adapter = NNXGenerativeModelAdapter(model)
 
         with pytest.raises(ValueError):
             x = jnp.ones((3, 10))
@@ -156,7 +156,7 @@ class TestNNXModelAdapter:
                 return x
 
         model = ModelWithoutSample()
-        adapter = NNXModelAdapter(model)
+        adapter = NNXGenerativeModelAdapter(model)
 
         with pytest.raises(ValueError):
             test_rngs = nnx.Rngs(dropout=jax.random.PRNGKey(1))

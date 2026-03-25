@@ -1,11 +1,11 @@
 # Optax Wrappers
 
-**Module:** `generative_models.training.optimizers.optax_wrappers`
+**Status:** `Coming soon`
 
-**Source:** `generative_models/training/optimizers/optax_wrappers.py`
+**Planned module:** `artifex.generative_models.training.optimizers.optax_wrappers`
 
-## Module Statistics
+**Current owner:** `artifex.generative_models.training.optimizers.factory`
 
-- **Classes:** 0
-- **Functions:** 0
-- **Imports:** 0
+`artifex.generative_models.training.optimizers.optax_wrappers` is not shipped as a standalone runtime module today. Use the current owner above for the supported runtime surface until a dedicated module exists.
+
+See [Training Systems](index.md) for the current shared training docs.

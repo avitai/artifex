@@ -6,12 +6,12 @@ nested network configurations for the nested config architecture.
 Configuration Hierarchy:
 - NoiseScheduleConfig: Noise schedule parameters
 - DiffusionConfig: Base diffusion config with nested backbone and schedule
-  - Uses polymorphic BackboneConfig (UNetBackboneConfig, DiTBackboneConfig, etc.)
+  - Uses retained polymorphic BackboneConfig members with real runtime support
   - DDPMConfig: Denoising Diffusion Probabilistic Model (extends DiffusionConfig)
     - DDIMConfig: Denoising Diffusion Implicit Model (extends DDPMConfig)
   - ScoreDiffusionConfig: Score-based diffusion (extends DiffusionConfig)
   - LatentDiffusionConfig: Latent space diffusion with encoder/decoder (extends DiffusionConfig)
-- DiTConfig: Diffusion Transformer (uses DiTBackboneConfig, extends BaseConfig)
+- DiTConfig: standalone Diffusion Transformer model config (extends BaseConfig)
 
 Backbone System (Principle #4 compliant):
 - BackboneConfig union type allows polymorphic backbone selection via config
@@ -22,6 +22,7 @@ Backbone System (Principle #4 compliant):
 from __future__ import annotations
 
 import dataclasses
+from typing import cast
 
 from artifex.generative_models.core.configuration.backbone_config import (
     BackboneConfig,
@@ -29,7 +30,6 @@ from artifex.generative_models.core.configuration.backbone_config import (
     UNet1DBackboneConfig,
     UNet2DConditionBackboneConfig,
     UNetBackboneConfig,
-    UViTBackboneConfig,
 )
 from artifex.generative_models.core.configuration.base_dataclass import BaseConfig
 from artifex.generative_models.core.configuration.network_configs import (
@@ -44,7 +44,7 @@ from artifex.generative_models.core.configuration.validation import (
 )
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class NoiseScheduleConfig(BaseConfig):
     """Configuration for noise schedule in diffusion models.
 
@@ -82,7 +82,7 @@ class NoiseScheduleConfig(BaseConfig):
         Raises:
             ValueError: If any validation fails
         """
-        super().__post_init__()
+        super(NoiseScheduleConfig, self).__post_init__()
 
         # Validate schedule_type
         valid_schedule_types = {"linear", "cosine", "quadratic", "sqrt"}
@@ -108,7 +108,7 @@ class NoiseScheduleConfig(BaseConfig):
         validate_non_negative_float(self.clip_min, "clip_min")
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class DiffusionConfig(BaseConfig):
     """Base configuration for diffusion models with nested configs.
 
@@ -116,11 +116,11 @@ class DiffusionConfig(BaseConfig):
     diffusion models with nested backbone and NoiseScheduleConfig objects.
 
     Follows Principle #4: Methods take configs, NOT individual parameters.
-    The backbone field accepts any BackboneConfig type (polymorphic):
+    The backbone field accepts retained backbone configs with real runtime support:
     - UNetBackboneConfig
     - DiTBackboneConfig
-    - UViTBackboneConfig
     - UNet2DConditionBackboneConfig
+    - UNet1DBackboneConfig
 
     Attributes:
         name: Name of the configuration
@@ -166,7 +166,7 @@ class DiffusionConfig(BaseConfig):
             ValueError: If any validation fails
             TypeError: If nested configs have wrong type
         """
-        super().__post_init__()
+        super(DiffusionConfig, self).__post_init__()
 
         # Validate required nested configs
         if self.backbone is None:
@@ -178,14 +178,13 @@ class DiffusionConfig(BaseConfig):
         valid_backbone_types = (
             UNetBackboneConfig,
             DiTBackboneConfig,
-            UViTBackboneConfig,
             UNet2DConditionBackboneConfig,
             UNet1DBackboneConfig,
         )
         if not isinstance(self.backbone, valid_backbone_types):
             raise TypeError(
                 f"backbone must be a BackboneConfig type "
-                f"(UNetBackboneConfig, DiTBackboneConfig, UViTBackboneConfig, "
+                f"(UNetBackboneConfig, DiTBackboneConfig, "
                 f"UNet2DConditionBackboneConfig, UNet1DBackboneConfig), "
                 f"got {type(self.backbone).__name__}"
             )
@@ -226,7 +225,7 @@ class DiffusionConfig(BaseConfig):
             if backbone_type is None:
                 raise ValueError(
                     "backbone dict must have 'backbone_type' field "
-                    "(one of: 'unet', 'dit', 'uvit', 'unet2d_condition', 'unet_1d')"
+                    "(one of: 'unet', 'dit', 'unet2d_condition', 'unet_1d')"
                 )
 
             # Dispatch based on backbone_type discriminator
@@ -234,8 +233,6 @@ class DiffusionConfig(BaseConfig):
                 data["backbone"] = UNetBackboneConfig.from_dict(backbone_data)
             elif backbone_type == "dit":
                 data["backbone"] = DiTBackboneConfig.from_dict(backbone_data)
-            elif backbone_type == "uvit":
-                data["backbone"] = UViTBackboneConfig.from_dict(backbone_data)
             elif backbone_type == "unet2d_condition":
                 data["backbone"] = UNet2DConditionBackboneConfig.from_dict(backbone_data)
             elif backbone_type == "unet_1d":
@@ -243,7 +240,7 @@ class DiffusionConfig(BaseConfig):
             else:
                 raise ValueError(
                     f"Unknown backbone_type: '{backbone_type}'. "
-                    f"Must be one of: 'unet', 'dit', 'uvit', 'unet2d_condition', 'unet_1d'"
+                    f"Must be one of: 'unet', 'dit', 'unet2d_condition', 'unet_1d'"
                 )
 
         # Convert noise_schedule field if it's a dict
@@ -253,7 +250,7 @@ class DiffusionConfig(BaseConfig):
         return super(DiffusionConfig, cls).from_dict(data)
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class ConditionalDiffusionConfig(DiffusionConfig):
     """Configuration for conditional diffusion models.
 
@@ -279,13 +276,13 @@ class ConditionalDiffusionConfig(DiffusionConfig):
 
     def __post_init__(self) -> None:
         """Validate configuration after initialization."""
-        super().__post_init__()
+        super(ConditionalDiffusionConfig, self).__post_init__()
 
         # Validate conditioning_dim is positive
         validate_positive_int(self.conditioning_dim, "conditioning_dim")
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class DDPMConfig(DiffusionConfig):
     """Configuration for Denoising Diffusion Probabilistic Model (DDPM).
 
@@ -315,7 +312,7 @@ class DDPMConfig(DiffusionConfig):
         Raises:
             ValueError: If any validation fails
         """
-        super().__post_init__()
+        super(DDPMConfig, self).__post_init__()
 
         # Validate loss_type
         valid_loss_types = {"mse", "l1", "huber"}
@@ -323,7 +320,7 @@ class DDPMConfig(DiffusionConfig):
             raise ValueError(f"loss_type must be one of {valid_loss_types}, got '{self.loss_type}'")
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class DDIMConfig(DDPMConfig):
     """Configuration for Denoising Diffusion Implicit Model (DDIM).
 
@@ -362,7 +359,7 @@ class DDIMConfig(DDPMConfig):
         Raises:
             ValueError: If any validation fails
         """
-        super().__post_init__()
+        super(DDIMConfig, self).__post_init__()
 
         # Validate eta (must be in [0, 1])
         if not 0.0 <= self.eta <= 1.0:
@@ -377,7 +374,7 @@ class DDIMConfig(DDPMConfig):
             raise ValueError(f"skip_type must be one of {valid_skip_types}, got '{self.skip_type}'")
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class ScoreDiffusionConfig(DiffusionConfig):
     """Configuration for Score-based Diffusion Model.
 
@@ -409,7 +406,7 @@ class ScoreDiffusionConfig(DiffusionConfig):
         Raises:
             ValueError: If any validation fails
         """
-        super().__post_init__()
+        super(ScoreDiffusionConfig, self).__post_init__()
 
         # Validate sigma values
         validate_positive_float(self.sigma_min, "sigma_min")
@@ -425,7 +422,7 @@ class ScoreDiffusionConfig(DiffusionConfig):
         validate_positive_float(self.score_scaling, "score_scaling")
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class LatentDiffusionConfig(DDPMConfig):
     """Configuration for Latent Diffusion Model.
 
@@ -462,7 +459,7 @@ class LatentDiffusionConfig(DDPMConfig):
             ValueError: If any validation fails
             TypeError: If encoder or decoder have wrong type
         """
-        super().__post_init__()
+        super(LatentDiffusionConfig, self).__post_init__()
 
         # Validate required nested configs
         if self.encoder is None:
@@ -507,10 +504,10 @@ class LatentDiffusionConfig(DDPMConfig):
             data["decoder"] = DecoderConfig.from_dict(data["decoder"])
 
         # Let parent handle backbone and noise_schedule
-        return super(LatentDiffusionConfig, cls).from_dict(data)
+        return cast("LatentDiffusionConfig", super(LatentDiffusionConfig, cls).from_dict(data))
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class DiTConfig(BaseConfig):
     """Configuration for Diffusion Transformer (DiT).
 
@@ -567,7 +564,7 @@ class DiTConfig(BaseConfig):
             ValueError: If any validation fails
             TypeError: If noise_schedule has wrong type
         """
-        super().__post_init__()
+        super(DiTConfig, self).__post_init__()
 
         # Validate noise_schedule
         if self.noise_schedule is None:
@@ -623,12 +620,13 @@ class DiTConfig(BaseConfig):
         return super(DiTConfig, cls).from_dict(data)
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class StableDiffusionConfig(LatentDiffusionConfig):
     """Configuration for Stable Diffusion Model.
 
     Extends LatentDiffusionConfig with text conditioning parameters.
-    Stable Diffusion operates in latent space with text-based guidance.
+    Stable Diffusion operates in latent space with a retained
+    ``UNet2DConditionBackboneConfig`` contract.
 
     Attributes:
         text_embedding_dim: Dimension of text embeddings
@@ -650,6 +648,8 @@ class StableDiffusionConfig(LatentDiffusionConfig):
         )
     """
 
+    backbone: UNet2DConditionBackboneConfig = dataclasses.field(default=None)  # type: ignore
+
     # Text conditioning parameters
     text_embedding_dim: int = 512
     text_max_length: int = 77
@@ -665,7 +665,13 @@ class StableDiffusionConfig(LatentDiffusionConfig):
         Raises:
             ValueError: If any validation fails
         """
-        super().__post_init__()
+        super(StableDiffusionConfig, self).__post_init__()
+
+        if not isinstance(self.backbone, UNet2DConditionBackboneConfig):
+            raise TypeError(
+                "StableDiffusionConfig backbone must be UNet2DConditionBackboneConfig, "
+                f"got {type(self.backbone).__name__}"
+            )
 
         # Validate text parameters
         validate_positive_int(self.text_embedding_dim, "text_embedding_dim")
@@ -674,3 +680,18 @@ class StableDiffusionConfig(LatentDiffusionConfig):
 
         # Validate guidance scale
         validate_non_negative_float(self.guidance_scale, "guidance_scale")
+
+        if self.text_embedding_dim != self.backbone.cross_attention_dim:
+            raise ValueError(
+                "text_embedding_dim must match backbone cross_attention_dim, "
+                f"got text_embedding_dim={self.text_embedding_dim}, "
+                f"cross_attention_dim={self.backbone.cross_attention_dim}"
+            )
+
+        latent_dim = self.encoder.latent_dim
+        if self.backbone.in_channels != latent_dim or self.backbone.out_channels != latent_dim:
+            raise ValueError(
+                "StableDiffusion conditioned backbone channels must match encoder/decoder "
+                f"latent_dim, got in_channels={self.backbone.in_channels}, "
+                f"out_channels={self.backbone.out_channels}, latent_dim={latent_dim}"
+            )

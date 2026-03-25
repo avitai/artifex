@@ -16,7 +16,7 @@ from .base import TimeseriesModalityConfig
 
 
 class TimeseriesEvaluationSuite(BaseEvaluationSuite):
-    """Comprehensive evaluation suite for timeseries generation.
+    """Complete evaluation suite for timeseries generation.
 
     Provides temporal-specific metrics including:
     - Dynamic Time Warping (DTW) distance
@@ -79,7 +79,7 @@ class TimeseriesEvaluationSuite(BaseEvaluationSuite):
         generated_data: jnp.ndarray,
         **kwargs: Any,
     ) -> dict[str, float]:
-        """Compute comprehensive timeseries evaluation metrics.
+        """Compute complete timeseries evaluation metrics.
 
         Args:
             real_data: Real timeseries data of shape (batch, sequence, features)

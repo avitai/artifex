@@ -112,7 +112,7 @@ class FastDataGenerator:
 
 
 class SyntheticDataGenerator:
-    """Generate realistic synthetic data for comprehensive testing.
+    """Generate realistic synthetic data for complete testing.
 
     Creates data that mimics real-world patterns and structures while being
     deterministic and computationally efficient.

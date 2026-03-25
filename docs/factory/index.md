@@ -79,7 +79,7 @@ The factory automatically infers model type from the configuration class:
 | Config Class | Model Type | Created Model |
 |--------------|------------|---------------|
 | `VAEConfig`, `BetaVAEConfig`, `ConditionalVAEConfig`, `VQVAEConfig` | `vae` | VAE variants |
-| `GANConfig`, `DCGANConfig`, `WGANConfig`, `LSGANConfig` | `gan` | GAN variants |
+| `DCGANConfig`, `WGANConfig`, `LSGANConfig`, `ConditionalGANConfig`, `CycleGANConfig` | `gan` | Concrete GAN variants |
 | `DiffusionConfig`, `DDPMConfig`, `ScoreDiffusionConfig` | `diffusion` | Diffusion models |
 | `EBMConfig`, `DeepEBMConfig` | `ebm` | Energy-based models |
 | `FlowConfig` | `flow` | Normalizing flows |
@@ -104,7 +104,7 @@ def create_model(
 
     Args:
         config: Dataclass model configuration (DDPMConfig, VAEConfig, etc.)
-        modality: Optional modality for adaptation ('image', 'text', 'audio', etc.)
+        modality: Optional modality for adaptation ('image', 'molecular', or 'protein')
         rngs: Random number generators
         **kwargs: Additional arguments passed to the builder
 
@@ -226,10 +226,13 @@ Creates VAE variants based on configuration type:
 
 Creates GAN variants:
 
-- `GANConfig` → `GAN`
 - `DCGANConfig` → `DCGAN`
 - `WGANConfig` → `WGAN`
 - `LSGANConfig` → `LSGAN`
+- `ConditionalGANConfig` → `ConditionalGAN`
+- `CycleGANConfig` → `CycleGAN`
+
+Base `GANConfig` is not factory-ready and is rejected by `create_model(...)`.
 
 [:octicons-arrow-right-24: GAN Builder Reference](gan.md)
 
@@ -281,25 +284,6 @@ Creates geometric models:
 
 [:octicons-arrow-right-24: Geometric Builder Reference](geometric.md)
 
-## Registry
-
-The model type registry manages builder registration:
-
-```python
-from artifex.generative_models.factory.registry import ModelTypeRegistry
-
-# Create custom registry
-registry = ModelTypeRegistry()
-
-# Register custom builder
-registry.register("custom_type", CustomBuilder())
-
-# Get builder
-builder = registry.get_builder("custom_type")
-```
-
-[:octicons-arrow-right-24: Registry Reference](registry.md)
-
 ## Modality Adaptation
 
 The factory supports optional modality adaptation for domain-specific models:
@@ -308,42 +292,44 @@ The factory supports optional modality adaptation for domain-specific models:
 # Create image-adapted model
 model = create_model(config, modality="image", rngs=rngs)
 
-# Create text-adapted model
-model = create_model(config, modality="text", rngs=rngs)
+# Create molecular-adapted model
+model = create_model(config, modality="molecular", rngs=rngs)
 
-# Create audio-adapted model
-model = create_model(config, modality="audio", rngs=rngs)
+# Create protein-adapted model
+model = create_model(config, modality="protein", rngs=rngs)
 ```
 
 **Available Modalities:**
 
 - `image`: Convolutional layers, FID/IS metrics
-- `text`: Tokenization, perplexity metrics
-- `audio`: Spectrograms, MFCCs
+- `molecular`: Chemical constraints and pharmacophore features
 - `protein`: Structure prediction, sequence modeling
-- `geometric`: Point clouds, meshes
 
 ## Custom Builders
 
-Create custom builders for new model types:
+Create custom builders for new model families inside Artifex:
 
 ```python
-from artifex.generative_models.factory.registry import ModelBuilder
 from flax import nnx
+from typing import Any
 
-class CustomBuilder(ModelBuilder):
+class CustomBuilder:
     """Builder for custom model type."""
 
-    def build(self, config, *, rngs: nnx.Rngs, **kwargs):
+    def build(self, config: Any, *, rngs: nnx.Rngs, **kwargs):
         """Build the model from configuration."""
         return CustomModel(config, rngs=rngs, **kwargs)
 
-# Register with factory
-from artifex.generative_models.factory import ModelFactory
+# Register inside the canonical factory implementation
+from artifex.generative_models.factory.core import ModelFactory
 
 factory = ModelFactory()
 factory.registry.register("custom", CustomBuilder())
 ```
+
+The builder registry is an implementation detail for extending Artifex itself.
+Normal package users should stay on `create_model()` and
+`create_model_with_extensions()`.
 
 ## Best Practices
 
@@ -374,7 +360,7 @@ create_model(UnknownConfig(), rngs=rngs)
 # Raises: TypeError: Unknown config type: UnknownConfig
 
 # ValueError: Builder not found
-# (Only possible with custom registries)
+# (Only possible when the internal builder registry and config dispatch disagree)
 ```
 
 ## Module Reference
@@ -382,7 +368,6 @@ create_model(UnknownConfig(), rngs=rngs)
 | Module | Description |
 |--------|-------------|
 | [core](core.md) | Core factory implementation and `create_model` function |
-| [registry](registry.md) | Model type registry and builder base class |
 | [vae](vae.md) | VAE model builder |
 | [gan](gan.md) | GAN model builder |
 | [diffusion](diffusion.md) | Diffusion model builder |

@@ -1,16 +1,12 @@
-"""Sharding strategies and parallelism configuration for scalable training.
+"""Sharding strategies and mesh-aware configuration for scaling experiments.
 
-This module provides comprehensive sharding infrastructure including:
-- Abstract base class for sharding strategies
-- Concrete implementations for different parallelism types
-- Multi-dimensional parallelism support
-- Configuration management for complex sharding setups
-
-All implementations prioritize performance and follow JAX/Flax NNX patterns.
+This module exposes the retained strategy classes and configuration dataclasses
+used by the scaling package. It does not provide a universal parameter-name to
+`PartitionSpec` inference layer; callers compose sharding through the concrete
+strategy APIs instead.
 """
 
 import math
-import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any
@@ -540,27 +536,3 @@ class MultiDimensionalStrategy:
                         )
 
         return PartitionSpec(*result_specs)
-
-    def create_partition_spec(self, param_shape: tuple[int, ...], param_name: str) -> PartitionSpec:
-        """Create PartitionSpec for pipeline parallel sharding."""
-        # Simple stage assignment based on parameter name
-        if "embedding" in param_name or "position" in param_name:
-            stage = 0  # First stage
-        elif "output" in param_name or "logits" in param_name:
-            stage = self.config.pipeline_parallel_size - 1  # Last stage
-        else:
-            # Distribute transformer layers across stages
-            layer_match = re.search(r"layer_(\d+)", param_name)
-            if layer_match:
-                layer_idx = int(layer_match.group(1))
-                layers_per_stage = 24 // self.config.pipeline_parallel_size  # Assume 24 layers
-                stage = min(
-                    layer_idx // layers_per_stage,
-                    self.config.pipeline_parallel_size - 1,
-                )
-            else:
-                stage = 0
-
-        # Return PartitionSpec indicating pipeline stage assignment
-        # (simplified - in practice this would be more complex)
-        return PartitionSpec(f"stage_{stage}" if stage is not None else None)

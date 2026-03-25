@@ -5,7 +5,6 @@ from typing import Any
 import pytest
 from flax import nnx
 
-from artifex.generative_models.core.configuration import ModelConfig
 from artifex.generative_models.factory.registry import (
     BuilderNotFoundError,
     DuplicateBuilderError,
@@ -17,7 +16,7 @@ from artifex.generative_models.factory.registry import (
 class MockBuilder(ModelBuilder):
     """Mock builder for testing."""
 
-    def build(self, config: ModelConfig, *, rngs: nnx.Rngs, **kwargs) -> Any:
+    def build(self, config: Any, *, rngs: nnx.Rngs, **kwargs) -> Any:
         """Build a mock model."""
         return {"type": "mock", "config": config, "kwargs": kwargs}
 
@@ -76,12 +75,7 @@ class TestModelTypeRegistry:
 
         assert len(registry.list_builders()) == 0
 
-    @pytest.mark.skip(reason="Builders not yet implemented")
-    def test_builder_discovery(self):
-        """Test automatic builder discovery from module."""
+    def test_registry_has_no_discovery_api(self):
+        """The registry should stay explicit rather than auto-discovering builders."""
         registry = ModelTypeRegistry()
-        registry.discover_builders("artifex.generative_models.factory.builders")
-
-        # Should find all builders in the builders module
-        builders = registry.list_builders()
-        assert len(builders) > 0
+        assert not hasattr(registry, "discover_builders")

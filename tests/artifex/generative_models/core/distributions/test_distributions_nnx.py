@@ -66,8 +66,3 @@ def test_categorical():
         print(f"Log prob values: {log_prob}")
     except Exception as e:
         print(f"Log prob failed: {e}")
-
-
-if __name__ == "__main__":
-    test_bernoulli()
-    test_categorical()

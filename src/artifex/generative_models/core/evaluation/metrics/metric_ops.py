@@ -179,3 +179,41 @@ def matrix_sqrtm(matrix: jax.Array) -> jax.Array:
     matrix_sqrt = eigenvecs @ jnp.diag(sqrt_eigenvals) @ eigenvecs.T
 
     return matrix_sqrt
+
+
+def frechet_distance_from_statistics(
+    mu1: jax.Array, sigma1: jax.Array, mu2: jax.Array, sigma2: jax.Array
+) -> float:
+    """Compute Fréchet distance between two Gaussian distributions.
+
+    This implementation avoids ``jax.scipy.linalg.sqrtm()``, which relies on a
+    Schur decomposition path that is not available on all backends. Instead it
+    computes the trace term through the symmetric sandwich
+    ``sqrt(sigma1) @ sigma2 @ sqrt(sigma1)``, which stays compatible with the
+    eigendecomposition-based ``matrix_sqrtm()`` helper.
+
+    Args:
+        mu1: Mean of the first Gaussian
+        sigma1: Covariance of the first Gaussian
+        mu2: Mean of the second Gaussian
+        sigma2: Covariance of the second Gaussian
+
+    Returns:
+        Non-negative Fréchet distance
+    """
+
+    def _symmetrize(matrix: jax.Array) -> jax.Array:
+        return 0.5 * (matrix + matrix.T)
+
+    sigma1 = _symmetrize(sigma1)
+    sigma2 = _symmetrize(sigma2)
+
+    diff = mu1 - mu2
+    sqrt_sigma1 = matrix_sqrtm(sigma1)
+    covmean = matrix_sqrtm(_symmetrize(sqrt_sigma1 @ sigma2 @ sqrt_sigma1))
+
+    if jnp.iscomplexobj(covmean):
+        covmean = covmean.real
+
+    distance = jnp.sum(diff**2) + jnp.trace(sigma1) + jnp.trace(sigma2) - 2 * jnp.trace(covmean)
+    return float(jnp.maximum(distance, 0.0))

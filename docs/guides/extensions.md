@@ -1,8 +1,5 @@
 # Extensions Guide
 
-!!! info "Coming Soon"
-    This guide is being developed. Check back for comprehensive extension documentation.
-
 ## Overview
 
 Learn how to extend Artifex with custom functionality:

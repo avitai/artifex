@@ -400,7 +400,7 @@ class TestConditionalVAEImageInput:
 
 
 class TestConditionalVAEJITCompatibility:
-    """Comprehensive JIT compatibility tests for ConditionalVAE."""
+    """Complete JIT compatibility tests for ConditionalVAE."""
 
     def test_cvae_jit_forward_pass(self, rngs, cvae_components):
         """Test that ConditionalVAE forward pass can be JIT compiled."""

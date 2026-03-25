@@ -124,6 +124,21 @@ class TestDiTComponents:
 class TestDiffusionTransformer:
     """Test complete Diffusion Transformer backbone."""
 
+    def test_backbone_does_not_expose_model_level_generation_or_loss(self, rngs):
+        """DiT backbone should stay a backbone, not a full generative model API."""
+        dit = DiffusionTransformer(
+            img_size=32,
+            patch_size=4,
+            in_channels=3,
+            hidden_size=256,
+            depth=2,
+            num_heads=4,
+            rngs=rngs,
+        )
+
+        assert not hasattr(dit, "generate")
+        assert not hasattr(dit, "loss_fn")
+
     def test_initialization(self, rngs):
         """Test DiT initialization with different configurations."""
         # Basic initialization
@@ -297,8 +312,11 @@ class TestDiTModel:
         t = jnp.array([100, 500])
         y = jnp.array([2, 7])
 
-        output = model(x, t, y, deterministic=True, cfg_scale=3.0)
+        output = model(x, t, y, deterministic=True)
         assert output.shape == (batch_size, 16, 16, 3)
+
+        with pytest.raises(TypeError):
+            model(x, t, y, deterministic=True, cfg_scale=3.0)
 
     def test_dit_model_generate(self, rngs):
         """Test DiTModel generation."""

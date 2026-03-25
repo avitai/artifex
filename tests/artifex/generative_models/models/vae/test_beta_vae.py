@@ -146,20 +146,21 @@ class TestBetaVAE:
         outputs = beta_vae(x)
 
         # Test loss function with default beta (should use beta_default)
-        losses = beta_vae.loss_fn(x=x, outputs=outputs)
+        losses = beta_vae.loss_fn(x, outputs)
 
         # Check loss components
-        assert "loss" in losses
+        assert "total_loss" in losses
         assert "reconstruction_loss" in losses
         assert "kl_loss" in losses
         assert "beta" in losses
+        assert "loss" not in losses
 
         # Check beta is correctly applied
         assert jnp.isclose(losses["beta"], beta_value)
 
         # Verify total loss calculation
         expected_total_loss = losses["reconstruction_loss"] + beta_value * losses["kl_loss"]
-        assert jnp.isclose(losses["loss"], expected_total_loss)
+        assert jnp.isclose(losses["total_loss"], expected_total_loss)
 
     def test_loss_function_custom_beta(self, rngs, vae_components):
         """Test Beta-VAE loss function with custom beta."""
@@ -194,14 +195,14 @@ class TestBetaVAE:
 
         # Test loss function with custom beta
         custom_beta = 2.5
-        losses = beta_vae.loss_fn(x=x, outputs=outputs, beta=custom_beta)
+        losses = beta_vae.loss_fn(x, outputs, beta=custom_beta)
 
         # Check beta is correctly applied
         assert jnp.isclose(losses["beta"], custom_beta)
 
         # Verify total loss calculation
         expected_total_loss = losses["reconstruction_loss"] + custom_beta * losses["kl_loss"]
-        assert jnp.isclose(losses["loss"], expected_total_loss)
+        assert jnp.isclose(losses["total_loss"], expected_total_loss)
 
     def test_beta_warmup(self, rngs, vae_components):
         """Test Beta-VAE beta annealing during warmup."""
@@ -241,7 +242,7 @@ class TestBetaVAE:
         steps = [0, 250, 500, 750, 1000, 1500]
 
         for step in steps:
-            losses = beta_vae.loss_fn(x=x, outputs=outputs, step=step)
+            losses = beta_vae.loss_fn(x, outputs, step=step)
 
             # Expected beta value based on linear annealing
             expected_beta = min(beta_default, beta_default * step / warmup_steps)
@@ -251,7 +252,7 @@ class TestBetaVAE:
 
             # Verify total loss calculation
             expected_total_loss = losses["reconstruction_loss"] + expected_beta * losses["kl_loss"]
-            assert jnp.isclose(losses["loss"], expected_total_loss)
+            assert jnp.isclose(losses["total_loss"], expected_total_loss)
 
     def test_bce_loss(self, rngs, vae_components):
         """Test Beta-VAE with BCE reconstruction loss."""
@@ -286,17 +287,18 @@ class TestBetaVAE:
         outputs = beta_vae(x)
 
         # Test loss function
-        losses = beta_vae.loss_fn(x=x, outputs=outputs)
+        losses = beta_vae.loss_fn(x, outputs)
 
         # Check loss components
         assert "reconstruction_loss" in losses
         assert "kl_loss" in losses
-        assert "loss" in losses
+        assert "total_loss" in losses
+        assert "loss" not in losses
 
         # Check values are reasonable
         assert not jnp.isnan(losses["reconstruction_loss"])
         assert not jnp.isnan(losses["kl_loss"])
-        assert not jnp.isnan(losses["loss"])
+        assert not jnp.isnan(losses["total_loss"])
 
     def test_mse_loss(self, rngs, vae_components):
         """Test Beta-VAE with MSE reconstruction loss."""
@@ -307,12 +309,12 @@ class TestBetaVAE:
         outputs = beta_vae(x)
 
         # Test loss function
-        losses = beta_vae.loss_fn(x=x, outputs=outputs)
+        losses = beta_vae.loss_fn(x, outputs)
 
         # Check loss components and values
         assert not jnp.isnan(losses["reconstruction_loss"])
         assert not jnp.isnan(losses["kl_loss"])
-        assert not jnp.isnan(losses["loss"])
+        assert not jnp.isnan(losses["total_loss"])
 
     def test_inherited_methods(self, rngs, vae_components):
         """Test methods inherited from VAE base class."""
@@ -343,7 +345,7 @@ class TestBetaVAE:
 
 
 class TestBetaVAEJITCompatibility:
-    """Comprehensive JIT compatibility tests for BetaVAE."""
+    """Complete JIT compatibility tests for BetaVAE."""
 
     def test_beta_vae_jit_forward_pass(self, rngs, vae_components):
         """Test that BetaVAE forward pass can be JIT compiled."""
@@ -402,13 +404,13 @@ class TestBetaVAEJITCompatibility:
         @jax.jit
         def compute_loss_at_step(model, x, step):
             outputs = model(x)
-            return model.loss_fn(x=x, outputs=outputs, step=step)
+            return model.loss_fn(x, outputs, step=step)
 
         # Test at different steps
         for step in [0, 250, 500, 1000]:
             losses = compute_loss_at_step(beta_vae, x, step)
             assert "beta" in losses
-            assert jnp.isfinite(losses["loss"])
+            assert jnp.isfinite(losses["total_loss"])
 
     def test_beta_vae_jit_loss_with_custom_beta(self, rngs, vae_components):
         """Test BetaVAE loss function with custom beta under JIT."""
@@ -420,13 +422,13 @@ class TestBetaVAEJITCompatibility:
         @jax.jit
         def compute_loss_with_beta(model, x, beta):
             outputs = model(x)
-            return model.loss_fn(x=x, outputs=outputs, beta=beta)
+            return model.loss_fn(x, outputs, beta=beta)
 
         # Test with different beta values
         for beta_val in [0.5, 1.0, 2.0, 4.0]:
             losses = compute_loss_with_beta(beta_vae, x, beta_val)
             assert jnp.isclose(losses["beta"], beta_val)
-            assert jnp.isfinite(losses["loss"])
+            assert jnp.isfinite(losses["total_loss"])
 
     def test_beta_vae_jit_gradient_computation(self, rngs, vae_components):
         """Test that BetaVAE gradient computation can be JIT compiled."""
@@ -438,8 +440,8 @@ class TestBetaVAEJITCompatibility:
         @jax.jit
         def loss_fn(model, x):
             outputs = model(x)
-            losses = model.loss_fn(x=x, outputs=outputs)
-            return losses["loss"]
+            losses = model.loss_fn(x, outputs)
+            return losses["total_loss"]
 
         # Compute gradients using nnx.grad
         grad_fn = nnx.grad(loss_fn)
@@ -501,12 +503,12 @@ class TestBetaVAEJITCompatibility:
         @jax.jit
         def compute_loss(model, x):
             outputs = model(x)
-            return model.loss_fn(x=x, outputs=outputs)
+            return model.loss_fn(x, outputs)
 
         losses = compute_loss(beta_vae, x)
 
         assert "reconstruction_loss" in losses
-        assert jnp.isfinite(losses["loss"])
+        assert jnp.isfinite(losses["total_loss"])
 
     def test_beta_vae_jit_end_to_end(self, rngs, vae_components):
         """Test end-to-end BetaVAE training pipeline with JIT compilation."""
@@ -544,8 +546,8 @@ class TestBetaVAEJITCompatibility:
             # Forward pass
             outputs = model(x)
             # Compute loss with warmup
-            losses = model.loss_fn(x=x, outputs=outputs, step=step)
-            return losses["loss"], losses["beta"], outputs
+            losses = model.loss_fn(x, outputs, step=step)
+            return losses["total_loss"], losses["beta"], outputs
 
         # Run training steps with warmup
         for step in [0, 250, 500, 1000]:
@@ -558,80 +560,46 @@ class TestBetaVAEJITCompatibility:
 
 
 class TestBetaVAEInputHandling:
-    """Tests for BetaVAE input handling edge cases."""
+    """Tests for the simplified BetaVAE batch contract."""
 
-    def test_loss_fn_with_batch_dict_inputs_key(self, rngs, vae_components):
-        """Test loss_fn with batch dict containing 'inputs' key."""
+    def test_loss_fn_accepts_array_batch(self, rngs, vae_components):
+        """BetaVAE loss should accept a direct input array as the batch."""
         config = vae_components["config"]
         x = vae_components["x"]
 
         beta_vae = BetaVAE(config=config, rngs=rngs)
         outputs = beta_vae(x)
 
-        # Pass x through batch dict with 'inputs' key
-        batch = {"inputs": x}
-        losses = beta_vae.loss_fn(batch=batch, outputs=outputs)
+        losses = beta_vae.loss_fn(x, outputs)
 
-        assert "loss" in losses
-        assert jnp.isfinite(losses["loss"])
+        assert "total_loss" in losses
+        assert jnp.isfinite(losses["total_loss"])
 
-    def test_loss_fn_with_batch_dict_no_inputs_key(self, rngs, vae_components):
-        """Test loss_fn with batch dict without 'inputs' key (x treated as batch)."""
+    def test_loss_fn_accepts_inputs_dict_batch(self, rngs, vae_components):
+        """BetaVAE loss should accept a dict batch with an `inputs` tensor."""
         config = vae_components["config"]
         x = vae_components["x"]
 
         beta_vae = BetaVAE(config=config, rngs=rngs)
         outputs = beta_vae(x)
 
-        # Pass x directly as batch (without 'inputs' key)
-        losses = beta_vae.loss_fn(batch=x, outputs=outputs)
+        losses = beta_vae.loss_fn({"inputs": x}, outputs)
 
-        assert "loss" in losses
-        assert jnp.isfinite(losses["loss"])
+        assert "total_loss" in losses
+        assert jnp.isfinite(losses["total_loss"])
 
-    def test_loss_fn_with_x_dict_inputs_key(self, rngs, vae_components):
-        """Test loss_fn with x as dict containing 'inputs' key."""
+    def test_loss_fn_invalid_batch_dict_raises_error(self, rngs, vae_components):
+        """BetaVAE loss should reject dict batches without a recognized input tensor."""
         config = vae_components["config"]
         x = vae_components["x"]
 
         beta_vae = BetaVAE(config=config, rngs=rngs)
         outputs = beta_vae(x)
 
-        # Pass x as dict with 'inputs' key
-        x_dict = {"inputs": x}
-        losses = beta_vae.loss_fn(x=x_dict, outputs=outputs)
+        invalid_batch = {"other": jnp.zeros_like(x)}
 
-        assert "loss" in losses
-        assert jnp.isfinite(losses["loss"])
-
-    def test_loss_fn_with_x_dict_input_key(self, rngs, vae_components):
-        """Test loss_fn with x as dict containing 'input' key."""
-        config = vae_components["config"]
-        x = vae_components["x"]
-
-        beta_vae = BetaVAE(config=config, rngs=rngs)
-        outputs = beta_vae(x)
-
-        # Pass x as dict with 'input' key (singular)
-        x_dict = {"input": x}
-        losses = beta_vae.loss_fn(x=x_dict, outputs=outputs)
-
-        assert "loss" in losses
-        assert jnp.isfinite(losses["loss"])
-
-    def test_loss_fn_with_x_dict_invalid_keys_raises_error(self, rngs, vae_components):
-        """Test loss_fn raises error when x is dict without valid keys."""
-        config = vae_components["config"]
-        x = vae_components["x"]
-
-        beta_vae = BetaVAE(config=config, rngs=rngs)
-        outputs = beta_vae(x)
-
-        # Pass x as dict without recognized keys
-        x_dict = {"data": x, "other": jnp.zeros_like(x)}
-
-        with pytest.raises(ValueError, match="Input 'x' is a dictionary"):
-            beta_vae.loss_fn(x=x_dict, outputs=outputs)
+        with pytest.raises(KeyError, match="Batch must contain one of"):
+            beta_vae.loss_fn(invalid_batch, outputs)
 
     def test_loss_fn_missing_reconstructed_key_raises_error(self, rngs, vae_components):
         """Test loss_fn raises KeyError when outputs missing 'reconstructed' key."""
@@ -647,7 +615,7 @@ class TestBetaVAEInputHandling:
         }
 
         with pytest.raises(KeyError, match="reconstructed"):
-            beta_vae.loss_fn(x=x, outputs=outputs)
+            beta_vae.loss_fn(x, outputs)
 
     def test_loss_fn_missing_log_var_key_raises_error(self, rngs, vae_components):
         """Test loss_fn raises KeyError when outputs missing 'log_var' key."""
@@ -663,20 +631,7 @@ class TestBetaVAEInputHandling:
         }
 
         with pytest.raises(KeyError, match="log_var"):
-            beta_vae.loss_fn(x=x, outputs=outputs)
-
-    def test_loss_fn_outputs_none_calls_model(self, rngs, vae_components):
-        """Test loss_fn with outputs=None calls model directly."""
-        config = vae_components["config"]
-        x = vae_components["x"]
-
-        beta_vae = BetaVAE(config=config, rngs=rngs)
-
-        # Call loss_fn without outputs - should call model internally
-        losses = beta_vae.loss_fn(x=x, outputs=None)
-
-        assert "loss" in losses
-        assert jnp.isfinite(losses["loss"])
+            beta_vae.loss_fn(x, outputs)
 
 
 class TestBetaVAEWithCapacity:
@@ -734,18 +689,31 @@ class TestBetaVAEWithCapacity:
 
         # Compute loss at different steps
         for step in [0, 2500, 5000, 10000]:
-            losses = model.loss_fn(x=x, outputs=outputs, step=step)
+            losses = model.loss_fn(x, outputs, step=step)
 
-            assert "loss" in losses
+            assert "total_loss" in losses
             assert "reconstruction_loss" in losses
             assert "kl_loss" in losses
             assert "capacity_loss" in losses
             assert "current_capacity" in losses
 
             # Check values are finite
-            assert jnp.isfinite(losses["loss"])
+            assert jnp.isfinite(losses["total_loss"])
             assert jnp.isfinite(losses["capacity_loss"])
             assert jnp.isfinite(losses["current_capacity"])
+
+    def test_loss_outputs_none_calls_model(self, rngs, capacity_config, vae_components):
+        """Capacity-controlled loss should resolve outputs internally when omitted."""
+        x = vae_components["x"]
+
+        model = BetaVAEWithCapacity(config=capacity_config, rngs=rngs)
+
+        outputs = model(x)
+        losses = model.loss_fn(x, outputs, step=1000)
+
+        assert "total_loss" in losses
+        assert "capacity_loss" in losses
+        assert jnp.isfinite(losses["total_loss"])
 
     def test_capacity_increases_with_steps(self, rngs, capacity_config, vae_components):
         """Test that current_capacity increases with training steps."""
@@ -758,7 +726,7 @@ class TestBetaVAEWithCapacity:
         steps = [0, 2500, 5000, 7500, 10000, 15000]
 
         for step in steps:
-            losses = model.loss_fn(x=x, outputs=outputs, step=step)
+            losses = model.loss_fn(x, outputs, step=step)
             capacities.append(float(losses["current_capacity"]))
 
         # Capacity should increase until reaching max
@@ -803,10 +771,10 @@ class TestBetaVAEWithCapacity:
 
         model = BetaVAEWithCapacity(config=config, rngs=rngs)
         outputs = model(x)
-        losses = model.loss_fn(x=x, outputs=outputs, step=5000)
+        losses = model.loss_fn(x, outputs, step=5000)
 
         # Without capacity control, should return base BetaVAE losses
-        assert "loss" in losses
+        assert "total_loss" in losses
         assert "reconstruction_loss" in losses
         assert "kl_loss" in losses
         assert "beta" in losses
@@ -823,7 +791,7 @@ class TestBetaVAEWithCapacity:
         outputs = model(x)
 
         step = 5000
-        losses = model.loss_fn(x=x, outputs=outputs, step=step)
+        losses = model.loss_fn(x, outputs, step=step)
 
         # Calculate expected capacity
         expected_capacity = min(
@@ -849,10 +817,10 @@ class TestBetaVAEWithCapacity:
         @jax.jit
         def compute_loss(model, x, step):
             outputs = model(x)
-            return model.loss_fn(x=x, outputs=outputs, step=step)
+            return model.loss_fn(x, outputs, step=step)
 
         # Should compile and run without errors
         for step in [0, 5000, 10000]:
             losses = compute_loss(model, x, step)
-            assert jnp.isfinite(losses["loss"])
+            assert jnp.isfinite(losses["total_loss"])
             assert jnp.isfinite(losses["capacity_loss"])

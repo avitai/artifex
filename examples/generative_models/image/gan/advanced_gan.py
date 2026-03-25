@@ -1,133 +1,87 @@
 #!/usr/bin/env python
-r"""Advanced GAN Examples - Showcase Artifex's Advanced GAN Features
+# ---
+# jupyter:
+#   jupytext:
+#     formats: py:percent,ipynb
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+# ---
+
+# %%
+# ruff: noqa: T201
+# ---
+# jupyter:
+#   jupytext:
+#     formats: py:percent,ipynb
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+# ---
+
+# %%
+r"""Advanced GAN Example
+
+**Status:** Exploratory workflow
 
 ## Overview
 
-This example demonstrates Artifex's advanced GAN implementations on real MNIST data:
-1. **Conditional GAN**: Class-conditional generation for controlled digit synthesis
-2. **WGAN-GP**: Wasserstein GAN with gradient penalty for stable training
-3. **DCGAN**: Deep Convolutional GAN with proven architecture
-4. **LSGAN**: Least Squares GAN for improved stability
+This walkthrough uses lower-level Artifex GAN building blocks and a custom
+training loop to compare conditional, Wasserstein, DCGAN, and least-squares GAN
+families on MNIST-like data. It does not instantiate the top-level
+`ConditionalGAN`, `WGAN`, `DCGAN`, or `LSGAN` owners end to end.
 
-All models use Artifex's production-ready implementations with proper training
-on real MNIST data.
+## What This Example Actually Uses
 
-## Source Code Dependencies
-
-**Validated:** 2025-10-25
-
-This example uses Artifex's GAN implementations:
-- `artifex.generative_models.models.gan.ConditionalGAN` - Conditional GAN
-- `artifex.generative_models.models.gan.WGAN` - Wasserstein GAN with GP
-- `artifex.generative_models.models.gan.DCGAN` - Deep Convolutional GAN
-- `artifex.generative_models.models.gan.LSGAN` - Least Squares GAN
-
-**Validation Status:**
-- ✅ All dependencies use Flax NNX best practices
-- ✅ Proper RNG handling throughout
-- ✅ Production-ready implementations from Artifex
-
-## What You'll Learn
-
-- [x] Using Artifex's ConditionalGAN for label-conditioned generation
-- [x] Implementing WGAN-GP for stable adversarial training
-- [x] Training DCGAN with convolutional architecture
-- [x] Using LSGAN for improved training stability
-- [x] Training advanced GANs on real MNIST data
-- [x] Evaluating and visualizing generated samples
-
-## Prerequisites
-
-- Artifex installed (run `source activate.sh`)
-- Understanding of standard GANs (see basic gan-mnist tutorial)
-- Familiarity with JAX and Flax NNX
-- Knowledge of adversarial training concepts
+- lower-level Artifex GAN building blocks such as `ConditionalGenerator`,
+  `ConditionalDiscriminator`, `WGANGenerator`, `WGANDiscriminator`,
+  `DCGANGenerator`, `DCGANDiscriminator`, `LSGANGenerator`, and
+  `LSGANDiscriminator`
+- a custom training loop defined inside the example
+- local MNIST bootstrap through Hugging Face plus Grain rather than a retained
+  Artifex example data facade
+- Artifex adversarial loss helpers and gradient-penalty utilities
 
 ## Usage
 
 ```bash
-source activate.sh
-python examples/generative_models/image/gan/advanced_gan.py
+source ./activate.sh
+uv run python examples/generative_models/image/gan/advanced_gan.py
 ```
 
-## Expected Output
+## Notes
 
-The example will:
-1. Load real MNIST dataset (60,000 training images)
-2. Train four advanced GAN variants (Conditional, WGAN-GP, DCGAN, LSGAN)
-3. Generate samples from each model
-4. Save visualizations to `examples_output/advanced_gan/`
-5. Display training metrics and convergence curves
-
-## Key Concepts
-
-### Conditional GAN
-
-Conditional GAN extends standard GAN by conditioning on labels:
-$$\\min_G \\max_D V(D, G) = \\mathbb{E}_{x,y}[\\log D(x|y)] +$$
-$$\\mathbb{E}_{z,y}[\\log(1 - D(G(z|y)|y))]$$
-
-Where y is the class label.
-
-### WGAN-GP
-
-Wasserstein GAN with gradient penalty uses Wasserstein distance:
-$$\\mathcal{L}_D = \\mathbb{E}[D(G(z))] - \\mathbb{E}[D(x)] +$$
-$$\\lambda \\mathbb{E}[(\\|\\nabla_{\\hat{x}} D(\\hat{x})\\|_2 - 1)^2]$$
-
-Provides more stable training than standard GAN.
-
-### DCGAN
-
-Deep Convolutional GAN uses architectural guidelines:
-- Use strided convolutions instead of pooling
-- Use batch normalization in both G and D
-- Remove fully connected hidden layers
-- Use ReLU in G (except output: tanh)
-- Use LeakyReLU in D
-
-### LSGAN
-
-Least Squares GAN uses least squares loss instead of cross-entropy:
-$$\\min_D \\mathbb{E}[(D(x) - 1)^2] + \\mathbb{E}[D(G(z))^2]$$
-$$\\min_G \\mathbb{E}[(D(G(z)) - 1)^2]$$
-
-Provides more stable gradients.
-
-## Estimated Runtime
-
-- **CPU**: ~20-30 minutes total (all 4 variants)
-- **GPU**: ~5-8 minutes total (if available)
-
-## Author
-
-Artifex Team
-
-## Last Updated
-
-2025-10-25
+- This file is published as exploratory workflow material, not as the canonical
+  Artifex GAN tutorial.
+- Dataset bootstrap still depends on the local Hugging Face plus Grain path this
+  example owns.
 """
 
 # %% [markdown]
 """
-# Advanced GAN Examples
+# Advanced GAN
 
-This notebook demonstrates Artifex's advanced GAN implementations on real MNIST data.
+**Status:** Exploratory workflow
+
+This notebook uses lower-level Artifex GAN building blocks and a custom
+training loop for family-level comparison. It does not instantiate the top-level
+`ConditionalGAN`, `WGAN`, `DCGAN`, or `LSGAN` owners end to end.
 
 ## Learning Objectives
 
-By the end of this example, you will understand:
-1. How to use Artifex's ConditionalGAN for label-controlled generation
-2. Using WGAN-GP for stable adversarial training
-3. Training DCGAN with convolutional architecture
-4. Using LSGAN for improved stability
-5. Training and evaluating advanced GAN variants
+By the end of this exploratory workflow, you will understand:
+1. How the lower-level conditional generator and discriminator components fit together
+2. How the example wires WGAN-GP losses and gradient penalty into a custom training loop
+3. How the example compares DCGAN and LSGAN component stacks without a shared top-level facade
+4. Where local data loading and orchestration begin and the retained Artifex owners stop
 """
 
 # %%
 # Cell 1: Import Dependencies
 """
-Import Artifex's GAN implementations and utilities for training advanced variants.
+Import lower-level Artifex GAN building blocks and utilities for the exploratory workflow.
 """
 
 from itertools import islice
@@ -558,7 +512,7 @@ both generator and discriminator on label information.
 **Artifex Components:**
 - `ConditionalGenerator`: Generator with label embedding
 - `ConditionalDiscriminator`: Discriminator with label conditioning
-- `ConditionalGAN`: Combined model with conditional loss
+- This exploratory path does not instantiate the combined `ConditionalGAN` owner
 
 **Key Features:**
 - Class-controlled generation
@@ -699,7 +653,7 @@ more stable training and meaningful loss curves.
 **Artifex Components:**
 - `WGANGenerator`: Generator for WGAN
 - `WGANDiscriminator`: Critic (no sigmoid output)
-- `WGAN`: Combined model with Wasserstein loss
+- This exploratory path does not instantiate the combined `WGAN` owner
 - Artifex's `gradient_penalty`: Enforces Lipschitz constraint
 
 **Key Features:**
@@ -848,7 +802,7 @@ DCGAN introduced architectural guidelines that became standard for GAN training:
 **Artifex Components:**
 - `DCGANGenerator`: Generator with transposed convolutions
 - `DCGANDiscriminator`: Discriminator with strided convolutions
-- `DCGAN`: Combined model following DCGAN guidelines
+- This exploratory path does not instantiate the combined `DCGAN` owner
 
 **Key Features:**
 - Proven convolutional architecture
@@ -924,7 +878,7 @@ more stable gradients during training.
 **Artifex Components:**
 - `LSGANGenerator`: Generator optimized for LSGAN
 - `LSGANDiscriminator`: Discriminator with least squares loss
-- `LSGAN`: Combined model with LS loss
+- This exploratory path does not instantiate the combined `LSGAN` owner
 
 **Key Features:**
 - Least squares loss instead of cross-entropy

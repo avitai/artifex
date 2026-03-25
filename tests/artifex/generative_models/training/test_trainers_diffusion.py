@@ -509,14 +509,14 @@ class TestDiffusionTrainStep:
 
         # Get initial params
         initial_params = nnx.state(diffusion_model, nnx.Param)
-        initial_fc1_kernel = initial_params["fc1"]["kernel"].value.copy()
+        initial_fc1_kernel = initial_params["fc1"]["kernel"][...].copy()
 
         # Run train step with new signature
         trainer.train_step(diffusion_model, optimizer, sample_batch, rng_key)
 
         # Get updated params
         updated_params = nnx.state(diffusion_model, nnx.Param)
-        updated_fc1_kernel = updated_params["fc1"]["kernel"].value
+        updated_fc1_kernel = updated_params["fc1"]["kernel"][...]
 
         # Params should have changed
         assert not jnp.allclose(initial_fc1_kernel, updated_fc1_kernel)
@@ -624,8 +624,8 @@ class TestDiffusionDRYIntegration:
         # Should be able to create a loss function for the base Trainer
         loss_fn = trainer.create_loss_fn()
 
-        # Loss function should have correct signature: (model, batch, rng) -> (loss, metrics)
-        loss, metrics = loss_fn(diffusion_model, sample_batch, rng_key)
+        # Loss function should have correct signature: (model, batch, rng, step)
+        loss, metrics = loss_fn(diffusion_model, sample_batch, rng_key, jnp.array(0))
 
         assert isinstance(loss, jax.Array)
         assert "loss" in metrics

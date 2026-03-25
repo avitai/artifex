@@ -27,7 +27,7 @@ from .validation import (
 VALID_PADDING_MODES = {"SAME", "VALID"}
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class GeneratorConfig(BaseNetworkConfig):
     """Configuration for generator networks.
 
@@ -55,7 +55,7 @@ class GeneratorConfig(BaseNetworkConfig):
     def __post_init__(self) -> None:
         """Validate generator-specific fields after initialization."""
         # Call parent validation first
-        super().__post_init__()
+        super(GeneratorConfig, self).__post_init__()
 
         # Validate latent_dim
         validate_positive_int(self.latent_dim, "latent_dim")
@@ -70,7 +70,7 @@ class GeneratorConfig(BaseNetworkConfig):
             validate_activation(self.output_activation)
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class DiscriminatorConfig(BaseNetworkConfig):
     """Configuration for GAN Discriminator network.
 
@@ -79,7 +79,6 @@ class DiscriminatorConfig(BaseNetworkConfig):
     Attributes:
         input_shape: Shape of input data (e.g., (1, 28, 28) for images)
         leaky_relu_slope: Negative slope for leaky ReLU activation
-        use_spectral_norm: Whether to use spectral normalization
         hidden_dims: Hidden layer dimensions (from BaseNetworkConfig)
         activation: Activation function name (from BaseNetworkConfig)
         batch_norm: Whether to use batch normalization (from BaseNetworkConfig)
@@ -89,7 +88,6 @@ class DiscriminatorConfig(BaseNetworkConfig):
     # Discriminator-specific fields
     input_shape: tuple[int, ...] = ()
     leaky_relu_slope: float = 0.2
-    use_spectral_norm: bool = False
 
     def __post_init__(self) -> None:
         """Validate discriminator configuration.
@@ -98,7 +96,7 @@ class DiscriminatorConfig(BaseNetworkConfig):
             ValueError: If validation fails
         """
         # Call parent validation
-        super().__post_init__()
+        super(DiscriminatorConfig, self).__post_init__()
 
         # Validate discriminator-specific fields
         if len(self.input_shape) == 0:
@@ -109,7 +107,7 @@ class DiscriminatorConfig(BaseNetworkConfig):
         validate_positive_float(self.leaky_relu_slope, "leaky_relu_slope")
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class EncoderConfig(BaseNetworkConfig):
     """Configuration for VAE Encoder network.
 
@@ -141,7 +139,7 @@ class EncoderConfig(BaseNetworkConfig):
             ValueError: If validation fails
         """
         # Call parent validation
-        super().__post_init__()
+        super(EncoderConfig, self).__post_init__()
 
         # Validate encoder-specific fields
         if len(self.input_shape) == 0:
@@ -152,7 +150,7 @@ class EncoderConfig(BaseNetworkConfig):
         validate_positive_int(self.latent_dim, "latent_dim")
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class DecoderConfig(BaseNetworkConfig):
     """Configuration for VAE Decoder network.
 
@@ -182,7 +180,7 @@ class DecoderConfig(BaseNetworkConfig):
             ValueError: If validation fails
         """
         # Call parent validation
-        super().__post_init__()
+        super(DecoderConfig, self).__post_init__()
 
         # Validate decoder-specific fields
         validate_positive_int(self.latent_dim, "latent_dim")
@@ -196,7 +194,7 @@ class DecoderConfig(BaseNetworkConfig):
             validate_activation(self.output_activation)
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class ConvGeneratorConfig(GeneratorConfig):
     """Configuration for convolutional generator networks (DCGAN, WGAN, LSGAN, etc.).
 
@@ -235,7 +233,7 @@ class ConvGeneratorConfig(GeneratorConfig):
             ValueError: If validation fails
         """
         # Call parent validation first
-        super().__post_init__()
+        super(ConvGeneratorConfig, self).__post_init__()
 
         # Validate kernel_size
         if not isinstance(self.kernel_size, tuple) or len(self.kernel_size) != 2:
@@ -260,7 +258,7 @@ class ConvGeneratorConfig(GeneratorConfig):
             )
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class ConvDiscriminatorConfig(DiscriminatorConfig):
     """Configuration for convolutional discriminator networks (DCGAN, WGAN, LSGAN, etc.).
 
@@ -274,7 +272,6 @@ class ConvDiscriminatorConfig(DiscriminatorConfig):
     - leaky_relu_slope: Negative slope for leaky ReLU
     - batch_norm: Whether to use batch normalization
     - dropout_rate: Dropout rate
-    - use_spectral_norm: Whether to use spectral normalization
 
     Conv-specific fields:
     - kernel_size: Kernel size for conv layers (height, width)
@@ -307,7 +304,7 @@ class ConvDiscriminatorConfig(DiscriminatorConfig):
             ValueError: If validation fails
         """
         # Call parent validation first
-        super().__post_init__()
+        super(ConvDiscriminatorConfig, self).__post_init__()
 
         # Validate kernel_size
         if not isinstance(self.kernel_size, tuple) or len(self.kernel_size) != 2:
@@ -335,7 +332,7 @@ class ConvDiscriminatorConfig(DiscriminatorConfig):
         validate_positive_int(self.output_dim, "output_dim")
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class ConditionalParams:
     """Reusable component for conditional generation parameters.
 
@@ -357,7 +354,7 @@ class ConditionalParams:
         validate_positive_int(self.embedding_dim, "embedding_dim")
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class ConditionalGeneratorConfig(GeneratorConfig):
     """Configuration for Conditional GAN generator networks.
 
@@ -396,7 +393,7 @@ class ConditionalGeneratorConfig(GeneratorConfig):
 
     def __post_init__(self) -> None:
         """Validate conditional generator configuration."""
-        super().__post_init__()
+        super(ConditionalGeneratorConfig, self).__post_init__()
 
         # Validate kernel_size
         if not isinstance(self.kernel_size, tuple) or len(self.kernel_size) != 2:
@@ -421,7 +418,7 @@ class ConditionalGeneratorConfig(GeneratorConfig):
             )
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class ConditionalDiscriminatorConfig(DiscriminatorConfig):
     """Configuration for Conditional GAN discriminator networks.
 
@@ -435,7 +432,6 @@ class ConditionalDiscriminatorConfig(DiscriminatorConfig):
     - leaky_relu_slope: Negative slope for leaky ReLU
     - batch_norm: Whether to use batch normalization
     - dropout_rate: Dropout rate
-    - use_spectral_norm: Whether to use spectral normalization
 
     Conditional-specific (via composition):
     - conditional: ConditionalParams with num_classes and embedding_dim
@@ -462,7 +458,7 @@ class ConditionalDiscriminatorConfig(DiscriminatorConfig):
 
     def __post_init__(self) -> None:
         """Validate conditional discriminator configuration."""
-        super().__post_init__()
+        super(ConditionalDiscriminatorConfig, self).__post_init__()
 
         # Validate kernel_size
         if not isinstance(self.kernel_size, tuple) or len(self.kernel_size) != 2:
@@ -493,7 +489,7 @@ class ConditionalDiscriminatorConfig(DiscriminatorConfig):
             )
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class CycleGANGeneratorConfig(GeneratorConfig):
     """Configuration for CycleGAN generator networks.
 
@@ -555,7 +551,7 @@ class CycleGANGeneratorConfig(GeneratorConfig):
         validate_positive_int(self.n_residual_blocks, "n_residual_blocks")
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class PatchGANDiscriminatorConfig(DiscriminatorConfig):
     """Configuration for PatchGAN discriminator networks (used by CycleGAN, Pix2Pix).
 
@@ -569,7 +565,6 @@ class PatchGANDiscriminatorConfig(DiscriminatorConfig):
     - leaky_relu_slope: Negative slope for leaky ReLU
     - batch_norm: Whether to use batch normalization
     - dropout_rate: Dropout rate
-    - use_spectral_norm: Whether to use spectral normalization
 
     PatchGAN-specific fields:
     - num_filters: Base number of filters (doubled each layer)
@@ -599,7 +594,7 @@ class PatchGANDiscriminatorConfig(DiscriminatorConfig):
             ValueError: If validation fails
         """
         # Call parent validation first
-        super().__post_init__()
+        super(PatchGANDiscriminatorConfig, self).__post_init__()
 
         # Validate num_filters
         validate_positive_int(self.num_filters, "num_filters")
@@ -630,7 +625,7 @@ class PatchGANDiscriminatorConfig(DiscriminatorConfig):
             raise ValueError(f"padding must be one of {VALID_PADDING_MODES}, got '{self.padding}'")
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class MultiScalePatchGANConfig:
     """Configuration for Multi-scale PatchGAN discriminator.
 
@@ -690,7 +685,7 @@ class MultiScalePatchGANConfig:
         validate_positive_int(self.minimum_size, "minimum_size")
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class StyleGAN3GeneratorConfig(GeneratorConfig):
     """Configuration for StyleGAN3 generator networks.
 
@@ -725,7 +720,7 @@ class StyleGAN3GeneratorConfig(GeneratorConfig):
             ValueError: If validation fails
         """
         # Call parent validation first
-        super().__post_init__()
+        super(StyleGAN3GeneratorConfig, self).__post_init__()
 
         # Validate style_dim
         validate_positive_int(self.style_dim, "style_dim")
@@ -744,7 +739,7 @@ class StyleGAN3GeneratorConfig(GeneratorConfig):
         validate_positive_int(self.img_channels, "img_channels")
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class StyleGAN3DiscriminatorConfig(DiscriminatorConfig):
     """Configuration for StyleGAN3 discriminator networks.
 
@@ -757,7 +752,6 @@ class StyleGAN3DiscriminatorConfig(DiscriminatorConfig):
     - leaky_relu_slope: Negative slope for leaky ReLU
     - batch_norm: Not typically used in StyleGAN3
     - dropout_rate: Dropout rate
-    - use_spectral_norm: Whether to use spectral normalization
 
     StyleGAN3-specific fields:
     - img_resolution: Input image resolution (must be power of 2)
@@ -779,7 +773,7 @@ class StyleGAN3DiscriminatorConfig(DiscriminatorConfig):
             ValueError: If validation fails
         """
         # Call parent validation first
-        super().__post_init__()
+        super(StyleGAN3DiscriminatorConfig, self).__post_init__()
 
         # Validate img_resolution (must be power of 2 and >= 4)
         validate_positive_int(self.img_resolution, "img_resolution")

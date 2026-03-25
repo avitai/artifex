@@ -1,11 +1,17 @@
 import os
 
 import jax
+import pytest
 
 from artifex.generative_models import jax_config
 
 
 class TestJAXConfiguration:
+    @pytest.fixture(autouse=True)
+    def _clear_backend_override(self, monkeypatch):
+        """Keep tests independent from caller shell backend forcing."""
+        monkeypatch.delenv("JAX_PLATFORMS", raising=False)
+
     def test_compilation_cache_enabled(self):
         """Test that compilation cache is properly configured."""
         jax_config.configure_jax()
@@ -19,13 +25,16 @@ class TestJAXConfiguration:
         jax_config.configure_jax(precision="bfloat16")
         assert jax.config.jax_default_matmul_precision == "bfloat16"
 
-    def test_xla_flags_set(self):
-        """Test XLA optimization flags are set.
-
-        Note: Many XLA flags were removed in JAX 0.7.x. Only test for
-        flags that are still valid.
-        """
+    def test_default_xla_flags_left_unset(self, monkeypatch):
+        """Test the default configuration does not force XLA flags."""
+        monkeypatch.delenv("XLA_FLAGS", raising=False)
         jax_config.configure_jax()
         xla_flags = os.environ.get("XLA_FLAGS", "")
-        # In JAX 0.7.x, only strict_conv_algorithm_picker is set
-        assert "xla_gpu_strict_conv_algorithm_picker" in xla_flags
+        assert xla_flags == ""
+
+    def test_deterministic_xla_flag_set(self, monkeypatch):
+        """Test deterministic mode opts into the explicit GPU flag."""
+        monkeypatch.delenv("XLA_FLAGS", raising=False)
+        jax_config.configure_jax(deterministic=True)
+        xla_flags = os.environ.get("XLA_FLAGS", "")
+        assert "--xla_gpu_deterministic_ops=true" in xla_flags

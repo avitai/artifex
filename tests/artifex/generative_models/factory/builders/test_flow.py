@@ -80,7 +80,6 @@ class TestFlowBuilder:
             input_dim=64,  # 8x8 = 64 flattened
             coupling_network=coupling_network_config,
             image_shape=(8, 8, 1),
-            num_scales=2,
             blocks_per_scale=2,
         )
 
@@ -191,10 +190,9 @@ class TestFlowBuilder:
             input_dim=64,
             coupling_network=coupling,
             image_shape=(8, 8, 1),
-            num_scales=3,
             blocks_per_scale=4,
         )
-        assert valid_glow.num_scales == 3
+        assert valid_glow.blocks_per_scale == 4
 
         # Valid Neural Spline config
         valid_nsf = NeuralSplineConfig(

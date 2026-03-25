@@ -1,83 +1,27 @@
 # Stable Diffusion
 
-**Module:** `generative_models.models.diffusion.stable_diffusion`
+Supported owner: `artifex.generative_models.models.diffusion.stable_diffusion`
 
-**Source:** `generative_models/models/diffusion/stable_diffusion.py`
+## Public Import
+
+```python
+from artifex.generative_models.models.diffusion.stable_diffusion import StableDiffusionModel
+```
 
 ## Overview
 
-Stable Diffusion implementation.
+`StableDiffusionModel` remains a live module-local owner for text-conditioned
+latent diffusion.
 
-This module implements a simplified version of Stable Diffusion,
-which is essentially a latent diffusion model with text conditioning
-and specific architectural choices.
+It is not re-exported from `artifex.generative_models.models.diffusion`, so the
+supported import path for this page stays module-local.
 
-## Classes
+Text encoding, cross-attention UNet components, and spatial VAE pieces stay in
+their own owner modules beneath the Stable Diffusion stack instead of being
+published here as additional top-level symbols.
 
-### StableDiffusionModel
+## Related Pages
 
-```python
-class StableDiffusionModel
-```
-
-### TextEncoder
-
-```python
-class TextEncoder
-```
-
-## Functions
-
-### **call**
-
-```python
-def __call__()
-```
-
-### **call**
-
-```python
-def __call__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### compute_text_similarity
-
-```python
-def compute_text_similarity()
-```
-
-### encode_text
-
-```python
-def encode_text()
-```
-
-### generate_with_text
-
-```python
-def generate_with_text()
-```
-
-### interpolate_text
-
-```python
-def interpolate_text()
-```
-
-## Module Statistics
-
-- **Classes:** 2
-- **Functions:** 8
-- **Imports:** 6
+- [Model Implementations](index.md)
+- [Diffusion API Reference](../api/models/diffusion.md)
+- [Diffusion Guide](../user-guide/models/diffusion-guide.md)

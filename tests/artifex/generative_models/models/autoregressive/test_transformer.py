@@ -175,6 +175,21 @@ class TestTransformerAutoregressiveModel:
         assert jnp.all(generated >= 0)
         assert jnp.all(generated < transformer_config.vocab_size)
 
+    def test_generate_with_cache_is_not_supported(self, transformer_config, rngs: nnx.Rngs):
+        """The retained transformer surface should fail explicitly on dead cache helpers."""
+        model = TransformerAutoregressiveModel(transformer_config, rngs=rngs)
+
+        with pytest.raises(NotImplementedError, match="KV-cached"):
+            model.generate_with_cache(n_samples=1, max_length=8, rngs=rngs)
+
+    def test_attention_weight_extraction_is_not_supported(self, transformer_config, rngs: nnx.Rngs):
+        """Attention-weight extraction should fail explicitly until it is implemented for real."""
+        model = TransformerAutoregressiveModel(transformer_config, rngs=rngs)
+        inputs = jnp.array([[1, 2, 3, 4]], dtype=jnp.int32)
+
+        with pytest.raises(NotImplementedError, match="Attention-weight extraction"):
+            model.get_attention_weights(inputs, rngs=rngs)
+
     def test_compute_loss(self, transformer_config, rngs: nnx.Rngs):
         """Test loss computation."""
         model = TransformerAutoregressiveModel(transformer_config, rngs=rngs)

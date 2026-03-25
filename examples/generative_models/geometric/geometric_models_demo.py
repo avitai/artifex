@@ -19,12 +19,12 @@ geometric models in the Artifex framework:
 
 1. **Point Cloud Models**: Unordered sets of 3D points
 2. **Mesh Models**: Connected vertex structures with topology
-3. **Voxel Models**: Regular 3D grids with optional conditioning
+3. **Voxel Models**: Regular 3D grids decoded from learned latents
 
 ## Learning Objectives
 
 - ✅ Understand the three main geometric representations
-- ✅ Configure models using ModelConfig
+- ✅ Configure models using family-specific typed configs
 - ✅ Use the unified factory pattern for model creation
 - ✅ Understand model-specific parameters for each geometry type
 
@@ -50,12 +50,14 @@ All models follow the unified `GeometricModel` protocol and use proper NNX patte
 ## Usage
 
 ```bash
-source activate.sh
-python examples/generative_models/geometric/geometric_models_demo.py
+source ./activate.sh
+uv run python examples/generative_models/geometric/geometric_models_demo.py
 ```
 """
 
 # %%
+import logging
+
 import jax
 from flax import nnx
 
@@ -70,6 +72,15 @@ from artifex.generative_models.core.configuration import (
 from artifex.generative_models.factory import create_model
 
 
+logging.basicConfig(level=logging.INFO, format="%(message)s")
+LOGGER = logging.getLogger(__name__)
+
+
+def echo(message: object = "") -> None:
+    """Emit example output through the standard example logger."""
+    LOGGER.info("%s", message)
+
+
 # %% [markdown]
 """
 ## 1. Setup Random Number Generation
@@ -79,33 +90,40 @@ We initialize the random number generator for reproducible model creation.
 
 
 # %%
-def main():
-    """Demonstrate configuration and creation of geometric models."""
-    # Set up random number generator using Flax NNX patterns
-    rng = jax.random.PRNGKey(42)
-    rngs = nnx.Rngs(params=rng)
+def create_demo_rngs(seed: int = 42) -> nnx.Rngs:
+    """Create reproducible RNGs for the demo."""
+    rng = jax.random.PRNGKey(seed)
+    return nnx.Rngs(params=rng)
 
-    # %% [markdown]
-    #     #     #     ## 2. Point Cloud Model
-    #     #     #
-    #     #     #     Point clouds are unordered sets of 3D points, commonly used for:
-    #     #     #     - LiDAR data processing
-    #     #     #     - 3D object detection
-    #     #     #     - Molecular structure modeling (proteins, molecules)
-    #     #     #
-    #     #     #     Key parameters:
-    #     #     #     - `num_points`: Number of points in the cloud
-    #     #     #     - `embed_dim`: Embedding dimension for features
-    #     #     #     - `num_layers`: Depth of the network
-    #     #     #     - `loss_type`: Distance metric (chamfer, earth mover's distance)
-    #     #     #
 
-    # %%
-    print("Creating point cloud model...")
-    # Create network configuration for point cloud
+# %% [markdown]
+"""
+## 2. Point Cloud Model
+
+Point clouds are unordered sets of 3D points, commonly used for:
+
+- LiDAR data processing
+- 3D object detection
+- Molecular structure modeling
+
+Key parameters:
+
+- `num_points`: Number of points in the cloud
+- `embed_dim`: Embedding dimension for features
+- `num_layers`: Depth of the network
+- `dropout_rate`: Regularization strength for the transformer stack
+- runtime training uses the model's family-local reconstruction objective
+"""
+
+
+# %%
+def run_point_cloud_demo(rngs: nnx.Rngs) -> None:
+    """Create a point-cloud model and generate one sample."""
+    echo("Creating point cloud model...")
+
     pc_network_config = PointCloudNetworkConfig(
         name="point_cloud_network",
-        hidden_dims=(128, 128, 128, 128),  # Tuple for frozen dataclass
+        hidden_dims=(128, 128, 128, 128),
         activation="gelu",
         embed_dim=128,
         num_heads=4,
@@ -116,39 +134,43 @@ def main():
     point_cloud_config = PointCloudConfig(
         name="demo_point_cloud",
         network=pc_network_config,
-        num_points=512,  # Smaller point cloud for demo
+        num_points=512,
         dropout_rate=0.1,
     )
     point_cloud_model = create_model(point_cloud_config, rngs=rngs)
-    print(f"Created model: {type(point_cloud_model).__name__}")
+    echo(f"Created model: {type(point_cloud_model).__name__}")
 
-    # Generate a sample point cloud
     sample = point_cloud_model.sample(1, rngs=rngs)
-    print(f"Sample shape: {sample.shape}")
+    echo(f"Sample shape: {sample.shape}")
 
-    # %% [markdown]
-    #     #     #     ## 3. Mesh Model
-    #     #     #
-    #     #     #     Meshes are connected vertex structures with explicit topology, ideal for:
-    #     #     #     - 3D graphics and rendering
-    #     #     #     - Shape analysis and generation
-    #     #     #     - Surface reconstruction
-    #     #     #
-    #     #     #     Key parameters:
-    #     #     #     - `num_vertices`: Number of mesh vertices
-    #     #     #     - `template_type`: Initial mesh template (sphere, cube, etc.)
-    #     #     #     - Loss weights balance different geometric properties:
-    #     #     #         - `vertex_loss_weight`: Vertex position accuracy
-    #     #     #         - `normal_loss_weight`: Surface normal consistency
-    #     #     #         - `edge_loss_weight`: Edge length regularization
-    #     #     #
 
-    # %%
-    print("\nCreating mesh model...")
-    # Create network configuration for mesh
+# %% [markdown]
+"""
+## 3. Mesh Model
+
+Meshes are connected vertex structures with explicit topology, ideal for:
+
+- 3D graphics and rendering
+- Shape analysis and generation
+- Surface reconstruction
+
+Key parameters:
+
+- `num_vertices`: Number of mesh vertices
+- `edge_features_dim`: Size of learned edge features in the mesh network
+- retained topology is derived from the sphere template plus the chosen vertex budget
+- runtime training uses vertex reconstruction; richer mesh losses stay as standalone primitives
+"""
+
+
+# %%
+def run_mesh_demo(rngs: nnx.Rngs) -> None:
+    """Create a mesh model."""
+    echo("Creating mesh model...")
+
     mesh_network_config = MeshNetworkConfig(
         name="mesh_network",
-        hidden_dims=(256, 128, 64),  # Tuple for frozen dataclass
+        hidden_dims=(256, 128, 64),
         activation="gelu",
         embed_dim=256,
         num_heads=8,
@@ -159,35 +181,36 @@ def main():
     mesh_config = MeshConfig(
         name="demo_mesh",
         network=mesh_network_config,
-        num_vertices=512,  # Smaller mesh for demo
-        num_faces=1024,
+        num_vertices=512,
         dropout_rate=0.1,
     )
     mesh_model = create_model(mesh_config, rngs=rngs)
-    print(f"Created model: {type(mesh_model).__name__}")
+    echo(f"Created model: {type(mesh_model).__name__}")
 
-    # %% [markdown]
-    #     #     #     ## 4. Voxel Model with Conditioning
-    #     #     #
-    #     #     #     Voxels are regular 3D grids, perfect for:
-    #     #     #     - Medical imaging (CT, MRI scans)
-    #     #     #     - 3D scene understanding
-    #     #     #     - Volumetric shape generation
-    #     #     #
-    #     #     #     Key features demonstrated:
-    #     #     #     - **Conditioning**: Enable class-conditional generation
-    #     #     #     - **Focal Loss**: Handle class imbalance in sparse voxel data
-    #     #     #     - **Multi-scale architecture**: Progressive refinement through channels
-    #     #     #
-    #     #     #     The focal loss with γ=2.0 focuses on hard-to-classify voxels.
-    #     #     #
 
-    # %%
-    print("\nCreating voxel model with conditioning...")
-    # Create network configuration for voxel
+# %% [markdown]
+"""
+## 4. Voxel Model
+
+Voxels are regular 3D grids, which makes them useful for:
+
+- medical imaging
+- volumetric shape generation
+- 3D scene understanding
+
+This demo highlights the retained typed voxel configuration, learned latent
+decoding, and focal-loss settings that are common in sparse voxel problems.
+"""
+
+
+# %%
+def run_voxel_demo(rngs: nnx.Rngs) -> None:
+    """Create a voxel model."""
+    echo("Creating voxel model...")
+
     voxel_network_config = VoxelNetworkConfig(
         name="voxel_network",
-        hidden_dims=(64, 64, 64, 64),  # Tuple for frozen dataclass
+        hidden_dims=(64, 64, 64, 64),
         activation="gelu",
         base_channels=64,
         num_layers=4,
@@ -198,39 +221,49 @@ def main():
     voxel_config = VoxelConfig(
         name="demo_voxel",
         network=voxel_network_config,
-        voxel_size=16,  # Low resolution for demo
+        voxel_size=16,
         voxel_dim=1,
         loss_type="focal",
         focal_gamma=2.0,
         dropout_rate=0.1,
     )
     voxel_model = create_model(voxel_config, rngs=rngs)
-    print(f"Created model: {type(voxel_model).__name__}")
+    echo(f"Created model: {type(voxel_model).__name__}")
 
-    # %% [markdown]
-    #     #     #     ## Summary and Key Takeaways
-    #     #     #
-    #     #     #     This example demonstrated three fundamental geometric representations:
-    #     #     #
-    #     #     #     1. **Point Clouds** - Flexible, unordered, permutation-invariant
-    #     #     #     2. **Meshes** - Topological structure, surface-oriented
-    #     #     #     3. **Voxels** - Regular grids, easy to process with CNNs
-    #     #     #
-    #     #     #     ### When to Use Each Representation
-    #     #     #
-    #     #     #     - **Point Clouds**: Raw sensor data, molecular structures, irregular shapes
-    #     #     #     - **Meshes**: Graphics, animation, smooth surfaces
-    #     #     #     - **Voxels**: Medical imaging, volumetric data, regular grids
-    #     #     #
-    #     #     #     ### Next Steps
-    #     #     #
-    #     #     #     - Explore `simple_point_cloud_example.py` for detailed point cloud modeling
-    #     #     #     - See `geometric_losses_demo.py` for specialized geometric losses
-    #     #     #     - Check `protein_point_cloud_example.py` for domain-specific applications
-    #     #     #
+    sample = voxel_model.generate(n_samples=1, rngs=rngs)
+    echo(f"Sample shape: {sample.shape}")
 
-    # %%
-    print("\nDemo completed successfully!")
+
+# %% [markdown]
+"""
+## Summary and Key Takeaways
+
+This example demonstrates three foundational geometric representations:
+
+1. **Point Clouds**: Flexible, unordered, permutation-invariant structures
+2. **Meshes**: Topological surface representations
+3. **Voxels**: Regular grids that work naturally with CNN-style architectures
+
+### Next Steps
+
+- Explore `simple_point_cloud_example.py` for a deeper point-cloud walkthrough
+- See `geometric_losses_demo.py` for specialized geometric losses
+- Check `protein_point_cloud_example.py` for domain-specific applications
+"""
+
+
+# %%
+def main() -> None:
+    """Demonstrate configuration and creation of geometric models."""
+    rngs = create_demo_rngs()
+
+    run_point_cloud_demo(rngs)
+    echo()
+    run_mesh_demo(rngs)
+    echo()
+    run_voxel_demo(rngs)
+    echo()
+    echo("Demo completed successfully!")
 
 
 if __name__ == "__main__":

@@ -19,6 +19,9 @@ from artifex.generative_models.core.configuration import (
     BaseConfig,
     DecoderConfig,
     EncoderConfig,
+    StableDiffusionConfig,
+    UNet1DBackboneConfig,
+    UNet2DConditionBackboneConfig,
     UNetBackboneConfig,
 )
 from artifex.generative_models.core.configuration.diffusion_config import (
@@ -349,6 +352,41 @@ class TestDiffusionConfigSerialization:
         assert config.name == "diffusion"
         assert config.backbone.hidden_dims == (64, 128)
         assert config.input_shape == (64, 64, 3)
+
+    def test_from_dict_accepts_unet1d_backbone(self, schedule_config):
+        """Test creating DiffusionConfig from a retained 1D UNet backbone document."""
+        data = {
+            "name": "diffusion",
+            "backbone": {
+                "backbone_type": "unet_1d",
+                "name": "unet1d",
+                "hidden_dims": [32, 64],
+                "activation": "gelu",
+                "in_channels": 2,
+            },
+            "noise_schedule": schedule_config.to_dict(),
+        }
+
+        config = DiffusionConfig.from_dict(data)
+
+        assert isinstance(config.backbone, UNet1DBackboneConfig)
+        assert config.backbone.in_channels == 2
+
+    def test_from_dict_rejects_removed_uvit_backbone(self):
+        """Test that removed unsupported backbones are rejected at config load time."""
+        data = {
+            "name": "diffusion",
+            "backbone": {
+                "backbone_type": "uvit",
+                "name": "uvit",
+                "hidden_dims": [512],
+                "activation": "gelu",
+            },
+            "noise_schedule": {"name": "schedule"},
+        }
+
+        with pytest.raises(ValueError, match="Unknown backbone_type: 'uvit'"):
+            DiffusionConfig.from_dict(data)
 
     def test_roundtrip(self, backbone_config, schedule_config):
         """Test serialization roundtrip."""
@@ -967,6 +1005,156 @@ class TestLatentDiffusionConfigValidation:
                 decoder=decoder_config,
                 latent_scale_factor=0.0,
             )
+
+
+# =============================================================================
+# StableDiffusionConfig Tests
+# =============================================================================
+
+
+class TestStableDiffusionConfigValidation:
+    """Test Stable Diffusion's conditioned-backbone contract."""
+
+    @pytest.fixture
+    def schedule_config(self):
+        """Create a NoiseScheduleConfig for testing."""
+        return NoiseScheduleConfig(name="test_schedule")
+
+    @pytest.fixture
+    def encoder_config(self):
+        """Create an EncoderConfig for testing."""
+        return EncoderConfig(
+            name="encoder",
+            hidden_dims=(32, 64, 128),
+            input_shape=(32, 32, 3),
+            latent_dim=4,
+            activation="gelu",
+        )
+
+    @pytest.fixture
+    def decoder_config(self):
+        """Create a DecoderConfig for testing."""
+        return DecoderConfig(
+            name="decoder",
+            hidden_dims=(128, 64, 32),
+            latent_dim=4,
+            output_shape=(32, 32, 3),
+            activation="gelu",
+        )
+
+    @pytest.fixture
+    def conditioned_backbone(self):
+        """Create a conditioned UNet backbone for Stable Diffusion."""
+        return UNet2DConditionBackboneConfig(
+            name="sd_backbone",
+            hidden_dims=(32, 64, 128),
+            in_channels=4,
+            out_channels=4,
+            cross_attention_dim=64,
+            num_heads=2,
+            num_res_blocks=2,
+            attention_levels=(0, 1, 2),
+            time_embedding_dim=128,
+        )
+
+    def test_requires_conditioned_backbone(
+        self,
+        schedule_config,
+        encoder_config,
+        decoder_config,
+    ):
+        """Test that Stable Diffusion rejects plain UNet backbone configs."""
+        with pytest.raises(
+            TypeError, match="StableDiffusionConfig backbone must be UNet2DConditionBackboneConfig"
+        ):
+            StableDiffusionConfig(
+                name="stable_diffusion",
+                backbone=UNetBackboneConfig(
+                    name="unet",
+                    hidden_dims=(32, 64),
+                    activation="gelu",
+                    in_channels=4,
+                    out_channels=4,
+                ),
+                noise_schedule=schedule_config,
+                encoder=encoder_config,
+                decoder=decoder_config,
+                text_embedding_dim=64,
+            )
+
+    def test_requires_cross_attention_dim_to_match_text_embedding_dim(
+        self,
+        schedule_config,
+        encoder_config,
+        decoder_config,
+        conditioned_backbone,
+    ):
+        """Test that text encoder and conditioned UNet stay on one embedding contract."""
+        with pytest.raises(
+            ValueError, match="text_embedding_dim must match backbone cross_attention_dim"
+        ):
+            StableDiffusionConfig(
+                name="stable_diffusion",
+                backbone=conditioned_backbone,
+                noise_schedule=schedule_config,
+                encoder=encoder_config,
+                decoder=decoder_config,
+                text_embedding_dim=32,
+            )
+
+    def test_requires_latent_channels_to_match_conditioned_backbone(
+        self,
+        schedule_config,
+        conditioned_backbone,
+    ):
+        """Test that latent-space channel count matches the retained conditioned UNet."""
+        encoder = EncoderConfig(
+            name="encoder",
+            hidden_dims=(32, 64, 128),
+            input_shape=(32, 32, 3),
+            latent_dim=6,
+            activation="gelu",
+        )
+        decoder = DecoderConfig(
+            name="decoder",
+            hidden_dims=(128, 64, 32),
+            latent_dim=6,
+            output_shape=(32, 32, 3),
+            activation="gelu",
+        )
+
+        with pytest.raises(
+            ValueError,
+            match="StableDiffusion conditioned backbone channels must match encoder/decoder latent_dim",
+        ):
+            StableDiffusionConfig(
+                name="stable_diffusion",
+                backbone=conditioned_backbone,
+                noise_schedule=schedule_config,
+                encoder=encoder,
+                decoder=decoder,
+                text_embedding_dim=64,
+            )
+
+    def test_accepts_matching_conditioned_backbone(
+        self,
+        schedule_config,
+        encoder_config,
+        decoder_config,
+        conditioned_backbone,
+    ):
+        """Test that matching conditioned-backbone config builds successfully."""
+        config = StableDiffusionConfig(
+            name="stable_diffusion",
+            backbone=conditioned_backbone,
+            noise_schedule=schedule_config,
+            encoder=encoder_config,
+            decoder=decoder_config,
+            text_embedding_dim=64,
+        )
+
+        assert isinstance(config.backbone, UNet2DConditionBackboneConfig)
+        assert config.backbone.cross_attention_dim == 64
 
 
 # =============================================================================

@@ -1,12 +1,16 @@
 # Checkpointing Callbacks
 
-**Module:** `generative_models.training.callbacks.checkpoint`
+**Status:** `Supported runtime training surface`
 
-**Source:** `generative_models/training/callbacks/checkpoint.py`
+**Module:** `artifex.generative_models.training.callbacks.checkpoint`
+
+**Source:** `src/artifex/generative_models/training/callbacks/checkpoint.py`
 
 ## Overview
 
-Model checkpointing callback that monitors metrics and saves checkpoints when they improve. Uses Orbax checkpointing under the hood with minimal overhead when not saving.
+Model checkpointing callback that saves Orbax-managed checkpoints on the
+configured epoch cadence. Retention and best-checkpoint selection are handled
+by Orbax using the monitored metric.
 
 ## Classes
 
@@ -18,13 +22,10 @@ class CheckpointConfig:
     """Configuration for model checkpointing."""
 
     dirpath: str | Path = "checkpoints"
-    filename: str = "model-{epoch:02d}-{val_loss:.4f}"
     monitor: str = "val_loss"
     mode: Literal["min", "max"] = "min"
     save_top_k: int = 3
-    save_last: bool = True
     every_n_epochs: int = 1
-    save_weights_only: bool = False
 ```
 
 **Attributes:**
@@ -32,13 +33,10 @@ class CheckpointConfig:
 | Attribute | Type | Default | Description |
 |-----------|------|---------|-------------|
 | `dirpath` | `str \| Path` | `"checkpoints"` | Directory to save checkpoints |
-| `filename` | `str` | `"model-{epoch:02d}-{val_loss:.4f}"` | Filename template with `{epoch}` and metric placeholders |
 | `monitor` | `str` | `"val_loss"` | Metric name to monitor |
 | `mode` | `Literal["min", "max"]` | `"min"` | Whether lower or higher is better |
 | `save_top_k` | `int` | `3` | Number of best checkpoints to keep (-1 = all, 0 = none) |
-| `save_last` | `bool` | `True` | Whether to save checkpoint on every epoch |
 | `every_n_epochs` | `int` | `1` | Save checkpoint every n epochs |
-| `save_weights_only` | `bool` | `False` | Only save model weights (not optimizer state) |
 
 ---
 
@@ -52,14 +50,16 @@ class ModelCheckpoint(BaseCallback):
 ```
 
 Callback that saves model checkpoints when monitored metrics improve. Uses Orbax checkpointing infrastructure with automatic cleanup of old checkpoints.
+Callback that saves eligible checkpoints and delegates best-step tracking and
+retention to Orbax.
 
 **Key Properties:**
 
 | Property | Type | Description |
 |----------|------|-------------|
 | `best_score` | `float \| None` | Best metric value seen so far |
-| `best_checkpoint_path` | `Path \| None` | Path to the best checkpoint |
-| `saved_checkpoints` | `list[tuple[float, Path]]` | List of (score, path) for saved checkpoints |
+| `best_checkpoint_step` | `int \| None` | Step index for the best retained checkpoint |
+| `saved_checkpoint_steps` | `list[int]` | Retained checkpoint steps managed by Orbax |
 
 ---
 
@@ -68,7 +68,9 @@ Callback that saves model checkpoints when monitored metrics improve. Uses Orbax
 ### Basic Checkpointing
 
 ```python
+from artifex.generative_models.training import Trainer
 from artifex.generative_models.training.callbacks import (
+    CallbackList,
     ModelCheckpoint,
     CheckpointConfig,
 )
@@ -81,10 +83,16 @@ checkpoint = ModelCheckpoint(CheckpointConfig(
     save_top_k=3,
 ))
 
-trainer.fit(callbacks=[checkpoint])
+trainer = Trainer(
+    model=model,
+    training_config=training_config,
+    loss_fn=loss_fn,
+    callbacks=CallbackList([checkpoint]),
+)
+trainer.train(train_data=train_data, num_epochs=10, batch_size=64, val_data=val_data)
 
-# Access best checkpoint after training
-print(f"Best checkpoint: {checkpoint.best_checkpoint_path}")
+# Access best checkpoint metadata after training
+print(f"Best checkpoint step: {checkpoint.best_checkpoint_step}")
 print(f"Best score: {checkpoint.best_score}")
 ```
 
@@ -96,7 +104,6 @@ checkpoint = ModelCheckpoint(CheckpointConfig(
     monitor="val_accuracy",
     mode="max",  # Higher accuracy is better
     save_top_k=1,  # Keep only the best
-    filename="best-model-{epoch:02d}-{val_accuracy:.4f}",
 ))
 ```
 
@@ -107,16 +114,6 @@ checkpoint = ModelCheckpoint(CheckpointConfig(
     dirpath="./checkpoints",
     save_top_k=-1,  # Keep all checkpoints
     every_n_epochs=5,  # Save every 5 epochs
-))
-```
-
-### Custom Filename Template
-
-```python
-# Filename template supports {epoch} and any metric in logs
-checkpoint = ModelCheckpoint(CheckpointConfig(
-    filename="model-epoch{epoch:03d}-loss{val_loss:.6f}-acc{val_accuracy:.4f}",
-    monitor="val_loss",
 ))
 ```
 
@@ -146,7 +143,13 @@ callbacks = CallbackList([
     ProgressBarCallback(ProgressBarConfig()),
 ])
 
-trainer.fit(callbacks=callbacks)
+trainer = Trainer(
+    model=model,
+    training_config=training_config,
+    loss_fn=loss_fn,
+    callbacks=callbacks,
+)
+trainer.train(train_data=train_data, num_epochs=10, batch_size=64, val_data=val_data)
 ```
 
 ---
@@ -154,17 +157,9 @@ trainer.fit(callbacks=callbacks)
 ## How It Works
 
 1. **Metric Monitoring**: Tracks the specified metric (`monitor`) at the end of each epoch
-2. **Improvement Check**: Compares current value against best using `mode` (min/max)
-3. **Checkpoint Saving**: Uses Orbax infrastructure to save model state
-4. **Automatic Cleanup**: Removes old checkpoints beyond `save_top_k` limit
-5. **Best Tracking**: Maintains reference to the best checkpoint path
-
-### Checkpoint Cleanup Strategy
-
-When `save_top_k > 0`, checkpoints are sorted by their metric value:
-
-- **Min mode**: Keeps checkpoints with lowest scores, removes highest
-- **Max mode**: Keeps checkpoints with highest scores, removes lowest
+2. **Orbax Save**: Saves the model state through the shared Orbax checkpoint utilities
+3. **Retention Policy**: Orbax keeps the configured best `save_top_k` checkpoints
+4. **Best Tracking**: Orbax exposes the best retained step via `best_checkpoint_step`
 
 ---
 
@@ -179,8 +174,7 @@ from artifex.generative_models.core.checkpointing import (
     setup_checkpoint_manager,
 )
 
-# Checkpoints are saved using Orbax under the hood
-# You can load them manually:
+# Checkpoints are stored under step-numbered Orbax directories
 checkpoint_manager, _ = setup_checkpoint_manager("./checkpoints")
 model = load_checkpoint(checkpoint_manager, model, step=10)
 ```

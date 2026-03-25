@@ -1,49 +1,47 @@
 # Sampling API Reference
 
-API reference for sampling methods and utilities in Artifex.
+This page documents the live top-level `artifex.generative_models.core.sampling`
+package exports.
 
-## Overview
-
-This module provides sampling utilities for generating outputs from trained generative models.
-
-## Core Sampling Functions
-
-### Basic Sampling
+## Public Imports
 
 ```python
-from artifex.generative_models.core.sampling import sample_from_model
-
-samples = sample_from_model(
-    model=model,
-    num_samples=64,
-    rng=jax.random.key(0),
+from artifex.generative_models.core.sampling import (
+    BlackJAXHMC,
+    BlackJAXMALA,
+    BlackJAXNUTS,
+    BlackJAXSamplerState,
+    euler_maruyama_step,
+    hmc_sampling,
+    mala_sampling,
+    mcmc_sampling,
+    milstein_step,
+    nuts_sampling,
+    sde_sampling,
 )
 ```
 
-### Temperature Scaling
+## Current Top-Level Surface
 
-```python
-from artifex.generative_models.core.sampling import temperature_sample
+### BlackJAX wrappers
 
-samples = temperature_sample(
-    model=model,
-    num_samples=64,
-    temperature=0.8,
-    rng=jax.random.key(0),
-)
-```
+- `BlackJAXHMC`
+- `BlackJAXMALA`
+- `BlackJAXNUTS`
+- `BlackJAXSamplerState`
+- `hmc_sampling(...)`
+- `mala_sampling(...)`
+- `nuts_sampling(...)`
 
-## Model-Specific Sampling
+### Generic sampling helpers
 
-For detailed sampling methods for each model type, see:
+- `mcmc_sampling(...)`
+- `sde_sampling(...)`
+- `euler_maruyama_step(...)`
+- `milstein_step(...)`
 
-- [VAE Sampling](../user-guide/inference/sampling.md#vae-sampling-methods)
-- [GAN Sampling](../user-guide/inference/sampling.md#gan-sampling-methods)
-- [Diffusion Sampling](../user-guide/inference/sampling.md#diffusion-sampling-methods)
-- [Flow Sampling](../user-guide/inference/sampling.md#flow-sampling-methods)
+## Submodule Note
 
-## Related Documentation
-
-- [Sampling User Guide](../user-guide/inference/sampling.md) - Comprehensive sampling guide
-- [Inference Optimization](../user-guide/inference/optimization.md) - Performance optimization
-- [Core API](core/base.md) - Core module reference
+Helpers that are not exported from the top-level package should be imported
+from their owning submodules directly, for example `core.sampling.ancestral`
+or `core.sampling.ode`.

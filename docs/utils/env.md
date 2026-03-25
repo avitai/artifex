@@ -1,11 +1,9 @@
 # Env
 
-**Module:** `generative_models.utils.env`
+**Status:** `Coming soon`
+**Planned module target:** `artifex.generative_models.utils.misc.env`
 
-**Source:** `generative_models/utils/env.py`
+`artifex.generative_models.utils.misc.env` is still relevant to the roadmap, but it is not shipped yet.
 
-## Module Statistics
-
-- **Classes:** 0
-- **Functions:** 0
-- **Imports:** 0
+See [Utilities](index.md) for the current utility docs.
+See [Planned Modules Roadmap](../roadmap/planned-modules.md#utilities) for status and scope.

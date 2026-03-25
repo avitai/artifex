@@ -52,7 +52,7 @@ Think of autoregressive models like an artist creating a painting:
 
 1. **Start with a Blank Canvas** - The first element is predicted from a simple prior (often uniform or learned).
 
-2. **Add One Brush Stroke at a Time** - Each new element is predicted based on what's already been created. The model asks: "Given what I've painted so far, what comes next?"
+2. **Add One Brush Stroke at a Time** - Each new element is predicted based on what's already been created. The model asks: "Given what has been painted so far, what comes next?"
 
 3. **Build Complex Patterns Gradually** - Simple local dependencies (adjacent pixels, consecutive words) compose into global structure (coherent images, meaningful sentences).
 
@@ -1140,17 +1140,17 @@ Autoregressive models decompose joint distributions via the chain rule, enabling
 
     Complete API documentation for Transformers, PixelCNN, and WaveNet
 
-- :material-school:{ .lg .middle } **[Text Tutorial](../../examples/basic/ar-text.md)**
+- :material-school:{ .lg .middle } **[Text Tutorial](../../examples/text/simple-text-generation.md)**
 
     ---
 
-    Step-by-step tutorial: train a Transformer language model
+    Hands-on walkthrough for the retained text generation example
 
-- :material-flask:{ .lg .middle } **[Advanced Examples](../../examples/advanced/advanced-ar.md)**
+- :material-map-outline:{ .lg .middle } **[Planned Example Topics](../../roadmap/planned-examples.md#text-and-multimodal)**
 
     ---
 
-    Explore PixelCNN, WaveNet, and state-of-the-art techniques
+    Track still-unshipped autoregressive, transformer, and seq2seq examples
 
 </div>
 
@@ -1226,7 +1226,7 @@ Autoregressive models decompose joint distributions via the chain rule, enabling
 
 :material-web: **Stanford CS236: Deep Generative Models (AR Lecture)**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;:material-link: [deepgenerativemodels.github.io](https://deepgenerativemodels.github.io/notes/autoregressive/)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Comprehensive course notes on autoregressive models
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Complete course notes on autoregressive models
 
 :material-web: **The Illustrated Transformer**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;:material-link: [jalammar.github.io/illustrated-transformer](http://jalammar.github.io/illustrated-transformer/)<br>

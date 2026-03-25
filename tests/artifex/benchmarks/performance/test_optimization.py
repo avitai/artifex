@@ -8,7 +8,7 @@ import jax.numpy as jnp
 import numpy as np
 import pytest
 
-from artifex.benchmarks.base import DatasetProtocol
+from artifex.benchmarks import DatasetProtocol
 from artifex.benchmarks.performance.optimization import (
     OptimizationBenchmark,
     OptimizationMetricsConfig,

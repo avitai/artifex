@@ -6,7 +6,7 @@ neural networks, rather than direct pixel-wise comparisons. These losses
 are especially useful for image generation tasks.
 """
 
-from typing import Callable
+from collections.abc import Callable
 
 import jax
 import jax.numpy as jnp
@@ -397,7 +397,7 @@ class PerceptualLoss(nnx.Module):
 
 
 def create_vgg_perceptual_loss(
-    layers: list[str] = ["relu1_2", "relu2_2", "relu3_3", "relu4_3"],
+    layers: list[str] | None = None,
     weights: list[float] | None = None,
     content_weight: float = 1.0,
     style_weight: float = 0.0,
@@ -413,6 +413,8 @@ def create_vgg_perceptual_loss(
     Returns:
         PerceptualLoss module configured for VGG features
     """
+    if layers is None:
+        layers = ["relu1_2", "relu2_2", "relu3_3", "relu4_3"]
     if weights is None:
         weights = [1.0] * len(layers)
 

@@ -7,7 +7,7 @@ Assessing Generative Models" (Kynkäänniemi et al., 2019).
 All implementations use JAX for compatibility with NNX modules.
 """
 
-from typing import Callable
+from collections.abc import Callable
 
 import flax.nnx as nnx
 import jax

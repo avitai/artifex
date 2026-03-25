@@ -1,4 +1,4 @@
-"""Comprehensive tests for UNet with Cross-Attention.
+"""Complete tests for UNet with Cross-Attention.
 
 This module tests the UNet2DCondition model with cross-attention for text conditioning,
 following Test-Driven Development (TDD) principles.

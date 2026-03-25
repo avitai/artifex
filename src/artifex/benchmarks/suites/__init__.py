@@ -1,7 +1,7 @@
 """Benchmark suites for generative models.
 
 This module provides benchmark suites that combine multiple benchmarks for
-comprehensive evaluation.
+complete evaluation.
 """
 
 from artifex.benchmarks.suites.protein_benchmarks import (

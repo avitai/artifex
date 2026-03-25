@@ -1,118 +1,111 @@
 """Utilities for GPU-aware testing."""
 
-import os
+from __future__ import annotations
 
-import jax
+import contextlib
+import dataclasses
+import functools
+import os
+import sys
+from collections.abc import Callable
+from typing import Any, TypeVar
+
 import pytest
 
 
-def is_gpu_available():
-    """Check if a GPU is available for testing.
+F = TypeVar("F", bound=Callable[..., Any])
 
-    This function checks multiple ways to determine if a GPU is available:
-    1. Checks if GPU is explicitly disabled via JAX_PLATFORMS environment variable
-    2. Tries to get GPU devices via JAX
-    3. Checks for CUDA availability via JAX
-    4. Falls back to hardware detection if JAX fails
 
-    Note: For some CUDA setups, you may need to set JAX_SKIP_CUDA_CONSTRAINTS_CHECK=1
-    in your environment before running tests.
+@dataclasses.dataclass(frozen=True)
+class JAXRuntimeSummary:
+    """Structured summary of the active JAX runtime."""
 
-    Returns:
-        bool: True if GPU is available and enabled, False otherwise
-    """
-    # Check if GPU is explicitly disabled via environment variable
-    if os.environ.get("JAX_PLATFORMS", "") == "cpu":
-        return False
+    gpu_available: bool
+    default_backend: str | None
+    visible_devices: tuple[str, ...]
+    error: str | None = None
 
-    # Method 1: Try to get GPU devices via JAX
+
+@contextlib.contextmanager
+def suppress_process_stderr():
+    """Temporarily redirect process stderr to avoid noisy plugin-init logs."""
+    stderr_fd = sys.stderr.fileno()
+    with open(os.devnull, "w", encoding="utf-8") as null_stream:
+        saved_stderr_fd = os.dup(stderr_fd)
+        try:
+            os.dup2(null_stream.fileno(), stderr_fd)
+            yield
+        finally:
+            os.dup2(saved_stderr_fd, stderr_fd)
+            os.close(saved_stderr_fd)
+
+
+def is_gpu_available() -> bool:
+    """Return True only when the active JAX runtime exposes a GPU backend."""
+    return get_jax_runtime_summary().gpu_available
+
+
+def get_jax_runtime_summary() -> JAXRuntimeSummary:
+    """Return a structured summary of the active JAX backend and devices."""
     try:
-        gpu_devices = jax.devices("gpu")
-        if len(gpu_devices) > 0:
-            return True
-    except Exception:
-        pass
+        with suppress_process_stderr():
+            import jax
+    except (ImportError, OSError, RuntimeError) as exc:
+        return JAXRuntimeSummary(
+            gpu_available=False,
+            default_backend=None,
+            visible_devices=(),
+            error=str(exc),
+        )
 
-    # Method 2: Check if CUDA is available through JAX
     try:
-        if getattr(jax.lib, "have_cuda", False):
-            return True
-    except Exception:
-        pass
+        with suppress_process_stderr():
+            devices = tuple(
+                f"{device.platform}:{getattr(device, 'device_kind', str(device))}"
+                for device in jax.devices()
+            )
+            default_backend = jax.default_backend()
+    except RuntimeError as exc:
+        return JAXRuntimeSummary(
+            gpu_available=False,
+            default_backend=None,
+            visible_devices=(),
+            error=str(exc),
+        )
 
-    # Method 3: Check if JAX default backend is GPU
-    try:
-        if jax.default_backend() in ["gpu", "cuda"]:
-            return True
-    except Exception:
-        pass
-
-    # Method 4: Fall back to hardware detection using nvidia-smi
-    # This helps detect when hardware is available but JAX config has issues
-    try:
-        import subprocess
-
-        result = subprocess.run(["nvidia-smi", "-L"], capture_output=True, text=True, timeout=5)
-        if result.returncode == 0 and "GPU" in result.stdout:
-            # Hardware is available but JAX might need configuration
-            # Check if CUDA constraints bypass might help
-            skip_check = os.environ.get("JAX_SKIP_CUDA_CONSTRAINTS_CHECK", "0")
-            if skip_check == "1":
-                # If bypass is already set and we still can't access via JAX,
-                # the GPU is likely having other issues
-                return False
-            else:
-                # Hardware detected but JAX access failed - might need bypass
-                # Return True but tests should handle the environment setup
-                return True
-    except (subprocess.SubprocessError, FileNotFoundError, subprocess.TimeoutExpired):
-        pass
-
-    # GPU not detected by any method
-    return False
+    return JAXRuntimeSummary(
+        gpu_available=any(device.startswith(("gpu:", "cuda:")) for device in devices),
+        default_backend=default_backend,
+        visible_devices=devices,
+        error=None,
+    )
 
 
-def requires_gpu(f):
-    """Decorator to mark tests that require a GPU.
+def requires_gpu(func: F) -> F:
+    """Decorator that skips the test at runtime when JAX cannot see a GPU."""
 
-    This decorator will skip the test if no GPU is available.
+    @functools.wraps(func)
+    def wrapper(*args: Any, **kwargs: Any):
+        if not is_gpu_available():
+            pytest.skip("Test requires GPU but no JAX GPU backend is available")
+        return func(*args, **kwargs)
 
-    Args:
-        f: Test function to decorate
-
-    Returns:
-        Decorated function that will be skipped if no GPU is available
-    """
-    return pytest.mark.skipif(
-        not is_gpu_available(),
-        reason="Test requires GPU but none is available or GPU is disabled via JAX_PLATFORMS=cpu",
-    )(f)
+    return pytest.mark.gpu(wrapper)  # type: ignore[return-value]
 
 
-def skip_on_gpu(f):
-    """Decorator to mark tests that should be skipped when running on GPU.
+def skip_on_gpu(func: F) -> F:
+    """Decorator that skips the test when JAX is actively using a GPU backend."""
 
-    This is useful for tests that are known to cause issues on GPU.
+    @functools.wraps(func)
+    def wrapper(*args: Any, **kwargs: Any):
+        if is_gpu_available():
+            pytest.skip("Test is known to cause issues on GPU, skipping")
+        return func(*args, **kwargs)
 
-    Args:
-        f: Test function to decorate
-
-    Returns:
-        Decorated function that will be skipped if GPU is available and enabled
-    """
-    return pytest.mark.skipif(
-        is_gpu_available(), reason="Test is known to cause issues on GPU, skipping"
-    )(f)
+    return wrapper  # type: ignore[return-value]
 
 
-def gpu_test_fixture():
-    """Pytest fixture that ensures GPU is available.
-
-    Used to skip entire test classes that require GPU.
-
-    Example:
-        class TestGPUFeatures:
-            pytestmark = pytest.mark.usefixtures("gpu_test_fixture")
-    """
+def gpu_test_fixture() -> None:
+    """Helper used by tests that want fixture-style GPU enforcement."""
     if not is_gpu_available():
-        pytest.skip("Test requires GPU but none is available")
+        pytest.skip("Test requires GPU but no JAX GPU backend is available")

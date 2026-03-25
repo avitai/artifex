@@ -1,6 +1,8 @@
 """Geometric datasets for benchmark evaluation."""
 
+import logging
 import shutil
+import urllib.error
 import urllib.request
 import zipfile
 from pathlib import Path
@@ -12,9 +14,13 @@ import jax.numpy as jnp
 import numpy as np
 import trimesh
 
-from artifex.benchmarks.datasets.base import DatasetProtocol
+from artifex.benchmarks.runtime_guards import demo_mode_from_mapping, require_demo_mode
 from artifex.generative_models.core.configuration import DataConfig
+from artifex.generative_models.core.protocols.evaluation import DatasetProtocol
 from artifex.utils.file_utils import ensure_valid_output_path
+
+
+logger = logging.getLogger(__name__)
 
 
 # ShapeNet taxonomy mapping (similar to PyTorch3D approach)
@@ -81,12 +87,12 @@ SHAPENET_SYNSETS = {
 SHAPENET_SPLITS = {"train": 0.8, "val": 0.1, "test": 0.1}
 
 
-class ShapeNetDataset(DatasetProtocol):
+class ShapeNetDataset:
     """ShapeNet dataset for point cloud generation benchmarks.
 
     This implementation follows patterns similar to PyTorch3D's ShapeNet dataset,
     providing robust data loading, proper taxonomy handling, and multiple
-    data source fallbacks.
+    data source fallbacks. Structurally conforms to DatasetProtocol.
 
     The dataset supports:
     - Official ShapeNet Core.v2 data structure
@@ -95,9 +101,6 @@ class ShapeNetDataset(DatasetProtocol):
     - Automatic point cloud conversion
     - Standard train/val/test splits
     """
-
-    # Annotate data attribute to allow JAX arrays in dict
-    data: nnx.Data[dict]
 
     def __init__(self, data_path: str, config: DataConfig, *, rngs: nnx.Rngs):
         """Initialize ShapeNet dataset following PyTorch3D patterns.
@@ -119,45 +122,66 @@ class ShapeNetDataset(DatasetProtocol):
         if not isinstance(config, DataConfig):
             raise TypeError(f"config must be DataConfig, got {type(config).__name__}")
 
-        super().__init__(data_path, config, rngs=rngs)
+        self.config = config
+        self.data_path = Path(data_path)
+        self.rngs = rngs
+        self.data: dict = {}
+        self.demo_mode = demo_mode_from_mapping(config.metadata)
+
+        self._load_dataset()
 
     def _acquire_data_if_needed(self):
         """Acquire dataset if needed."""
-        data_source = self.config.metadata.get("data_source", "auto")
+        data_source = str(self.config.metadata.get("data_source", "auto")).lower()
+
+        if data_source in {"synthetic", "mock", "demo"}:
+            require_demo_mode(
+                enabled=self.demo_mode,
+                component="ShapeNetDataset",
+                detail=(
+                    "Synthetic ShapeNet data is retained only for benchmark demos and is not "
+                    "the benchmark-grade runtime."
+                ),
+            )
+            logger.info("Demo mode enabled; creating retained synthetic ShapeNet data")
+            self._create_synthetic_data()
+            self._validate_data_structure()
+            return
+
+        if data_source == "modelnet":
+            require_demo_mode(
+                enabled=self.demo_mode,
+                component="ShapeNetDataset",
+                detail=(
+                    "The retained ModelNet substitute is a demo-only fallback and not the "
+                    "supported ShapeNet benchmark runtime."
+                ),
+            )
+            logger.info("Demo mode enabled; using retained ModelNet substitute")
+            try:
+                self._download_modelnet_alternative()
+            except (OSError, RuntimeError, ValueError, ImportError) as e:
+                logger.warning("ModelNet alternative failed: %s", e)
+                self._create_synthetic_data()
+            self._validate_data_structure()
+            return
 
         if not self.data_path.exists():
-            print(f"ShapeNet data not found at {self.data_path}")
-
-            if data_source == "auto":
-                print("Attempting automatic data acquisition...")
-                success = self._acquire_shapenet_data()
-                if not success:
-                    print("All data acquisition failed, using synthetic data as final fallback")
-                    self._create_synthetic_data()
-            elif data_source == "shapenet":
-                print("Attempting ShapeNet Core download...")
-                try:
-                    self._download_shapenet_core()
-                except Exception as e:
-                    print(f"ShapeNet download failed: {e}")
-                    print("Falling back to synthetic data...")
-                    self._create_synthetic_data()
-            elif data_source == "modelnet":
-                print("Using ModelNet as alternative...")
-                try:
-                    self._download_modelnet_alternative()
-                except Exception as e:
-                    print(f"ModelNet download failed: {e}")
-                    print("Falling back to synthetic data...")
-                    self._create_synthetic_data()
-            elif data_source == "synthetic":
-                print("Creating synthetic ShapeNet data...")
+            if self.demo_mode:
+                logger.info(
+                    "Demo mode enabled; creating retained synthetic ShapeNet data at %s",
+                    self.data_path,
+                )
                 self._create_synthetic_data()
-            else:
-                print(f"Unknown data source: {data_source}, using synthetic data")
-                self._create_synthetic_data()
+                self._validate_data_structure()
+                return
+            raise RuntimeError(
+                "ShapeNetDataset requires benchmark-grade ShapeNet assets at "
+                f"{self.data_path}. Automatic download, ModelNet substitution, and synthetic "
+                "fallback are no longer part of the supported benchmark runtime. Pass "
+                "demo_mode=True or data_source='synthetic' only for the retained demo workflow."
+            )
 
-        # Always validate after acquisition attempts
         self._validate_data_structure()
 
     def _acquire_shapenet_data(self) -> bool:
@@ -175,22 +199,22 @@ class ShapeNetDataset(DatasetProtocol):
 
         for strategy_name, strategy_func in strategies:
             try:
-                print(f"Trying strategy: {strategy_name}")
+                logger.info("Trying strategy: %s", strategy_name)
                 strategy_func()
 
                 # Verify we got some data
                 valid_models = self._count_valid_models()
                 if valid_models > 0:
-                    print(f"✅ Success with {strategy_name}: {valid_models} valid models")
+                    logger.info("Success with %s: %d valid models", strategy_name, valid_models)
                     return True
                 else:
-                    print(f"❌ {strategy_name} produced no valid models")
+                    logger.warning("%s produced no valid models", strategy_name)
 
-            except Exception as e:
-                print(f"❌ {strategy_name} failed: {e}")
+            except (OSError, RuntimeError, ValueError, ImportError) as e:
+                logger.warning("%s failed: %s", strategy_name, e)
                 continue
 
-        print("❌ All data acquisition strategies failed")
+        logger.error("All data acquisition strategies failed")
         return False
 
     def _download_shapenet_core(self):
@@ -209,7 +233,7 @@ class ShapeNetDataset(DatasetProtocol):
 
             for repo_id in repos:
                 try:
-                    print(f"Checking repository: {repo_id}")
+                    logger.info("Checking repository: %s", repo_id)
                     files = list_repo_files(repo_id, repo_type="dataset")
 
                     # Filter files for target synsets
@@ -224,7 +248,7 @@ class ShapeNetDataset(DatasetProtocol):
                         target_files.extend(matching_files[:20])  # Limit per synset
 
                     if target_files:
-                        print(f"Found {len(target_files)} relevant files in {repo_id}")
+                        logger.info("Found %d relevant files in %s", len(target_files), repo_id)
 
                         # Directory already created by base class
 
@@ -241,21 +265,21 @@ class ShapeNetDataset(DatasetProtocol):
                                     repo_type="dataset",
                                     revision="main",  # Pin to specific revision for security
                                 )
-                            except Exception as e:
-                                print(f"Failed to download {file_path}: {e}")
+                            except (OSError, ValueError, RuntimeError) as e:
+                                logger.warning("Failed to download %s: %s", file_path, e)
                                 continue
 
                         if self._count_valid_models() > 0:
                             return
 
-                except Exception as e:
-                    print(f"Repository {repo_id} failed: {e}")
+                except (OSError, ValueError, RuntimeError) as e:
+                    logger.warning("Repository %s failed: %s", repo_id, e)
                     continue
 
             raise RuntimeError("No ShapeNet repositories accessible")
 
         except ImportError:
-            print("huggingface_hub not available, trying alternative approach")
+            logger.info("huggingface_hub not available, trying alternative approach")
             raise
 
     def _download_processed_shapenet(self):
@@ -269,7 +293,7 @@ class ShapeNetDataset(DatasetProtocol):
 
             for url in processed_urls:
                 try:
-                    print(f"Downloading processed data from: {url}")
+                    logger.info("Downloading processed data from: %s", url)
                     zip_path = self.data_path.parent / "shapenet_processed.zip"
                     zip_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -295,14 +319,14 @@ class ShapeNetDataset(DatasetProtocol):
                     if self._count_valid_models() > 0:
                         return
 
-                except Exception as e:
-                    print(f"Failed to download from {url}: {e}")
+                except (OSError, urllib.error.URLError, ValueError, zipfile.BadZipFile) as e:
+                    logger.warning("Failed to download from %s: %s", url, e)
                     continue
 
             raise RuntimeError("No processed ShapeNet data available")
 
-        except Exception as e:
-            print(f"Processed ShapeNet download failed: {e}")
+        except (OSError, urllib.error.URLError, ValueError, zipfile.BadZipFile) as e:
+            logger.warning("Processed ShapeNet download failed: %s", e)
             raise
 
     def _download_modelnet_alternative(self):
@@ -310,7 +334,7 @@ class ShapeNetDataset(DatasetProtocol):
         try:
             from huggingface_hub import snapshot_download
 
-            print("Downloading ModelNet40 as ShapeNet alternative...")
+            logger.info("Downloading ModelNet40 as ShapeNet alternative...")
             temp_path = self.data_path.parent / "modelnet_temp"
 
             # Download ModelNet40
@@ -328,8 +352,8 @@ class ShapeNetDataset(DatasetProtocol):
             # Clean up
             shutil.rmtree(temp_path, ignore_errors=True)
 
-        except Exception as e:
-            print(f"ModelNet alternative failed: {e}")
+        except (OSError, ImportError, RuntimeError, ValueError) as e:
+            logger.warning("ModelNet alternative failed: %s", e)
             raise
 
     def _convert_modelnet_to_shapenet(self, modelnet_path: Path):
@@ -366,7 +390,9 @@ class ShapeNetDataset(DatasetProtocol):
                 model_files.extend(list(class_dir.rglob("*.off")))
                 model_files.extend(list(class_dir.rglob("*.obj")))
 
-            print(f"Converting {len(model_files)} {modelnet_class} models to {shapenet_id}")
+            logger.info(
+                "Converting %d %s models to %s", len(model_files), modelnet_class, shapenet_id
+            )
 
             for i, model_file in enumerate(model_files[:50]):  # Limit to 50 per class
                 try:
@@ -379,15 +405,16 @@ class ShapeNetDataset(DatasetProtocol):
                     output_file = model_dir / "model.obj"
                     mesh.export(str(output_file))
 
-                except Exception as e:
-                    print(f"Failed to convert {model_file}: {e}")
+                except (OSError, ValueError, RuntimeError) as e:
+                    logger.warning("Failed to convert %s: %s", model_file, e)
                     continue
 
     def _create_synthetic_data(self):
         """Create synthetic ShapeNet-style data as final fallback."""
-        print("Creating synthetic 3D models...")
+        logger.info("Creating synthetic 3D models...")
 
         try:
+            self.data_path.mkdir(parents=True, exist_ok=True)
             synsets = self.config.metadata.get("synsets", ["02691156", "02958343", "03001627"])
             models_per_synset = self.config.metadata.get("models_per_synset", 20)
 
@@ -399,7 +426,7 @@ class ShapeNetDataset(DatasetProtocol):
                 synset_dir = self.data_path / synset_id
                 synset_dir.mkdir(exist_ok=True)
 
-                print(f"   Creating {models_per_synset} synthetic {synset_name} models...")
+                logger.info("Creating %d synthetic %s models...", models_per_synset, synset_name)
 
                 for i in range(models_per_synset):
                     try:
@@ -414,20 +441,20 @@ class ShapeNetDataset(DatasetProtocol):
                         mesh.export(str(output_file))
                         created_models += 1
 
-                    except Exception as e:
-                        print(f"   Warning: Failed to create model {i} for {synset_name}: {e}")
+                    except (OSError, ValueError, RuntimeError) as e:
+                        logger.warning("Failed to create model %d for %s: %s", i, synset_name, e)
                         continue
 
-                print(f"   ✅ Created {created_models} models for {synset_name}")
+                logger.info("Created %d models for %s", created_models, synset_name)
 
             if created_models == 0:
                 raise RuntimeError("No synthetic models were created")
 
-            print(f"✅ Synthetic data creation complete: {created_models} total models")
+            logger.info("Synthetic data creation complete: %d total models", created_models)
 
-        except Exception as e:
-            print(f"❌ Synthetic data creation failed: {e}")
-            print("Falling back to minimal dataset creation...")
+        except (OSError, RuntimeError, ValueError) as e:
+            logger.error("Synthetic data creation failed: %s", e)
+            logger.info("Falling back to minimal dataset creation...")
             self._create_minimal_dataset()
 
     def _create_synthetic_shape(self, shape_type: str, variant: int) -> trimesh.Trimesh:
@@ -445,7 +472,7 @@ class ShapeNetDataset(DatasetProtocol):
                     tail.apply_translation([1.5 * scale_factor, 0, 0.5])
 
                     mesh = trimesh.util.concatenate([fuselage, wing, tail])
-                except Exception:
+                except (ValueError, RuntimeError, TypeError):
                     # Fallback to simple box
                     mesh = trimesh.creation.box(extents=[2 * scale_factor, 1, 0.5])
 
@@ -457,7 +484,7 @@ class ShapeNetDataset(DatasetProtocol):
                     roof.apply_translation([0, 0, 0.9])
 
                     mesh = trimesh.util.concatenate([body, roof])
-                except Exception:
+                except (ValueError, RuntimeError, TypeError):
                     # Fallback to simple box
                     mesh = trimesh.creation.box(extents=[2 * scale_factor, 1.5, 1])
 
@@ -482,7 +509,7 @@ class ShapeNetDataset(DatasetProtocol):
                         legs.append(leg)
 
                     mesh = trimesh.util.concatenate([seat, backrest, *legs])
-                except Exception:
+                except (ValueError, RuntimeError, TypeError):
                     # Fallback to simple box
                     mesh = trimesh.creation.box(extents=[1 * scale_factor, 1, 1])
 
@@ -496,43 +523,52 @@ class ShapeNetDataset(DatasetProtocol):
                 noise = np.random.normal(0, 0.02 * scale_factor, vertices.shape)
                 vertices += noise
                 mesh.vertices = vertices
-            except Exception:
+            except (ValueError, IndexError, TypeError):
                 # Skip deformation if it fails
                 pass
 
             return mesh
 
-        except Exception as e:
-            print(f"Warning: Failed to create {shape_type} shape (variant {variant}): {e}")
+        except (ValueError, RuntimeError, TypeError, OSError) as e:
+            logger.warning("Failed to create %s shape (variant %d): %s", shape_type, variant, e)
             # Ultimate fallback - simple unit cube
             return trimesh.creation.box(extents=[1, 1, 1])
 
     def _validate_data_structure(self):
         """Validate the acquired data has proper ShapeNet structure."""
         if not self.data_path.exists():
-            print(f"⚠️  Data path does not exist: {self.data_path}")
-            print("Creating data path and generating synthetic data...")
-            # Directory already created by base class
+            if not self.demo_mode:
+                raise RuntimeError(
+                    f"ShapeNetDataset requires benchmark-grade assets at {self.data_path}. "
+                    "Supported benchmark mode no longer creates placeholder geometry on the fly."
+                )
+            logger.warning("Data path does not exist: %s", self.data_path)
+            logger.info("Demo mode enabled; generating retained synthetic data")
             self._create_synthetic_data()
 
         valid_models = self._count_valid_models()
         if valid_models == 0:
-            print(f"⚠️  No valid 3D models found in {self.data_path}")
-            print("Generating synthetic data as fallback...")
+            if not self.demo_mode:
+                raise RuntimeError(
+                    f"ShapeNetDataset found no benchmark-grade 3D models in {self.data_path}. "
+                    "Supported benchmark mode no longer falls back to synthetic or minimal "
+                    "placeholder assets."
+                )
+            logger.warning("No valid 3D models found in %s", self.data_path)
+            logger.info("Demo mode enabled; generating retained synthetic fallback data")
             self._create_synthetic_data()
 
-            # Re-check after synthetic data creation
             valid_models = self._count_valid_models()
             if valid_models == 0:
-                print("❌ Failed to create synthetic data, creating minimal dataset...")
+                logger.error("Failed to create synthetic data, creating minimal dataset...")
                 self._create_minimal_dataset()
                 valid_models = self._count_valid_models()
 
-        print(f"✅ Validated dataset: {valid_models} valid models found")
+        logger.info("Validated dataset: %d valid models found", valid_models)
 
     def _create_minimal_dataset(self):
         """Create minimal dataset as absolute fallback."""
-        print("Creating minimal dataset with basic shapes...")
+        logger.info("Creating minimal dataset with basic shapes...")
 
         synsets = self.config.metadata.get("synsets", ["02691156"])
 
@@ -551,9 +587,9 @@ class ShapeNetDataset(DatasetProtocol):
                 mesh = trimesh.creation.box(extents=[1, 1, 1])
                 obj_file = model_dir / "model.obj"
                 mesh.export(str(obj_file))
-                print(f"   Created minimal model: {obj_file}")
-            except Exception as e:
-                print(f"   Failed to create minimal model: {e}")
+                logger.info("Created minimal model: %s", obj_file)
+            except (OSError, ValueError, RuntimeError) as e:
+                logger.warning("Failed to create minimal model: %s", e)
                 # Create a simple text file as placeholder
                 obj_path = model_dir / "model.obj"
                 # Ensure the file is saved in the test_results directory during tests
@@ -573,13 +609,13 @@ class ShapeNetDataset(DatasetProtocol):
                 try:
                     files = list(self.data_path.rglob(f"*{ext}"))
                     model_files.extend(files)
-                except Exception as e:
-                    print(f"Warning: Error searching for {ext} files: {e}")
+                except OSError as e:
+                    logger.warning("Error searching for %s files: %s", ext, e)
                     continue
 
             return len(model_files)
-        except Exception as e:
-            print(f"Warning: Error counting models: {e}")
+        except OSError as e:
+            logger.warning("Error counting models: %s", e)
             return 0
 
     def _load_dataset(self):
@@ -594,7 +630,7 @@ class ShapeNetDataset(DatasetProtocol):
         self.load_meshes = self.config.metadata.get("load_meshes", False)
 
         # Load data
-        print("Loading ShapeNet data...")
+        logger.info("Loading ShapeNet data...")
         self.data = self._load_shapenet_files()
 
         # Create splits
@@ -612,18 +648,18 @@ class ShapeNetDataset(DatasetProtocol):
         for synset_id in self.synsets:
             synset_dir = self.data_path / synset_id
             if not synset_dir.exists():
-                print(f"Warning: Synset {synset_id} not found")
+                logger.warning("Synset %s not found", synset_id)
                 continue
 
             synset_name = SHAPENET_SYNSETS.get(synset_id, "unknown")
-            print(f"Loading synset {synset_id} ({synset_name})...")
+            logger.info("Loading synset %s (%s)...", synset_id, synset_name)
 
             # Find all model files
             model_files = []
             for ext in [".obj", ".off", ".ply"]:
                 model_files.extend(list(synset_dir.rglob(f"*{ext}")))
 
-            print(f"Found {len(model_files)} models for {synset_name}")
+            logger.info("Found %d models for %s", len(model_files), synset_name)
 
             # Process each model
             for model_file in model_files:
@@ -631,11 +667,11 @@ class ShapeNetDataset(DatasetProtocol):
                     item = self._load_single_model(model_file, synset_id, synset_name)
                     if item is not None:
                         data_items.append(item)
-                except Exception as e:
-                    print(f"Failed to load {model_file}: {e}")
+                except (OSError, ValueError, RuntimeError) as e:
+                    logger.warning("Failed to load %s: %s", model_file, e)
                     continue
 
-        print(f"Successfully loaded {len(data_items)} models")
+        logger.info("Successfully loaded %d models", len(data_items))
         return {"all": data_items}
 
     def _load_single_model(
@@ -681,8 +717,8 @@ class ShapeNetDataset(DatasetProtocol):
 
             return item
 
-        except Exception as e:
-            print(f"Error loading {model_file}: {e}")
+        except (OSError, ValueError, RuntimeError, TypeError) as e:
+            logger.warning("Error loading %s: %s", model_file, e)
             return None
 
     def _upsample_points(self, points: np.ndarray) -> np.ndarray:
@@ -718,10 +754,14 @@ class ShapeNetDataset(DatasetProtocol):
         train_ratio = split_ratios.get("train", 0.8)
         val_ratio = split_ratios.get("val", 0.1)
 
-        # Calculate split sizes
+        # Calculate split sizes, ensuring train gets at least 1 sample
         total_size = len(shuffled_items)
-        train_size = int(total_size * train_ratio)
+        train_size = max(1, int(total_size * train_ratio)) if total_size > 0 else 0
         val_size = int(total_size * val_ratio)
+
+        # Clamp so splits don't exceed total
+        if train_size + val_size > total_size:
+            val_size = max(0, total_size - train_size)
 
         # Create splits
         train_items = shuffled_items[:train_size]
@@ -735,8 +775,11 @@ class ShapeNetDataset(DatasetProtocol):
             "test": self._items_to_arrays(test_items),
         }
 
-        print(
-            f"Data splits: train={len(train_items)}, val={len(val_items)}, test={len(test_items)}"
+        logger.info(
+            "Data splits: train=%d, val=%d, test=%d",
+            len(train_items),
+            len(val_items),
+            len(test_items),
         )
 
     def _items_to_arrays(self, items: list[dict[str, Any]]) -> dict[str, jax.Array]:
@@ -784,6 +827,34 @@ class ShapeNetDataset(DatasetProtocol):
 
             self.data[split]["point_clouds"] = normalized
 
+    def __len__(self) -> int:
+        """Return total number of samples across all splits."""
+        total = 0
+        for split_data in self.data.values():
+            if isinstance(split_data, dict) and "point_clouds" in split_data:
+                total += split_data["point_clouds"].shape[0]
+        return total
+
+    def __getitem__(self, idx: int) -> dict[str, Any]:
+        """Get a single sample by index (across all splits).
+
+        Args:
+            idx: Sample index
+
+        Returns:
+            Dictionary with sample data
+        """
+        offset = 0
+        for split_name, split_data in self.data.items():
+            if not isinstance(split_data, dict) or "point_clouds" not in split_data:
+                continue
+            n = split_data["point_clouds"].shape[0]
+            if idx < offset + n:
+                local_idx = idx - offset
+                return self.get_sample(local_idx, split=split_name)
+            offset += n
+        raise IndexError(f"Index {idx} out of range for dataset of size {offset}")
+
     def get_batch(
         self, batch_size: int | None = None, split: str | None = None
     ) -> dict[str, jax.Array]:
@@ -815,7 +886,7 @@ class ShapeNetDataset(DatasetProtocol):
         return batch
 
     def get_dataset_info(self) -> dict[str, Any]:
-        """Get comprehensive dataset information."""
+        """Get complete dataset information."""
         info = {
             "name": "ShapeNet",
             "data_path": str(self.data_path),
@@ -889,8 +960,6 @@ class GeometricDatasetRegistry:
         dataset_class = cls._datasets[name]
 
         # Enforce unified configuration system - only accept DataConfig
-        from artifex.generative_models.core.configuration import DataConfig
-
         if not isinstance(config, DataConfig):
             raise TypeError(f"config must be DataConfig, got {type(config).__name__}")
 

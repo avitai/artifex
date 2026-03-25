@@ -6,6 +6,7 @@ They define the expected behavior of BaseConfig.
 
 import dataclasses
 from pathlib import Path
+from typing import Any
 
 import pytest
 import yaml
@@ -83,6 +84,27 @@ class TestBaseConfig:
         assert isinstance(config.tags, tuple)
         assert config.tags == ("tag1", "tag2")
         assert config.metadata == {"key": "value"}
+
+    def test_from_dict_returns_exact_subclass_type(self):
+        """from_dict should materialize the requested typed config class."""
+
+        @dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
+        class SpecializedConfig(BaseConfig):
+            learning_rate: float
+            hidden_dims: tuple[int, ...] = ()
+            metadata: dict[str, Any] = dataclasses.field(default_factory=dict)
+
+        config = SpecializedConfig.from_dict(
+            {
+                "name": "specialized",
+                "learning_rate": 1e-3,
+                "hidden_dims": [64, 128],
+            }
+        )
+
+        assert isinstance(config, SpecializedConfig)
+        assert config.learning_rate == pytest.approx(1e-3)
+        assert config.hidden_dims == (64, 128)
 
     def test_from_dict_minimal(self):
         """Test from_dict with minimal required fields."""
@@ -274,22 +296,6 @@ class TestBaseConfigInheritance:
         config = CustomConfig(name="custom")
         assert config.name == "custom"
         assert config.custom_field == "default"
-
-
-class TestBaseConfigCoverage:
-    """Meta-test to ensure we achieve 80%+ coverage."""
-
-    def test_coverage_reminder(self):
-        """Reminder that we need 80%+ coverage for BaseConfig.
-
-        This test serves as documentation that:
-        - All code paths in BaseConfig must be tested
-        - All validation logic must be tested
-        - All error paths must be tested
-        - Both positive and negative cases must be covered
-        """
-        # This test always passes - it's a reminder
-        assert True
 
 
 # Integration test examples

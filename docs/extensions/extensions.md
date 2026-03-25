@@ -1,77 +1,76 @@
 # Extensions
 
-**Module:** `generative_models.extensions.base.extensions`
+**Status:** `Supported runtime extension owner`
 
-**Source:** `generative_models/extensions/base/extensions.py`
+**Module:** `artifex.generative_models.extensions.base.extensions`
 
-## Overview
+**Source:** `src/artifex/generative_models/extensions/base/extensions.py`
 
-Base classes for model extensions.
+Shared base classes for attaching domain-specific behavior to otherwise
+modality-agnostic generative models.
 
-This module provides the core extension interfaces used across different
-domains to enable extension of model functionality without modifying core
-implementations.
+## Top-Level Module Exports
 
-## Classes
+- `Extension`
+- `ModelExtension`
+- `ConstraintExtension`
+- `AugmentationExtension`
+- `SamplingExtension`
+- `LossExtension`
+- `EvaluationExtension`
+- `CallbackExtension`
+- `ModalityExtension`
+- `ExtensionDict`
 
-### ConstraintExtension
+## Imported Config Types
 
-```python
-class ConstraintExtension
-```
+Imported config types remain owned by `artifex.generative_models.core.configuration`.
 
-### ExtensionConfig
+## Class APIs
 
-```python
-class ExtensionConfig
-```
+### `Extension`
 
-### ModelExtension
+- `is_enabled()`
 
-```python
-class ModelExtension
-```
+### `ModelExtension`
 
-## Functions
+- `loss_fn()`
 
-### **call**
+### `ConstraintExtension`
 
-```python
-def __call__()
-```
+- `validate()`
+- `project()`
 
-### **init**
+### `AugmentationExtension`
 
-```python
-def __init__()
-```
+- `augment()`
 
-### is_enabled
+### `SamplingExtension`
 
-```python
-def is_enabled()
-```
+- `modify_score()`
+- `filter_samples()`
 
-### loss_fn
+### `LossExtension`
 
-```python
-def loss_fn()
-```
+- `compute_loss()`
+- `get_weight_at_step()`
 
-### project
+### `EvaluationExtension`
 
-```python
-def project()
-```
+- `compute_metrics()`
 
-### validate
+### `CallbackExtension`
 
-```python
-def validate()
-```
+- `on_train_begin()`
+- `on_epoch_end()`
+- `on_batch_end()`
 
-## Module Statistics
+### `ModalityExtension`
 
-- **Classes:** 3
-- **Functions:** 6
-- **Imports:** 5
+- `preprocess()`
+- `postprocess()`
+- `get_input_spec()`
+
+### `ExtensionDict`
+
+- `__contains__()`

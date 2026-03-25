@@ -1,34 +1,55 @@
 """Utilities for loading and processing configuration files."""
 
-import os
 from pathlib import Path
-from typing import Any, Type
+from typing import Any, TypeVar
 
 import yaml
-from pydantic import ValidationError
 
-from artifex.configs.schema import (
-    BaseConfig,
-    DataConfig,
-    ExperimentConfig,
-    InferenceConfig,
-    TrainingConfig,
-)
 from artifex.configs.utils.error_handling import (
     ConfigNotFoundError,
-    ConfigValidationError,
     safe_load_config,
 )
+from artifex.generative_models.core.configuration import (
+    DataConfig,
+    DiffusionInferenceConfig,
+    ExperimentTemplateConfig,
+    InferenceConfig,
+    ProteinDiffusionInferenceConfig,
+    ProteinExtensionsConfig,
+    TrainingConfig,
+)
+from artifex.generative_models.core.configuration.base_dataclass import ConfigDocument
 
 
 # Define paths
 DEFAULT_CONFIG_DIR = Path(__file__).parent.parent / "defaults"
 EXPERIMENT_CONFIG_DIR = Path(__file__).parent.parent / "experiments"
+_DIFFUSION_INFERENCE_FIELDS = frozenset(
+    {
+        "sampler",
+        "timesteps",
+        "temperature",
+        "sample_with_classifier_guidance",
+        "guidance_scale",
+        "save_intermediate_steps",
+        "intermediate_step_interval",
+        "seed",
+    }
+)
+_PROTEIN_INFERENCE_FIELDS = frozenset(
+    {
+        "target_seq_length",
+        "backbone_atom_indices",
+        "calculate_metrics",
+        "visualize_structures",
+        "save_as_pdb",
+    }
+)
+TConfigDocument = TypeVar("TConfigDocument", bound=ConfigDocument)
 
 
 def get_config_path(config_name: str, config_type: str | None = None) -> Path:
-    """
-    Get the full path to a configuration file.
+    """Get the full path to a configuration file.
 
     Args:
         config_name: Name of the configuration file or relative path
@@ -40,24 +61,21 @@ def get_config_path(config_name: str, config_type: str | None = None) -> Path:
     Raises:
         ConfigNotFoundError: If the configuration file cannot be found
     """
-    search_paths = []
+    search_paths: list[str] = []
 
-    if os.path.isabs(config_name):
+    if Path(config_name).is_absolute():
         path = Path(config_name)
         if path.exists():
             return path
         search_paths.append(str(path))
     else:
-        # Try with file extension
         if config_name.endswith(".yaml") or config_name.endswith(".yml"):
             if config_type:
-                # Look in the specific type directory
                 path = DEFAULT_CONFIG_DIR / config_type / config_name
                 search_paths.append(str(path))
                 if path.exists():
                     return path
 
-            # Look in defaults directory
             if config_type:
                 path = DEFAULT_CONFIG_DIR / config_type / config_name
             else:
@@ -66,26 +84,22 @@ def get_config_path(config_name: str, config_type: str | None = None) -> Path:
             if path.exists():
                 return path
 
-            # Try as path relative to experiments directory
             path = EXPERIMENT_CONFIG_DIR / config_name
             search_paths.append(str(path))
             if path.exists():
                 return path
 
-        # Try without file extension
         if config_type:
             path = DEFAULT_CONFIG_DIR / config_type / f"{config_name}.yaml"
             search_paths.append(str(path))
             if path.exists():
                 return path
 
-        # Look in defaults directory
         path = DEFAULT_CONFIG_DIR / f"{config_name}.yaml"
         search_paths.append(str(path))
         if path.exists():
             return path
 
-        # Try as path relative to experiments directory
         path = EXPERIMENT_CONFIG_DIR / f"{config_name}.yaml"
         search_paths.append(str(path))
         if path.exists():
@@ -95,8 +109,7 @@ def get_config_path(config_name: str, config_type: str | None = None) -> Path:
 
 
 def load_yaml_config(config_path: str | Path) -> dict[str, Any]:
-    """
-    Load a YAML configuration file with error handling.
+    """Load a YAML configuration file with error handling.
 
     Args:
         config_path: Path to the configuration file
@@ -109,71 +122,35 @@ def load_yaml_config(config_path: str | Path) -> dict[str, Any]:
     """
 
     def _load_yaml(path: str | Path) -> dict[str, Any]:
-        with open(path, "r", encoding="utf-8") as f:
-            return yaml.safe_load(f)
+        with open(path, encoding="utf-8") as f:
+            payload = yaml.safe_load(f)
+        if payload is None:
+            raise ValueError("configuration file is empty")
+        if not isinstance(payload, dict):
+            raise ValueError(
+                f"configuration file must contain a YAML mapping, got {type(payload).__name__}"
+            )
+        return payload
 
     return safe_load_config(_load_yaml, config_path)
 
 
-def create_config_from_yaml(config_path: str | Path, config_class: Type[BaseConfig]) -> BaseConfig:
-    """
-    Create a configuration object from a YAML file with error handling.
+def _load_typed_config_document(
+    config_path: str | Path,
+    config_dict: dict[str, Any],
+    config_class: type[TConfigDocument],
+) -> TConfigDocument:
+    """Materialize a typed config document behind the canonical loader boundary."""
 
-    Args:
-        config_path: Path to the configuration file
-        config_class: Configuration class to instantiate
+    def _build_typed_config(path: str | Path) -> TConfigDocument:
+        del path
+        return config_class.from_dict(config_dict)
 
-    Returns:
-        Configuration object
-
-    Raises:
-        ConfigError: If the configuration cannot be loaded or is invalid
-    """
-    try:
-        config_dict = load_yaml_config(config_path)
-        return config_class(**config_dict)
-    except ValidationError as e:
-        # We don't use config_type here, but keep for clarity
-        raise ConfigValidationError(config_path, e) from e
-
-
-def get_model_config(config_name: str, model_type: str = "diffusion") -> dict[str, Any]:
-    """
-    Get a model configuration with error handling.
-
-    Note: Model-specific config classes have been moved to the unified configuration system.
-    This function now returns a dictionary that can be used to create a ModelConfiguration.
-
-    Args:
-        config_name: Name of the model configuration file
-        model_type: Type of model (diffusion, autoregressive, etc.)
-
-    Returns:
-        Model configuration dictionary
-
-    Raises:
-        ConfigError: If the configuration cannot be loaded or is invalid
-    """
-    try:
-        config_path = get_config_path(config_name, f"models/{model_type}")
-        config_dict = load_yaml_config(config_path)
-
-        # Return the raw config dict
-        # Users should create ModelConfiguration from artifex.generative_models.core.configuration
-        return config_dict
-    except Exception as e:
-        # Use the config name as the path if actual path isn't available
-        path = config_name
-        try:
-            path = get_config_path(config_name, f"models/{model_type}")
-        except Exception:
-            pass
-        raise ConfigValidationError(path, e) from e
+    return safe_load_config(_build_typed_config, config_path)
 
 
 def get_data_config(config_name: str) -> DataConfig:
-    """
-    Get a data configuration with error handling.
+    """Get a data configuration with error handling.
 
     Args:
         config_name: Name of the data configuration file
@@ -184,23 +161,13 @@ def get_data_config(config_name: str) -> DataConfig:
     Raises:
         ConfigError: If the configuration cannot be loaded or is invalid
     """
-    try:
-        config_path = get_config_path(config_name, "data")
-        config_dict = load_yaml_config(config_path)
-        return DataConfig(**config_dict)
-    except ValidationError as e:
-        # Use the config name as the path if actual path isn't available
-        path = config_name
-        try:
-            path = get_config_path(config_name, "data")
-        except Exception:
-            pass
-        raise ConfigValidationError(path, e) from e
+    config_path = get_config_path(config_name, "data")
+    config_dict = load_yaml_config(config_path)
+    return _load_typed_config_document(config_path, config_dict, DataConfig)
 
 
 def get_training_config(config_name: str) -> TrainingConfig:
-    """
-    Get a training configuration with error handling.
+    """Get a training configuration with error handling.
 
     Args:
         config_name: Name of the training configuration file
@@ -211,23 +178,13 @@ def get_training_config(config_name: str) -> TrainingConfig:
     Raises:
         ConfigError: If the configuration cannot be loaded or is invalid
     """
-    try:
-        config_path = get_config_path(config_name, "training")
-        config_dict = load_yaml_config(config_path)
-        return TrainingConfig(**config_dict)
-    except ValidationError as e:
-        # Use the config name as the path if actual path isn't available
-        path = config_name
-        try:
-            path = get_config_path(config_name, "training")
-        except Exception:
-            pass
-        raise ConfigValidationError(path, e) from e
+    config_path = get_config_path(config_name, "training")
+    config_dict = load_yaml_config(config_path)
+    return _load_typed_config_document(config_path, config_dict, TrainingConfig)
 
 
 def get_inference_config(config_name: str) -> InferenceConfig:
-    """
-    Get an inference configuration with error handling.
+    """Get an inference configuration with error handling.
 
     Args:
         config_name: Name of the inference configuration file
@@ -238,113 +195,57 @@ def get_inference_config(config_name: str) -> InferenceConfig:
     Raises:
         ConfigError: If the configuration cannot be loaded or is invalid
     """
-    try:
-        config_path = get_config_path(config_name, "inference")
-        config_dict = load_yaml_config(config_path)
-        return InferenceConfig(**config_dict)
-    except ValidationError as e:
-        # Use the config name as the path if actual path isn't available
-        path = config_name
-        try:
-            path = get_config_path(config_name, "inference")
-        except Exception:
-            pass
-        raise ConfigValidationError(path, e) from e
+    config_path = get_config_path(config_name, "inference")
+    config_dict = load_yaml_config(config_path)
+    config_class = _select_inference_config_class(config_dict)
+    return _load_typed_config_document(config_path, config_dict, config_class)
 
 
-def load_experiment_config(experiment_name: str, base_path: str | None = None) -> dict[str, Any]:
-    """Load experiment configuration from a file.
-
-    This function loads an experiment configuration from a YAML file based on the
-    experiment name and validates it against the expected schema.
+def get_protein_extensions_config(config_name: str = "protein") -> ProteinExtensionsConfig:
+    """Get a typed protein extension bundle from the shipped extension defaults.
 
     Args:
-        experiment_name: Name of the experiment
-        base_path: Base path to look for experiment configs
+        config_name: Name of the protein extension bundle under ``defaults/extensions``.
 
     Returns:
-        The loaded and validated experiment configuration
+        Typed protein extension bundle.
 
     Raises:
-        ConfigNotFoundError: If the experiment config file is not found
-        ConfigLoadError: If there's an error loading the config
-        ConfigValidationError: If the config fails validation
+        ConfigError: If the configuration cannot be loaded or is invalid.
     """
-    # Load the experiment configuration file
-    try:
-        experiment_path = get_config_path(experiment_name, "experiments")
-        experiment_dict = load_yaml_config(experiment_path)
-        experiment_config = ExperimentConfig(**experiment_dict)
+    config_path = get_config_path(config_name, "extensions")
+    config_dict = load_yaml_config(config_path)
+    return _load_typed_config_document(config_path, config_dict, ProteinExtensionsConfig)
 
-        # Load individual configurations with descriptive error context
-        configs = {}
 
-        # Load model config
-        try:
-            # Attempt to load the config file
-            config_path = get_config_path(experiment_config.model_config_ref, "models")
-            _ = load_yaml_config(config_path)  # Validate config file exists
-            configs["model"] = get_model_config(experiment_config.model_config_ref)
-        except Exception as e:
-            ref_context = f" (referenced from experiment '{experiment_name}')"
-            raise type(e)(str(e) + ref_context) from e
+def load_experiment_config(experiment_name: str) -> ExperimentTemplateConfig:
+    """Load a retained experiment template as a typed reference config.
 
-        # Load data config
-        try:
-            # Attempt to load the config file
-            config_path = get_config_path(experiment_config.data_config, "data")
-            _ = load_yaml_config(config_path)  # Validate config file exists
-            configs["data"] = get_data_config(experiment_config.data_config)
-        except Exception as e:
-            ref_context = f" (referenced from experiment '{experiment_name}')"
-            raise type(e)(str(e) + ref_context) from e
+    The shipped experiment YAMLs under ``src/artifex/configs/experiments`` are
+    reference templates. They point at other config files and carry optional
+    override mappings; they are not direct ``ExperimentConfig`` payloads.
 
-        # Load training config
-        try:
-            # Attempt to load the config file
-            config_path = get_config_path(experiment_config.training_config, "training")
-            _ = load_yaml_config(config_path)  # Validate config file exists
-            configs["training"] = get_training_config(experiment_config.training_config)
-        except Exception as e:
-            ref_context = f" (referenced from experiment '{experiment_name}')"
-            raise type(e)(str(e) + ref_context) from e
+    Args:
+        experiment_name: Name of the experiment template
 
-        # Load inference config if specified
-        configs["inference"] = None
-        if experiment_config.inference_config:
-            try:
-                # Attempt to load the config file
-                config_path = get_config_path(experiment_config.inference_config, "inference")
-                _ = load_yaml_config(config_path)  # Validate config file exists
-                configs["inference"] = get_inference_config(experiment_config.inference_config)
-            except Exception as e:
-                ref_context = f" (referenced from experiment '{experiment_name}')"
-                raise type(e)(str(e) + ref_context) from e
+    Returns:
+        Typed experiment template config
+    """
+    experiment_path = get_config_path(experiment_name, "experiments")
+    experiment_dict = load_yaml_config(experiment_path)
+    return _load_typed_config_document(
+        experiment_path,
+        experiment_dict,
+        ExperimentTemplateConfig,
+    )
 
-        # Apply overrides from experiment configuration
-        overrides = experiment_dict.get("overrides", {})
 
-        if "model" in overrides and configs["model"]:
-            configs["model"].update(overrides["model"])
+def _select_inference_config_class(config_dict: dict[str, Any]) -> type[InferenceConfig]:
+    """Choose the narrowest supported inference config class for a raw payload."""
+    payload_keys = frozenset(config_dict)
 
-        if "data" in overrides and configs["data"]:
-            configs["data"].update(overrides["data"])
-
-        if "training" in overrides and configs["training"]:
-            configs["training"].update(overrides["training"])
-
-        if configs["inference"] and "inference" in overrides:
-            configs["inference"].update(overrides["inference"])
-
-        # Add experiment config to the returned dictionary
-        configs["experiment"] = experiment_config
-
-        return configs
-    except ValidationError as e:
-        # Use the config name as the path if actual path isn't available
-        path = experiment_name
-        try:
-            path = get_config_path(experiment_name, "experiments")
-        except Exception:
-            pass
-        raise ConfigValidationError(path, e) from e
+    if payload_keys & _PROTEIN_INFERENCE_FIELDS:
+        return ProteinDiffusionInferenceConfig
+    if payload_keys & _DIFFUSION_INFERENCE_FIELDS:
+        return DiffusionInferenceConfig
+    return InferenceConfig

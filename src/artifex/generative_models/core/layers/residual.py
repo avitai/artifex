@@ -5,7 +5,7 @@ across different model architectures, supporting both 1D and 2D convolutions.
 """
 
 from abc import ABC, abstractmethod
-from typing import Callable
+from collections.abc import Callable
 
 import jax
 import jax.numpy as jnp
@@ -139,7 +139,7 @@ class Conv1DResidualBlock(BaseResidualBlock):
         if self.use_gated_activation:
             # Gated activation: tanh(conv1(x)) * sigmoid(conv2(x))
             tanh_out = jnp.tanh(self.tanh_conv(x))
-            sigmoid_out = jax.nn.sigmoid(self.sigmoid_conv(x))
+            sigmoid_out = nnx.sigmoid(self.sigmoid_conv(x))
             activated = tanh_out * sigmoid_out
         else:
             # Standard ReLU activation
@@ -158,16 +158,12 @@ class Conv1DResidualBlock(BaseResidualBlock):
 
 
 class Conv2DResidualBlock(BaseResidualBlock):
-    """Residual block with 2D convolutions for image models like PixelCNN.
-
-    Supports masked convolutions for maintaining autoregressive property in 2D.
-    """
+    """Residual block with 2D convolutions for image models."""
 
     def __init__(
         self,
         channels: int,
         kernel_size: int | tuple[int, int] = 3,
-        mask_type: str | None = None,
         activation: Callable = nnx.relu,
         *,
         rngs: nnx.Rngs,
@@ -177,7 +173,6 @@ class Conv2DResidualBlock(BaseResidualBlock):
         Args:
             channels: Number of channels
             kernel_size: Convolution kernel size
-            mask_type: Type of mask for masked convolutions ("A", "B", or None)
             activation: Activation function
             rngs: Random number generators
         """
@@ -187,44 +182,21 @@ class Conv2DResidualBlock(BaseResidualBlock):
             kernel_size = (kernel_size, kernel_size)
 
         self.kernel_size = kernel_size
-        self.mask_type = mask_type
         self.activation = activation
-
-        if mask_type is not None:
-            # Use masked convolutions (implementation would need MaskedConv2D)
-            # For now, use regular convolutions as placeholder
-            self.conv1 = nnx.Conv(
-                in_features=channels,
-                out_features=channels,
-                kernel_size=kernel_size,
-                padding="SAME",
-                rngs=rngs,
-            )
-
-            self.conv2 = nnx.Conv(
-                in_features=channels,
-                out_features=channels,
-                kernel_size=kernel_size,
-                padding="SAME",
-                rngs=rngs,
-            )
-        else:
-            # Standard 2D convolutions
-            self.conv1 = nnx.Conv(
-                in_features=channels,
-                out_features=channels,
-                kernel_size=kernel_size,
-                padding="SAME",
-                rngs=rngs,
-            )
-
-            self.conv2 = nnx.Conv(
-                in_features=channels,
-                out_features=channels,
-                kernel_size=kernel_size,
-                padding="SAME",
-                rngs=rngs,
-            )
+        self.conv1 = nnx.Conv(
+            in_features=channels,
+            out_features=channels,
+            kernel_size=kernel_size,
+            padding="SAME",
+            rngs=rngs,
+        )
+        self.conv2 = nnx.Conv(
+            in_features=channels,
+            out_features=channels,
+            kernel_size=kernel_size,
+            padding="SAME",
+            rngs=rngs,
+        )
 
     def __call__(self, x: jax.Array, **kwargs) -> jax.Array:
         """Apply 2D residual block.
@@ -237,47 +209,10 @@ class Conv2DResidualBlock(BaseResidualBlock):
             Output tensor with residual connection
         """
         residual = x
-
-        # First convolution + activation
         x = self.conv1(x)
         x = self.activation(x)
-
-        # Second convolution
         x = self.conv2(x)
-
-        # Residual connection
         return x + residual
-
-
-class MaskedConv2DResidualBlock(Conv2DResidualBlock):
-    """Residual block with masked 2D convolutions for PixelCNN.
-
-    This requires the MaskedConv2D layer to be properly implemented.
-    For now, this is a placeholder that inherits from Conv2DResidualBlock.
-    """
-
-    def __init__(
-        self,
-        channels: int,
-        kernel_size: int | tuple[int, int] = 3,
-        mask_type: str = "B",
-        *,
-        rngs: nnx.Rngs,
-    ):
-        """Initialize masked 2D residual block.
-
-        Args:
-            channels: Number of channels
-            kernel_size: Convolution kernel size
-            mask_type: Type of mask ("A" or "B")
-            rngs: Random number generators
-        """
-        super().__init__(
-            channels=channels,
-            kernel_size=kernel_size,
-            mask_type=mask_type,
-            rngs=rngs,
-        )
 
 
 # Factory function for creating appropriate residual blocks
@@ -285,7 +220,7 @@ def create_residual_block(block_type: str, **kwargs) -> BaseResidualBlock:
     """Factory function for creating residual blocks.
 
     Args:
-        block_type: Type of block ("conv1d", "conv2d", "masked_conv2d")
+        block_type: Type of block ("conv1d" or "conv2d")
         **kwargs: Arguments passed to the block constructor
 
     Returns:
@@ -298,13 +233,10 @@ def create_residual_block(block_type: str, **kwargs) -> BaseResidualBlock:
         return Conv1DResidualBlock(**kwargs)
     elif block_type == "conv2d":
         return Conv2DResidualBlock(**kwargs)
-    elif block_type == "masked_conv2d":
-        return MaskedConv2DResidualBlock(**kwargs)
     else:
         raise ValueError(f"Unknown block type: {block_type}")
 
 
-# Backward compatibility aliases
-ResidualBlock = Conv2DResidualBlock  # Default to 2D for backward compatibility
+# Residual block aliases
+ResidualBlock = Conv2DResidualBlock
 WaveNetResidualBlock = Conv1DResidualBlock
-PixelCNNResidualBlock = MaskedConv2DResidualBlock

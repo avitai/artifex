@@ -1,6 +1,6 @@
 """Tests for StyleGAN3 Benchmark Suite.
 
-This module provides comprehensive tests for the StyleGAN3 implementation,
+This module provides complete tests for the StyleGAN3 implementation,
 including model architecture, datasets, metrics, and benchmark orchestration.
 
 Key Test Areas:
@@ -19,11 +19,10 @@ import jax.numpy as jnp
 import pytest
 
 from artifex.benchmarks.datasets.ffhq import CelebADataset, FFHQDataset
+from artifex.benchmarks.metrics.image import FIDMetric, LPIPSMetric
 from artifex.benchmarks.metrics.style_metrics import (
     EquivarianceMetric,
     FewShotAdaptationMetric,
-    FIDMetric,
-    LPIPSMetric,
     StyleGANMetrics,
     StyleMixingMetric,
 )
@@ -33,6 +32,7 @@ from artifex.benchmarks.suites.stylegan3_suite import (
     StyleGAN3BenchmarkConfig,
     StyleGAN3Suite,
 )
+from artifex.generative_models.core.configuration import EvaluationConfig
 from artifex.generative_models.core.configuration.network_configs import (
     StyleGAN3DiscriminatorConfig,
     StyleGAN3GeneratorConfig,
@@ -45,6 +45,38 @@ from artifex.generative_models.models.gan.stylegan3 import (
     SynthesisBlock,
     SynthesisNetwork,
 )
+
+
+def _metric_config(name: str, *, higher_is_better: bool = True) -> EvaluationConfig:
+    """Create a minimal EvaluationConfig for a style metric test."""
+    metric_params: dict[str, object] = {"higher_is_better": higher_is_better, "demo_mode": True}
+    if name == "fid":
+        metric_params = {
+            "fid": {"higher_is_better": higher_is_better, "mock_inception": True, "demo_mode": True}
+        }
+    elif name == "lpips":
+        metric_params = {
+            "lpips": {
+                "higher_is_better": higher_is_better,
+                "mock_implementation": True,
+                "demo_mode": True,
+            }
+        }
+    elif name == "inception_score":
+        metric_params = {
+            "inception_score": {
+                "higher_is_better": higher_is_better,
+                "mock_inception": True,
+                "demo_mode": True,
+            }
+        }
+    return EvaluationConfig(
+        name=name,
+        metrics=[name],
+        metric_params=metric_params,
+        eval_batch_size=4,
+        metadata={"demo_mode": True},
+    )
 
 
 def create_stylegan3_generator(
@@ -215,7 +247,9 @@ class TestStyleGANDatasets:
 
     def test_ffhq_dataset_initialization(self, rngs):
         """Test FFHQDataset initialization."""
-        dataset = FFHQDataset(image_size=256, channels=3, num_samples=1000, rngs=rngs)
+        dataset = FFHQDataset(
+            image_size=256, channels=3, num_samples=1000, demo_mode=True, rngs=rngs
+        )
 
         assert dataset.image_size == 256
         assert dataset.channels == 3
@@ -223,7 +257,9 @@ class TestStyleGANDatasets:
 
     def test_ffhq_dataset_batching(self, rngs):
         """Test FFHQDataset batch generation."""
-        dataset = FFHQDataset(image_size=128, channels=3, num_samples=100, split="train", rngs=rngs)
+        dataset = FFHQDataset(
+            image_size=128, channels=3, num_samples=100, split="train", demo_mode=True, rngs=rngs
+        )
 
         batch_size = 8
         batches = list(dataset(batch_size))
@@ -244,7 +280,7 @@ class TestStyleGANDatasets:
 
     def test_ffhq_few_shot_batch(self, rngs):
         """Test FFHQ few-shot batch generation."""
-        dataset = FFHQDataset(image_size=128, num_samples=1000, rngs=rngs)
+        dataset = FFHQDataset(image_size=128, num_samples=1000, demo_mode=True, rngs=rngs)
 
         few_shot_batch = dataset.get_few_shot_batch(num_samples=50)
 
@@ -277,7 +313,7 @@ class TestStyleGANMetrics:
 
     def test_fid_metric(self, rngs):
         """Test FID metric computation."""
-        fid_metric = FIDMetric(rngs=rngs)
+        fid_metric = FIDMetric(rngs=rngs, config=_metric_config("fid", higher_is_better=False))
 
         batch_size = 16
         real_images = jax.random.normal(rngs.sample(), (batch_size, 64, 64, 3))
@@ -299,7 +335,9 @@ class TestStyleGANMetrics:
 
     def test_lpips_metric(self, rngs):
         """Test LPIPS perceptual distance metric."""
-        lpips_metric = LPIPSMetric(rngs=rngs)
+        lpips_metric = LPIPSMetric(
+            rngs=rngs, config=_metric_config("lpips", higher_is_better=False)
+        )
 
         batch_size = 4
         images1 = jax.random.normal(rngs.sample(), (batch_size, 64, 64, 3))
@@ -319,7 +357,7 @@ class TestStyleGANMetrics:
             rngs=rngs,
         )
 
-        style_metric = StyleMixingMetric(rngs=rngs)
+        style_metric = StyleMixingMetric(rngs=rngs, config=_metric_config("style_mixing"))
 
         results = style_metric.compute_style_mixing_quality(
             generator,
@@ -346,7 +384,7 @@ class TestStyleGANMetrics:
             latent_dim=512, style_dim=512, img_resolution=64, rngs=rngs
         )
 
-        equivariance_metric = EquivarianceMetric(rngs=rngs)
+        equivariance_metric = EquivarianceMetric(rngs=rngs, config=_metric_config("equivariance"))
 
         results = equivariance_metric.evaluate_equivariance(generator, num_samples=16, rngs=rngs)
 
@@ -377,7 +415,7 @@ class TestStyleGANMetrics:
         # Create target dataset
         target_dataset = CelebADataset(image_size=64, num_samples=200, rngs=rngs)
 
-        adaptation_metric = FewShotAdaptationMetric(rngs=rngs)
+        adaptation_metric = FewShotAdaptationMetric(rngs=rngs, config=_metric_config("few_shot"))
 
         results = adaptation_metric.evaluate_adaptation(
             original_generator=original_generator,
@@ -394,13 +432,21 @@ class TestStyleGANMetrics:
         assert "adaptation_success" in results
         assert "num_samples" in results
 
-    def test_comprehensive_metrics(self, rngs):
-        """Test comprehensive StyleGAN metrics suite."""
+    def test_complete_metrics(self, rngs):
+        """Test complete StyleGAN metrics suite."""
         generator = create_stylegan3_generator(
             latent_dim=512, style_dim=512, img_resolution=64, rngs=rngs
         )
 
-        metrics = StyleGANMetrics(rngs=rngs)
+        from artifex.generative_models.core.configuration import EvaluationConfig
+
+        _cfg = EvaluationConfig(
+            name="stylegan3_test",
+            metrics=["fid"],
+            metric_params={"demo_mode": True, "higher_is_better": False},
+            eval_batch_size=4,
+        )
+        metrics = StyleGANMetrics(rngs=rngs, config=_cfg)
 
         # Generate test data
         batch_size = 16
@@ -434,7 +480,11 @@ class TestStyleGAN3Benchmark:
     def test_benchmark_config(self):
         """Test StyleGAN3BenchmarkConfig."""
         config = StyleGAN3BenchmarkConfig(
-            model_name="test_stylegan3", image_size=128, batch_size=8, fid_target=30.0
+            model_name="test_stylegan3",
+            image_size=128,
+            batch_size=8,
+            fid_target=30.0,
+            demo_mode=True,
         )
 
         assert config.name == "test_stylegan3"
@@ -445,7 +495,11 @@ class TestStyleGAN3Benchmark:
     def test_benchmark_initialization(self, rngs):
         """Test StyleGAN3Benchmark initialization."""
         config = StyleGAN3BenchmarkConfig(
-            model_name="test_stylegan3", image_size=64, batch_size=4, num_evaluation_samples=100
+            model_name="test_stylegan3",
+            image_size=64,
+            batch_size=4,
+            num_evaluation_samples=100,
+            demo_mode=True,
         )
 
         benchmark = StyleGAN3Benchmark(config, rngs=rngs)
@@ -457,7 +511,7 @@ class TestStyleGAN3Benchmark:
 
     def test_benchmark_model_setup(self, rngs):
         """Test benchmark model setup."""
-        config = StyleGAN3BenchmarkConfig(image_size=64, batch_size=4)
+        config = StyleGAN3BenchmarkConfig(image_size=64, batch_size=4, demo_mode=True)
         benchmark = StyleGAN3Benchmark(config, rngs=rngs)
 
         # Test single generator setup
@@ -484,6 +538,7 @@ class TestStyleGAN3Benchmark:
         config = StyleGAN3BenchmarkConfig(
             image_size=64,
             batch_size=4,
+            demo_mode=True,
             num_evaluation_samples=32,  # Small for testing
             fid_target=100.0,  # Relaxed for testing
         )
@@ -495,9 +550,10 @@ class TestStyleGAN3Benchmark:
 
         # Check result structure
         assert result.model_name == config.name
-        assert result.dataset_name == "FFHQ"
+        assert result.metadata["dataset_name"] == "FFHQ"
+        assert result.metadata["config"]["image_size"] == config.image_size
+        assert result.metadata["config"]["model_name"] == config.model_name
         assert result.metrics is not None
-        assert result.config is not None
         assert result.metadata is not None
 
         # Check that key metrics are present
@@ -518,6 +574,26 @@ class TestStyleGAN3Benchmark:
 
         for metric in expected_metrics:
             assert metric in metrics
+
+    def test_benchmark_result_metadata_serializes_typed_config(self, rngs):
+        """Benchmark metadata should serialize the typed config without __dict__ access."""
+        config = StyleGAN3BenchmarkConfig(
+            image_size=64,
+            batch_size=4,
+            demo_mode=True,
+            num_evaluation_samples=8,
+        )
+
+        benchmark = StyleGAN3Benchmark(config, rngs=rngs)
+        benchmark.run_training = lambda: {"train_metric": 1.0}
+        benchmark.run_evaluation = lambda: {"eval_metric": 2.0}
+
+        result = benchmark.run_benchmark()
+
+        assert result.metadata["config"]["image_size"] == config.image_size
+        assert result.metadata["config"]["model_name"] == config.model_name
+        assert result.metrics["train_metric"] == 1.0
+        assert result.metrics["eval_metric"] == 2.0
 
     def test_benchmark_suite(self, rngs):
         """Test StyleGAN3Suite functionality."""
@@ -649,7 +725,8 @@ class TestStyleGANIntegration:
             latent_dim=512, style_dim=512, img_resolution=64, rngs=rngs
         )
 
-        metrics = StyleGANMetrics(rngs=rngs)
+        _cfg = _metric_config("fid", higher_is_better=False)
+        metrics = StyleGANMetrics(rngs=rngs, config=_cfg)
 
         # Generate fixed test data
         test_key = jax.random.key(123)
@@ -681,24 +758,3 @@ class TestStyleGANIntegration:
         # Style mixing might vary due to random sampling, but should be similar
         style_diff = abs(result1["style_mixing_quality"] - result2["style_mixing_quality"])
         assert style_diff < 0.1  # Allow some variance due to sampling
-
-
-if __name__ == "__main__":
-    # Run basic smoke test
-    test_rngs = nnx.Rngs(42)
-
-    # Test generator creation
-    generator = create_stylegan3_generator(
-        latent_dim=512, style_dim=512, img_resolution=64, rngs=test_rngs
-    )
-
-    # Test image generation
-    images = generator.sample(num_samples=2, rngs=test_rngs)
-    print(f"✅ Generated images with shape: {images.shape}")
-
-    # Test benchmark demo
-    demo_results = create_stylegan3_demo()
-    print("✅ Demo completed successfully")
-    print(f"   Sample images shape: {demo_results['sample_images'].shape}")
-
-    print("✅ All smoke tests passed!")

@@ -1,11 +1,12 @@
-"""Adapters for protein models.
+"""Adapters for protein modality helpers.
 
-This module provides adapters that adapt generative models to work with
-protein structure data.
+These adapters provide protein-specific input handling and explicit helper
+entrypoints around the shared factory/runtime surface. They do not
+automatically replace the generic model family chosen by the typed config.
 """
 
 import dataclasses
-from typing import Any, Type
+from typing import Any
 
 import jax.numpy as jnp
 from flax import nnx
@@ -65,16 +66,16 @@ class ProteinAdapterConfig:
 
 
 class ProteinModelAdapter(ModelAdapter):
-    """Base adapter for protein models.
+    """Base adapter for protein modality helpers.
 
-    This adapter provides common functionality for adapting generative models
-    to work with protein structure data.
+    This adapter exposes the retained protein helper boundary around shared
+    model families without changing the model class selected by the factory.
     """
 
     def __init__(
         self,
         config: ProteinAdapterConfig | None = None,
-        model_cls: Type[GenerativeModelProtocol] | None = None,
+        model_cls: type[object] | None = None,
     ) -> None:
         """Initialize the protein model adapter.
 
@@ -97,8 +98,8 @@ class ProteinModelAdapter(ModelAdapter):
         Returns:
             The adapted model (currently returns model unchanged)
         """
-        # For now, protein models don't need special adaptation
-        # as they are created specifically for protein data
+        # The retained protein modality boundary currently keeps the
+        # factory-selected model instance unchanged.
         return model
 
     def adapt_inputs(self, inputs: ProteinData) -> ProteinData:
@@ -120,50 +121,19 @@ class ProteinModelAdapter(ModelAdapter):
         rngs: nnx.Rngs,
         **kwargs: Any,
     ) -> GenerativeModelProtocol:
-        """Create a protein model.
+        """Create a model through the shared factory protein boundary.
 
         Args:
-            config: Model configuration (dataclass config)
+            config: Typed model configuration.
             rngs: Random number generator keys.
             **kwargs: Additional keyword arguments.
 
         Returns:
-            A generative model for proteins.
-
-        Raises:
-            TypeError: If config is not a dataclass
+            The generic model family selected by the typed config.
         """
-        # Import model classes here to avoid circular imports
-        from artifex.generative_models.models.geometric.protein_graph import ProteinGraphModel
-        from artifex.generative_models.models.geometric.protein_point_cloud import (
-            ProteinPointCloudModel,
-        )
+        from artifex.generative_models.factory import create_model
 
-        # Determine model type from adapter config or config parameter
-        if isinstance(config, ProteinAdapterConfig):
-            model_type = config.model_type
-        elif dataclasses.is_dataclass(config) and hasattr(config, "model_type"):
-            model_type = config.model_type
-        else:
-            model_type = self.config.model_type
-
-        # Map model types to classes
-        model_classes = {
-            "graph": ProteinGraphModel,
-            "point_cloud": ProteinPointCloudModel,
-        }
-
-        # Get the appropriate model class
-        if model_type not in model_classes:
-            raise ValueError(
-                f"Unknown protein model type: {model_type}. "
-                f"Available types: {list(model_classes.keys())}"
-            )
-
-        model_cls = model_classes[model_type]
-
-        # Create and return model directly
-        return model_cls(config, rngs=rngs)
+        return create_model(config, modality="protein", rngs=rngs, **kwargs)
 
 
 class ProteinGeometricAdapter(ProteinModelAdapter):
@@ -176,7 +146,7 @@ class ProteinGeometricAdapter(ProteinModelAdapter):
     def __init__(
         self,
         config: ProteinAdapterConfig | None = None,
-        model_cls: Type[GenerativeModelProtocol] | None = None,
+        model_cls: type[object] | None = None,
     ) -> None:
         """Initialize the protein geometric adapter.
 
@@ -226,7 +196,7 @@ class ProteinGeometricAdapter(ProteinModelAdapter):
         from artifex.generative_models.factory import create_model
 
         # Create and return model with protein modality
-        return create_model(config, modality="protein", rngs=rngs)
+        return create_model(config, modality="protein", rngs=rngs, **kwargs)
 
 
 class ProteinDiffusionAdapter(ProteinModelAdapter):
@@ -239,7 +209,7 @@ class ProteinDiffusionAdapter(ProteinModelAdapter):
     def __init__(
         self,
         config: ProteinAdapterConfig | None = None,
-        model_cls: Type[GenerativeModelProtocol] | None = None,
+        model_cls: type[object] | None = None,
     ) -> None:
         """Initialize the protein diffusion adapter.
 
@@ -293,4 +263,4 @@ class ProteinDiffusionAdapter(ProteinModelAdapter):
         from artifex.generative_models.factory import create_model
 
         # Create diffusion model with protein modality
-        return create_model(config, modality="protein", rngs=rngs)
+        return create_model(config, modality="protein", rngs=rngs, **kwargs)

@@ -1,13 +1,11 @@
-"""Configuration for protein modality.
+"""Configuration helpers for the protein modality."""
 
-This module provides configuration utilities for the protein modality.
-"""
-
-from typing import Any
-
-from artifex.generative_models.modalities.protein.modality import (
-    ProteinModality,
+from artifex.generative_models.core.configuration import (
+    ProteinExtensionConfig,
+    ProteinExtensionsConfig,
+    ProteinMixinConfig,
 )
+from artifex.generative_models.modalities.protein.modality import ProteinModality
 from artifex.generative_models.modalities.registry import list_modalities, register_modality
 
 
@@ -34,24 +32,47 @@ def register_protein_modality(force_register: bool = False) -> None:
     register_modality("protein", ProteinModality)
 
 
-def create_default_protein_config() -> dict[str, Any]:
-    """Create a default configuration for protein models.
+def create_default_protein_config() -> ProteinExtensionsConfig:
+    """Create the canonical default protein extension bundle.
 
     Returns:
-        A dictionary containing default configuration values for protein
-        models.
+        Typed default bundle for protein extensions.
     """
-    return {
-        "extensions": {
-            "use_backbone_constraints": True,
-            "bond_length_weight": 1.0,
-            "bond_angle_weight": 0.5,
-            "use_protein_mixin": True,
-        },
-        "backbone": {
-            "use_protein_constraints": True,
-        },
-    }
+    return ProteinExtensionsConfig(
+        name="default_protein_extensions",
+        bond_length=ProteinExtensionConfig(
+            name="bond_length",
+            weight=1.0,
+            bond_length_weight=1.0,
+            ideal_bond_lengths={
+                "N-CA": 1.45,
+                "CA-C": 1.52,
+                "C-N": 1.33,
+            },
+        ),
+        bond_angle=ProteinExtensionConfig(
+            name="bond_angle",
+            weight=0.5,
+            bond_angle_weight=0.5,
+            ideal_bond_angles={
+                "CA-C-N": 2.025,
+                "C-N-CA": 2.11,
+                "N-CA-C": 1.94,
+            },
+        ),
+        backbone=ProteinExtensionConfig(
+            name="backbone",
+            weight=1.0,
+            bond_length_weight=1.0,
+            bond_angle_weight=0.5,
+        ),
+        mixin=ProteinMixinConfig(
+            name="protein_mixin",
+            weight=1.0,
+            embedding_dim=16,
+            num_aa_types=21,
+        ),
+    )
 
 
 # Auto-registration removed to prevent test failures

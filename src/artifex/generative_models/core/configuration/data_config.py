@@ -1,7 +1,7 @@
 """Data configuration using frozen dataclasses.
 
-This module provides a frozen dataclass-based configuration for data loading
-and preprocessing, replacing the Pydantic-based DataConfig.
+This module provides the typed runtime configuration for data loading and
+preprocessing.
 """
 
 import dataclasses
@@ -16,12 +16,12 @@ from artifex.generative_models.core.configuration.validation import (
 )
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class DataConfig(BaseConfig):
     """Configuration for data loading and preprocessing.
 
     This dataclass provides a type-safe, immutable configuration for data
-    handling in generative models. It replaces the Pydantic DataConfig.
+    handling in generative models.
 
     Attributes:
         dataset_name: Name of the dataset (required, validated in __post_init__)
@@ -49,6 +49,11 @@ class DataConfig(BaseConfig):
     prefetch_factor: int = 2
     pin_memory: bool = True
 
+    # datarax pipeline settings
+    shuffle: bool = True
+    drop_remainder: bool = True
+    prefetch_size: int = 2
+
     # Augmentation
     augmentation: bool = False
     augmentation_params: dict[str, Any] = dataclasses.field(default_factory=dict)
@@ -63,7 +68,7 @@ class DataConfig(BaseConfig):
         Raises:
             ValueError: If any validation fails
         """
-        super().__post_init__()
+        super(DataConfig, self).__post_init__()
 
         # Validate dataset_name (required field with dummy default)
         if not self.dataset_name or not self.dataset_name.strip():
@@ -74,6 +79,9 @@ class DataConfig(BaseConfig):
 
         # Validate prefetch_factor
         validate_positive_int(self.prefetch_factor, "prefetch_factor")
+
+        # Validate prefetch_size
+        validate_positive_int(self.prefetch_size, "prefetch_size")
 
         # Validate validation_split
         validate_range(self.validation_split, "validation_split", 0.0, 1.0)

@@ -4,7 +4,7 @@ import flax.nnx as nnx
 import jax
 import jax.numpy as jnp
 
-from artifex.benchmarks.base import BenchmarkResult
+from artifex.benchmarks import BenchmarkResult
 from artifex.benchmarks.metrics.precision_recall import (
     PrecisionRecallBenchmark,
 )

@@ -10,6 +10,7 @@ from typing import Any
 
 import jax
 import jax.numpy as jnp
+from flax import nnx
 
 
 def extract_batch_data(
@@ -127,7 +128,7 @@ def sample_logit_normal(
     """
     u = jax.random.normal(key, shape)
     u = u * scale + loc
-    return jax.nn.sigmoid(u)
+    return nnx.sigmoid(u)
 
 
 def sample_u_shaped(

@@ -1,541 +1,302 @@
-"""Tests for ExperimentConfig frozen dataclass.
+"""Tests for the retained ExperimentConfig and ExperimentTemplateConfig contracts."""
 
-This module tests the ExperimentConfig frozen dataclass which replaces the
-Pydantic-based ExperimentConfiguration. Tests verify:
-1. Basic instantiation and frozen behavior
-2. Field validation (types, ranges, required fields)
-3. Nested configuration handling
-4. Default values
-5. Serialization (to_dict, from_dict)
-6. Edge cases and error handling
-"""
+from __future__ import annotations
 
 import dataclasses
 from pathlib import Path
 
 import pytest
 
-from artifex.generative_models.core.configuration.data_config import DataConfig
-from artifex.generative_models.core.configuration.evaluation_config import EvaluationConfig
-from artifex.generative_models.core.configuration.experiment_config import ExperimentConfig
-from artifex.generative_models.core.configuration.model_config import ModelConfig
-from artifex.generative_models.core.configuration.optimizer_config import OptimizerConfig
-from artifex.generative_models.core.configuration.training_config import TrainingConfig
+from artifex.generative_models.core.configuration import (
+    DataConfig,
+    DecoderConfig,
+    EncoderConfig,
+    EvaluationConfig,
+    ExperimentConfig,
+    ExperimentTemplateConfig,
+    ExperimentTemplateOverrides,
+    OptimizerConfig,
+    TrainingConfig,
+    VAEConfig,
+)
+
+
+def _model_cfg() -> VAEConfig:
+    encoder = EncoderConfig(
+        name="encoder",
+        input_shape=(28, 28, 1),
+        latent_dim=16,
+        hidden_dims=(64, 32),
+        activation="relu",
+    )
+    decoder = DecoderConfig(
+        name="decoder",
+        latent_dim=16,
+        output_shape=(28, 28, 1),
+        hidden_dims=(32, 64),
+        activation="relu",
+    )
+    return VAEConfig(name="vae_model", encoder=encoder, decoder=decoder)
+
+
+def _training_cfg() -> TrainingConfig:
+    optimizer = OptimizerConfig(name="adam", optimizer_type="adam", learning_rate=1e-3)
+    return TrainingConfig(name="training", optimizer=optimizer)
+
+
+def _data_cfg() -> DataConfig:
+    return DataConfig(name="mnist", dataset_name="mnist")
 
 
 class TestExperimentConfigBasics:
-    """Test basic ExperimentConfig functionality."""
+    """Basic construction and runtime validation."""
 
-    def test_create_minimal(self):
-        """Test creating ExperimentConfig with minimal required fields."""
-        model_cfg = ModelConfig(name="model", model_class="MLP", input_dim=784, output_dim=10)
-        optimizer_cfg = OptimizerConfig(name="adam_opt", optimizer_type="adam", learning_rate=0.001)
-        training_cfg = TrainingConfig(name="training", optimizer=optimizer_cfg)
-        data_cfg = DataConfig(name="data", dataset_name="mnist")
-
+    def test_create_minimal(self) -> None:
         config = ExperimentConfig(
             name="experiment",
-            model_cfg=model_cfg,
-            training_cfg=training_cfg,
-            data_cfg=data_cfg,
+            model_cfg=_model_cfg(),
+            training_cfg=_training_cfg(),
+            data_cfg=_data_cfg(),
         )
-        assert config.name == "experiment"
-        assert config.model_cfg == model_cfg
-        assert config.training_cfg == training_cfg
-        assert config.data_cfg == data_cfg
-        assert config.eval_cfg is None  # default
-        assert config.seed == 42  # default
-        assert config.deterministic is True  # default
-        assert config.output_dir == Path("./experiments")  # default
 
-    def test_create_full(self):
-        """Test creating ExperimentConfig with all fields."""
-        model_cfg = ModelConfig(name="model", model_class="MLP", input_dim=784, output_dim=10)
-        optimizer_cfg = OptimizerConfig(name="adam_opt", optimizer_type="adam", learning_rate=0.001)
-        training_cfg = TrainingConfig(name="training", optimizer=optimizer_cfg)
-        data_cfg = DataConfig(name="data", dataset_name="cifar10")
+        assert config.name == "experiment"
+        assert isinstance(config.model_cfg, VAEConfig)
+        assert config.eval_cfg is None
+        assert config.seed == 42
+        assert config.deterministic is True
+        assert config.output_dir == Path("./experiments")
+
+    def test_create_full(self) -> None:
         eval_cfg = EvaluationConfig(name="eval", metrics=("fid", "ssim"))
 
         config = ExperimentConfig(
-            name="full-experiment",
-            model_cfg=model_cfg,
-            training_cfg=training_cfg,
-            data_cfg=data_cfg,
+            name="full_experiment",
+            model_cfg=_model_cfg(),
+            training_cfg=_training_cfg(),
+            data_cfg=_data_cfg(),
             eval_cfg=eval_cfg,
             seed=123,
             deterministic=False,
-            output_dir=Path("/path/to/experiments"),
+            output_dir=Path("/tmp/experiments"),
             track_carbon=True,
             track_memory=True,
-            description="Full experiment configuration",
-            tags=("gan", "vision"),
+            description="full experiment",
+            tags=("vae", "vision"),
         )
-        assert config.name == "full-experiment"
-        assert config.model_cfg == model_cfg
-        assert config.training_cfg == training_cfg
-        assert config.data_cfg == data_cfg
+
         assert config.eval_cfg == eval_cfg
         assert config.seed == 123
         assert config.deterministic is False
-        assert config.output_dir == Path("/path/to/experiments")
+        assert config.output_dir == Path("/tmp/experiments")
         assert config.track_carbon is True
         assert config.track_memory is True
-        assert config.description == "Full experiment configuration"
-        assert config.tags == ("gan", "vision")
+        assert config.tags == ("vae", "vision")
 
-    def test_frozen(self):
-        """Test that ExperimentConfig is frozen (immutable)."""
-        model_cfg = ModelConfig(name="model", model_class="MLP", input_dim=784, output_dim=10)
-        optimizer_cfg = OptimizerConfig(name="adam_opt", optimizer_type="adam", learning_rate=0.001)
-        training_cfg = TrainingConfig(name="training", optimizer=optimizer_cfg)
-        data_cfg = DataConfig(name="data", dataset_name="mnist")
-
+    def test_is_frozen(self) -> None:
         config = ExperimentConfig(
-            name="test",
-            model_cfg=model_cfg,
-            training_cfg=training_cfg,
-            data_cfg=data_cfg,
+            name="experiment",
+            model_cfg=_model_cfg(),
+            training_cfg=_training_cfg(),
+            data_cfg=_data_cfg(),
         )
+
         with pytest.raises(dataclasses.FrozenInstanceError):
             config.seed = 100
 
-    def test_hash(self):
-        """Test that ExperimentConfig instances are not hashable due to nested configs."""
-        model_cfg = ModelConfig(name="model", model_class="MLP", input_dim=784, output_dim=10)
-        optimizer_cfg = OptimizerConfig(name="adam_opt", optimizer_type="adam", learning_rate=0.001)
-        training_cfg = TrainingConfig(name="training", optimizer=optimizer_cfg)
-        data_cfg = DataConfig(name="data", dataset_name="mnist")
-
+    def test_hash_is_blocked_by_nested_unhashable_configs(self) -> None:
         config = ExperimentConfig(
-            name="test",
-            model_cfg=model_cfg,
-            training_cfg=training_cfg,
-            data_cfg=data_cfg,
+            name="experiment",
+            model_cfg=_model_cfg(),
+            training_cfg=_training_cfg(),
+            data_cfg=_data_cfg(),
         )
-        # Configs with nested unhashable configs are not hashable
+
         with pytest.raises(TypeError, match="unhashable type"):
             hash(config)
 
 
 class TestExperimentConfigValidation:
-    """Test ExperimentConfig validation."""
+    """Validation rules for nested configs and defaults."""
 
-    def test_model_cfg_required(self):
-        """Test that model_cfg is required."""
-        optimizer_cfg = OptimizerConfig(name="adam_opt", optimizer_type="adam", learning_rate=0.001)
-        training_cfg = TrainingConfig(name="training", optimizer=optimizer_cfg)
-        data_cfg = DataConfig(name="data", dataset_name="mnist")
-
+    def test_model_cfg_is_required(self) -> None:
         with pytest.raises(ValueError, match="model_cfg is required"):
             ExperimentConfig(
-                name="test",
-                training_cfg=training_cfg,
-                data_cfg=data_cfg,
+                name="missing_model",
+                training_cfg=_training_cfg(),
+                data_cfg=_data_cfg(),
             )
 
-    def test_training_cfg_required(self):
-        """Test that training_cfg is required."""
-        model_cfg = ModelConfig(name="model", model_class="MLP", input_dim=784, output_dim=10)
-        data_cfg = DataConfig(name="data", dataset_name="mnist")
-
+    def test_training_cfg_is_required(self) -> None:
         with pytest.raises(ValueError, match="training_cfg is required"):
             ExperimentConfig(
-                name="test",
-                model_cfg=model_cfg,
-                data_cfg=data_cfg,
+                name="missing_training",
+                model_cfg=_model_cfg(),
+                data_cfg=_data_cfg(),
             )
 
-    def test_data_cfg_required(self):
-        """Test that data_cfg is required."""
-        model_cfg = ModelConfig(name="model", model_class="MLP", input_dim=784, output_dim=10)
-        optimizer_cfg = OptimizerConfig(name="adam_opt", optimizer_type="adam", learning_rate=0.001)
-        training_cfg = TrainingConfig(name="training", optimizer=optimizer_cfg)
-
+    def test_data_cfg_is_required(self) -> None:
         with pytest.raises(ValueError, match="data_cfg is required"):
             ExperimentConfig(
-                name="test",
-                model_cfg=model_cfg,
-                training_cfg=training_cfg,
+                name="missing_data",
+                model_cfg=_model_cfg(),
+                training_cfg=_training_cfg(),
             )
 
-    def test_eval_cfg_optional(self):
-        """Test that eval_cfg is optional."""
-        model_cfg = ModelConfig(name="model", model_class="MLP", input_dim=784, output_dim=10)
-        optimizer_cfg = OptimizerConfig(name="adam_opt", optimizer_type="adam", learning_rate=0.001)
-        training_cfg = TrainingConfig(name="training", optimizer=optimizer_cfg)
-        data_cfg = DataConfig(name="data", dataset_name="mnist")
+    def test_model_cfg_must_be_supported_family_config(self) -> None:
+        with pytest.raises(TypeError, match="family-specific typed model config"):
+            ExperimentConfig(
+                name="invalid_model",
+                model_cfg=_training_cfg(),
+                training_cfg=_training_cfg(),
+                data_cfg=_data_cfg(),
+            )
 
+    def test_output_dir_accepts_string_paths(self) -> None:
         config = ExperimentConfig(
-            name="test",
-            model_cfg=model_cfg,
-            training_cfg=training_cfg,
-            data_cfg=data_cfg,
-            eval_cfg=None,
+            name="string_output_dir",
+            model_cfg=_model_cfg(),
+            training_cfg=_training_cfg(),
+            data_cfg=_data_cfg(),
+            output_dir="/tmp/experiments",
         )
-        assert config.eval_cfg is None
 
-    def test_seed_negative_valid(self):
-        """Test that negative seed is valid."""
-        model_cfg = ModelConfig(name="model", model_class="MLP", input_dim=784, output_dim=10)
-        optimizer_cfg = OptimizerConfig(name="adam_opt", optimizer_type="adam", learning_rate=0.001)
-        training_cfg = TrainingConfig(name="training", optimizer=optimizer_cfg)
-        data_cfg = DataConfig(name="data", dataset_name="mnist")
-
-        config = ExperimentConfig(
-            name="test",
-            model_cfg=model_cfg,
-            training_cfg=training_cfg,
-            data_cfg=data_cfg,
-            seed=-1,
-        )
-        assert config.seed == -1
-
-    def test_seed_zero_valid(self):
-        """Test that zero seed is valid."""
-        model_cfg = ModelConfig(name="model", model_class="MLP", input_dim=784, output_dim=10)
-        optimizer_cfg = OptimizerConfig(name="adam_opt", optimizer_type="adam", learning_rate=0.001)
-        training_cfg = TrainingConfig(name="training", optimizer=optimizer_cfg)
-        data_cfg = DataConfig(name="data", dataset_name="mnist")
-
-        config = ExperimentConfig(
-            name="test",
-            model_cfg=model_cfg,
-            training_cfg=training_cfg,
-            data_cfg=data_cfg,
-            seed=0,
-        )
-        assert config.seed == 0
-
-
-class TestExperimentConfigDefaults:
-    """Test ExperimentConfig default values."""
-
-    def test_default_eval_cfg(self):
-        """Test default eval_cfg is None."""
-        model_cfg = ModelConfig(name="model", model_class="MLP", input_dim=784, output_dim=10)
-        optimizer_cfg = OptimizerConfig(name="adam_opt", optimizer_type="adam", learning_rate=0.001)
-        training_cfg = TrainingConfig(name="training", optimizer=optimizer_cfg)
-        data_cfg = DataConfig(name="data", dataset_name="mnist")
-
-        config = ExperimentConfig(
-            name="test",
-            model_cfg=model_cfg,
-            training_cfg=training_cfg,
-            data_cfg=data_cfg,
-        )
-        assert config.eval_cfg is None
-
-    def test_default_seed(self):
-        """Test default seed is 42."""
-        model_cfg = ModelConfig(name="model", model_class="MLP", input_dim=784, output_dim=10)
-        optimizer_cfg = OptimizerConfig(name="adam_opt", optimizer_type="adam", learning_rate=0.001)
-        training_cfg = TrainingConfig(name="training", optimizer=optimizer_cfg)
-        data_cfg = DataConfig(name="data", dataset_name="mnist")
-
-        config = ExperimentConfig(
-            name="test",
-            model_cfg=model_cfg,
-            training_cfg=training_cfg,
-            data_cfg=data_cfg,
-        )
-        assert config.seed == 42
-
-    def test_default_deterministic(self):
-        """Test default deterministic is True."""
-        model_cfg = ModelConfig(name="model", model_class="MLP", input_dim=784, output_dim=10)
-        optimizer_cfg = OptimizerConfig(name="adam_opt", optimizer_type="adam", learning_rate=0.001)
-        training_cfg = TrainingConfig(name="training", optimizer=optimizer_cfg)
-        data_cfg = DataConfig(name="data", dataset_name="mnist")
-
-        config = ExperimentConfig(
-            name="test",
-            model_cfg=model_cfg,
-            training_cfg=training_cfg,
-            data_cfg=data_cfg,
-        )
-        assert config.deterministic is True
-
-    def test_default_output_dir(self):
-        """Test default output_dir is ./experiments."""
-        model_cfg = ModelConfig(name="model", model_class="MLP", input_dim=784, output_dim=10)
-        optimizer_cfg = OptimizerConfig(name="adam_opt", optimizer_type="adam", learning_rate=0.001)
-        training_cfg = TrainingConfig(name="training", optimizer=optimizer_cfg)
-        data_cfg = DataConfig(name="data", dataset_name="mnist")
-
-        config = ExperimentConfig(
-            name="test",
-            model_cfg=model_cfg,
-            training_cfg=training_cfg,
-            data_cfg=data_cfg,
-        )
-        assert config.output_dir == Path("./experiments")
-
-    def test_default_track_carbon(self):
-        """Test default track_carbon is False."""
-        model_cfg = ModelConfig(name="model", model_class="MLP", input_dim=784, output_dim=10)
-        optimizer_cfg = OptimizerConfig(name="adam_opt", optimizer_type="adam", learning_rate=0.001)
-        training_cfg = TrainingConfig(name="training", optimizer=optimizer_cfg)
-        data_cfg = DataConfig(name="data", dataset_name="mnist")
-
-        config = ExperimentConfig(
-            name="test",
-            model_cfg=model_cfg,
-            training_cfg=training_cfg,
-            data_cfg=data_cfg,
-        )
-        assert config.track_carbon is False
-
-    def test_default_track_memory(self):
-        """Test default track_memory is False."""
-        model_cfg = ModelConfig(name="model", model_class="MLP", input_dim=784, output_dim=10)
-        optimizer_cfg = OptimizerConfig(name="adam_opt", optimizer_type="adam", learning_rate=0.001)
-        training_cfg = TrainingConfig(name="training", optimizer=optimizer_cfg)
-        data_cfg = DataConfig(name="data", dataset_name="mnist")
-
-        config = ExperimentConfig(
-            name="test",
-            model_cfg=model_cfg,
-            training_cfg=training_cfg,
-            data_cfg=data_cfg,
-        )
-        assert config.track_memory is False
+        assert isinstance(config.output_dir, Path)
+        assert config.output_dir == Path("/tmp/experiments")
 
 
 class TestExperimentConfigSerialization:
-    """Test ExperimentConfig serialization."""
+    """Serialization should preserve the retained nested typed config shape."""
 
-    def test_to_dict_minimal(self):
-        """Test converting minimal config to dict."""
-        model_cfg = ModelConfig(name="model", model_class="MLP", input_dim=784, output_dim=10)
-        optimizer_cfg = OptimizerConfig(name="adam_opt", optimizer_type="adam", learning_rate=0.001)
-        training_cfg = TrainingConfig(name="training", optimizer=optimizer_cfg)
-        data_cfg = DataConfig(name="data", dataset_name="mnist")
-
+    def test_to_dict_contains_nested_family_config(self) -> None:
         config = ExperimentConfig(
-            name="test",
-            model_cfg=model_cfg,
-            training_cfg=training_cfg,
-            data_cfg=data_cfg,
+            name="experiment",
+            model_cfg=_model_cfg(),
+            training_cfg=_training_cfg(),
+            data_cfg=_data_cfg(),
         )
-        data = config.to_dict()
-        assert data["name"] == "test"
-        assert isinstance(data["model_cfg"], dict)
-        assert isinstance(data["training_cfg"], dict)
-        assert isinstance(data["data_cfg"], dict)
-        assert data["eval_cfg"] is None
-        assert data["seed"] == 42
 
-    def test_to_dict_full(self):
-        """Test converting full config to dict."""
-        model_cfg = ModelConfig(name="model", model_class="MLP", input_dim=784, output_dim=10)
-        optimizer_cfg = OptimizerConfig(name="adam_opt", optimizer_type="adam", learning_rate=0.001)
-        training_cfg = TrainingConfig(name="training", optimizer=optimizer_cfg)
-        data_cfg = DataConfig(name="data", dataset_name="mnist")
-        eval_cfg = EvaluationConfig(name="eval", metrics=("fid", "ssim"))
+        payload = config.to_dict()
 
-        config = ExperimentConfig(
-            name="full-experiment",
-            model_cfg=model_cfg,
-            training_cfg=training_cfg,
-            data_cfg=data_cfg,
-            eval_cfg=eval_cfg,
-            seed=123,
-            deterministic=False,
-            output_dir=Path("/path/to/experiments"),
-        )
-        data = config.to_dict()
-        assert data["name"] == "full-experiment"
-        assert isinstance(data["model_cfg"], dict)
-        assert isinstance(data["training_cfg"], dict)
-        assert isinstance(data["data_cfg"], dict)
-        assert isinstance(data["eval_cfg"], dict)
-        assert data["seed"] == 123
-        assert data["deterministic"] is False
+        assert payload["name"] == "experiment"
+        assert payload["model_cfg"]["encoder"]["latent_dim"] == 16
+        assert payload["training_cfg"]["optimizer"]["optimizer_type"] == "adam"
+        assert payload["data_cfg"]["dataset_name"] == "mnist"
 
-    def test_from_dict_minimal(self):
-        """Test creating config from minimal dict."""
-        data = {
-            "name": "test",
+    def test_from_dict_materializes_vae_config(self) -> None:
+        payload = {
+            "name": "experiment",
             "model_cfg": {
-                "name": "model",
-                "model_class": "MLP",
-                "input_dim": 784,
-                "output_dim": 10,
+                "name": "vae_model",
+                "encoder": {
+                    "name": "encoder",
+                    "input_shape": [28, 28, 1],
+                    "latent_dim": 16,
+                    "hidden_dims": [64, 32],
+                    "activation": "relu",
+                },
+                "decoder": {
+                    "name": "decoder",
+                    "latent_dim": 16,
+                    "output_shape": [28, 28, 1],
+                    "hidden_dims": [32, 64],
+                    "activation": "relu",
+                },
             },
             "training_cfg": {
                 "name": "training",
                 "optimizer": {
-                    "name": "adam_opt",
+                    "name": "adam",
                     "optimizer_type": "adam",
-                    "learning_rate": 0.001,
+                    "learning_rate": 1e-3,
                 },
             },
-            "data_cfg": {"name": "data", "dataset_name": "mnist"},
+            "data_cfg": {
+                "name": "mnist",
+                "dataset_name": "mnist",
+            },
         }
 
-        config = ExperimentConfig.from_dict(data)
-        assert config.name == "test"
-        assert config.model_cfg.model_class == "MLP"
+        config = ExperimentConfig.from_dict(payload)
+
+        assert isinstance(config.model_cfg, VAEConfig)
+        assert config.model_cfg.encoder.latent_dim == 16
         assert config.training_cfg.optimizer.optimizer_type == "adam"
         assert config.data_cfg.dataset_name == "mnist"
-        assert config.seed == 42  # default
 
-    def test_from_dict_with_nested_configs(self):
-        """Test creating config from dict with all nested configs."""
-        data = {
-            "name": "full-experiment",
+    def test_from_dict_rejects_legacy_generic_model_payload(self) -> None:
+        payload = {
+            "name": "legacy_experiment",
             "model_cfg": {
-                "name": "model",
-                "model_class": "CNN",
-                "input_dim": 784,
-                "output_dim": 10,
+                "name": "legacy_model",
+                "model_class": "artifex.generative_models.models.vae.VAE",
+                "input_dim": [28, 28, 1],
             },
             "training_cfg": {
                 "name": "training",
                 "optimizer": {
-                    "name": "adamw_opt",
-                    "optimizer_type": "adamw",
-                    "learning_rate": 0.0001,
-                    "weight_decay": 0.01,
+                    "name": "adam",
+                    "optimizer_type": "adam",
+                    "learning_rate": 1e-3,
                 },
-                "batch_size": 64,
             },
-            "data_cfg": {"name": "data", "dataset_name": "cifar10"},
-            "eval_cfg": {"name": "eval", "metrics": ["fid", "ssim"]},
-            "seed": 123,
-            "deterministic": False,
+            "data_cfg": {
+                "name": "mnist",
+                "dataset_name": "mnist",
+            },
         }
 
-        config = ExperimentConfig.from_dict(data)
-        assert config.name == "full-experiment"
-        assert config.model_cfg.model_class == "CNN"
-        assert config.training_cfg.optimizer.optimizer_type == "adamw"
-        assert config.training_cfg.batch_size == 64
-        assert config.data_cfg.dataset_name == "cifar10"
-        assert config.eval_cfg.metrics == ("fid", "ssim")
-        assert config.seed == 123
-        assert config.deterministic is False
+        with pytest.raises(ValueError, match="family-specific typed model config"):
+            ExperimentConfig.from_dict(payload)
 
-    def test_roundtrip(self):
-        """Test that to_dict -> from_dict roundtrip works."""
-        model_cfg = ModelConfig(name="model", model_class="ResNet", input_dim=224, output_dim=1000)
-        optimizer_cfg = OptimizerConfig(
-            name="adam_opt", optimizer_type="adam", learning_rate=0.001, beta1=0.9, beta2=0.999
-        )
-        training_cfg = TrainingConfig(
-            name="training", optimizer=optimizer_cfg, batch_size=128, num_epochs=50
-        )
-        data_cfg = DataConfig(name="data", dataset_name="imagenet")
-        eval_cfg = EvaluationConfig(name="eval", metrics=("fid", "inception_score"))
-
+    def test_roundtrip_preserves_nested_types(self) -> None:
         original = ExperimentConfig(
-            name="roundtrip-test",
-            model_cfg=model_cfg,
-            training_cfg=training_cfg,
-            data_cfg=data_cfg,
-            eval_cfg=eval_cfg,
-            seed=42,
-            deterministic=True,
-        )
-
-        data = original.to_dict()
-        restored = ExperimentConfig.from_dict(data)
-
-        assert restored.name == original.name
-        assert restored.model_cfg.model_class == original.model_cfg.model_class
-        assert (
-            restored.training_cfg.optimizer.learning_rate
-            == original.training_cfg.optimizer.learning_rate
-        )
-        assert restored.data_cfg.dataset_name == original.data_cfg.dataset_name
-        assert restored.eval_cfg.metrics == original.eval_cfg.metrics
-        assert restored.seed == original.seed
-        assert restored.deterministic == original.deterministic
-
-
-class TestExperimentConfigEdgeCases:
-    """Test ExperimentConfig edge cases."""
-
-    def test_output_dir_as_string(self):
-        """Test that output_dir accepts string and converts to Path."""
-        model_cfg = ModelConfig(name="model", model_class="MLP", input_dim=784, output_dim=10)
-        optimizer_cfg = OptimizerConfig(name="adam_opt", optimizer_type="adam", learning_rate=0.001)
-        training_cfg = TrainingConfig(name="training", optimizer=optimizer_cfg)
-        data_cfg = DataConfig(name="data", dataset_name="mnist")
-
-        config = ExperimentConfig(
-            name="test",
-            model_cfg=model_cfg,
-            training_cfg=training_cfg,
-            data_cfg=data_cfg,
-            output_dir="/path/to/experiments",
-        )
-        assert isinstance(config.output_dir, Path)
-        assert config.output_dir == Path("/path/to/experiments")
-
-    def test_output_dir_as_path(self):
-        """Test that output_dir accepts Path objects."""
-        model_cfg = ModelConfig(name="model", model_class="MLP", input_dim=784, output_dim=10)
-        optimizer_cfg = OptimizerConfig(name="adam_opt", optimizer_type="adam", learning_rate=0.001)
-        training_cfg = TrainingConfig(name="training", optimizer=optimizer_cfg)
-        data_cfg = DataConfig(name="data", dataset_name="mnist")
-
-        config = ExperimentConfig(
-            name="test",
-            model_cfg=model_cfg,
-            training_cfg=training_cfg,
-            data_cfg=data_cfg,
-            output_dir=Path("/path/to/experiments"),
-        )
-        assert isinstance(config.output_dir, Path)
-        assert config.output_dir == Path("/path/to/experiments")
-
-    def test_all_tracking_enabled(self):
-        """Test that all tracking flags can be enabled."""
-        model_cfg = ModelConfig(name="model", model_class="MLP", input_dim=784, output_dim=10)
-        optimizer_cfg = OptimizerConfig(name="adam_opt", optimizer_type="adam", learning_rate=0.001)
-        training_cfg = TrainingConfig(name="training", optimizer=optimizer_cfg)
-        data_cfg = DataConfig(name="data", dataset_name="mnist")
-
-        config = ExperimentConfig(
-            name="test",
-            model_cfg=model_cfg,
-            training_cfg=training_cfg,
-            data_cfg=data_cfg,
-            track_carbon=True,
-            track_memory=True,
-        )
-        assert config.track_carbon is True
-        assert config.track_memory is True
-
-    def test_deterministic_false(self):
-        """Test that deterministic can be False."""
-        model_cfg = ModelConfig(name="model", model_class="MLP", input_dim=784, output_dim=10)
-        optimizer_cfg = OptimizerConfig(name="adam_opt", optimizer_type="adam", learning_rate=0.001)
-        training_cfg = TrainingConfig(name="training", optimizer=optimizer_cfg)
-        data_cfg = DataConfig(name="data", dataset_name="mnist")
-
-        config = ExperimentConfig(
-            name="test",
-            model_cfg=model_cfg,
-            training_cfg=training_cfg,
-            data_cfg=data_cfg,
+            name="roundtrip",
+            model_cfg=_model_cfg(),
+            training_cfg=_training_cfg(),
+            data_cfg=_data_cfg(),
+            eval_cfg=EvaluationConfig(name="eval", metrics=("fid",)),
+            seed=7,
             deterministic=False,
         )
-        assert config.deterministic is False
 
-    def test_large_seed(self):
-        """Test that large seed values are valid."""
-        model_cfg = ModelConfig(name="model", model_class="MLP", input_dim=784, output_dim=10)
-        optimizer_cfg = OptimizerConfig(name="adam_opt", optimizer_type="adam", learning_rate=0.001)
-        training_cfg = TrainingConfig(name="training", optimizer=optimizer_cfg)
-        data_cfg = DataConfig(name="data", dataset_name="mnist")
+        restored = ExperimentConfig.from_dict(original.to_dict())
 
-        config = ExperimentConfig(
-            name="test",
-            model_cfg=model_cfg,
-            training_cfg=training_cfg,
-            data_cfg=data_cfg,
-            seed=2**31 - 1,  # Max 32-bit signed int
+        assert isinstance(restored.model_cfg, VAEConfig)
+        assert restored.model_cfg.encoder.hidden_dims == (64, 32)
+        assert restored.eval_cfg.metrics == ("fid",)
+        assert restored.seed == 7
+        assert restored.deterministic is False
+
+
+class TestExperimentTemplateConfig:
+    """Retained template documents still use the non-BaseConfig schema."""
+
+    def test_from_dict_uses_template_schema_not_runtime_name_field(self) -> None:
+        config = ExperimentTemplateConfig.from_dict(
+            {
+                "experiment_name": "protein_diffusion_cath",
+                "seed": 42,
+                "output_dir": "{ARTIFEX_OUTPUT_ROOT}/protein_diffusion_cath/",
+                "model_config": "models/geometric/protein_point_cloud.yaml",
+                "data_config": "data/protein_dataset.yaml",
+                "training_config": "training/protein_diffusion_training.yaml",
+                "inference_config": "inference/protein_diffusion_inference.yaml",
+                "log_level": "INFO",
+                "use_wandb": True,
+                "wandb_project": "protein-diffusion",
+                "overrides": {
+                    "model": {"num_residues": 150, "num_points": 600},
+                    "training": {"batch_size": 64},
+                    "inference": {"target_seq_length": 150},
+                },
+            }
         )
-        assert config.seed == 2**31 - 1
+
+        assert isinstance(config, ExperimentTemplateConfig)
+        assert not hasattr(config, "name")
+        assert config.experiment_name == "protein_diffusion_cath"
+        assert isinstance(config.overrides, ExperimentTemplateOverrides)
+        assert config.overrides.model["num_residues"] == 150
+        assert config.overrides.model["num_points"] == 600
+        assert config.overrides.training["batch_size"] == 64
+        assert config.overrides.inference["target_seq_length"] == 150

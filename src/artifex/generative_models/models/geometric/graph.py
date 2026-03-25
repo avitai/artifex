@@ -66,7 +66,6 @@ class GraphModel(GeometricModel):
         self.egnn_layers = nnx.List(
             [
                 EGNNLayer(
-                    node_dim=self.node_dim,
                     edge_dim=self.edge_dim,
                     hidden_dim=self.hidden_dim,
                     num_mlp_layers=self.num_mlp_layers,
@@ -134,6 +133,29 @@ class GraphModel(GeometricModel):
                 - coordinates: Updated node coordinates
                 - edge_features: Updated edge features
         """
+        outputs = self._forward_graph_core(
+            x,
+            rngs=rngs,
+            deterministic=deterministic,
+            batch_size=batch_size,
+        )
+
+        if hasattr(self, "extension_modules") and self.extension_modules:
+            processed_outputs, extension_outputs = self.apply_extensions(x, outputs)
+            outputs.update(processed_outputs)
+            outputs["extension_outputs"] = extension_outputs
+
+        return outputs
+
+    def _forward_graph_core(
+        self,
+        x: jax.Array | dict[str, jax.Array] | None = None,
+        *,
+        rngs: nnx.Rngs | None = None,
+        deterministic: bool = False,
+        batch_size: int = 1,
+    ) -> dict[str, jax.Array]:
+        """Run the graph backbone without applying extensions."""
         if rngs is None and hasattr(self, "rngs"):
             rngs = self.rngs
 
@@ -260,12 +282,6 @@ class GraphModel(GeometricModel):
             "coordinates": coordinates,
             "edge_features": e,
         }
-
-        # Apply extensions if available
-        if hasattr(self, "extension_modules") and self.extension_modules:
-            processed_outputs, extension_outputs = self.apply_extensions(x, outputs)
-            outputs.update(processed_outputs)
-            outputs["extension_outputs"] = extension_outputs
 
         return outputs
 

@@ -21,6 +21,7 @@ class ImageProcessor(nnx.Module):
             config: Image modality configuration
             rngs: Random number generators
         """
+        super().__init__()
         self.config = config
         self.rngs = rngs
 
@@ -108,6 +109,7 @@ class AugmentationProcessor(nnx.Module):
             brightness_range: Maximum brightness adjustment
             rngs: Random number generators
         """
+        super().__init__()
         self.config = config
         self.rotation_range = rotation_range
         self.zoom_range = zoom_range
@@ -200,6 +202,7 @@ class MultiScaleProcessor(nnx.Module):
             scales: List of scales (resolutions) to process
             rngs: Random number generators
         """
+        super().__init__()
         self.config = config
         self.scales = scales or [32, 64, 128, 256]
         self.rngs = rngs

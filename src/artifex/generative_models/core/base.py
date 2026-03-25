@@ -4,8 +4,10 @@ This module provides improved base classes that work optimally with both
 diffusion models, flow models, and other generative model types.
 """
 
+import dataclasses
 import functools
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 import jax
 from flax import nnx
@@ -47,6 +49,7 @@ def get_activation_function(
         "sigmoid": nnx.sigmoid,
         "softmax": nnx.softmax,
         "log_softmax": nnx.log_softmax,
+        "identity": lambda x: x,
     }
 
     if activation not in activations:
@@ -62,13 +65,14 @@ def get_default_backbone(config, *, rngs: nnx.Rngs):
     parameters are read from config.parameters as the single source of truth.
 
     Args:
-        config: ModelConfiguration object with parameters dict
+        config: typed model configuration object with `parameters`
         rngs: Random number generators
 
     Returns:
         A default UNet-like backbone network
     """
-    from artifex.generative_models.models.backbones.unet import UNet
+    from artifex.generative_models.core.configuration.backbone_config import UNetBackboneConfig
+    from artifex.generative_models.factory.builders.backbone_builder import create_backbone
 
     # Get all parameters from unified config.parameters (single source of truth)
     params = config.parameters or {}
@@ -88,13 +92,13 @@ def get_default_backbone(config, *, rngs: nnx.Rngs):
     # Override with explicit in_channels from parameters if present
     in_channels = params.get("in_channels", in_channels)
 
-    # Create UNet backbone with extracted configuration
-    return UNet(
-        hidden_dims=hidden_dims,
+    # Create UNet backbone via factory
+    backbone_config = UNetBackboneConfig(
+        hidden_dims=tuple(hidden_dims),
         time_embedding_dim=time_embedding_dim,
         in_channels=in_channels,
-        rngs=rngs,
     )
+    return create_backbone(backbone_config, rngs=rngs)
 
 
 class GenerativeModule(nnx.Module):
@@ -137,9 +141,15 @@ class GenerativeModule(nnx.Module):
 class GenerativeModel(GenerativeModule):
     """Enhanced base class for all generative models.
 
-    This class provides a unified interface for different types of generative models
-    including diffusion models, flow models, VAEs, GANs, and others. It ensures
-    consistent method signatures and behavior across all model types.
+    This class provides shared runtime helpers for generative models without
+    forcing one universal low-level objective contract across incompatible
+    families.
+
+    Artifex treats `generate(...)` as the ergonomic user-facing generation
+    surface. Family-native mathematical capabilities such as `sample(...)`,
+    `log_prob(...)`, `encode(...)`, `decode(...)`, or explicit adversarial
+    objectives remain on the concrete model families that meaningfully support
+    them.
     """
 
     def __init__(
@@ -174,9 +184,9 @@ class GenerativeModel(GenerativeModule):
 
         Returns:
             dictionary containing model outputs. Common keys include:
-            - For diffusion models: {"predicted_noise": ..., "loss": ...}
+            - For diffusion models: {"predicted_noise": ..., "total_loss": ...}
             - For flow models: {"z": ..., "logdet": ..., "log_prob": ...}
-            - For VAEs: {"reconstruction": ..., "z": ..., "kl_loss": ...}
+            - For VAEs: {"reconstructed": ..., "z": ..., "kl_loss": ...}
             - For GANs: {"generated": ..., "discriminator_logits": ...}
 
         Example:
@@ -215,7 +225,7 @@ class GenerativeModel(GenerativeModule):
         model_outputs: dict[str, Any],
         **kwargs,
     ) -> dict[str, Any]:
-        """Compute loss for model training.
+        """Compute a model-owned objective when the family has one.
 
         Note: Uses stored self.rngs for any stochastic operations. RNG automatically advances.
 
@@ -227,9 +237,14 @@ class GenerativeModel(GenerativeModule):
             **kwargs: Additional keyword arguments for loss computation.
 
         Returns:
-            dictionary containing loss and metrics. Must include:
-            - "loss": Primary loss value for optimization
+            dictionary containing loss terms. Single-objective models must include:
+            - "total_loss": Primary loss value for optimization
             Additional keys may include component losses and metrics.
+
+        Notes:
+            Multi-objective families such as GANs may intentionally reject this
+            entrypoint and expose explicit family-local objective helpers or
+            trainer-owned objectives instead.
         """
         raise NotImplementedError("Subclasses must implement loss_fn method")
 
@@ -289,9 +304,11 @@ class GenerativeModel(GenerativeModule):
         )
 
     def sample(self, n_samples: int = 1, **kwargs) -> PyTree:
-        """Sample from the model (alias for generate for backward compatibility).
+        """Default sampling entrypoint that forwards to `generate(...)`.
 
-        Note: Uses stored self.rngs for sampling. RNG automatically advances.
+        Families with richer sampling semantics should override this method
+        directly. The shared base does not treat `sample(...)` as a universal
+        backward-compatibility alias in the public interface story.
 
         Args:
             n_samples: Number of samples to generate.
@@ -347,9 +364,9 @@ class GenerativeModel(GenerativeModule):
             dictionary containing model configuration.
         """
         if hasattr(self, "config"):
-            if hasattr(self.config, "__dict__"):
-                return vars(self.config)
-            elif isinstance(self.config, dict):
+            if dataclasses.is_dataclass(self.config):
+                return dataclasses.asdict(self.config)
+            if isinstance(self.config, dict):
                 return self.config.copy()
         return {}
 
@@ -493,7 +510,7 @@ class MLP(nnx.Module):
         x = self.layers[layer_idx](x)
 
         # Batch normalization (if applicable)
-        # Check if batch_norms list exists and has elements instead of using .value
+        # Check if batch_norms list exists and has elements.
         if self.batch_norms is not None and layer_idx < len(self.batch_norms):
             x = self.batch_norms[layer_idx](x)
 
@@ -506,7 +523,7 @@ class MLP(nnx.Module):
             x = self.activation(x)
 
         # Dropout (if applicable) - NNX handles training/eval mode automatically
-        # Check if dropouts list exists and has elements instead of using .value
+        # Check if dropouts list exists and has elements.
         if len(self.dropouts) > 0 and layer_idx < len(self.dropouts):
             x = self.dropouts[layer_idx](x)
 
@@ -606,20 +623,24 @@ class MLP(nnx.Module):
         """
         total = 0
         for layer in self.layers:
-            # Count weights
-            total += layer.kernel.value.size
-            # Count bias if present
-            if hasattr(layer, "bias") and layer.bias is not None:
-                total += layer.bias.value.size
+            if isinstance(layer, _DepthwiseSeparableConv):
+                for conv in (layer.depthwise, layer.pointwise):
+                    total += conv.kernel[...].size
+                    if hasattr(conv, "bias") and conv.bias is not None:
+                        total += conv.bias[...].size
+            else:
+                total += layer.kernel[...].size
+                if hasattr(layer, "bias") and layer.bias is not None:
+                    total += layer.bias[...].size
 
         # Count batch norm parameters if used
-        if self.use_batch_norm.value:
+        if self.use_batch_norm.get_value():
             for bn in self.batch_norms:
                 # Scale and bias parameters
                 if hasattr(bn, "scale") and bn.scale is not None:
-                    total += bn.scale.value.size
+                    total += bn.scale[...].size
                 if hasattr(bn, "bias") and bn.bias is not None:
-                    total += bn.bias.value.size
+                    total += bn.bias[...].size
 
         return total
 
@@ -631,6 +652,18 @@ class MLP(nnx.Module):
         """
         for dropout in self.dropouts:
             dropout.rngs = rngs
+
+
+class _DepthwiseSeparableConv(nnx.Module):
+    """Container for depthwise + pointwise convolution pair."""
+
+    def __init__(self, depthwise: nnx.Conv, pointwise: nnx.Conv) -> None:
+        super().__init__()
+        self.depthwise = depthwise
+        self.pointwise = pointwise
+
+    def __call__(self, x: jax.Array) -> jax.Array:
+        return self.pointwise(self.depthwise(x))
 
 
 class CNN(nnx.Module):
@@ -715,7 +748,7 @@ class CNN(nnx.Module):
                     padding="SAME",
                     rngs=rngs,
                 )
-                self.layers.append((depthwise, pointwise))
+                self.layers.append(_DepthwiseSeparableConv(depthwise, pointwise))
             elif use_transpose:
                 transpose_layer = nnx.ConvTranspose(
                     in_features=current_in_features,
@@ -767,15 +800,7 @@ class CNN(nnx.Module):
             Output tensor.
         """
         for i, layer in enumerate(self.layers):
-            # Apply convolution (handle depthwise separable case)
-            if isinstance(layer, tuple) and len(layer) == 2:
-                # Depthwise separable convolution
-                depthwise, pointwise = layer
-                x = depthwise(x)
-                x = pointwise(x)
-            else:
-                # Regular convolution
-                x = layer(x)
+            x = layer(x)
 
             # Apply batch normalization if used - NNX handles training/eval mode automatically
             if self.batch_norms is not None and i < len(self.batch_norms):

@@ -390,8 +390,8 @@ optimizer = nnx.Optimizer(vae, optax.adam(learning_rate=1e-3), wrt=nnx.Param)
 def train_step(model, optimizer, batch):
     def loss_fn(model):
         outputs = model(batch)  # Model uses internal RNGs
-        losses = model.loss_fn(x=batch, outputs=outputs)
-        return losses["loss"], losses
+        losses = model.loss_fn(batch, outputs)
+        return losses["total_loss"], losses
 
     (loss, losses), grads = nnx.value_and_grad(loss_fn, has_aux=True)(model)
     optimizer.update(model, grads)
@@ -408,7 +408,7 @@ for epoch in range(num_epochs):
         batch = train_data[i : i + batch_size]
         losses = train_step(vae, optimizer, batch)
 
-    print(f"Epoch {epoch + 1} | Loss: {losses['loss']:.4f}")
+    print(f"Epoch {epoch + 1} | Loss: {losses['total_loss']:.4f}")
 ```
 
 ### Training β-VAE with Annealing
@@ -438,8 +438,8 @@ for epoch in range(num_epochs):
         def loss_fn(model):
             outputs = model(batch)
             # Pass current step for beta annealing
-            losses = model.loss_fn(x=batch, outputs=outputs, step=step)
-            return losses["loss"], losses
+            losses = model.loss_fn(batch, outputs, step=step)
+            return losses["total_loss"], losses
 
         (loss, losses), grads = nnx.value_and_grad(loss_fn, has_aux=True)(beta_vae)
         optimizer.update(beta_vae, grads)
@@ -477,13 +477,13 @@ for epoch in range(num_epochs):
 
         def loss_fn(model):
             outputs = model(batch_x, y=batch_y)  # Condition on labels
-            losses = model.loss_fn(x=batch_x, outputs=outputs)
-            return losses["loss"], losses
+            losses = model.loss_fn(batch_x, outputs)
+            return losses["total_loss"], losses
 
         (loss, losses), grads = nnx.value_and_grad(loss_fn, has_aux=True)(cvae)
         optimizer.update(cvae, grads)
 
-    print(f"Epoch {epoch + 1} | Loss: {losses['loss']:.4f}")
+    print(f"Epoch {epoch + 1} | Loss: {losses['total_loss']:.4f}")
 ```
 
 ### Training VQ-VAE
@@ -511,8 +511,8 @@ for epoch in range(num_epochs):
 
         def loss_fn(model):
             outputs = model(batch)
-            losses = model.loss_fn(x=batch, outputs=outputs)
-            return losses["loss"], losses
+            losses = model.loss_fn(batch, outputs)
+            return losses["total_loss"], losses
 
         (loss, losses), grads = nnx.value_and_grad(loss_fn, has_aux=True)(vqvae)
         optimizer.update(vqvae, grads)
@@ -631,7 +631,7 @@ print(f"Reconstruction MSE: {mse:.4f}")
 ```python
 # Full ELBO calculation
 outputs = vae(test_batch)  # Model uses internal RNGs
-losses = vae.loss_fn(x=test_batch, outputs=outputs)
+losses = vae.loss_fn(test_batch, outputs)
 
 elbo = -(losses['reconstruction_loss'] + losses['kl_loss'])
 print(f"ELBO: {elbo:.4f}")
@@ -901,8 +901,8 @@ def custom_loss_fn(predictions, targets):
 
 # Use in training
 losses = vae.loss_fn(
-    x=batch,
-    outputs=outputs,
+    batch,
+    outputs,
     reconstruction_loss_fn=custom_loss_fn,
 )
 ```
@@ -998,8 +998,8 @@ jax.config.update("jax_default_matmul_precision", "float32")  # or "bfloat16"
 def fast_train_step(model, optimizer, batch):
     def loss_fn(model):
         outputs = model(batch)  # Model uses internal RNGs
-        losses = model.loss_fn(x=batch, outputs=outputs)
-        return losses["loss"], losses
+        losses = model.loss_fn(batch, outputs)
+        return losses["total_loss"], losses
 
     (loss, losses), grads = nnx.value_and_grad(loss_fn, has_aux=True)(model)
     optimizer.update(model, grads)
@@ -1031,5 +1031,5 @@ This guide covered:
 - **[VAE Concepts](../concepts/vae-explained.md)** — Deep dive into theory
 - **[VAE API Reference](../../api/models/vae.md)** — Complete API documentation
 - **[VAE MNIST Example](../../examples/basic/vae-mnist.md)** — Hands-on tutorial
-- **[Training Guide](../../training/trainer.md)** — Advanced training techniques
+- **[Trainer API](../../api/training/trainer.md)** — Low-level trainer interface
 - **[Benchmarking](../../benchmarks/index.md)** — Evaluate your models

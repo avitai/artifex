@@ -16,7 +16,9 @@ from artifex.generative_models.models.flow import (
     NormalizingFlow,
     RealNVP,
 )
-from tests.utils.test_helpers import get_mock_reason, should_run_flow_tests
+
+
+pytestmark = pytest.mark.integration
 
 
 @pytest.fixture
@@ -66,7 +68,6 @@ def glow_config(coupling_network):
         coupling_network=coupling_network,
         input_dim=16 * 16 * 3,  # Flattened input dimension
         image_shape=(16, 16, 3),
-        num_scales=2,
         blocks_per_scale=2,
     )
 
@@ -74,7 +75,6 @@ def glow_config(coupling_network):
 class TestFlowIntegration:
     """Integration tests for flow models."""
 
-    @pytest.mark.skipif(not should_run_flow_tests(), reason=get_mock_reason("flow"))
     def test_normalizing_flow_forward_inverse(self, rng, flow_config):
         """Test forward and inverse transforms in normalizing flows."""
         # Create model
@@ -117,7 +117,6 @@ class TestFlowIntegration:
         # Note: This is approximate due to numerical precision
         assert jnp.allclose(x, x_recon, atol=1e-5)
 
-    @pytest.mark.skipif(not should_run_flow_tests(), reason=get_mock_reason("flow"))
     def test_realnvp_flow(self, rng, realnvp_config):
         """Test RealNVP flow model."""
         # Create model
@@ -156,7 +155,6 @@ class TestFlowIntegration:
         samples = model.sample(n_samples)
         assert samples.shape == (n_samples, realnvp_config.input_dim)
 
-    @pytest.mark.skipif(not should_run_flow_tests(), reason=get_mock_reason("flow"))
     def test_glow_flow(self, rng, glow_config):
         """Test Glow flow model."""
         # Create model
@@ -178,9 +176,9 @@ class TestFlowIntegration:
         assert outputs["z"].shape[0] == batch_size  # Batch dimension preserved
         assert outputs["logdet"].shape == (batch_size,)
 
-        # Test log likelihood calculation
-        log_likelihood = model.log_likelihood(x)
-        assert log_likelihood.shape == (batch_size,)
+        # Test log probability calculation
+        log_prob = model.log_prob(x)
+        assert log_prob.shape == (batch_size,)
 
     def test_flow_with_conditioning(self, rng, realnvp_config):
         """Test flow models with conditioning."""
@@ -203,22 +201,14 @@ class TestFlowIntegration:
             # Handle tuple output
             assert len(outputs) >= 2
 
-        # Test basic log likelihood
-        try:
-            log_likelihood = model.log_prob(x)
-            assert log_likelihood.shape == (batch_size,)
-        except Exception:
-            # If log_prob not implemented, skip this part
-            pass
+        # Test basic log probability
+        log_prob = model.log_prob(x)
+        assert log_prob.shape == (batch_size,)
 
         # Test basic sampling
-        try:
-            n_samples = 2
-            samples = model.sample(n_samples, rngs=nnx.Rngs(params=jax.random.PRNGKey(3)))
-            assert samples.shape[0] == n_samples
-        except Exception:
-            # If sampling not implemented, skip this part
-            pass
+        n_samples = 2
+        samples = model.sample(n_samples, rngs=nnx.Rngs(params=jax.random.PRNGKey(3)))
+        assert samples.shape[0] == n_samples
 
     def test_multi_scale_flow(self, rng, coupling_network):
         """Test multi-scale flow architecture."""
@@ -248,13 +238,9 @@ class TestFlowIntegration:
             assert len(outputs) >= 2
 
         # Test basic sampling functionality
-        try:
-            n_samples = 2
-            samples = model.sample(n_samples, rngs=nnx.Rngs(params=jax.random.PRNGKey(4)))
-            assert samples.shape[0] == n_samples
-        except Exception:
-            # If sampling not implemented, verify shape compatibility
-            assert x.shape == input_shape
+        n_samples = 2
+        samples = model.sample(n_samples, rngs=nnx.Rngs(params=jax.random.PRNGKey(4)))
+        assert samples.shape[0] == n_samples
 
     def test_flow_model_training_step(self, rng, realnvp_config):
         """Test a single training step with flow models."""
@@ -275,11 +261,5 @@ class TestFlowIntegration:
         else:
             assert len(outputs) >= 2
 
-        # Test that model parameters are accessible (needed for training)
-        try:
-            # Check if model has trainable parameters
-            hasattr(model, "parameters")
-            assert x.shape == input_shape  # Basic shape verification
-        except Exception:
-            # If parameter access not available, just verify basic functionality
-            assert x.shape == input_shape
+        # Test that model handles training data shapes
+        assert x.shape == input_shape

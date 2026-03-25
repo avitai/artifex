@@ -1,11 +1,8 @@
 # Molecular Modality Guide
 
-!!! info "Coming Soon"
-    This page is under development. Check back for molecular modality documentation.
-
 ## Overview
 
-Guide for working with molecular data in Artifex.
+Guide for working with molecular data in Artifex. The molecular modality is available in `modalities.molecular` with adapters and modality support.
 
 ## Topics
 

@@ -3,10 +3,13 @@
 Following TDD principles - write tests first, then implement.
 """
 
+import dataclasses
+
 import jax.numpy as jnp
 import pytest
 from flax import nnx
 
+from artifex.generative_models.modalities import get_modality, list_modalities
 from artifex.generative_models.modalities.multi_modal.adapters import (
     create_multi_modal_adapter,
     MultiModalAdapter,
@@ -18,7 +21,6 @@ from artifex.generative_models.modalities.multi_modal.base import (
 )
 from artifex.generative_models.modalities.multi_modal.datasets import (
     create_synthetic_multi_modal_dataset,
-    MultiModalDataset,
 )
 from artifex.generative_models.modalities.multi_modal.evaluation import (
     compute_multi_modal_metrics,
@@ -29,32 +31,6 @@ from artifex.generative_models.modalities.multi_modal.representations import (
     ModalityFusionProcessor,
     MultiModalProcessor,
 )
-from artifex.generative_models.modalities.registry import _MODALITY_REGISTRY
-
-
-@pytest.fixture(autouse=True)
-def setup_registry():
-    """Ensure modality registry is properly setup for tests."""
-    # Save original registry state
-    original = _MODALITY_REGISTRY.copy()
-
-    # Ensure required modalities are registered
-    from artifex.generative_models.modalities.audio.base import AudioModality
-    from artifex.generative_models.modalities.image.base import ImageModality
-    from artifex.generative_models.modalities.text.base import TextModality
-
-    if "image" not in _MODALITY_REGISTRY:
-        _MODALITY_REGISTRY["image"] = ImageModality
-    if "text" not in _MODALITY_REGISTRY:
-        _MODALITY_REGISTRY["text"] = TextModality
-    if "audio" not in _MODALITY_REGISTRY:
-        _MODALITY_REGISTRY["audio"] = AudioModality
-
-    yield
-
-    # Restore original registry state
-    _MODALITY_REGISTRY.clear()
-    _MODALITY_REGISTRY.update(original)
 
 
 class TestMultiModalModality:
@@ -84,11 +60,11 @@ class TestMultiModalModality:
             alignment_method="contrastive",
             shared_embedding_dim=512,
         )
-        assert len(config.modalities) == 3
+        assert config.modalities == ("image", "text", "audio")
         assert config.fusion_strategy == "attention"
 
         # Test invalid modality
-        with pytest.raises(ValueError, match="Unknown modality"):
+        with pytest.raises(ValueError, match="Unsupported multi-modal helper modality"):
             MultiModalModalityConfig(
                 modalities=["image", "unknown_modality"],
                 fusion_strategy="concatenate",
@@ -101,11 +77,45 @@ class TestMultiModalModality:
                 fusion_strategy="invalid_fusion",
             )
 
+    @pytest.mark.parametrize(
+        "unsupported_modality",
+        ["protein", "molecular", "tabular", "timeseries"],
+    )
+    def test_multi_modal_config_rejects_non_helper_modalities(self, unsupported_modality):
+        """The helper package should only accept its retained image/text/audio set."""
+        with pytest.raises(ValueError, match="Unsupported multi-modal helper modality"):
+            MultiModalModalityConfig(
+                modalities=["image", unsupported_modality],
+                fusion_strategy="concatenate",
+            )
+
+    def test_multi_modal_is_not_registry_backed(self, rngs):
+        """The multi-modal helper surface should stay outside the shared registry."""
+        assert "multi_modal" not in list_modalities()
+
+        with pytest.raises(ValueError, match="Unknown modality 'multi_modal'"):
+            get_modality("multi_modal", rngs=rngs)
+
+    def test_multi_modal_config_is_frozen_and_supports_from_dict(self):
+        """Multi-modal runtime config should be a frozen typed config document."""
+        config = MultiModalModalityConfig.from_dict(
+            {
+                "name": "multi_modal_runtime",
+                "modalities": ["image", "text"],
+                "fusion_strategy": "concatenate",
+            }
+        )
+
+        assert config.modalities == ("image", "text")
+
+        with pytest.raises(dataclasses.FrozenInstanceError):
+            config.modalities = ("audio", "text")
+
     def test_multi_modal_modality_initialization(self, config, rngs):
         """Test multi-modal modality initialization."""
         modality = MultiModalModality(config=config, rngs=rngs)
 
-        assert modality.modalities == ["image", "text"]
+        assert modality.modalities == ("image", "text")
         assert modality.fusion_strategy == "concatenate"
         assert modality.shared_embedding_dim == 256
         assert hasattr(modality, "modality_instances")
@@ -175,19 +185,18 @@ class TestMultiModalModality:
 
     def test_multi_modal_dataset(self, rngs):
         """Test multi-modal dataset functionality."""
-        dataset = MultiModalDataset(
-            modalities=["image", "text"],
+        dataset = create_synthetic_multi_modal_dataset(
+            modalities=("image", "text"),
             num_samples=100,
+            alignment_strength=0.8,
+            rngs=rngs,
             image_shape=(32, 32, 3),
             text_vocab_size=1000,
             text_sequence_length=50,
-            alignment_strength=0.8,
-            rngs=rngs,
         )
 
         # Test dataset properties
         assert len(dataset) == 100
-        assert dataset.modalities == ["image", "text"]
 
         # Test sample generation
         sample = dataset[0]
@@ -207,7 +216,6 @@ class TestMultiModalModality:
         )
 
         assert len(dataset) == 50
-        assert len(dataset.modalities) == 3
 
         sample = dataset[0]
         assert all(mod in sample for mod in ["image", "text", "audio"])
@@ -236,6 +244,51 @@ class TestMultiModalModality:
         assert "consistency_score" in metrics
         assert "quality_scores" in metrics
         assert "overall_score" in metrics
+
+    def test_multi_modal_text_evaluator_uses_full_text_token_defaults(self, rngs):
+        """Text evaluator config should reuse the standard special-token defaults."""
+        suite = MultiModalEvaluationSuite(modalities=["text"], rngs=rngs)
+
+        text_params = suite.modality_evaluators["text"].text_params
+        assert text_params["vocab_size"] == 10000
+        assert text_params["max_length"] == 128
+        assert text_params["pad_token_id"] == 0
+        assert text_params["unk_token_id"] == 1
+        assert text_params["bos_token_id"] == 2
+        assert text_params["eos_token_id"] == 3
+        assert text_params["handle_oov"] == "unk"
+
+    def test_multi_modal_audio_path_is_supported_end_to_end(self, rngs):
+        """The retained helper surface should support image/audio jointly."""
+        modality = MultiModalModality(
+            config=MultiModalModalityConfig(modalities=("image", "audio")),
+            rngs=rngs,
+        )
+
+        sample = {
+            "image": jnp.ones((32, 32, 3), dtype=jnp.float32),
+            "audio": jnp.ones((16000,), dtype=jnp.float32),
+        }
+        processed = modality.process(sample)
+
+        assert processed["fused_representation"].ndim == 1
+        assert set(processed["individual_representations"]) == {"image", "audio"}
+
+        suite = MultiModalEvaluationSuite(modalities=["image", "audio"], rngs=rngs)
+        metrics = suite.evaluate(
+            {"image": sample["image"][None, ...], "audio": sample["audio"][None, ...]},
+            {
+                "image": sample["image"][None, ...] * 0.9,
+                "audio": sample["audio"][None, ...] * 0.9,
+            },
+        )
+
+        assert metrics["overall_score"] >= 0.0
+
+    def test_multi_modal_evaluation_rejects_unsupported_modalities(self, rngs):
+        """Evaluation should fail explicitly on unsupported helper modalities."""
+        with pytest.raises(ValueError, match="Unsupported multi-modal helper modality"):
+            MultiModalEvaluationSuite(modalities=["image", "protein"], rngs=rngs)
 
     def test_compute_multi_modal_metrics(self):
         """Test multi-modal metrics computation function."""
@@ -453,7 +506,3 @@ class TestMultiModalModality:
 
         fused = fusion(inputs)
         assert fused.shape == (768,)
-
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])

@@ -1,11 +1,7 @@
 # Train
 
-**Module:** `cli.commands.train`
+The top-level `train` command is not currently shipped in the runtime CLI.
 
-**Source:** `cli/commands/train.py`
-
-## Module Statistics
-
-- **Classes:** 0
-- **Functions:** 0
-- **Imports:** 0
+Use `artifex config ...` for configuration management. Model training should be
+driven from Python APIs or project-specific scripts until a supported training
+command surface returns.

@@ -13,6 +13,7 @@ import jax.numpy as jnp
 from flax import nnx
 
 from artifex.generative_models.core.base import GenerativeModel
+from artifex.generative_models.core.configuration.base_dataclass import ConfigDocument
 
 
 class ImageRepresentation(Enum):
@@ -23,8 +24,8 @@ class ImageRepresentation(Enum):
     RGBA = "rgba"
 
 
-@dataclass
-class ImageModalityConfig:
+@dataclass(frozen=True, slots=True, kw_only=True)
+class ImageModalityConfig(ConfigDocument):
     """Configuration for image modality processing.
 
     Args:
@@ -45,20 +46,20 @@ class ImageModalityConfig:
     augmentation: bool = False
     resize_method: str = "bilinear"
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Set defaults and validate configuration."""
         # Set width to height for square images if not specified
         if self.width is None:
-            self.width = self.height
+            object.__setattr__(self, "width", self.height)
 
         # Auto-determine channels based on representation
         if self.channels is None:
             if self.representation == ImageRepresentation.RGB:
-                self.channels = 3
+                object.__setattr__(self, "channels", 3)
             elif self.representation == ImageRepresentation.RGBA:
-                self.channels = 4
+                object.__setattr__(self, "channels", 4)
             else:  # GRAYSCALE
-                self.channels = 1
+                object.__setattr__(self, "channels", 1)
 
 
 class ImageGenerationProtocol(Protocol):
@@ -208,7 +209,7 @@ class ImageModality(GenerativeModel):
             **kwargs: Additional loss parameters
 
         Returns:
-            Dictionary containing loss and metrics
+            Dictionary containing canonical loss terms.
         """
         # Default MSE loss - subclasses should override for specific losses
         target_images = batch["images"]
@@ -220,7 +221,7 @@ class ImageModality(GenerativeModel):
         mse_loss = jnp.mean((target_images - predicted_images) ** 2)
 
         # Return dictionary with primary loss and any metrics
-        return {"loss": mse_loss, "mse": mse_loss}
+        return {"total_loss": mse_loss, "mse": mse_loss}
 
     def process(self, data: jax.Array, **kwargs) -> jax.Array:
         """Process image data for multi-modal fusion.

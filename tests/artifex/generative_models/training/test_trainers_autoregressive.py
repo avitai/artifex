@@ -458,14 +458,14 @@ class TestAutoregressiveTrainStep:
 
         # Get initial params
         initial_params = nnx.state(simple_autoregressive_model, nnx.Param)
-        initial_kernel = initial_params["linear"]["kernel"].value.copy()
+        initial_kernel = initial_params["linear"]["kernel"][...].copy()
 
         # Run train step
         trainer.train_step(simple_autoregressive_model, optimizer, sample_batch, step=0)
 
         # Get updated params
         updated_params = nnx.state(simple_autoregressive_model, nnx.Param)
-        updated_kernel = updated_params["linear"]["kernel"].value
+        updated_kernel = updated_params["linear"]["kernel"][...]
 
         # Params should have changed
         assert not jnp.allclose(initial_kernel, updated_kernel)
@@ -659,12 +659,12 @@ class TestAutoregressiveLossFunctionIntegration:
         trainer = AutoregressiveTrainer(config)
 
         # Should be able to create a loss function for the base Trainer
-        loss_fn = trainer.create_loss_fn(step=100)
+        loss_fn = trainer.create_loss_fn()
 
-        # Loss function should have correct signature: (model, batch, rng) -> (loss, metrics)
+        # Loss function should have correct signature: (model, batch, rng, step)
         batch = {"input_ids": jax.random.randint(jax.random.key(0), (4, 16), 0, 100)}
         rng = jax.random.key(42)
-        loss, metrics = loss_fn(simple_autoregressive_model, batch, rng)
+        loss, metrics = loss_fn(simple_autoregressive_model, batch, rng, jnp.array(100))
 
         assert isinstance(loss, jax.Array)
         assert "perplexity" in metrics

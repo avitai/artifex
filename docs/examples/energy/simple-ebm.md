@@ -4,7 +4,7 @@
 
 ## Overview
 
-This comprehensive example demonstrates Energy-Based Models (EBMs) with MCMC sampling. It covers the fundamentals of energy functions, Langevin dynamics sampling, and contrastive divergence training, including advanced techniques like persistent contrastive divergence and deep EBM architectures.
+This complete example demonstrates Energy-Based Models (EBMs) with MCMC sampling. It covers the fundamentals of energy functions, Langevin dynamics sampling, and contrastive divergence training, including advanced techniques like persistent contrastive divergence and deep EBM architectures.
 
 ## What You'll Learn
 
@@ -25,8 +25,8 @@ This comprehensive example demonstrates Energy-Based Models (EBMs) with MCMC sam
 ### Run the Python Script
 
 ```bash
-# Activate environment
-source activate.sh
+# Install Artifex if needed
+pip install artifex
 
 # Run the example
 python examples/generative_models/energy/simple_ebm_example.py
@@ -35,8 +35,8 @@ python examples/generative_models/energy/simple_ebm_example.py
 ### Run the Jupyter Notebook
 
 ```bash
-# Activate environment
-source activate.sh
+# Install Artifex if needed
+pip install artifex
 
 # Launch Jupyter
 jupyter lab examples/generative_models/energy/simple_ebm_example.ipynb
@@ -146,7 +146,7 @@ outputs = ebm(real_data)
 # Compute CD loss using model's loss_fn (handles MCMC internally)
 loss_dict = ebm.loss_fn(x=real_data, outputs=outputs)
 
-print(f"CD Loss: {loss_dict['loss']:.4f}")
+print(f"CD Loss: {loss_dict['total_loss']:.4f}")
 print(f"Real Energy: {loss_dict['real_energy_mean']:.4f}")
 print(f"Fake Energy: {loss_dict['fake_energy_mean']:.4f}")
 print(f"Real Energy: {loss_dict['real_energy_mean']:.4f}")
@@ -191,17 +191,9 @@ config = EBMConfig(
 ebm_pcd = EBM(config, rngs=nnx.Rngs(0))
 
 # Training uses persistent samples automatically
-# The model's loss_fn handles buffer management internally
-        init_samples=init_samples,
-        step_size=0.01,
-        n_steps=20  # Fewer steps with persistent buffer
-    )
-
-    # Update buffer
-    buffer.add(samples)
-
-    # Compute loss and update model
-    loss = contrastive_divergence_loss(ebm, real_data, samples)
+batch = {"data": real_data}
+loss_dict = ebm_pcd.train_step(batch)
+print(loss_dict["total_loss"])
 ```
 
 ### Deep EBM Architecture
@@ -221,7 +213,6 @@ energy_network_config = EnergyNetworkConfig(
     hidden_dims=(32, 64, 128),  # Channel progression (tuple)
     activation="silu",
     network_type="cnn",
-    use_spectral_norm=True,
     use_residual=True,
 )
 
@@ -261,7 +252,7 @@ deep_ebm = DeepEBM(config=deep_config, rngs=rngs)
 - MLP-based energy functions
 - CNN-based energy functions
 - Deep architectures with residual connections
-- Spectral normalization for stability
+- Group normalization for stable CNN energy blocks
 
 ### MCMC Sampling
 
@@ -281,8 +272,8 @@ deep_ebm = DeepEBM(config=deep_config, rngs=rngs)
 
 - Deep convolutional EBMs
 - Residual connections
-- Batch normalization
-- Spectral normalization
+- Group normalization
+- Deeper CNN stacks for complex image data
 
 ## Experiments to Try
 
@@ -314,7 +305,7 @@ After understanding this example:
 
 ### Training Instability
 
-- Use spectral normalization
+- Increase alpha regularization or reduce learning rate
 - Reduce learning rate
 - Increase batch size
 - Use persistent CD with larger buffer
@@ -336,8 +327,8 @@ After understanding this example:
 
 - **Paper**: [A Tutorial on Energy-Based Learning](http://yann.lecun.com/exdb/publis/pdf/lecun-06.pdf)
 - **Paper**: [Training Products of Experts by Minimizing Contrastive Divergence](https://www.cs.toronto.edu/~hinton/absps/tr00-004.pdf)
-- **Artifex EBM Guide**: (Coming soon)
-- **API Reference**: (Coming soon)
+- **Artifex EBM Guide**: [EBM Guide](../../user-guide/models/ebm-guide.md)
+- **API Reference**: [EBM API](../../api/models/ebm.md)
 
 ## Related Examples
 

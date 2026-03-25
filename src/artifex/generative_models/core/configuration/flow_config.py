@@ -21,7 +21,7 @@ VALID_BASE_DISTRIBUTIONS = ("normal", "uniform")
 VALID_MASK_TYPES = ("checkerboard", "channel-wise")
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class CouplingNetworkConfig(BaseNetworkConfig):
     """Configuration for coupling layer networks in normalizing flows.
 
@@ -49,7 +49,7 @@ class CouplingNetworkConfig(BaseNetworkConfig):
 
     def __post_init__(self) -> None:
         """Validate coupling network configuration."""
-        super().__post_init__()
+        super(CouplingNetworkConfig, self).__post_init__()
 
         # Validate network_type
         if self.network_type not in VALID_NETWORK_TYPES:
@@ -91,7 +91,7 @@ class CouplingNetworkConfig(BaseNetworkConfig):
         return cls(**data)
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class FlowConfig(BaseConfig):
     """Base configuration for normalizing flow models.
 
@@ -119,7 +119,7 @@ class FlowConfig(BaseConfig):
 
     def __post_init__(self) -> None:
         """Validate flow configuration."""
-        super().__post_init__()
+        super(FlowConfig, self).__post_init__()
 
         # Validate coupling_network is provided
         if self.coupling_network is None:
@@ -151,7 +151,7 @@ class FlowConfig(BaseConfig):
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary with nested config handling."""
-        data = super().to_dict()
+        data = BaseConfig.to_dict(self)
 
         # Convert nested config to dict
         if self.coupling_network is not None:
@@ -175,7 +175,42 @@ class FlowConfig(BaseConfig):
         return cls(**data)
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
+class ConditionalFlowConfig(FlowConfig):
+    """Configuration for conditional normalizing flow models."""
+
+    condition_dim: int = 0
+    num_coupling_layers: int = 8
+    mask_type: str = "checkerboard"
+
+    def __post_init__(self) -> None:
+        """Validate conditional flow configuration."""
+        super(ConditionalFlowConfig, self).__post_init__()
+
+        if self.condition_dim <= 0:
+            raise ValueError(f"condition_dim must be positive, got {self.condition_dim}")
+        if self.num_coupling_layers <= 0:
+            raise ValueError(
+                f"num_coupling_layers must be positive, got {self.num_coupling_layers}"
+            )
+        if self.mask_type not in VALID_MASK_TYPES:
+            raise ValueError(f"mask_type must be one of {VALID_MASK_TYPES}, got '{self.mask_type}'")
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "ConditionalFlowConfig":
+        """Create config from dictionary with nested config handling."""
+        data = data.copy()
+
+        if "coupling_network" in data and isinstance(data["coupling_network"], dict):
+            data["coupling_network"] = CouplingNetworkConfig.from_dict(data["coupling_network"])
+
+        if "base_distribution_params" not in data:
+            data["base_distribution_params"] = {"loc": 0.0, "scale": 1.0}
+
+        return cls(**data)
+
+
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class RealNVPConfig(FlowConfig):
     """Configuration for RealNVP (Real-valued Non-Volume Preserving) flow.
 
@@ -191,7 +226,7 @@ class RealNVPConfig(FlowConfig):
 
     def __post_init__(self) -> None:
         """Validate RealNVP configuration."""
-        super().__post_init__()
+        super(RealNVPConfig, self).__post_init__()
 
         # Validate num_coupling_layers
         if self.num_coupling_layers <= 0:
@@ -219,34 +254,28 @@ class RealNVPConfig(FlowConfig):
         return cls(**data)
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class GlowConfig(FlowConfig):
-    """Configuration for Glow (Generative Flow with Invertible 1x1 Convolutions).
+    """Configuration for the retained single-scale Glow baseline.
 
-    Glow uses a multi-scale architecture with ActNorm, invertible 1x1 convolutions,
-    and affine coupling layers.
+    The current Glow runtime keeps one image-scale block stack built from
+    ActNorm, invertible 1x1 convolutions, and affine coupling layers.
 
     Attributes:
         image_shape: Shape of input images (H, W, C)
-        num_scales: Number of multi-scale levels
-        blocks_per_scale: Number of flow blocks per scale level
+        blocks_per_scale: Number of Glow blocks in the retained stack
     """
 
     image_shape: tuple[int, ...] | None = None
-    num_scales: int = 3
     blocks_per_scale: int = 6
 
     def __post_init__(self) -> None:
         """Validate Glow configuration."""
-        super().__post_init__()
+        super(GlowConfig, self).__post_init__()
 
         # Validate image_shape is provided
         if self.image_shape is None:
             raise ValueError("image_shape is required for GlowConfig")
-
-        # Validate num_scales
-        if self.num_scales <= 0:
-            raise ValueError(f"num_scales must be positive, got {self.num_scales}")
 
         # Validate blocks_per_scale
         if self.blocks_per_scale <= 0:
@@ -272,7 +301,7 @@ class GlowConfig(FlowConfig):
         return cls(**data)
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class MAFConfig(FlowConfig):
     """Configuration for MAF (Masked Autoregressive Flow).
 
@@ -289,7 +318,7 @@ class MAFConfig(FlowConfig):
 
     def __post_init__(self) -> None:
         """Validate MAF configuration."""
-        super().__post_init__()
+        super(MAFConfig, self).__post_init__()
 
         # Validate num_layers
         if self.num_layers <= 0:
@@ -311,7 +340,7 @@ class MAFConfig(FlowConfig):
         return cls(**data)
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class IAFConfig(FlowConfig):
     """Configuration for IAF (Inverse Autoregressive Flow).
 
@@ -328,7 +357,7 @@ class IAFConfig(FlowConfig):
 
     def __post_init__(self) -> None:
         """Validate IAF configuration."""
-        super().__post_init__()
+        super(IAFConfig, self).__post_init__()
 
         # Validate num_layers
         if self.num_layers <= 0:
@@ -350,7 +379,7 @@ class IAFConfig(FlowConfig):
         return cls(**data)
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class NeuralSplineConfig(FlowConfig):
     """Configuration for Neural Spline Flow.
 
@@ -369,7 +398,7 @@ class NeuralSplineConfig(FlowConfig):
 
     def __post_init__(self) -> None:
         """Validate Neural Spline configuration."""
-        super().__post_init__()
+        super(NeuralSplineConfig, self).__post_init__()
 
         # Validate num_layers
         if self.num_layers <= 0:

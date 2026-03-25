@@ -1,6 +1,6 @@
 """Device mesh management utilities for scalable distributed training.
 
-This module provides comprehensive device mesh management including:
+This module provides complete device mesh management including:
 - Device mesh creation and optimization
 - Topology optimization for different workloads
 - Validation and configuration utilities

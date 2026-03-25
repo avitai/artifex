@@ -1,22 +1,23 @@
-"""Base frozen dataclass configuration for Artifex.
+"""Typed frozen dataclass configuration foundations for Artifex.
 
-This module replaces the Pydantic-based configuration system with
-frozen dataclasses, which are:
+This module defines the shared typed-document and runtime-config foundations
+used across Artifex. It is built around frozen dataclasses, which are:
 - JAX-native (no metaclasses, fully immutable)
 - JIT-safe (frozen=True + tuples)
 - Simpler (Python stdlib, no magic)
 - Proven in production JAX codebases
 
 Key Design Decisions:
-1. All configs are frozen dataclasses (immutable)
+1. All config documents are frozen dataclasses (immutable)
 2. All sequence fields use tuples (not lists)
 3. Validation happens in __post_init__ (fail-fast)
 4. dacite handles dict → dataclass conversion with type checking
 """
 
 import dataclasses
+import enum
 from pathlib import Path
-from typing import Any
+from typing import Any, TypeVar
 
 import yaml
 from dacite import Config as DaciteConfig, from_dict as dacite_from_dict
@@ -29,20 +30,84 @@ def _path_type_hook(value: Any) -> Path:
     return value
 
 
-@dataclasses.dataclass(frozen=True)
-class BaseConfig:
-    """Base configuration for all configs.
+TConfigDocument = TypeVar("TConfigDocument", bound="ConfigDocument")
 
-    Replaces Pydantic BaseConfiguration with frozen dataclass.
+
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
+class ConfigDocument:
+    """Serialization and YAML helpers for typed config documents.
+
+    This base provides the typed-document mechanics shared by both named
+    runtime configs and retained reference-template documents.
+    """
+
+    def __post_init__(self) -> None:
+        """Support cooperative dataclass validation in subclasses."""
+
+    @classmethod
+    def from_dict(cls: type[TConfigDocument], config_dict: dict[str, Any]) -> TConfigDocument:
+        """Create a typed config document from a dictionary using dacite."""
+        return dacite_from_dict(
+            data_class=cls,
+            data=config_dict,
+            config=DaciteConfig(
+                strict=True,
+                check_types=True,
+                cast=[tuple, enum.Enum],
+                type_hooks={Path: _path_type_hook},
+            ),
+        )
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert this typed config document to a dictionary."""
+        return dataclasses.asdict(self)
+
+    @classmethod
+    def from_yaml(cls: type[TConfigDocument], path: Path | str) -> TConfigDocument:
+        """Load a typed config document from YAML."""
+        path = Path(path)
+        if not path.exists():
+            raise FileNotFoundError(f"Configuration file not found: {path}")
+
+        with open(path, "r") as f:
+            data = yaml.safe_load(f)
+
+        return cls.from_dict(data)
+
+    def to_yaml(self, path: Path | str) -> None:
+        """Save a typed config document to YAML."""
+        path = Path(path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+
+        data = self.to_dict()
+        data = self._prepare_for_yaml(data)
+
+        with open(path, "w") as f:
+            yaml.dump(data, f, default_flow_style=False, sort_keys=False)
+
+    def _prepare_for_yaml(self, obj: Any) -> Any:
+        """Prepare an object for YAML serialization."""
+        if isinstance(obj, tuple):
+            return [self._prepare_for_yaml(item) for item in obj]
+        elif isinstance(obj, dict):
+            return {k: self._prepare_for_yaml(v) for k, v in obj.items()}
+        elif isinstance(obj, list):
+            return [self._prepare_for_yaml(item) for item in obj]
+        elif isinstance(obj, Path):
+            return str(obj)
+        else:
+            return obj
+
+
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
+class BaseConfig(ConfigDocument):
+    """Base configuration for named runtime configs.
 
     This provides:
     - Immutable configuration (frozen=True)
-    - Type-safe with dataclasses
-    - Automatic dict conversion with dacite
-    - YAML serialization/deserialization
+    - Common runtime metadata fields
+    - Type-safe conversion inherited from ConfigDocument
     - Validation in __post_init__
-
-    All configs in Artifex inherit from this class.
 
     Attributes:
         name: Unique name for this configuration
@@ -67,105 +132,3 @@ class BaseConfig:
         name = self.name.strip() if isinstance(self.name, str) else self.name
         if not name:
             raise ValueError("name must be non-empty")
-
-    @classmethod
-    def from_dict(cls, config_dict: dict[str, Any]) -> "BaseConfig":
-        """Create config from dict using dacite.
-
-        This handles automatic type conversion, including:
-        - list → tuple conversion
-        - Nested dataclass creation
-        - Type checking
-
-        Args:
-            config_dict: Dictionary with config data
-
-        Returns:
-            Instance of this config class
-
-        Raises:
-            dacite exceptions if data is invalid
-        """
-        return dacite_from_dict(
-            data_class=cls,
-            data=config_dict,
-            config=DaciteConfig(
-                strict=True,  # No extra fields allowed
-                check_types=True,  # Type checking enabled
-                cast=[tuple],  # Auto-cast lists to tuples
-                type_hooks={Path: _path_type_hook},  # Auto-convert strings to Path
-            ),
-        )
-
-    def to_dict(self) -> dict[str, Any]:
-        """Convert config to dictionary.
-
-        Returns:
-            Dictionary representation of config
-        """
-        return dataclasses.asdict(self)
-
-    @classmethod
-    def from_yaml(cls, path: Path | str) -> "BaseConfig":
-        """Load configuration from YAML file.
-
-        Args:
-            path: Path to YAML file
-
-        Returns:
-            Instance of this config class
-
-        Raises:
-            FileNotFoundError: If file doesn't exist
-        """
-        path = Path(path)
-        if not path.exists():
-            raise FileNotFoundError(f"Configuration file not found: {path}")
-
-        with open(path, "r") as f:
-            data = yaml.safe_load(f)
-
-        return cls.from_dict(data)
-
-    def to_yaml(self, path: Path | str) -> None:
-        """Save configuration to YAML file.
-
-        Creates parent directories if needed.
-        Converts tuples to lists for YAML compatibility.
-
-        Args:
-            path: Path to save YAML file
-        """
-        path = Path(path)
-        path.parent.mkdir(parents=True, exist_ok=True)
-
-        # Convert to dict and prepare for YAML
-        data = self.to_dict()
-        data = self._prepare_for_yaml(data)
-
-        with open(path, "w") as f:
-            yaml.dump(data, f, default_flow_style=False, sort_keys=False)
-
-    def _prepare_for_yaml(self, obj: Any) -> Any:
-        """Prepare object for YAML serialization.
-
-        YAML doesn't have tuples, so convert them to lists.
-        Handle other special types as needed.
-
-        Args:
-            obj: Object to prepare
-
-        Returns:
-            YAML-safe object
-        """
-        if isinstance(obj, tuple):
-            # Convert tuple to list for YAML
-            return [self._prepare_for_yaml(item) for item in obj]
-        elif isinstance(obj, dict):
-            return {k: self._prepare_for_yaml(v) for k, v in obj.items()}
-        elif isinstance(obj, list):
-            return [self._prepare_for_yaml(item) for item in obj]
-        elif isinstance(obj, Path):
-            return str(obj)
-        else:
-            return obj

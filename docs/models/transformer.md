@@ -54,20 +54,8 @@ def encode()
 def generate()
 ```
 
-### generate_with_cache
-
-```python
-def generate_with_cache()
-```
-
-### get_attention_weights
-
-```python
-def get_attention_weights()
-```
-
 ## Module Statistics
 
 - **Classes:** 1
-- **Functions:** 8
+- **Functions:** 6
 - **Imports:** 6

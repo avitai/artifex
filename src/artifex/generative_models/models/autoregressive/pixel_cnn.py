@@ -9,7 +9,6 @@ import jax.numpy as jnp
 from flax import nnx
 
 from artifex.generative_models.core.configuration import PixelCNNConfig
-from artifex.generative_models.core.layers import PixelCNNResidualBlock
 from artifex.generative_models.models.autoregressive.base import AutoregressiveModel
 
 
@@ -109,7 +108,41 @@ class MaskedConv2D(nnx.Module):
         return output
 
 
-# ResidualBlock is now imported from core layers as PixelCNNResidualBlock
+class PixelCNNResidualBlock(nnx.Module):
+    """Autoregressive residual block built from real masked convolutions."""
+
+    def __init__(
+        self,
+        channels: int,
+        kernel_size: tuple[int, int] = (3, 3),
+        mask_type: str = "B",
+        *,
+        rngs: nnx.Rngs,
+    ) -> None:
+        super().__init__()
+        self.channels = channels
+        self.kernel_size = kernel_size
+        self.mask_type = mask_type
+        self.conv1 = MaskedConv2D(
+            in_features=channels,
+            out_features=channels,
+            kernel_size=kernel_size,
+            mask_type=mask_type,
+            rngs=rngs,
+        )
+        self.conv2 = MaskedConv2D(
+            in_features=channels,
+            out_features=channels,
+            kernel_size=kernel_size,
+            mask_type=mask_type,
+            rngs=rngs,
+        )
+
+    def __call__(self, x: jax.Array, **kwargs: Any) -> jax.Array:
+        residual = x
+        x = nnx.relu(self.conv1(x))
+        x = self.conv2(x)
+        return residual + x
 
 
 class PixelCNN(AutoregressiveModel):
@@ -330,7 +363,7 @@ class PixelCNN(AutoregressiveModel):
             **kwargs: Additional keyword arguments
 
         Returns:
-            dictionary containing loss and metrics
+            Dictionary containing canonical loss terms.
         """
         # Extract images from batch
         if isinstance(batch, dict):
@@ -364,7 +397,7 @@ class PixelCNN(AutoregressiveModel):
         bits_per_dim = loss / jnp.log(2.0)
 
         return {
-            "loss": loss,
+            "total_loss": loss,
             "nll_loss": loss,
             "accuracy": accuracy,
             "bits_per_dim": bits_per_dim,

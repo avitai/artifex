@@ -1,9 +1,7 @@
-"""Flow matching trainer with SOTA training techniques.
+"""Flow matching trainer with explicit linear-path runtime semantics.
 
 Provides specialized training utilities for flow matching models including:
-- Conditional Flow Matching (CFM)
-- Optimal Transport CFM (OT-CFM)
-- Rectified Flow
+- Linear Conditional Flow Matching over Gaussian noise/data interpolation
 - Time sampling strategies (uniform, logit-normal, u-shaped)
 
 References:
@@ -14,8 +12,9 @@ References:
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable, Literal
+from typing import Any, Literal
 
 import jax
 import jax.numpy as jnp
@@ -34,26 +33,15 @@ class FlowTrainingConfig:
     """Configuration for flow matching training.
 
     Attributes:
-        flow_type: Type of flow matching.
-            - "cfm": Standard Conditional Flow Matching
-            - "ot_cfm": Optimal Transport CFM for straighter paths
-            - "rectified_flow": Rectified Flow for straighter paths
         time_sampling: How to sample time values during training.
             - "uniform": Uniform sampling in [0, 1]
             - "logit_normal": Logit-normal (favors middle times)
-            - "u_shaped": U-shaped (favors endpoints, good for rectified flows)
-        sigma_min: Minimum noise level for the Gaussian path.
-        use_ot: Whether to use optimal transport coupling.
-        ot_regularization: Regularization for OT (Sinkhorn epsilon).
+            - "u_shaped": U-shaped (favors interpolation endpoints)
         logit_normal_loc: Location parameter for logit-normal sampling.
         logit_normal_scale: Scale parameter for logit-normal sampling.
     """
 
-    flow_type: Literal["cfm", "ot_cfm", "rectified_flow"] = "cfm"
     time_sampling: Literal["uniform", "logit_normal", "u_shaped"] = "uniform"
-    sigma_min: float = 0.001
-    use_ot: bool = False
-    ot_regularization: float = 0.01
     logit_normal_loc: float = 0.0
     logit_normal_scale: float = 1.0
 
@@ -66,10 +54,9 @@ class FlowTrainer:
     allowing it to be wrapped with nnx.jit for performance.
 
     Features:
-        - Multiple flow types (CFM, OT-CFM, Rectified Flow)
+        - Explicit linear CFM objective
         - Non-uniform time sampling (logit-normal, u-shaped)
-        - Optimal transport coupling support
-        - DRY integration with base Trainer via create_loss_fn()
+        - Step-aware objective closure support for shared training infrastructure
 
     The flow matching objective learns a velocity field v_theta(x_t, t) that
     transports samples from noise distribution to data distribution along
@@ -83,7 +70,6 @@ class FlowTrainer:
         )
 
         config = FlowTrainingConfig(
-            flow_type="cfm",
             time_sampling="logit_normal",
         )
         trainer = FlowTrainer(config)
@@ -270,21 +256,23 @@ class FlowTrainer:
 
     def create_loss_fn(
         self,
-    ) -> Callable[[nnx.Module, dict[str, Any], jax.Array], tuple[jax.Array, dict[str, Any]]]:
-        """Create loss function compatible with base Trainer.
-
-        This enables integration with the base Trainer for callbacks,
-        checkpointing, logging, and other training infrastructure.
+    ) -> Callable[
+        [nnx.Module, dict[str, Any], jax.Array, jax.Array],
+        tuple[jax.Array, dict[str, Any]],
+    ]:
+        """Create a step-aware objective closure for shared training infrastructure.
 
         Returns:
-            Function with signature: (model, batch, rng) -> (loss, metrics)
+            Function with signature: (model, batch, rng, step) -> (loss, metrics)
         """
 
         def loss_fn(
             model: nnx.Module,
             batch: dict[str, Any],
             rng: jax.Array,
+            _step: jax.Array,
         ) -> tuple[jax.Array, dict[str, Any]]:
+            del _step
             return self.compute_loss(model, batch, rng)
 
         return loss_fn

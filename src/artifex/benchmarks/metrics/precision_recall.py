@@ -12,14 +12,10 @@ import flax.nnx as nnx
 import jax
 import jax.numpy as jnp
 
-from artifex.benchmarks.base import (
-    Benchmark,
-    BenchmarkConfig,
-    BenchmarkResult,
-)
+from artifex.benchmarks.core import Benchmark, BenchmarkConfig, BenchmarkResult
 from artifex.generative_models.core.protocols.evaluation import (
+    BenchmarkModelProtocol,
     DatasetProtocol,
-    ModelProtocol,
 )
 
 
@@ -528,7 +524,11 @@ class PrecisionRecallBenchmark(Benchmark):
         self.num_samples = num_samples
         self.random_seed = random_seed if random_seed is not None else 42
 
-    def run(self, model: ModelProtocol, dataset: DatasetProtocol | None = None) -> BenchmarkResult:
+    def run(
+        self,
+        model: BenchmarkModelProtocol,
+        dataset: DatasetProtocol | None = None,
+    ) -> BenchmarkResult:
         """Run the precision-recall benchmark.
 
         Args:

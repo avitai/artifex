@@ -1,17 +1,21 @@
 """Tests for timeseries modality implementation."""
 
+import dataclasses
+
 import jax.numpy as jnp
 import pytest
+from datarax.sources import MemorySource
 from flax import nnx
 
+from artifex.generative_models.modalities import timeseries as timeseries_pkg
 from artifex.generative_models.modalities.timeseries import (
     compute_timeseries_metrics,
     create_simple_timeseries_dataset,
     create_synthetic_timeseries_dataset,
     DecompositionMethod,
     FourierProcessor,
+    generate_synthetic_timeseries,
     MultiScaleProcessor,
-    SyntheticTimeseriesDataset,
     TimeseriesEvaluationSuite,
     TimeseriesModality,
     TimeseriesModalityConfig,
@@ -44,7 +48,8 @@ class TestTimeseriesModalityConfig:
         assert not config.use_trend_decomposition
         assert config.decomposition_method == DecompositionMethod.SEASONAL
         assert config.decomposition_period == 24
-        assert config.multi_scale_factors == [1, 2, 4]
+        assert config.multi_scale_factors == (1, 2, 4)
+        assert config.feature_names == ("value",)
         assert config.univariate is True
         assert config.stationary is False
         assert config.seasonal_period is None
@@ -71,11 +76,29 @@ class TestTimeseriesModalityConfig:
         """Test automatic generation of feature names."""
         # Univariate case
         config = TimeseriesModalityConfig(num_features=1, univariate=True)
-        assert config.feature_names == ["value"]
+        assert config.feature_names == ("value",)
 
         # Multivariate case
         config = TimeseriesModalityConfig(num_features=3, univariate=False)
-        assert config.feature_names == ["feature_0", "feature_1", "feature_2"]
+        assert config.feature_names == ("feature_0", "feature_1", "feature_2")
+
+    def test_config_is_frozen_and_supports_from_dict(self):
+        """Runtime timeseries configs should follow the frozen config standard."""
+        config = TimeseriesModalityConfig.from_dict(
+            {
+                "name": "timeseries_runtime",
+                "sequence_length": 32,
+                "num_features": 2,
+                "univariate": False,
+                "multi_scale_factors": [1, 3, 9],
+            }
+        )
+
+        assert config.multi_scale_factors == (1, 3, 9)
+        assert config.feature_names == ("feature_0", "feature_1")
+
+        with pytest.raises(dataclasses.FrozenInstanceError):
+            config.sequence_length = 64
 
     def test_config_validation_errors(self):
         """Test configuration validation errors."""
@@ -117,6 +140,19 @@ class TestTimeseriesModality:
         assert modality.sequence_length == 100
         assert modality.num_features == 2
         assert modality.sampling_rate == 1.0
+
+    def test_direct_keyword_constructor_is_not_supported(self, rngs):
+        """The public surface should stay on TimeseriesModalityConfig, not seq_length=."""
+        with pytest.raises(TypeError, match="unexpected keyword argument"):
+            TimeseriesModality(seq_length=100, num_features=5, rngs=rngs)
+
+    def test_legacy_facade_names_are_not_exposed(self):
+        """The package should keep the surviving Timeseries* names only."""
+        assert hasattr(timeseries_pkg, "TimeseriesModality")
+        assert hasattr(timeseries_pkg, "TimeseriesEvaluationSuite")
+        assert hasattr(timeseries_pkg, "compute_timeseries_metrics")
+        assert not hasattr(timeseries_pkg, "TimeSeriesModality")
+        assert not hasattr(timeseries_pkg, "TimeSeriesEvaluator")
 
     def test_preprocess_data(self, rngs):
         """Test data preprocessing."""
@@ -200,7 +236,7 @@ class TestTimeseriesModality:
 
         info = modality.get_feature_info()
 
-        assert info["feature_names"] == ["feature_0", "feature_1"]
+        assert info["feature_names"] == ("feature_0", "feature_1")
         assert info["num_features"] == 2
         assert info["sequence_length"] == 100
         assert info["sampling_rate"] == 0.5
@@ -457,78 +493,44 @@ class TestTrendDecompositionProcessor:
 
 
 class TestSyntheticTimeseriesDataset:
-    """Test cases for SyntheticTimeseriesDataset."""
+    """Test cases for synthetic timeseries via MemorySource."""
 
-    def test_initialization(self, rngs):
-        """Test dataset initialization."""
-        dataset = SyntheticTimeseriesDataset(
-            config=TimeseriesModalityConfig(
-                sequence_length=50,
-                num_features=2,
-                univariate=False,
-            ),
+    def test_generation(self, rngs) -> None:
+        """Test data generation with specific parameters."""
+        data = generate_synthetic_timeseries(
+            100,
             sequence_length=50,
             num_features=2,
-            num_samples=100,
             pattern_type="sinusoidal",
             noise_level=0.1,
-            rngs=rngs,
         )
+        assert data["timeseries"].shape == (100, 50, 2)
 
-        assert dataset.sequence_length == 50
-        assert dataset.num_features == 2
-        assert dataset.num_samples == 100
-        assert dataset.pattern_type == "sinusoidal"
-        assert dataset.noise_level == 0.1
-
-    def test_dataset_length(self, rngs):
+    def test_dataset_length(self, rngs) -> None:
         """Test dataset length."""
-        dataset = SyntheticTimeseriesDataset(
-            config=TimeseriesModalityConfig(
-                sequence_length=20,
-                num_features=1,
-                univariate=True,
-            ),
-            sequence_length=20,
-            num_samples=50,
-            rngs=rngs,
-        )
+        source = create_synthetic_timeseries_dataset(sequence_length=20, num_samples=50, rngs=rngs)
+        assert len(source) == 50
 
-        assert len(dataset) == 50
-
-    def test_dataset_indexing(self, rngs):
+    def test_dataset_indexing(self, rngs) -> None:
         """Test dataset indexing."""
-        dataset = SyntheticTimeseriesDataset(
-            config=TimeseriesModalityConfig(
-                sequence_length=20,
-                num_features=1,
-                univariate=True,
-            ),
-            sequence_length=20,
-            num_features=1,
-            num_samples=10,
-            rngs=rngs,
+        source = create_synthetic_timeseries_dataset(
+            sequence_length=20, num_features=1, num_samples=10, rngs=rngs
         )
 
-        # Test valid indexing
-        sample = dataset[0]
-        assert sample.shape == (20, 1)
+        # Test valid indexing -- returns dict with "timeseries" key
+        sample = source[0]
+        assert sample["timeseries"].shape == (20, 1)
 
         # Test invalid indexing
         with pytest.raises(IndexError):
-            dataset[20]
+            source[20]
 
-    def test_different_patterns(self, rngs):
+    def test_different_patterns(self, rngs) -> None:
         """Test different pattern types."""
         patterns = ["sinusoidal", "random_walk", "ar", "seasonal", "mixed"]
 
         for pattern in patterns:
-            dataset = SyntheticTimeseriesDataset(
-                config=TimeseriesModalityConfig(
-                    sequence_length=50,
-                    num_features=1,
-                    univariate=True,
-                ),
+            source = create_synthetic_timeseries_dataset(
                 sequence_length=50,
                 num_features=1,
                 num_samples=10,
@@ -536,74 +538,31 @@ class TestSyntheticTimeseriesDataset:
                 rngs=rngs,
             )
 
-            assert len(dataset) == 10
-            sample = dataset[0]
-            assert sample.shape == (50, 1)
-            assert jnp.all(jnp.isfinite(sample))
+            assert len(source) == 10
+            sample = source[0]
+            assert sample["timeseries"].shape == (50, 1)
+            assert jnp.all(jnp.isfinite(sample["timeseries"]))
 
-    def test_invalid_pattern_type(self, rngs):
+    def test_invalid_pattern_type(self, rngs) -> None:
         """Test invalid pattern type."""
         with pytest.raises(ValueError, match="Unknown pattern type"):
-            SyntheticTimeseriesDataset(
-                config=TimeseriesModalityConfig(
-                    sequence_length=20,
-                    num_features=1,
-                    univariate=True,
-                ),
+            create_synthetic_timeseries_dataset(
                 sequence_length=20,
                 num_samples=10,
                 pattern_type="invalid_pattern",
                 rngs=rngs,
             )
 
-    def test_batch_iterator(self, rngs):
-        """Test batch iterator."""
-        dataset = SyntheticTimeseriesDataset(
-            config=TimeseriesModalityConfig(
-                sequence_length=20,
-                num_features=1,
-                univariate=True,
-            ),
-            sequence_length=20,
-            num_features=1,
-            num_samples=25,
-            rngs=rngs,
+    def test_get_batch(self, rngs) -> None:
+        """Test get_batch method."""
+        source = create_synthetic_timeseries_dataset(
+            sequence_length=20, num_features=1, num_samples=25, rngs=rngs
         )
 
-        batches = list(dataset.batch_iterator(batch_size=10))
+        batch = source.get_batch(10)
 
-        assert len(batches) == 3  # 25 / 10 = 2 full batches + 1 partial
-        assert batches[0].shape == (10, 20, 1)
-        assert batches[1].shape == (10, 20, 1)
-        assert batches[2].shape == (5, 20, 1)  # Last partial batch
-
-    def test_statistics(self, rngs):
-        """Test dataset statistics."""
-        dataset = SyntheticTimeseriesDataset(
-            config=TimeseriesModalityConfig(
-                sequence_length=50,
-                num_features=2,
-                univariate=False,
-            ),
-            sequence_length=50,
-            num_features=2,
-            num_samples=100,
-            rngs=rngs,
-        )
-
-        stats = dataset.get_statistics()
-
-        assert "mean" in stats
-        assert "std" in stats
-        assert "min" in stats
-        assert "max" in stats
-        assert stats["sequence_length"] == 50
-        assert stats["num_features"] == 2
-        assert stats["num_samples"] == 100
-
-        # Check shapes of statistical measures
-        assert stats["mean"].shape == (2,)
-        assert stats["std"].shape == (2,)
+        assert "timeseries" in batch
+        assert batch["timeseries"].shape == (10, 20, 1)
 
 
 class TestTimeseriesEvaluationSuite:
@@ -628,7 +587,7 @@ class TestTimeseriesEvaluationSuite:
         assert evaluator.max_lag == 20
 
     def test_compute_metrics(self, rngs):
-        """Test comprehensive metrics computation."""
+        """Test complete metrics computation."""
         evaluator = TimeseriesEvaluationSuite(
             config=TimeseriesModalityConfig(
                 sequence_length=50,
@@ -711,14 +670,9 @@ class TestTimeseriesEvaluationSuite:
 class TestFactoryFunctions:
     """Test cases for factory functions."""
 
-    def test_create_synthetic_timeseries_dataset(self):
+    def test_create_synthetic_timeseries_dataset(self) -> None:
         """Test synthetic dataset factory function."""
-        dataset = create_synthetic_timeseries_dataset(
-            config=TimeseriesModalityConfig(
-                sequence_length=30,
-                num_features=2,
-                univariate=False,
-            ),
+        source = create_synthetic_timeseries_dataset(
             sequence_length=30,
             num_features=2,
             num_samples=50,
@@ -726,33 +680,24 @@ class TestFactoryFunctions:
             noise_level=0.05,
         )
 
-        assert isinstance(dataset, SyntheticTimeseriesDataset)
-        assert dataset.sequence_length == 30
-        assert dataset.num_features == 2
-        assert dataset.num_samples == 50
-        assert dataset.pattern_type == "sinusoidal"
-        assert dataset.noise_level == 0.05
+        assert isinstance(source, MemorySource)
+        assert len(source) == 50
+        item = source[0]
+        assert item["timeseries"].shape == (30, 2)
 
-    def test_create_simple_timeseries_dataset(self):
+    def test_create_simple_timeseries_dataset(self) -> None:
         """Test simple dataset factory function."""
-        dataset = create_simple_timeseries_dataset(
-            config=TimeseriesModalityConfig(
-                sequence_length=25,
-                num_features=1,
-                univariate=True,
-            ),
+        source = create_simple_timeseries_dataset(
             sequence_length=25,
             num_samples=20,
         )
 
-        assert isinstance(dataset, SyntheticTimeseriesDataset)
-        assert dataset.sequence_length == 25
-        assert dataset.num_features == 1
-        assert dataset.num_samples == 20
-        assert dataset.pattern_type == "sinusoidal"
-        assert dataset.noise_level == 0.05
+        assert isinstance(source, MemorySource)
+        assert len(source) == 20
+        item = source[0]
+        assert item["timeseries"].shape == (25, 1)
 
-    def test_compute_timeseries_metrics(self):
+    def test_compute_timeseries_metrics(self) -> None:
         """Test metrics computation factory function."""
         real_data = jnp.ones((5, 20, 1))
         generated_data = jnp.ones((5, 20, 1)) * 1.2
@@ -783,19 +728,15 @@ class TestTimeseriesIntegration:
 
         # Create dataset
         dataset = create_synthetic_timeseries_dataset(
-            config=TimeseriesModalityConfig(
-                sequence_length=50,
-                num_features=1,
-                univariate=True,
-            ),
             sequence_length=50,
             num_features=1,
             num_samples=20,
             pattern_type="sinusoidal",
         )
 
-        # Get some data
-        batch = next(dataset.batch_iterator(batch_size=10))
+        # Get a batch of data
+        batch_dict = dataset.get_batch(10)
+        batch = batch_dict["timeseries"]
 
         # Preprocess data
         processed = modality.preprocess(batch)

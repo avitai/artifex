@@ -120,7 +120,7 @@ class TestEnergyModelWorkflows:
             loss_dict = ebm.train_step(batch)
 
             # Verify training step produces valid results
-            assert jnp.isfinite(loss_dict["loss"])
+            assert jnp.isfinite(loss_dict["total_loss"])
             assert loss_dict["real_energy_mean"] != loss_dict["fake_energy_mean"]
 
         # Generate samples after training (uses internal rngs)
@@ -135,7 +135,7 @@ class TestEnergyModelWorkflows:
         assert jnp.all(jnp.isfinite(generated_samples))
 
         # Test that buffer has been populated
-        assert len(ebm.sample_buffer.buffer) > 0
+        assert ebm.sample_buffer.num_samples > 0
 
     @jax_required
     def test_cnn_ebm_image_workflow(self, energy_rngs, mcmc_config, sample_buffer_config):
@@ -191,7 +191,7 @@ class TestEnergyModelWorkflows:
 
             loss_dict = ebm.train_step(batch)
 
-            assert jnp.isfinite(loss_dict["loss"])
+            assert jnp.isfinite(loss_dict["total_loss"])
 
         # Generate new images (uses internal rngs)
         generated_images = ebm.generate(
@@ -214,7 +214,6 @@ class TestEnergyModelWorkflows:
             activation="gelu",
             network_type="cnn",
             use_residual=True,
-            use_spectral_norm=True,
         )
 
         buffer_config = SampleBufferConfig(
@@ -268,8 +267,8 @@ class TestEnergyModelWorkflows:
 
             loss_dict = deep_ebm.train_step(batch)
 
-            loss_history.append(loss_dict["loss"])
-            assert jnp.isfinite(loss_dict["loss"])
+            loss_history.append(loss_dict["total_loss"])
+            assert jnp.isfinite(loss_dict["total_loss"])
 
         # Generate samples (uses internal rngs)
         generated = deep_ebm.generate(
@@ -294,7 +293,7 @@ class TestEnergyModelWorkflows:
 
         batch = {"data": mnist_data, "batch_size": 4}
         loss_dict = mnist_ebm.train_step(batch)
-        assert jnp.isfinite(loss_dict["loss"])
+        assert jnp.isfinite(loss_dict["total_loss"])
 
         # Test CIFAR EBM workflow
         cifar_ebm = create_cifar_ebm(rngs=energy_rngs)
@@ -305,7 +304,7 @@ class TestEnergyModelWorkflows:
 
         batch = {"data": cifar_data, "batch_size": 4}
         loss_dict = cifar_ebm.train_step(batch)
-        assert jnp.isfinite(loss_dict["loss"])
+        assert jnp.isfinite(loss_dict["total_loss"])
 
         # Test simple EBM workflow
         simple_ebm = create_simple_ebm(input_dim=10, rngs=energy_rngs)
@@ -314,7 +313,7 @@ class TestEnergyModelWorkflows:
         vector_data = jax.random.normal(key, (4, 10))
         batch = {"data": vector_data, "batch_size": 4}
         loss_dict = simple_ebm.train_step(batch)
-        assert jnp.isfinite(loss_dict["loss"])
+        assert jnp.isfinite(loss_dict["total_loss"])
 
 
 class TestCrossComponentIntegration:
@@ -412,10 +411,10 @@ class TestCrossComponentIntegration:
             # Training step (uses internal rngs)
             loss_dict = ebm.train_step(batch)
 
-            assert jnp.isfinite(loss_dict["loss"])
+            assert jnp.isfinite(loss_dict["total_loss"])
 
             # Check buffer growth
-            assert len(ebm.sample_buffer.buffer) >= 1
+            assert ebm.sample_buffer.num_samples > 0
 
         # Test sampling from populated buffer (uses internal rngs)
         buffer_samples = ebm.sample_from_buffer(4)
@@ -565,7 +564,7 @@ class TestPerformanceIntegration:
             # Training step
             batch = {"data": test_data, "batch_size": batch_size}
             loss_dict = ebm.train_step(batch)
-            assert jnp.isfinite(loss_dict["loss"])
+            assert jnp.isfinite(loss_dict["total_loss"])
 
     @jax_required
     def test_memory_efficiency_large_buffers(self, energy_rngs, mcmc_config):
@@ -602,10 +601,10 @@ class TestPerformanceIntegration:
             batch = {"data": batch_data, "batch_size": 8}
 
             loss_dict = ebm.train_step(batch)
-            assert jnp.isfinite(loss_dict["loss"])
+            assert jnp.isfinite(loss_dict["total_loss"])
 
-        # Verify buffer doesn't exceed capacity
-        assert len(ebm.sample_buffer.buffer) <= ebm.sample_buffer.capacity
+        # Verify retained sample count does not exceed capacity
+        assert ebm.sample_buffer.num_samples <= ebm.sample_buffer.capacity
 
         # Test that sampling still works efficiently (uses internal rngs)
         samples = ebm.sample_from_buffer(16)
@@ -651,8 +650,8 @@ class TestReproducibilityIntegration:
         loss_dict2 = ebm2.train_step(batch)
 
         # Results should be finite and reasonable
-        assert jnp.isfinite(loss_dict1["loss"])
-        assert jnp.isfinite(loss_dict2["loss"])
+        assert jnp.isfinite(loss_dict1["total_loss"])
+        assert jnp.isfinite(loss_dict2["total_loss"])
         assert jnp.isfinite(loss_dict1["real_energy_mean"])
         assert jnp.isfinite(loss_dict2["real_energy_mean"])
         assert jnp.isfinite(loss_dict1["fake_energy_mean"])

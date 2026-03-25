@@ -1,6 +1,6 @@
 """Tests for WaveNet autoregressive models.
 
-This module provides comprehensive tests for WaveNet components including
+This module provides complete tests for WaveNet components including
 CausalConv1D, GatedActivationUnit, and the main WaveNet model.
 """
 
@@ -353,7 +353,7 @@ class TestWaveNetLoss:
         outputs = model(input_sequence)
         loss_result = model.loss_fn(input_sequence, outputs)
 
-        required_keys = ["loss", "nll_loss", "accuracy", "perplexity", "receptive_field"]
+        required_keys = ["total_loss", "nll_loss", "accuracy", "perplexity", "receptive_field"]
         for key in required_keys:
             assert key in loss_result, f"Missing key: {key}"
 
@@ -364,7 +364,7 @@ class TestWaveNetLoss:
         outputs = model(input_sequence)
         loss_result = model.loss_fn(input_sequence, outputs)
 
-        assert jnp.isfinite(loss_result["loss"])
+        assert jnp.isfinite(loss_result["total_loss"])
 
     def test_loss_is_nonnegative(self, simple_config, base_rngs, input_sequence):
         """Test loss is non-negative (cross-entropy loss)."""
@@ -373,7 +373,7 @@ class TestWaveNetLoss:
         outputs = model(input_sequence)
         loss_result = model.loss_fn(input_sequence, outputs)
 
-        assert loss_result["loss"] >= 0
+        assert loss_result["total_loss"] >= 0
 
     def test_perplexity_is_exp_of_loss(self, simple_config, base_rngs, input_sequence):
         """Test perplexity = exp(loss)."""
@@ -382,7 +382,7 @@ class TestWaveNetLoss:
         outputs = model(input_sequence)
         loss_result = model.loss_fn(input_sequence, outputs)
 
-        expected_perplexity = jnp.exp(loss_result["loss"])
+        expected_perplexity = jnp.exp(loss_result["total_loss"])
         assert jnp.allclose(loss_result["perplexity"], expected_perplexity)
 
     def test_accuracy_bounded(self, simple_config, base_rngs, input_sequence):
@@ -403,7 +403,7 @@ class TestWaveNetLoss:
         outputs = model(input_sequence)
         loss_result = model.loss_fn(batch, outputs)
 
-        assert jnp.isfinite(loss_result["loss"])
+        assert jnp.isfinite(loss_result["total_loss"])
 
     def test_loss_with_mask(self, simple_config, base_rngs):
         """Test loss_fn handles masked sequences."""
@@ -421,49 +421,18 @@ class TestWaveNetLoss:
         outputs = model(sequences)
         loss_result = model.loss_fn(batch, outputs)
 
-        assert jnp.isfinite(loss_result["loss"])
+        assert jnp.isfinite(loss_result["total_loss"])
 
 
 class TestWaveNetGeneration:
     """Test suite for WaveNet generation methods."""
 
-    def test_generate_fast_shape(self, simple_config, base_rngs):
-        """Test generate_fast produces correct shape."""
+    def test_generate_fast_is_not_supported(self, simple_config, base_rngs):
+        """The retained WaveNet surface should fail explicitly on the dead fast helper."""
         model = WaveNet(simple_config, rngs=base_rngs)
 
-        n_samples = 2
-        max_length = 16
-        generated = model.generate_fast(n_samples=n_samples, max_length=max_length)
-
-        assert generated.shape == (n_samples, max_length)
-
-    def test_generate_fast_values_in_vocab(self, simple_config, base_rngs):
-        """Test generated values are within vocabulary."""
-        model = WaveNet(simple_config, rngs=base_rngs)
-
-        generated = model.generate_fast(n_samples=2, max_length=16)
-
-        assert jnp.all(generated >= 0)
-        assert jnp.all(generated < simple_config.vocab_size)
-
-    def test_generate_fast_stochastic(self, simple_config, base_rngs):
-        """Test that generation produces stochastic outputs.
-
-        Multiple calls to generate_fast with the model's internal rngs
-        should produce different results due to RNG state advancement.
-        """
-        model = WaveNet(simple_config, rngs=base_rngs)
-
-        # Generate twice - internal RNG state should advance
-        gen1 = model.generate_fast(n_samples=2, max_length=16)
-        gen2 = model.generate_fast(n_samples=2, max_length=16)
-
-        # Subsequent generations should differ due to RNG state change
-        # If this fails, it indicates deterministic generation (which may be intentional)
-        # We just verify both are valid generations
-        assert gen1.shape == gen2.shape
-        assert jnp.all(gen1 >= 0)
-        assert jnp.all(gen2 >= 0)
+        with pytest.raises(NotImplementedError, match="Incremental cached WaveNet generation"):
+            model.generate_fast(n_samples=2, max_length=16)
 
     def test_conditional_generate_shape(self, simple_config, base_rngs):
         """Test conditional_generate produces correct shape."""
@@ -564,7 +533,7 @@ class TestGradientFlow:
         def full_loss_fn(model, x):
             outputs = model(x)
             loss_result = model.loss_fn(x, outputs)
-            return loss_result["loss"]
+            return loss_result["total_loss"]
 
         grads = nnx.grad(full_loss_fn)(model, input_sequence)
 

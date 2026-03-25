@@ -19,7 +19,7 @@ This example depends on the following Artifex source files:
 - `src/artifex/benchmarks/suites/multi_beta_vae_suite.py` - Multi-β VAE benchmark suite
 
 **Validation Status:**
-- ✅ All dependencies validated against `memory-bank/guides/flax-nnx-guide.md`
+- ✅ All dependencies validated against the internal Flax NNX compatibility guide
 - ✅ No anti-patterns detected (RNG handling fixed in Option A)
 - ✅ All tests passing for dependency files
 - ✅ 3 RNG fixes applied: lines 133-136, 178-181, 217-220
@@ -66,7 +66,7 @@ jupyter lab examples/generative_models/vae/multi_beta_vae_benchmark_demo.ipynb
 The example will demonstrate:
 1. Benchmark suite initialization with 100 sample dataset
 2. Three models with different quality levels (low/medium/high)
-3. Comprehensive evaluation across all metrics
+3. Complete evaluation across all metrics
 4. Comparison table showing performance trade-offs
 
 **Performance Targets:**
@@ -504,7 +504,7 @@ class MockMultiBetaVAE(nnx.Module):
 This section demonstrates the complete benchmarking workflow:
 1. Initialize the benchmark suite with dataset configuration
 2. Create models with different quality levels
-3. Run comprehensive evaluation for each model
+3. Run complete evaluation for each model
 4. Compare results across all models
 
 The demo uses smaller dataset sizes for quick execution while still
@@ -536,6 +536,7 @@ def run_benchmark_demo():
             "num_samples": 50,  # Evaluate on 50 samples
             "batch_size": 10,  # Process in batches of 10
         },
+        demo_mode=True,
         rngs=rngs,
     )
 
@@ -662,7 +663,7 @@ if __name__ == "__main__":
 - ✅ **Multi-β VAE Framework**: Understanding the β parameter's role in
   disentanglement
 - ✅ **MIG Score**: Measuring mutual information gap for disentanglement
-- ✅ **Image Quality Metrics**: FID, LPIPS, and SSIM for comprehensive evaluation
+- ✅ **Image Quality Metrics**: FID, LPIPS, and SSIM for complete evaluation
 - ✅ **Quality Trade-offs**: Balancing disentanglement, reconstruction, and
   training time
 - ✅ **Benchmark Suite**: Systematic evaluation across multiple metrics

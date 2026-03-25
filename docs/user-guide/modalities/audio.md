@@ -134,36 +134,29 @@ print(f"Output shape: {stft_modality.output_shape}")  # (1025, time_frames)
 
 ### Synthetic Audio Datasets
 
-Artifex provides synthetic audio datasets for testing and development:
+Artifex provides synthetic audio datasets for testing and development via the
+`create_audio_dataset()` factory, which returns a `MemorySource` instance:
 
 ```python
-from artifex.generative_models.modalities.audio.datasets import (
-    SyntheticAudioDataset,
-    create_audio_dataset
-)
+from artifex.generative_models.modalities.audio.datasets import create_audio_dataset
+from flax import nnx
 
-# Configure audio
-audio_config = AudioModalityConfig(
-    representation=AudioRepresentation.RAW_WAVEFORM,
+# Initialize RNG
+rngs = nnx.Rngs(0)
+
+# Create synthetic dataset (returns MemorySource)
+audio_source = create_audio_dataset(
+    "synthetic",
+    rngs=rngs,
+    n_samples=1000,
     sample_rate=16000,
     duration=1.0,
-    normalize=True
+    normalize=True,
+    audio_types=("sine", "noise", "chirp"),
 )
 
-# Create synthetic dataset
-audio_dataset = SyntheticAudioDataset(
-    config=audio_config,
-    n_samples=1000,
-    audio_types=["sine", "noise", "chirp"],
-    name="SyntheticAudio"
-)
-
-# Access sample
-sample = audio_dataset[0]
-print(sample["audio"].shape)  # (16000,) - 1 second at 16kHz
-print(sample["audio_type"])   # "sine" or "noise" or "chirp"
-print(sample["sample_rate"])  # 16000
-print(sample["duration"])     # 1.0
+# The underlying data is a dict of arrays
+# audio_source stores {"audio": jnp.ndarray} with shape (1000, 16000)
 ```
 
 #### Audio Types
@@ -171,10 +164,13 @@ print(sample["duration"])     # 1.0
 **Sine Waves** - Pure tones at random frequencies:
 
 ```python
-audio_dataset = SyntheticAudioDataset(
-    config=audio_config,
+sine_source = create_audio_dataset(
+    "synthetic",
+    rngs=rngs,
     n_samples=1000,
-    audio_types=["sine"]
+    sample_rate=16000,
+    duration=1.0,
+    audio_types=("sine",),
 )
 
 # Sine waves have:
@@ -186,10 +182,13 @@ audio_dataset = SyntheticAudioDataset(
 **White Noise** - Random Gaussian noise:
 
 ```python
-audio_dataset = SyntheticAudioDataset(
-    config=audio_config,
+noise_source = create_audio_dataset(
+    "synthetic",
+    rngs=rngs,
     n_samples=1000,
-    audio_types=["noise"]
+    sample_rate=16000,
+    duration=1.0,
+    audio_types=("noise",),
 )
 
 # White noise has:
@@ -201,10 +200,13 @@ audio_dataset = SyntheticAudioDataset(
 **Chirp Signals** - Linear frequency sweeps:
 
 ```python
-audio_dataset = SyntheticAudioDataset(
-    config=audio_config,
+chirp_source = create_audio_dataset(
+    "synthetic",
+    rngs=rngs,
     n_samples=1000,
-    audio_types=["chirp"]
+    sample_rate=16000,
+    duration=1.0,
+    audio_types=("chirp",),
 )
 
 # Chirps have:
@@ -217,58 +219,61 @@ audio_dataset = SyntheticAudioDataset(
 
 ```python
 # Mix multiple audio types
-mixed_dataset = SyntheticAudioDataset(
-    config=audio_config,
+mixed_source = create_audio_dataset(
+    "synthetic",
+    rngs=rngs,
     n_samples=3000,
-    audio_types=["sine", "noise", "chirp"]
+    sample_rate=16000,
+    duration=1.0,
+    audio_types=("sine", "noise", "chirp"),
 )
 
-# Dataset will cycle through types
+# Generation cycles through types:
 # Sample 0: sine
 # Sample 1: noise
 # Sample 2: chirp
 # Sample 3: sine (cycles back)
 ```
 
-### Batching Audio Data
+### Iterating Over Audio Data
+
+`MemorySource` supports standard iteration and batching:
 
 ```python
-# Get batch using collate function
-batch = audio_dataset.collate_fn([
-    audio_dataset[0],
-    audio_dataset[1],
-    audio_dataset[2],
-    audio_dataset[3]
-])
-
-print(batch["audio"].shape)  # (4, 16000)
-print(len(batch["audio_type"]))  # 4
-print(batch["sample_rate"])  # [16000, 16000, 16000, 16000]
-
-# Iterate through dataset
-for i, sample in enumerate(audio_dataset):
+# Iterate through the source
+for i, sample in enumerate(audio_source):
     if i >= 5:
         break
-    print(f"Sample {i}: {sample['audio_type']}, shape: {sample['audio'].shape}")
+    print(f"Sample {i}: shape {sample['audio'].shape}")
 ```
 
-### Factory Function
+### Using an AudioModalityConfig
+
+You can pass an `AudioModalityConfig` to `create_audio_dataset()` instead of
+specifying `sample_rate`, `duration`, and `normalize` individually. The factory
+extracts those values from the config and forwards any remaining keyword
+arguments to the data generator:
 
 ```python
-# Create dataset using factory
-dataset = create_audio_dataset(
-    dataset_type="synthetic",
-    config=audio_config,
-    n_samples=5000,
-    audio_types=["sine", "noise"]
+from artifex.generative_models.modalities.audio import (
+    AudioModalityConfig,
+    AudioRepresentation,
 )
 
-# With custom parameters
-custom_dataset = create_audio_dataset(
-    dataset_type="synthetic",
-    config=None,  # Will use defaults
-    n_samples=1000,
-    audio_types=["chirp"]
+audio_config = AudioModalityConfig(
+    representation=AudioRepresentation.RAW_WAVEFORM,
+    sample_rate=16000,
+    duration=1.0,
+    normalize=True,
+)
+
+# sample_rate, duration, and normalize come from audio_config
+source = create_audio_dataset(
+    "synthetic",
+    config=audio_config,
+    rngs=rngs,
+    n_samples=5000,
+    audio_types=("sine", "noise"),
 )
 ```
 
@@ -442,7 +447,7 @@ features = spectral.extract_spectral_features(audio)
 - Fully JIT-compatible using `jax.scipy.signal.stft`
 - GPU-accelerated computation
 - Supports batch processing via `jax.vmap`
-- Comprehensive spectral feature extraction
+- Complete spectral feature extraction
 
 ## Audio Augmentation
 
@@ -659,7 +664,7 @@ augmented_spec = spec_augment(
 ```python
 @jax.jit
 def augment_audio(audio: jax.Array, key):
-    """Apply comprehensive audio augmentation pipeline.
+    """Apply complete audio augmentation pipeline.
 
     Args:
         audio: Input audio waveform
@@ -793,11 +798,9 @@ from flax import nnx
 from artifex.generative_models.modalities.audio import (
     AudioModality,
     AudioModalityConfig,
-    AudioRepresentation
+    AudioRepresentation,
 )
-from artifex.generative_models.modalities.audio.datasets import (
-    SyntheticAudioDataset
-)
+from artifex.generative_models.modalities.audio.datasets import create_audio_dataset
 
 # Setup
 rngs = nnx.Rngs(0)
@@ -807,37 +810,42 @@ audio_config = AudioModalityConfig(
     representation=AudioRepresentation.RAW_WAVEFORM,
     sample_rate=16000,
     duration=1.0,
-    normalize=True
+    normalize=True,
 )
 
 modality = AudioModality(config=audio_config, rngs=rngs)
 
-# Create datasets
-train_dataset = SyntheticAudioDataset(
+# Create datasets (both return MemorySource)
+train_source = create_audio_dataset(
+    "synthetic",
     config=audio_config,
+    rngs=rngs,
     n_samples=10000,
-    audio_types=["sine", "noise", "chirp"]
+    audio_types=("sine", "noise", "chirp"),
+    shuffle=True,
 )
 
-val_dataset = SyntheticAudioDataset(
+val_source = create_audio_dataset(
+    "synthetic",
     config=audio_config,
+    rngs=rngs,
     n_samples=1000,
-    audio_types=["sine", "noise", "chirp"]
+    audio_types=("sine", "noise", "chirp"),
 )
 
-# Training loop
+# Training loop — MemorySource exposes the raw data via .data
+train_audio = train_source.data["audio"]  # (10000, 16000)
+val_audio = val_source.data["audio"]      # (1000, 16000)
+
 batch_size = 32
 num_epochs = 10
 key = jax.random.key(42)
 
 for epoch in range(num_epochs):
-    num_batches = len(train_dataset) // batch_size
+    num_batches = train_audio.shape[0] // batch_size
 
     for i in range(num_batches):
-        # Get batch
-        batch_samples = [train_dataset[j] for j in range(i*batch_size, (i+1)*batch_size)]
-        batch = train_dataset.collate_fn(batch_samples)
-        audio_batch = batch["audio"]
+        audio_batch = train_audio[i * batch_size : (i + 1) * batch_size]
 
         # Apply augmentation
         key, subkey = jax.random.split(key)
@@ -847,11 +855,10 @@ for epoch in range(num_epochs):
         # loss = train_step(model, augmented)
 
     # Validation (no augmentation)
-    val_batches = len(val_dataset) // batch_size
+    val_batches = val_audio.shape[0] // batch_size
     for i in range(val_batches):
-        val_samples = [val_dataset[j] for j in range(i*batch_size, (i+1)*batch_size)]
-        val_batch = val_dataset.collate_fn(val_samples)
-        # val_loss = validate_step(model, val_batch["audio"])
+        val_batch = val_audio[i * batch_size : (i + 1) * batch_size]
+        # val_loss = validate_step(model, val_batch)
 
     print(f"Epoch {epoch + 1}/{num_epochs} complete")
 ```
@@ -867,16 +874,18 @@ mel_config = AudioModalityConfig(
     hop_length=256,
     n_fft=1024,
     duration=2.0,
-    normalize=True
+    normalize=True,
 )
 
 mel_modality = AudioModality(config=mel_config, rngs=rngs)
 
-# Create dataset
-mel_dataset = SyntheticAudioDataset(
+# Create dataset via factory (returns MemorySource)
+mel_source = create_audio_dataset(
+    "synthetic",
     config=mel_config,
+    rngs=rngs,
     n_samples=5000,
-    audio_types=["sine", "chirp"]
+    audio_types=("sine", "chirp"),
 )
 
 # Create SpectralAnalysis for mel-spectrogram computation
@@ -888,19 +897,18 @@ spectral_config = ExtensionConfig(
             "sample_rate": 16000,
             "n_fft": 1024,
             "hop_length": 256,
-            "n_mels": 80
+            "n_mels": 80,
         }
-    }
+    },
 )
 spectral = SpectralAnalysis(config=spectral_config, rngs=rngs)
 
 # Training with spectrograms
+mel_audio = mel_source.data["audio"]  # (5000, n_time_steps)
+
 for epoch in range(num_epochs):
-    for i in range(len(mel_dataset) // batch_size):
-        # Get audio batch
-        batch_samples = [mel_dataset[j] for j in range(i*batch_size, (i+1)*batch_size)]
-        batch = mel_dataset.collate_fn(batch_samples)
-        audio_batch = batch["audio"]
+    for i in range(mel_audio.shape[0] // batch_size):
+        audio_batch = mel_audio[i * batch_size : (i + 1) * batch_size]
 
         # Compute mel-spectrograms (batch processing via vmap)
         mel_batch = jax.vmap(spectral.compute_mel_spectrogram)(audio_batch)
@@ -909,79 +917,47 @@ for epoch in range(num_epochs):
         key, subkey = jax.random.split(key)
         augmented_specs = jax.vmap(lambda spec, k: spec_augment(spec, k))(
             mel_batch,
-            jax.random.split(subkey, batch_size)
+            jax.random.split(subkey, batch_size),
         )
 
         # Training step
         # loss = train_step(model, augmented_specs)
 ```
 
-### Example 3: Custom Audio Dataset
+### Example 3: Custom Audio Data with MemorySource
+
+To wrap your own audio arrays in a `MemorySource`, build the data dictionary
+and pass it directly:
 
 ```python
-from typing import Iterator
-from artifex.generative_models.modalities.base import BaseDataset
+import jax
+import jax.numpy as jnp
+from flax import nnx
+from datarax.sources import MemorySource, MemorySourceConfig
 
-class CustomAudioDataset(BaseDataset):
-    """Custom audio dataset loading from files."""
+# Load or generate your own audio arrays
+audio_paths = ["/path/to/audio1.wav", "/path/to/audio2.wav"]
 
-    def __init__(
-        self,
-        config: AudioModalityConfig,
-        audio_paths: list[str],
-        split: str = "train",
-        *,
-        rngs: nnx.Rngs,
-    ):
-        super().__init__(config, split, rngs=rngs)
-        self.audio_paths = audio_paths
-        self.audio_samples = self._load_audio_files()
+# In practice, load with librosa / soundfile / etc.
+# Here we generate placeholder waveforms for illustration.
+audio_arrays = [
+    jax.random.uniform(jax.random.key(hash(p)), (16000,))
+    for p in audio_paths
+]
 
-    def _load_audio_files(self):
-        """Load audio files."""
-        samples = []
-        for path in self.audio_paths:
-            # In practice: use librosa, soundfile, etc.
-            # For demo, generate synthetic
-            audio = jax.random.uniform(
-                jax.random.key(hash(path)),
-                (16000,)
-            )
-            samples.append(audio)
-        return samples
+# Stack into a single array and wrap in MemorySource
+data = {"audio": jnp.stack(audio_arrays)}
+rngs = nnx.Rngs(0)
 
-    def __len__(self) -> int:
-        return len(self.audio_samples)
-
-    def __iter__(self) -> Iterator[dict[str, jax.Array]]:
-        for i, audio in enumerate(self.audio_samples):
-            yield {
-                "audio": audio,
-                "index": jnp.array(i),
-                "path": self.audio_paths[i]
-            }
-
-    def get_batch(self, batch_size: int) -> dict[str, jax.Array]:
-        key = self.rngs.sample() if "sample" in self.rngs else jax.random.key(0)
-        indices = jax.random.randint(key, (batch_size,), 0, len(self))
-
-        batch_audio = [self.audio_samples[int(idx)] for idx in indices]
-        batch_paths = [self.audio_paths[int(idx)] for idx in indices]
-
-        return {
-            "audio": jnp.stack(batch_audio),
-            "indices": indices,
-            "paths": batch_paths
-        }
-
-# Usage
-audio_paths = ["/path/to/audio1.wav", "/path/to/audio2.wav", ...]
-
-custom_dataset = CustomAudioDataset(
-    config=audio_config,
-    audio_paths=audio_paths,
-    rngs=rngs
+custom_source = MemorySource(
+    MemorySourceConfig(shuffle=True),
+    data,
+    rngs=rngs,
 )
+
+# Iterate
+for sample in custom_source:
+    print(sample["audio"].shape)  # (16000,)
 ```
 
 ## Best Practices

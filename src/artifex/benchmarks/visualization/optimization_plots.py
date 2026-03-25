@@ -3,7 +3,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from artifex.benchmarks.base import BenchmarkResult
+from artifex.benchmarks import BenchmarkResult
 from artifex.utils.file_utils import ensure_valid_output_path
 
 

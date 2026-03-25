@@ -1,52 +1,25 @@
-# Protein
+# Protein Visualization Compatibility
 
-**Module:** `generative_models.utils.visualization.protein`
+**Status:** `Supported runtime utility`
+**Module:** `artifex.visualization.protein_viz`
+**Source:** `src/artifex/visualization/protein_viz.py`
 
-**Source:** `generative_models/utils/visualization/protein.py`
+The canonical protein visualization owner is
+`artifex.visualization.protein_viz`.
 
-## Overview
+`artifex.generative_models.utils.visualization.protein.ProteinVisualizer`
+remains only as a thin compatibility alias to that same class so older imports
+do not break immediately.
 
-Protein structure visualization utilities.
-
-This module provides visualization utilities for protein structures, with support
-for both interactive visualization in notebooks and exporting to standard formats.
-
-## Classes
-
-### ProteinVisualizer
+## Preferred Import
 
 ```python
-class ProteinVisualizer
+from artifex.visualization.protein_viz import ProteinVisualizer
 ```
 
-## Functions
+## Compatibility Notes
 
-### **init**
-
-```python
-def __init__()
-```
-
-### coords_to_pdb
-
-```python
-def coords_to_pdb()
-```
-
-### export_to_pdb
-
-```python
-def export_to_pdb()
-```
-
-### visualize
-
-```python
-def visualize()
-```
-
-## Module Statistics
-
-- **Classes:** 1
-- **Functions:** 4
-- **Imports:** 6
+- the compatibility alias resolves to the same `ProteinVisualizer` class
+- no separate generative-models visualization implementation is maintained
+- new docs and examples should not treat `generative_models.utils.visualization`
+  as an independent protein visualization owner

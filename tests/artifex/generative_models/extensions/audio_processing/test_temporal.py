@@ -1,6 +1,6 @@
 """Tests for temporal analysis extension.
 
-This module contains comprehensive tests for the TemporalAnalysis extension
+This module contains complete tests for the TemporalAnalysis extension
 that provides temporal pattern analysis for audio processing.
 """
 
@@ -328,6 +328,11 @@ class TestBeatDetection:
 
         assert isinstance(beats, jnp.ndarray)
 
+    def test_detect_beats_rejects_batch_audio(self, temporal, test_audio_batch):
+        """Batch beat detection should fail explicitly instead of tracing into Python control flow."""
+        with pytest.raises(ValueError, match="single audio"):
+            temporal.detect_beats(test_audio_batch)
+
 
 # =============================================================================
 # Rhythm Features Tests
@@ -352,6 +357,11 @@ class TestRhythmFeatures:
         assert isinstance(features["onset_strength"], jnp.ndarray)
         assert isinstance(features["beats"], jnp.ndarray)
 
+    def test_compute_rhythm_features_rejects_batch_audio(self, temporal, test_audio_batch):
+        """Batch rhythm features should reject unsupported ragged beat extraction explicitly."""
+        with pytest.raises(ValueError, match="single audio"):
+            temporal.compute_rhythm_features(test_audio_batch)
+
 
 # =============================================================================
 # Temporal Features Tests
@@ -359,7 +369,7 @@ class TestRhythmFeatures:
 
 
 class TestTemporalFeatures:
-    """Tests for comprehensive temporal feature extraction."""
+    """Tests for complete temporal feature extraction."""
 
     def test_compute_temporal_features_keys(self, temporal, test_audio):
         """Test temporal features contains expected keys."""
@@ -385,6 +395,11 @@ class TestTemporalFeatures:
         assert features["rms"].ndim == 1
         assert features["onset_strength"].ndim == 1
 
+    def test_compute_temporal_features_rejects_batch_audio(self, temporal, test_audio_batch):
+        """Batch temporal feature extraction should reject unsupported beat aggregation explicitly."""
+        with pytest.raises(ValueError, match="single audio"):
+            temporal.compute_temporal_features(test_audio_batch)
+
 
 # =============================================================================
 # Pulse Clarity Tests
@@ -404,6 +419,11 @@ class TestPulseClarity:
         """Test pulse clarity is non-negative."""
         clarity = temporal.compute_pulse_clarity(test_audio)
         assert float(clarity) >= 0
+
+    def test_pulse_clarity_rejects_batch_audio(self, temporal, test_audio_batch):
+        """Batch pulse clarity should reject unsupported autocorrelation input explicitly."""
+        with pytest.raises(ValueError, match="single audio"):
+            temporal.compute_pulse_clarity(test_audio_batch)
 
     def test_pulse_clarity_rhythmic_audio(self, temporal, test_audio_rhythmic):
         """Test pulse clarity is higher for rhythmic audio."""
@@ -508,6 +528,14 @@ class TestCallMethod:
         result = disabled_temporal({}, model_outputs)
 
         assert result == {"extension_type": "temporal_analysis"}
+
+    def test_call_batch_audio_returns_explicit_error(self, temporal, test_audio_batch):
+        """Top-level batch temporal analysis should return a contract error, not a tracer failure."""
+        result = temporal({}, {"audio": test_audio_batch})
+
+        assert result["extension_type"] == "temporal_analysis"
+        assert "error" in result
+        assert "single audio" in result["error"]
 
     def test_call_includes_pulse_clarity(self, temporal, test_audio):
         """Test __call__ includes pulse clarity."""

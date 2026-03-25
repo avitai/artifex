@@ -8,9 +8,11 @@ The simplest way to train a model:
 
 ```python
 from artifex.generative_models.core.configuration import (
-    ModelConfig,
-    TrainingConfig,
+    DecoderConfig,
+    EncoderConfig,
     OptimizerConfig,
+    TrainingConfig,
+    VAEConfig,
 )
 from artifex.generative_models.factory import create_model
 from artifex.generative_models.training import Trainer
@@ -18,12 +20,22 @@ from flax import nnx
 import jax.numpy as jnp
 
 # Create model
-model_config = ModelConfig(
+encoder_config = EncoderConfig(
+    name="quick_encoder",
+    input_shape=(28, 28, 1),
+    latent_dim=32,
+    hidden_dims=(256, 128),
+)
+decoder_config = DecoderConfig(
+    name="quick_decoder",
+    latent_dim=32,
+    output_shape=(28, 28, 1),
+    hidden_dims=(128, 256),
+)
+model_config = VAEConfig(
     name="simple_vae",
-    model_class="artifex.generative_models.models.vae.base.VAE",
-    input_dim=(28, 28, 1),
-    hidden_dims=[256, 128],
-    output_dim=32,
+    encoder=encoder_config,
+    decoder=decoder_config,
 )
 
 rngs = nnx.Rngs(42)
@@ -43,10 +55,14 @@ training_config = TrainingConfig(
     optimizer=optimizer_config,
 )
 
+# Generic Trainer requires an explicit task objective.
+loss_fn = task_loss_fn
+
 # Create trainer
 trainer = Trainer(
     model=model,
     training_config=training_config,
+    loss_fn=loss_fn,
     train_data_loader=train_loader,
 )
 
@@ -840,11 +856,9 @@ from artifex.generative_models.training.callbacks import (
 # Configure checkpoint callback
 checkpoint_config = CheckpointConfig(
     dirpath="./checkpoints",
-    filename="model-{epoch:02d}-{val_loss:.4f}",
     monitor="val_loss",
     mode="min",           # Save when val_loss decreases
     save_top_k=3,         # Keep top 3 checkpoints
-    save_last=True,       # Also save the last checkpoint
 )
 
 checkpoint_callback = ModelCheckpoint(checkpoint_config)
@@ -892,6 +906,8 @@ Artifex provides built-in logging callbacks for seamless integration with popula
 Use `WandbLoggerCallback` for experiment tracking with Weights & Biases:
 
 ```python
+from artifex.generative_models.training import Trainer
+from artifex.generative_models.training.callbacks import CallbackList
 from artifex.generative_models.training.callbacks import (
     WandbLoggerCallback,
     WandbLoggerConfig,
@@ -916,12 +932,13 @@ wandb_config = WandbLoggerConfig(
 wandb_callback = WandbLoggerCallback(config=wandb_config)
 progress_callback = ProgressBarCallback()
 
-trainer.fit(
-    train_loader=train_loader,
-    val_loader=val_loader,
-    num_epochs=10,
-    callbacks=[wandb_callback, progress_callback],
+trainer = Trainer(
+    model=model,
+    training_config=training_config,
+    loss_fn=loss_fn,
+    callbacks=CallbackList([wandb_callback, progress_callback]),
 )
+trainer.train(train_data=train_data, num_epochs=10, batch_size=64, val_data=val_data)
 ```
 
 **Features:**
@@ -937,6 +954,8 @@ trainer.fit(
 Use `TensorBoardLoggerCallback` for TensorBoard logging:
 
 ```python
+from artifex.generative_models.training import Trainer
+from artifex.generative_models.training.callbacks import CallbackList
 from artifex.generative_models.training.callbacks import (
     TensorBoardLoggerCallback,
     TensorBoardLoggerConfig,
@@ -953,12 +972,13 @@ tb_config = TensorBoardLoggerConfig(
 # Create callback
 tb_callback = TensorBoardLoggerCallback(config=tb_config)
 
-trainer.fit(
-    train_loader=train_loader,
-    val_loader=val_loader,
-    num_epochs=10,
-    callbacks=[tb_callback],
+trainer = Trainer(
+    model=model,
+    training_config=training_config,
+    loss_fn=loss_fn,
+    callbacks=CallbackList([tb_callback]),
 )
+trainer.train(train_data=train_data, num_epochs=10, batch_size=64, val_data=val_data)
 
 # View with: tensorboard --logdir logs/tensorboard
 ```
@@ -970,6 +990,8 @@ trainer.fit(
 Use `ProgressBarCallback` for rich console progress display:
 
 ```python
+from artifex.generative_models.training import Trainer
+from artifex.generative_models.training.callbacks import CallbackList
 from artifex.generative_models.training.callbacks import (
     ProgressBarCallback,
     ProgressBarConfig,
@@ -984,7 +1006,13 @@ progress_config = ProgressBarConfig(
 )
 
 progress_callback = ProgressBarCallback(config=progress_config)
-trainer.fit(callbacks=[progress_callback])
+trainer = Trainer(
+    model=model,
+    training_config=training_config,
+    loss_fn=loss_fn,
+    callbacks=CallbackList([progress_callback]),
+)
+trainer.train(train_data=train_data, num_epochs=10, batch_size=64)
 ```
 
 **Requirements:** Requires `rich` package (`pip install rich`)
@@ -1027,7 +1055,13 @@ callbacks = CallbackList([
     )),
 ])
 
-trainer.fit(callbacks=callbacks)
+trainer = Trainer(
+    model=model,
+    training_config=training_config,
+    loss_fn=loss_fn,
+    callbacks=callbacks,
+)
+trainer.train(train_data=train_data, num_epochs=10, batch_size=64, val_data=val_data)
 ```
 
 ### Custom Logger Callback
@@ -1035,6 +1069,8 @@ trainer.fit(callbacks=callbacks)
 Wrap any custom `Logger` instance using `LoggerCallback`:
 
 ```python
+from artifex.generative_models.training import Trainer
+from artifex.generative_models.training.callbacks import CallbackList
 from artifex.generative_models.utils.logging import ConsoleLogger
 from artifex.generative_models.training.callbacks import (
     LoggerCallback,
@@ -1050,7 +1086,13 @@ config = LoggerCallbackConfig(
 )
 
 callback = LoggerCallback(logger=logger, config=config)
-trainer.fit(callbacks=[callback])
+trainer = Trainer(
+    model=model,
+    training_config=training_config,
+    loss_fn=loss_fn,
+    callbacks=CallbackList([callback]),
+)
+trainer.train(train_data=train_data, num_epochs=10, batch_size=64)
 ```
 
 ## Performance Profiling
@@ -1062,6 +1104,8 @@ Artifex provides profiling callbacks for performance analysis during training.
 Use `JAXProfiler` to capture traces for TensorBoard or Perfetto visualization:
 
 ```python
+from artifex.generative_models.training import Trainer
+from artifex.generative_models.training.callbacks import CallbackList
 from artifex.generative_models.training.callbacks import (
     JAXProfiler,
     ProfilingConfig,
@@ -1075,7 +1119,13 @@ config = ProfilingConfig(
 )
 
 profiler = JAXProfiler(config)
-trainer.fit(callbacks=[profiler])
+trainer = Trainer(
+    model=model,
+    training_config=training_config,
+    loss_fn=loss_fn,
+    callbacks=CallbackList([profiler]),
+)
+trainer.train(train_data=train_data, num_epochs=10, batch_size=64)
 
 # View traces in TensorBoard:
 # tensorboard --logdir logs/profiles
@@ -1092,6 +1142,8 @@ trainer.fit(callbacks=[profiler])
 Track GPU/TPU memory usage with `MemoryProfiler`:
 
 ```python
+from artifex.generative_models.training import Trainer
+from artifex.generative_models.training.callbacks import CallbackList
 from artifex.generative_models.training.callbacks import (
     MemoryProfiler,
     MemoryProfileConfig,
@@ -1104,7 +1156,13 @@ config = MemoryProfileConfig(
 )
 
 profiler = MemoryProfiler(config)
-trainer.fit(callbacks=[profiler])
+trainer = Trainer(
+    model=model,
+    training_config=training_config,
+    loss_fn=loss_fn,
+    callbacks=CallbackList([profiler]),
+)
+trainer.train(train_data=train_data, num_epochs=10, batch_size=64)
 
 # Memory profile saved to logs/memory/memory_profile.json
 ```
@@ -1144,7 +1202,13 @@ callbacks = CallbackList([
     EarlyStopping(EarlyStoppingConfig(monitor="val_loss", patience=10)),
 ])
 
-trainer.fit(callbacks=callbacks)
+trainer = Trainer(
+    model=model,
+    training_config=training_config,
+    loss_fn=loss_fn,
+    callbacks=callbacks,
+)
+trainer.train(train_data=train_data, num_epochs=10, batch_size=64, val_data=val_data)
 ```
 
 See [Profiling Callbacks](../../training/profiling.md) for complete documentation.
@@ -1395,9 +1459,17 @@ def train_step(model, opt_state, batch, rng):
     pass
 
 # 2. Profile your code with JAXProfiler callback
+from artifex.generative_models.training import Trainer
+from artifex.generative_models.training.callbacks import CallbackList
 from artifex.generative_models.training.callbacks import JAXProfiler, ProfilingConfig
 profiler = JAXProfiler(ProfilingConfig(log_dir="logs/profiles", start_step=10, end_step=20))
-trainer.fit(callbacks=[profiler])
+trainer = Trainer(
+    model=model,
+    training_config=training_config,
+    loss_fn=loss_fn,
+    callbacks=CallbackList([profiler]),
+)
+trainer.train(train_data=train_data, num_epochs=10, batch_size=64)
 # View in TensorBoard: tensorboard --logdir logs/profiles
 
 # 3. Increase batch size (if memory allows)

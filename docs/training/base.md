@@ -1,8 +1,10 @@
 # Callbacks Base
 
-**Module:** `generative_models.training.callbacks.base`
+**Status:** `Supported runtime training surface`
 
-**Source:** `generative_models/training/callbacks/base.py`
+**Module:** `artifex.generative_models.training.callbacks.base`
+
+**Source:** `src/artifex/generative_models/training/callbacks/base.py`
 
 ## Overview
 
@@ -79,7 +81,7 @@ class CallbackList:
     """Container for multiple callbacks that dispatches to all."""
 
     def __init__(self, callbacks: list[TrainingCallback] | None = None): ...
-    def append(self, callback: TrainingCallback) -> None: ...
+    def add(self, callback: TrainingCallback) -> None: ...
 ```
 
 Container that holds multiple callbacks and dispatches lifecycle events to all of them.

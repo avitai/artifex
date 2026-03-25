@@ -1,7 +1,10 @@
-"""Protein modality components for generative models.
+"""Protein modality helpers for generative models.
 
-This package provides protein-specific components that adapt generic model
-architectures to work with protein structure data.
+This package exposes the retained protein modality adapter and extension
+helpers around the shared factory/runtime surface. `modality="protein"`
+keeps the generic model family selected by the typed config and serves as the
+typed protein extension bundle boundary; it does not swap in
+`ProteinPointCloudModel` or `ProteinGraphModel` automatically.
 """
 
 from artifex.generative_models.modalities.protein.adapters import (

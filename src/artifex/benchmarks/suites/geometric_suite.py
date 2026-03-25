@@ -1,26 +1,24 @@
 """Geometric benchmarks suite for point cloud and 3D data generation."""
 
+import logging
 from typing import Any
 
 import jax.numpy as jnp
 from flax import nnx
 
-from artifex.benchmarks.base import (
-    Benchmark,
-    BenchmarkConfig,
-    BenchmarkResult,
-)
+from artifex.benchmarks.core import Benchmark, BenchmarkConfig, BenchmarkResult
 from artifex.benchmarks.datasets.geometric import ShapeNetDataset
-from artifex.benchmarks.metrics.geometric import (
-    PointCloudMetrics,
-)
+from artifex.benchmarks.metrics.geometric import PointCloudMetrics
 from artifex.generative_models.core.configuration import EvaluationConfig
 from artifex.generative_models.core.protocols.evaluation import (
     BatchableDatasetProtocol,
+    BenchmarkModelProtocol,
     DatasetProtocol,
-    ModelProtocol,
 )
 from artifex.generative_models.models.geometric.point_cloud import PointCloudModel
+
+
+logger = logging.getLogger(__name__)
 
 
 class PointCloudGenerationBenchmark(Benchmark):
@@ -81,7 +79,7 @@ class PointCloudGenerationBenchmark(Benchmark):
 
     def run(
         self,
-        model: ModelProtocol,
+        model: BenchmarkModelProtocol,
         dataset: DatasetProtocol | BatchableDatasetProtocol | None = None,
     ) -> BenchmarkResult:
         """Run the point cloud generation benchmark.
@@ -111,16 +109,21 @@ class PointCloudGenerationBenchmark(Benchmark):
             },
         )
 
-    def _setup_benchmark_components(self) -> None:
-        """Setup benchmark-specific components."""
+    def _resolve_dataset_spec(self) -> tuple[str, Any]:
+        """Resolve the dataset path and typed dataset config for this benchmark."""
         from pathlib import Path
 
         from artifex.generative_models.core.configuration import DataConfig
 
-        # Get dataset configuration - must be DataConfig
-        dataset_config = getattr(self.eval_config, "dataset_config", None)
+        dataset_config = None
+        dataset_path = None
+        if self.original_config:
+            dataset_config = self.original_config.get("dataset_config")
+            dataset_path = self.original_config.get("dataset_path")
+
         if dataset_config is None:
-            # Create default DataConfig
+            dataset_config = getattr(self.eval_config, "dataset_config", None)
+        if dataset_config is None:
             dataset_config = DataConfig(
                 name="shapenet_dataset",
                 dataset_name="shapenet",
@@ -138,7 +141,14 @@ class PointCloudGenerationBenchmark(Benchmark):
                 f"dataset_config must be DataConfig, got {type(dataset_config).__name__}"
             )
 
-        dataset_path = getattr(self.eval_config, "dataset_path", "data/shapenet")
+        if dataset_path is None:
+            dataset_path = getattr(self.eval_config, "dataset_path", "data/shapenet")
+
+        return str(dataset_path), dataset_config
+
+    def _setup_benchmark_components(self) -> None:
+        """Setup benchmark-specific components."""
+        dataset_path, dataset_config = self._resolve_dataset_spec()
 
         self.dataset = ShapeNetDataset(
             data_path=dataset_path,
@@ -183,8 +193,12 @@ class PointCloudGenerationBenchmark(Benchmark):
 
         # Check if model_config is already a PointCloudConfig
         if isinstance(model_config, PointCloudConfig):
-            # Use the provided config directly
-            point_cloud_config = model_config
+            if model_config.num_points == num_points:
+                point_cloud_config = model_config
+            else:
+                import dataclasses
+
+                point_cloud_config = dataclasses.replace(model_config, num_points=num_points)
         else:
             # Create network config with dataclass defaults
             network_config = PointCloudNetworkConfig(
@@ -297,7 +311,7 @@ class PointCloudGenerationBenchmark(Benchmark):
 
     def run_evaluation(
         self,
-        model: ModelProtocol | None = None,
+        model: BenchmarkModelProtocol | None = None,
         dataset: DatasetProtocol | BatchableDatasetProtocol | None = None,
     ) -> dict[str, float | int]:
         """Execute the evaluation phase of the benchmark.
@@ -369,7 +383,7 @@ class PointCloudGenerationBenchmark(Benchmark):
         return self.performance_targets.copy()
 
     def get_benchmark_info(self) -> dict[str, Any]:
-        """Get comprehensive benchmark information.
+        """Get complete benchmark information.
 
         Returns:
             Dictionary with benchmark metadata and configuration
@@ -401,21 +415,22 @@ class GeometricBenchmarkSuite:
         """
         self.config = config
         self.rngs = rngs
-        self.benchmarks = self._initialize_benchmarks()
+        self._benchmark_configs = self._initialize_benchmarks()
+        self.benchmarks: dict[str, PointCloudGenerationBenchmark | None] = {
+            name: None for name in self._benchmark_configs
+        }
 
-    def _initialize_benchmarks(self) -> dict[str, PointCloudGenerationBenchmark]:
-        """Initialize all benchmarks in the suite.
+    def _initialize_benchmarks(self) -> dict[str, Any]:
+        """Collect and validate benchmark configurations for the suite.
 
-        NOTE: This method only accepts properly typed configurations.
-        Dict configs are rejected in accordance with the unified configuration system.
+        Benchmarks are materialized lazily so summary-only paths do not touch
+        benchmark assets or local fixture directories.
         """
-        benchmarks: dict[str, PointCloudGenerationBenchmark] = {}
+        benchmarks: dict[str, Any] = {}
 
-        # Point Cloud Generation Benchmark
         if "point_cloud_generation" in self.config:
             pc_config = self.config["point_cloud_generation"]
 
-            # Enforce unified configuration system - reject dict configs
             if isinstance(pc_config, dict) and "eval_config" not in pc_config:
                 raise TypeError(
                     "GeometricBenchmarkSuite no longer accepts dict configurations. "
@@ -424,12 +439,20 @@ class GeometricBenchmarkSuite:
                     "Dict configs have been eliminated from the unified configuration system."
                 )
 
-            benchmarks["point_cloud_generation"] = PointCloudGenerationBenchmark(
-                rngs=self.rngs,
-                config=pc_config,
-            )
+            benchmarks["point_cloud_generation"] = pc_config
 
         return benchmarks
+
+    def _get_benchmark(self, benchmark_name: str) -> PointCloudGenerationBenchmark:
+        """Materialize a benchmark on demand and cache it for later reuse."""
+        benchmark = self.benchmarks[benchmark_name]
+        if benchmark is None:
+            benchmark = PointCloudGenerationBenchmark(
+                rngs=self.rngs,
+                config=self._benchmark_configs[benchmark_name],
+            )
+            self.benchmarks[benchmark_name] = benchmark
+        return benchmark
 
     def run_all_benchmarks(self) -> dict[str, dict[str, Any]]:
         """Run all benchmarks in the suite.
@@ -439,8 +462,9 @@ class GeometricBenchmarkSuite:
         """
         results: dict[str, dict[str, Any]] = {}
 
-        for benchmark_name, benchmark in self.benchmarks.items():
-            print(f"Running {benchmark_name} benchmark...")
+        for benchmark_name in self.benchmarks:
+            benchmark = self._get_benchmark(benchmark_name)
+            logger.info("Running %s benchmark...", benchmark_name)
 
             # Run training
             training_results = benchmark.run_training()
@@ -465,7 +489,7 @@ class GeometricBenchmarkSuite:
                 "info": benchmark_info,
             }
 
-            print(f"Completed {benchmark_name} benchmark")
+            logger.info("Completed %s benchmark", benchmark_name)
 
         return results
 

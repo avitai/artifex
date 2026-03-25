@@ -429,7 +429,7 @@ class WaveNetAudioModel(BaseAudioModel):
         batch: dict[str, jnp.ndarray],
         model_outputs: dict[str, jnp.ndarray],
         **kwargs,  # noqa: ARG002 - reserved for future loss customization
-    ) -> jax.Array:
+    ) -> dict[str, jax.Array]:
         """Compute WaveNet training loss.
 
         Args:
@@ -438,7 +438,7 @@ class WaveNetAudioModel(BaseAudioModel):
             **kwargs: Additional loss parameters (reserved for future use)
 
         Returns:
-            Cross-entropy loss
+            Dictionary containing canonical loss terms.
         """
         del kwargs  # Unused but part of interface
         target_audio = batch["audio"]
@@ -456,7 +456,10 @@ class WaveNetAudioModel(BaseAudioModel):
         targets_flat = target_quantized.reshape(-1)
 
         # Cross-entropy loss
-        log_probs = jax.nn.log_softmax(logits_flat)
+        log_probs = nnx.log_softmax(logits_flat)
         loss = -jnp.mean(log_probs[jnp.arange(targets_flat.shape[0]), targets_flat])
 
-        return loss
+        return {
+            "total_loss": loss,
+            "cross_entropy_loss": loss,
+        }

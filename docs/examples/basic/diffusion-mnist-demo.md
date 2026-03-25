@@ -24,10 +24,6 @@ This demo covers:
 ## Quick Start
 
 ```bash
-# Activate environment
-source activate.sh
-
-# Run the demo
 python examples/generative_models/image/diffusion/diffusion_mnist.py
 ```
 
@@ -40,23 +36,40 @@ python examples/generative_models/image/diffusion/diffusion_mnist.py
 
 ### 1. Model Creation
 
-The demo shows how to create a DDPM model using Artifex's unified configuration:
+The demo shows how to create a DDPM model using typed nested diffusion configs:
 
 ```python
-from artifex.generative_models.core.configuration import ModelConfig
+from artifex.generative_models.core.configuration import (
+    DDPMConfig,
+    NoiseScheduleConfig,
+    UNetBackboneConfig,
+)
 from artifex.generative_models.models.diffusion.ddpm import DDPMModel
 
-# Configure DDPM
-config = ModelConfig(
+backbone_config = UNetBackboneConfig(
+    name="unet_backbone",
+    hidden_dims=(64, 128, 256),
+    activation="gelu",
+    in_channels=1,
+    out_channels=1,
+    time_embedding_dim=128,
+    attention_resolutions=(16, 8),
+    num_res_blocks=2,
+    channel_mult=(1, 2, 4),
+)
+noise_schedule_config = NoiseScheduleConfig(
+    name="linear_schedule",
+    schedule_type="linear",
+    num_timesteps=1000,
+    beta_start=1e-4,
+    beta_end=2e-2,
+)
+config = DDPMConfig(
     name="ddpm_mnist",
-    model_class="DDPMModel",
-    input_dim=(28, 28, 1),
-    parameters={
-        "noise_steps": 1000,
-        "beta_start": 1e-4,
-        "beta_end": 0.02,
-        "beta_schedule": "linear",
-    },
+    backbone=backbone_config,
+    noise_schedule=noise_schedule_config,
+    input_shape=(28, 28, 1),
+    loss_type="mse",
 )
 
 # Create model
@@ -65,10 +78,10 @@ model = DDPMModel(config, rngs=rngs)
 
 **Key Points:**
 
-- `ModelConfig` provides unified config across all Artifex models
-- `input_dim=(28, 28, 1)` specifies MNIST dimensions (grayscale 28x28)
-- `noise_steps=1000` sets the number of diffusion timesteps
-- Beta schedule controls noise levels at each step
+- `DDPMConfig` keeps the diffusion runtime typed end to end
+- `input_shape=(28, 28, 1)` specifies MNIST dimensions (grayscale 28x28)
+- `noise_schedule.num_timesteps=1000` sets the number of diffusion timesteps
+- `UNetBackboneConfig` and `NoiseScheduleConfig` keep architecture and schedule explicit
 
 ### 2. Forward Diffusion
 
@@ -253,20 +266,27 @@ model.sample(8, scheduler="ddim", steps=100, rngs=rngs)
 ### 2. Different Beta Schedules
 
 ```python
+from dataclasses import replace
+
 # Try cosine schedule
-config.parameters["beta_schedule"] = "cosine"
+config = replace(
+    config,
+    noise_schedule=replace(config.noise_schedule, schedule_type="cosine"),
+)
 model = DDPMModel(config, rngs=rngs)
 ```
 
 ### 3. Different Image Sizes
 
 ```python
+from dataclasses import replace
+
 # Larger images (CIFAR-10 size)
-config = ModelConfig(
+config = replace(
+    config,
     name="ddpm_cifar",
-    model_class="DDPMModel",
-    input_dim=(32, 32, 3),  # RGB images
-    parameters={"noise_steps": 1000},
+    backbone=replace(config.backbone, in_channels=3, out_channels=3),
+    input_shape=(32, 32, 3),  # RGB images
 )
 ```
 
@@ -351,7 +371,7 @@ examples/generative_models/image/diffusion/diffusion_mnist.ipynb
 
 ```bash
 # Make sure environment is activated
-source activate.sh
+pip install artifex
 
 # Verify installation
 python -c "import artifex; print(artifex.__version__)"
@@ -399,7 +419,7 @@ steps=20  # Instead of 50
 
     ---
 
-    Comprehensive guide to diffusion models
+    Complete guide to diffusion models
 
 - :material-api:{ .lg .middle } **[API Reference](../../api/models/diffusion.md)**
 

@@ -1,12 +1,13 @@
 """SE(3)-Equivariant Molecular Flows benchmark suite."""
 
+import logging
 from pathlib import Path
 from typing import Any
 
 import jax.numpy as jnp
 from flax import nnx
 
-from artifex.benchmarks.base import (
+from artifex.benchmarks import (
     Benchmark,
     BenchmarkConfig,
     BenchmarkResult,
@@ -21,6 +22,9 @@ from artifex.generative_models.core.configuration import (
     EvaluationConfig,
 )
 from artifex.generative_models.models.flow.se3_molecular import SE3MolecularFlow
+
+
+logger = logging.getLogger(__name__)
 
 
 class SE3MolecularFlowsBenchmark(Benchmark):
@@ -262,7 +266,7 @@ class SE3MolecularFlowsBenchmark(Benchmark):
 class SE3MolecularFlowsSuite(BenchmarkSuite):
     """Complete benchmark suite for SE(3)-equivariant molecular flows.
 
-    This suite provides comprehensive evaluation of SE(3)-equivariant molecular
+    This suite provides complete evaluation of SE(3)-equivariant molecular
     flow models across multiple configurations and model sizes.
     """
 
@@ -298,6 +302,7 @@ class SE3MolecularFlowsSuite(BenchmarkSuite):
                 "max_atoms": 29,
                 "batch_size": 16,
                 "num_conformations": 100,
+                "demo_mode": True,
             },
         )
 
@@ -358,7 +363,7 @@ class SE3MolecularFlowsSuite(BenchmarkSuite):
             model_results = {}
 
             for benchmark_name, benchmark in self.benchmarks.items():
-                print(f"Running {benchmark_name} on {model_name}...")
+                logger.info("Running %s on %s...", benchmark_name, model_name)
 
                 try:
                     results = benchmark.evaluate_model(model, num_samples=num_samples, **kwargs)
@@ -373,13 +378,13 @@ class SE3MolecularFlowsSuite(BenchmarkSuite):
                     conformational_div = results.get("conformational_diversity", 0.0)
                     energy_consistency = results.get("energy_consistency", float("inf"))
 
-                    print(f"  Chemical validity: {chemical_validity:.3f}")
-                    print(f"  Conformational diversity: {conformational_div:.3f}")
-                    print(f"  Energy consistency: {energy_consistency:.3f}")
-                    print(f"  Meets targets: {results['meets_targets']}")
+                    logger.info("  Chemical validity: %.3f", chemical_validity)
+                    logger.info("  Conformational diversity: %.3f", conformational_div)
+                    logger.info("  Energy consistency: %.3f", energy_consistency)
+                    logger.info("  Meets targets: %s", results["meets_targets"])
 
-                except Exception as e:
-                    print(f"  Error: {e}")
+                except (RuntimeError, ValueError, KeyError, AttributeError) as e:
+                    logger.error("Benchmark %s error: %s", benchmark_name, e)
                     model_results[benchmark_name] = {
                         "error": str(e),
                         "benchmark_name": benchmark_name,
@@ -458,7 +463,7 @@ class SE3MolecularFlowsSuite(BenchmarkSuite):
         """Get suite information and available benchmarks."""
         return {
             "name": "SE(3) Molecular Flows Suite",
-            "description": "Comprehensive evaluation of SE(3)-equivariant molecular flows",
+            "description": "Complete evaluation of SE(3)-equivariant molecular flows",
             "benchmarks": {
                 name: benchmark.get_benchmark_info() for name, benchmark in self.benchmarks.items()
             },

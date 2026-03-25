@@ -1,7 +1,21 @@
+# ---
+# jupyter:
+#   jupytext:
+#     formats: py:percent,ipynb
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+# ---
+
 # %% [markdown]
 r"""
 # Simple Image-Text Multimodal Learning
 
+**Status:** Standalone pedagogy
+
+This walkthrough is a standalone JAX/Flax NNX concept demo.
+It does not instantiate shipped Artifex runtime owners.
 This example demonstrates multimodal learning by combining image and text
 modalities in a unified model. Learn how to build encoders for different
 modalities, create shared embedding spaces, and perform cross-modal retrieval.
@@ -46,11 +60,11 @@ by computing similarities in the shared embedding space.
 """
 
 # %%
-#!/usr/bin/env python
-"""Simple image-text multimodal example using the Artifex framework.
+# !/usr/bin/env python
+"""Standalone JAX/Flax NNX concept walkthrough.
 
-This example demonstrates how to use the Artifex framework's modality
-system to create multimodal models.
+This file does not instantiate shipped Artifex runtime owners.
+It demonstrates multimodal learning with local image and text encoders.
 
 Source Code Dependencies:
     - flax.nnx: Neural network modules (Conv, Linear, Embed, Sequential)
@@ -58,11 +72,22 @@ Source Code Dependencies:
     - matplotlib.pyplot: Visualization
 """
 
+import logging
+
 import jax
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
 from flax import nnx
+
+
+logging.basicConfig(level=logging.INFO, format="%(message)s")
+LOGGER = logging.getLogger(__name__)
+
+
+def echo(message: object = "") -> None:
+    """Emit example progress without raw print calls."""
+    LOGGER.info("%s", message)
 
 
 # %% [markdown]
@@ -350,9 +375,9 @@ Demonstrates:
 # %%
 def main():
     """Run the multimodal example."""
-    print("=" * 60)
-    print("Simple Image-Text Multimodal Example")
-    print("=" * 60)
+    echo("=" * 60)
+    echo("Simple Image-Text Multimodal Example")
+    echo("=" * 60)
 
     # Set random seed
     seed = 42
@@ -360,48 +385,48 @@ def main():
     rngs = nnx.Rngs(params=key)
 
     # Create multimodal model
-    print("\nCreating multimodal model...")
+    echo("\nCreating multimodal model...")
     model = SimpleMultimodalModel(
         image_size=32, vocab_size=128, embed_dim=128, output_dim=10, rngs=rngs
     )
 
-    print("Image encoder initialized")
-    print("Text encoder initialized")
-    print(f"Embedding dimension: {model.embed_dim}")
+    echo("Image encoder initialized")
+    echo("Text encoder initialized")
+    echo(f"Embedding dimension: {model.embed_dim}")
 
     # Create synthetic data
-    print("\nCreating synthetic data...")
+    echo("\nCreating synthetic data...")
     batch_size = 16
     images, text_ids, labels = create_synthetic_data(
         batch_size=batch_size, image_size=32, seq_len=10
     )
 
-    print(f"Images shape: {images.shape}")
-    print(f"Text IDs shape: {text_ids.shape}")
-    print(f"Labels shape: {labels.shape}")
+    echo(f"Images shape: {images.shape}")
+    echo(f"Text IDs shape: {text_ids.shape}")
+    echo(f"Labels shape: {labels.shape}")
 
     # Test forward pass
-    print("\nTesting forward pass...")
+    echo("\nTesting forward pass...")
     outputs = model(images, text_ids)
-    print(f"Output shape: {outputs.shape}")
+    echo(f"Output shape: {outputs.shape}")
 
     # Test individual encoders
-    print("\nTesting individual encoders...")
+    echo("\nTesting individual encoders...")
     image_features = model.encode_image(images)
     text_features = model.encode_text(text_ids)
-    print(f"Image features shape: {image_features.shape}")
-    print(f"Text features shape: {text_features.shape}")
+    echo(f"Image features shape: {image_features.shape}")
+    echo(f"Text features shape: {text_features.shape}")
 
     # Compute similarities
-    print("\nComputing image-text similarities...")
+    echo("\nComputing image-text similarities...")
     similarities = model.compute_similarity(images, text_ids)
-    print(f"Similarities shape: {similarities.shape}")
-    print(f"Mean similarity: {jnp.mean(similarities):.3f}")
-    print(f"Max similarity: {jnp.max(similarities):.3f}")
-    print(f"Min similarity: {jnp.min(similarities):.3f}")
+    echo(f"Similarities shape: {similarities.shape}")
+    echo(f"Mean similarity: {jnp.mean(similarities):.3f}")
+    echo(f"Max similarity: {jnp.max(similarities):.3f}")
+    echo(f"Min similarity: {jnp.min(similarities):.3f}")
 
     # Visualize embeddings
-    print("\nVisualizing embedding space...")
+    echo("\nVisualizing embedding space...")
     fig = visualize_multimodal_embeddings(model, images, text_ids)
 
     # Save figure
@@ -410,20 +435,20 @@ def main():
     output_dir = "examples_output"
     os.makedirs(output_dir, exist_ok=True)
     fig.savefig(os.path.join(output_dir, "multimodal_embeddings.png"))
-    print(f"Embeddings visualization saved to {output_dir}/multimodal_embeddings.png")
+    echo(f"Embeddings visualization saved to {output_dir}/multimodal_embeddings.png")
 
     # Demonstrate cross-modal retrieval
-    print()
-    print("=" * 40)
-    print("Cross-Modal Retrieval Example")
-    print("=" * 40)
+    echo()
+    echo("=" * 40)
+    echo("Cross-Modal Retrieval Example")
+    echo("=" * 40)
 
     # Create a batch of queries and gallery
     query_images, query_text, _ = create_synthetic_data(5, 32, 10)
     gallery_images, gallery_text, _ = create_synthetic_data(20, 32, 10)
 
     # Image-to-text retrieval
-    print("\nImage-to-Text Retrieval:")
+    echo("\nImage-to-Text Retrieval:")
     query_img_features = model.encode_image(query_images[:1])  # Use first image as query
     gallery_text_features = model.encode_text(gallery_text)
 
@@ -438,11 +463,11 @@ def main():
     sims = query_img_norm @ gallery_text_norm.T
     top_5 = jnp.argsort(sims[0])[-5:][::-1]
 
-    print(f"Top 5 text matches for image query: {top_5}")
-    print(f"Similarity scores: {sims[0][top_5]}")
+    echo(f"Top 5 text matches for image query: {top_5}")
+    echo(f"Similarity scores: {sims[0][top_5]}")
 
     # Text-to-image retrieval
-    print("\nText-to-Image Retrieval:")
+    echo("\nText-to-Image Retrieval:")
     query_text_features = model.encode_text(query_text[:1])  # Use first text as query
     gallery_img_features = model.encode_image(gallery_images)
 
@@ -457,10 +482,10 @@ def main():
     sims = query_text_norm @ gallery_img_norm.T
     top_5 = jnp.argsort(sims[0])[-5:][::-1]
 
-    print(f"Top 5 image matches for text query: {top_5}")
-    print(f"Similarity scores: {sims[0][top_5]}")
+    echo(f"Top 5 image matches for text query: {top_5}")
+    echo(f"Similarity scores: {sims[0][top_5]}")
 
-    print("\nSimple multimodal example completed successfully!")
+    echo("\nSimple multimodal example completed successfully!")
 
 
 # %% [markdown]

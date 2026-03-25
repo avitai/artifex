@@ -1,9 +1,10 @@
 """Loss functions for geometric generative models."""
 
-from typing import Callable
+from collections.abc import Callable
 
 import jax
 import jax.numpy as jnp
+from calibrax.metrics.functional.geometric import hausdorff_distance as _calibrax_hausdorff
 from flax import nnx
 
 from artifex.generative_models.core.losses.base import reduce_loss
@@ -13,7 +14,7 @@ def get_point_cloud_loss(loss_type: str, **kwargs) -> Callable:
     """Get the appropriate loss function for point cloud models.
 
     Args:
-        loss_type: Type of loss function ("chamfer" or "earth_mover")
+        loss_type: Type of loss function ("chamfer", "earth_mover", or "hausdorff")
         **kwargs: Additional parameters for the loss function
 
     Returns:
@@ -23,6 +24,8 @@ def get_point_cloud_loss(loss_type: str, **kwargs) -> Callable:
         return chamfer_distance
     if loss_type == "earth_mover":
         return earth_mover_distance
+    if loss_type == "hausdorff":
+        return hausdorff_distance
     raise ValueError(f"Unknown point cloud loss type: {loss_type}")
 
 
@@ -94,6 +97,27 @@ def earth_mover_distance(
         return jnp.sum(emd_batch)
     else:  # "none"
         return emd_batch
+
+
+def hausdorff_distance(
+    pred_points: jax.Array, target_points: jax.Array, reduction: str = "mean"
+) -> jax.Array:
+    """Compute Hausdorff distance between two point clouds.
+
+    The Hausdorff distance is the maximum of directed Hausdorff distances
+    in both directions: max(max_a min_b d(a,b), max_b min_a d(b,a)).
+    Uses Euclidean distance. Delegates to calibrax implementation.
+
+    Args:
+        pred_points: Predicted point cloud [batch, num_points, dims]
+        target_points: Target point cloud [batch, num_points, dims]
+        reduction: How to reduce the batch dimension ("mean", "sum", "none")
+
+    Returns:
+        Hausdorff distance loss
+    """
+    hausdorff_batch = jax.vmap(_calibrax_hausdorff)(pred_points, target_points)
+    return reduce_loss(hausdorff_batch, reduction)
 
 
 class MeshLoss(nnx.Module):

@@ -1,260 +1,169 @@
-"""Protein-specific loss functions for generative models.
+"""Protein-specific loss builders backed by pure JAX functions."""
 
-This module provides composable loss functions for protein structure generation
-and diffusion models.
-"""
-
-from typing import Any, Callable, Protocol
+from collections.abc import Callable
+from typing import Any
 
 import jax
 import jax.numpy as jnp
 
-
-class ProteinLossFunction(Protocol):
-    """Protocol for protein loss functions."""
-
-    def __call__(self, batch: dict[str, Any], outputs: dict[str, Any], **kwargs) -> jax.Array:
-        """Compute loss.
-
-        Args:
-            batch: Batch of data with ground truth
-            outputs: Model outputs
-            **kwargs: Additional keyword arguments
-
-        Returns:
-            Loss value
-        """
-        ...
+from artifex.generative_models.extensions.protein.constraints import (
+    BOND_ANGLES,
+    BOND_LENGTHS,
+    calculate_bond_angles,
+    calculate_bond_lengths,
+    calculate_dihedral_angles,
+    DIHEDRAL_ANGLES,
+)
 
 
-class CompositeLoss:
-    """Composable loss function that combines multiple loss terms.
+ProteinLossFunction = Callable[[dict[str, Any], dict[str, Any]], jax.Array]
+ProteinLossDictFunction = Callable[[dict[str, Any], dict[str, Any]], dict[str, jax.Array]]
 
-    This class allows combining multiple loss functions with weights for
-    protein structure generation tasks.
-    """
 
-    def __init__(
-        self,
-        loss_terms: dict[str, tuple[ProteinLossFunction, float]],
-    ):
-        """Initialize the composite loss.
+def _extract_atom_positions(
+    batch: dict[str, Any], outputs: dict[str, Any]
+) -> tuple[jax.Array, jax.Array, jax.Array | None]:
+    """Extract protein coordinates from batch and model outputs."""
+    target_pos = batch.get("atom_positions")
+    pred_pos = outputs.get("atom_positions")
+    atom_mask = batch.get("atom_mask")
 
-        Args:
-            loss_terms: Dictionary mapping loss names to (loss_fn, weight) tuples
-        """
-        self.loss_terms = loss_terms
+    if target_pos is None or pred_pos is None:
+        raise ValueError("Protein losses require atom positions in both batch and outputs")
 
-    def __call__(
-        self, batch: dict[str, Any], outputs: dict[str, Any], **kwargs
-    ) -> dict[str, jax.Array]:
-        """Compute the combined loss.
+    return target_pos, pred_pos, atom_mask
 
-        Args:
-            batch: Batch of data with ground truth
-            outputs: Model outputs
-            **kwargs: Additional keyword arguments
 
-        Returns:
-            Dictionary with individual and total loss values
-        """
-        losses: dict[str, jax.Array] = {}
+def _mean_over_valid(values: jax.Array, mask: jax.Array | None = None) -> jax.Array:
+    """Average values over valid masked entries."""
+    if mask is None:
+        return jnp.mean(values)
 
-        # Calculate each loss term
-        for name, (loss_fn, weight) in self.loss_terms.items():
-            loss_value = loss_fn(batch, outputs, **kwargs)
-            weighted_loss = weight * loss_value
-            losses[name] = weighted_loss
+    masked_values = values * mask
+    normalizer = jnp.maximum(jnp.sum(mask), 1.0)
+    return jnp.sum(masked_values) / normalizer
 
-        # Calculate total loss
-        if losses:
-            total_loss = sum(losses.values())
-            losses["total"] = jnp.asarray(total_loss)
-        else:
-            losses["total"] = jnp.array(0.0)
 
-        return losses
+def _squared_periodic_difference(values: jax.Array, targets: jax.Array) -> jax.Array:
+    """Square the shortest signed angular difference."""
+    delta = jnp.arctan2(jnp.sin(values - targets), jnp.cos(values - targets))
+    return jnp.square(delta)
 
 
 def create_rmsd_loss() -> ProteinLossFunction:
-    """Create a loss function for protein RMSD.
+    """Build RMSD loss for protein coordinates."""
 
-    Returns:
-        RMSD loss function
-    """
+    def rmsd_loss(batch: dict[str, Any], outputs: dict[str, Any], **kwargs: Any) -> jax.Array:
+        del kwargs
+        target_pos, pred_pos, atom_mask = _extract_atom_positions(batch, outputs)
 
-    def rmsd_loss(batch: dict[str, Any], outputs: dict[str, Any], **kwargs) -> jax.Array:
-        """Calculate RMSD between predicted and ground truth protein structures.
-
-        Args:
-            batch: Batch with ground truth atom_positions
-            outputs: Model outputs with predicted atom_positions
-            **kwargs: Additional keyword arguments
-
-        Returns:
-            RMSD loss
-        """
-        # Get target and predicted positions
-        target_pos = batch.get("atom_positions")
-        pred_pos = outputs.get("atom_positions")
-
-        if target_pos is None or pred_pos is None:
-            # Return zero loss if positions not available
-            return jnp.array(0.0)
-
-        # Get atom mask if available
-        atom_mask = batch.get("atom_mask")
-
-        if atom_mask is not None:
-            # Apply mask to consider only valid atoms
-            mask_3d = atom_mask[:, :, :, None]  # [batch, res, atoms, 1]
-            # Calculate masked MSE
-            squared_diff = ((pred_pos - target_pos) ** 2) * mask_3d
-            # Sum over the coordinate dimensions (last dimension)
-            squared_diff_sum = jnp.sum(squared_diff, axis=-1)  # [batch, res, atoms]
-            # Calculate mean over all atoms considering the mask
-            valid_atoms = jnp.sum(atom_mask)
-            # Avoid division by zero
-            valid_atoms = jnp.maximum(valid_atoms, 1.0)
-            mse = jnp.sum(squared_diff_sum) / valid_atoms
-        else:
-            # Calculate unmasked MSE
-            mse = jnp.mean(jnp.sum((pred_pos - target_pos) ** 2, axis=-1))
-
-        # RMSD is the square root of MSE
-        rmsd = jnp.sqrt(mse)
-
+        squared_diff = jnp.sum(jnp.square(pred_pos - target_pos), axis=-1)
+        rmsd = jnp.sqrt(_mean_over_valid(squared_diff, atom_mask))
         return rmsd
 
     return rmsd_loss
 
 
 def create_backbone_loss() -> ProteinLossFunction:
-    """Create a loss function for protein backbone geometry.
+    """Build backbone geometry loss for protein coordinates."""
 
-    Enforces correct bond lengths and angles in the protein backbone.
+    ideal_lengths = {
+        name: jnp.asarray(value)
+        for name, value in BOND_LENGTHS.items()
+        if name in {"N-CA", "CA-C", "C-N"}
+    }
+    ideal_angles = {
+        name: jnp.asarray(value)
+        for name, value in BOND_ANGLES.items()
+        if name in {"N-CA-C", "CA-C-N"}
+    }
 
-    Returns:
-        Backbone geometry loss function
-    """
+    def backbone_loss(batch: dict[str, Any], outputs: dict[str, Any], **kwargs: Any) -> jax.Array:
+        del kwargs
+        _, pred_pos, atom_mask = _extract_atom_positions(batch, outputs)
 
-    def backbone_loss(batch: dict[str, Any], outputs: dict[str, Any], **kwargs) -> jax.Array:
-        """Calculate backbone geometry loss.
+        bond_lengths = calculate_bond_lengths(pred_pos, atom_mask)
+        bond_angles = calculate_bond_angles(pred_pos, atom_mask)
 
-        Args:
-            batch: Batch of data with ground truth
-            outputs: Model outputs
-            **kwargs: Additional keyword arguments
-
-        Returns:
-            Backbone geometry loss
-        """
-        # Get predicted positions
-        pred_pos = outputs.get("atom_positions")
-
-        if pred_pos is None:
-            # Return zero loss if positions not available
-            return jnp.array(0.0)
-
-        # Get atom mask if available
-        atom_mask = batch.get("atom_mask")
-
-        # Standard protein backbone bond lengths in Angstroms
-        # N-CA: ~1.45Å, CA-C: ~1.52Å, C-N+1: ~1.33Å
-        ideal_lengths = jnp.array([1.45, 1.52, 1.33])
-
-        # Calculate bond length loss
-        # Extract backbone atoms N(0), CA(1), C(2), O(3)
-        n_pos = pred_pos[:, :, 0]  # [batch, res, 3]
-        ca_pos = pred_pos[:, :, 1]  # [batch, res, 3]
-        c_pos = pred_pos[:, :, 2]  # [batch, res, 3]
-
-        # Calculate bond lengths
-        n_ca_len = jnp.sqrt(jnp.sum((n_pos - ca_pos) ** 2, axis=-1))  # [batch, res]
-        ca_c_len = jnp.sqrt(jnp.sum((ca_pos - c_pos) ** 2, axis=-1))  # [batch, res]
-
-        # Calculate C-N+1 lengths (for peptide bonds)
-        # For each residue i, calculate distance from C_i to N_{i+1}
-        c_to_next_n = jnp.zeros_like(n_ca_len)
-        c_res = c_pos[:, :-1]  # All C atoms except the last residue
-        n_next = n_pos[:, 1:]  # All N atoms except the first residue
-        c_n_next_dist = jnp.sqrt(jnp.sum((c_res - n_next) ** 2, axis=-1))
-        # Pad to original shape
-        c_to_next_n = c_to_next_n.at[:, :-1].set(c_n_next_dist)
-
-        # Apply mask if available
+        n_mask = ca_mask = c_mask = None
+        peptide_mask = angle_mask = None
         if atom_mask is not None:
-            n_mask = atom_mask[:, :, 0]
-            ca_mask = atom_mask[:, :, 1]
-            c_mask = atom_mask[:, :, 2]
-
-            # For peptide bonds, create mask valid only where both atoms exist
-            peptide_mask = n_mask[:, 1:] * c_mask[:, :-1]  # [batch, res-1]
-            peptide_mask_full = jnp.zeros_like(n_mask)
-            peptide_mask_full = peptide_mask_full.at[:, :-1].set(peptide_mask)
-
-            # Calculate masked squared errors
-            n_ca_error = jnp.square(n_ca_len - ideal_lengths[0]) * n_mask * ca_mask
-            ca_c_error = jnp.square(ca_c_len - ideal_lengths[1]) * ca_mask * c_mask
-            c_n_error = jnp.square(c_to_next_n - ideal_lengths[2]) * peptide_mask_full
-
-            # Count valid bonds
-            valid_count = (
-                jnp.sum(n_mask * ca_mask) + jnp.sum(ca_mask * c_mask) + jnp.sum(peptide_mask)
+            n_mask = atom_mask[..., 0]
+            ca_mask = atom_mask[..., 1]
+            c_mask = atom_mask[..., 2]
+            peptide_mask = jnp.zeros_like(n_mask)
+            peptide_mask = peptide_mask.at[..., :-1].set(c_mask[..., :-1] * n_mask[..., 1:])
+            angle_mask = jnp.zeros_like(n_mask)
+            angle_mask = angle_mask.at[..., :-1].set(
+                ca_mask[..., :-1] * c_mask[..., :-1] * n_mask[..., 1:]
             )
-            # Avoid division by zero
-            valid_count = jnp.maximum(valid_count, 1.0)
 
-            # Sum errors and normalize
-            bond_loss = (
-                jnp.sum(n_ca_error) + jnp.sum(ca_c_error) + jnp.sum(c_n_error)
-            ) / valid_count
-        else:
-            # Unmasked calculation
-            n_ca_error = jnp.square(n_ca_len - ideal_lengths[0])
-            ca_c_error = jnp.square(ca_c_len - ideal_lengths[1])
-            c_n_error = jnp.square(c_to_next_n - ideal_lengths[2])
+        n_ca_loss = _mean_over_valid(
+            jnp.square(bond_lengths["N-CA"] - ideal_lengths["N-CA"]),
+            None if n_mask is None else n_mask * ca_mask,
+        )
+        ca_c_loss = _mean_over_valid(
+            jnp.square(bond_lengths["CA-C"] - ideal_lengths["CA-C"]),
+            None if ca_mask is None else ca_mask * c_mask,
+        )
+        c_n_loss = _mean_over_valid(
+            jnp.square(bond_lengths["C-N"] - ideal_lengths["C-N"]),
+            peptide_mask,
+        )
+        n_ca_c_loss = _mean_over_valid(
+            jnp.square(bond_angles["N-CA-C"] - ideal_angles["N-CA-C"]),
+            None if n_mask is None else n_mask * ca_mask * c_mask,
+        )
+        ca_c_n_loss = _mean_over_valid(
+            jnp.square(bond_angles["CA-C-N"] - ideal_angles["CA-C-N"]),
+            angle_mask,
+        )
 
-            # Mean over all bonds
-            bond_loss = jnp.mean(n_ca_error) + jnp.mean(ca_c_error) + jnp.mean(c_n_error)
-
-        # Placeholder for bond angle loss (to be implemented)
-        angle_loss = jnp.array(0.0)
-
-        # Combine bond length and angle losses
-        return bond_loss + angle_loss
+        return n_ca_loss + ca_c_loss + c_n_loss + n_ca_c_loss + ca_c_n_loss
 
     return backbone_loss
 
 
-def create_dihedral_loss() -> ProteinLossFunction:
-    """Create a loss function for protein dihedral angles.
+def create_dihedral_loss(
+    *,
+    target_secondary_structure: str = "alpha_helix",
+    phi_weight: float = 1.0,
+    psi_weight: float = 1.0,
+    ideal_phi: float | None = None,
+    ideal_psi: float | None = None,
+) -> ProteinLossFunction:
+    """Build backbone dihedral loss for protein coordinates."""
+    defaults = DIHEDRAL_ANGLES.get(target_secondary_structure, DIHEDRAL_ANGLES["alpha_helix"])
+    target_phi = jnp.asarray(defaults["phi"] if ideal_phi is None else ideal_phi)
+    target_psi = jnp.asarray(defaults["psi"] if ideal_psi is None else ideal_psi)
 
-    Returns:
-        Dihedral angle loss function
-    """
+    def dihedral_loss(batch: dict[str, Any], outputs: dict[str, Any], **kwargs: Any) -> jax.Array:
+        del kwargs
+        _, pred_pos, atom_mask = _extract_atom_positions(batch, outputs)
 
-    def dihedral_loss(batch: dict[str, Any], outputs: dict[str, Any], **kwargs) -> jax.Array:
-        """Calculate dihedral angle loss for protein structures.
+        dihedrals = calculate_dihedral_angles(pred_pos, atom_mask)
+        phi_sq_error = _squared_periodic_difference(dihedrals["phi"], target_phi)
+        psi_sq_error = _squared_periodic_difference(dihedrals["psi"], target_psi)
 
-        Args:
-            batch: Batch of data with ground truth
-            outputs: Model outputs
-            **kwargs: Additional keyword arguments
+        phi_mask = psi_mask = None
+        if atom_mask is not None:
+            n_mask = atom_mask[..., 0]
+            ca_mask = atom_mask[..., 1]
+            c_mask = atom_mask[..., 2]
 
-        Returns:
-            Dihedral angle loss
-        """
-        # Get predicted positions
-        pred_pos = outputs.get("atom_positions")
+            phi_mask = jnp.zeros_like(dihedrals["phi"])
+            phi_mask = phi_mask.at[..., 1:].set(
+                c_mask[..., :-1] * n_mask[..., 1:] * ca_mask[..., 1:] * c_mask[..., 1:]
+            )
 
-        if pred_pos is None:
-            # Return zero loss if positions not available
-            return jnp.array(0.0)
+            psi_mask = jnp.zeros_like(dihedrals["psi"])
+            psi_mask = psi_mask.at[..., :-1].set(
+                n_mask[..., :-1] * ca_mask[..., :-1] * c_mask[..., :-1] * n_mask[..., 1:]
+            )
 
-        # Placeholder for dihedral angle calculation and loss
-        # This should assess phi/psi angles using Ramachandran plot preferences
-        return jnp.array(0.0)
+        phi_loss = _mean_over_valid(phi_sq_error, phi_mask)
+        psi_loss = _mean_over_valid(psi_sq_error, psi_mask)
+        return phi_weight * phi_loss + psi_weight * psi_loss
 
     return dihedral_loss
 
@@ -263,73 +172,29 @@ def create_protein_structure_loss(
     rmsd_weight: float = 1.0,
     backbone_weight: float = 0.5,
     dihedral_weight: float = 0.3,
-) -> CompositeLoss:
-    """Create a composite loss for protein structure generation.
+) -> ProteinLossDictFunction:
+    """Build a canonical protein structure loss dict."""
+    rmsd_loss = create_rmsd_loss()
+    backbone_loss = create_backbone_loss()
+    dihedral_loss = create_dihedral_loss()
 
-    Args:
-        rmsd_weight: Weight for RMSD loss
-        backbone_weight: Weight for backbone geometry loss
-        dihedral_weight: Weight for dihedral angle loss
+    def protein_structure_loss(
+        batch: dict[str, Any], outputs: dict[str, Any], **kwargs: Any
+    ) -> dict[str, jax.Array]:
+        rmsd_value = rmsd_loss(batch, outputs, **kwargs)
+        backbone_value = backbone_loss(batch, outputs, **kwargs)
+        dihedral_value = dihedral_loss(batch, outputs, **kwargs)
 
-    Returns:
-        Composite loss function
-    """
-    loss_terms = {
-        "rmsd": (create_rmsd_loss(), rmsd_weight),
-        "backbone": (create_backbone_loss(), backbone_weight),
-        "dihedral": (create_dihedral_loss(), dihedral_weight),
-    }
+        total_loss = (
+            rmsd_weight * rmsd_value
+            + backbone_weight * backbone_value
+            + dihedral_weight * dihedral_value
+        )
+        return {
+            "total_loss": total_loss,
+            "rmsd_loss": rmsd_value,
+            "backbone_loss": backbone_value,
+            "dihedral_loss": dihedral_value,
+        }
 
-    return CompositeLoss(loss_terms)
-
-
-class LossRegistry:
-    """Registry for protein loss functions."""
-
-    _losses: dict[str, Callable[..., ProteinLossFunction]] = {
-        "rmsd": create_rmsd_loss,
-        "backbone": create_backbone_loss,
-        "dihedral": create_dihedral_loss,
-    }
-
-    _composite_losses: dict[str, Callable[..., CompositeLoss]] = {
-        "protein_structure": create_protein_structure_loss,
-    }
-
-    @classmethod
-    def get_loss(cls, name: str, **kwargs) -> ProteinLossFunction | CompositeLoss:
-        """Get a loss function by name.
-
-        Args:
-            name: Loss function name
-            **kwargs: Additional arguments to pass to the loss constructor
-
-        Returns:
-            Loss function
-        """
-        if name in cls._losses:
-            return cls._losses[name](**kwargs)
-        elif name in cls._composite_losses:
-            return cls._composite_losses[name](**kwargs)
-        else:
-            raise ValueError(f"Unknown loss function: {name}")
-
-    @classmethod
-    def register_loss(cls, name: str, loss_fn: Callable[..., ProteinLossFunction]) -> None:
-        """Register a new loss function.
-
-        Args:
-            name: Loss function name
-            loss_fn: Loss function constructor
-        """
-        cls._losses[name] = loss_fn
-
-    @classmethod
-    def register_composite_loss(cls, name: str, loss_fn: Callable[..., CompositeLoss]) -> None:
-        """Register a new composite loss function.
-
-        Args:
-            name: Composite loss function name
-            loss_fn: Composite loss function constructor
-        """
-        cls._composite_losses[name] = loss_fn
+    return protein_structure_loss

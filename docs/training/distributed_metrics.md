@@ -1,5 +1,7 @@
 # Distributed Metrics
 
+**Status:** `Supported runtime training surface`
+
 **Module:** `artifex.generative_models.training.distributed.metrics`
 
 **Source:** `src/artifex/generative_models/training/distributed/metrics.py`

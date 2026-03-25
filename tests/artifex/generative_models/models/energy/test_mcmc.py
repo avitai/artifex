@@ -257,6 +257,7 @@ class TestSampleBuffer:
         assert buffer.capacity == 100
         assert buffer.reinit_prob == 0.1
         assert buffer.buffer == []
+        assert buffer.num_samples == 0
 
     @jax_required
     def test_sample_buffer_update(self, energy_test_mlp_data):
@@ -268,11 +269,12 @@ class TestSampleBuffer:
 
         # Check that samples were added
         assert len(buffer.buffer) == 1
+        assert buffer.num_samples == energy_test_mlp_data.shape[0]
         assert jnp.allclose(buffer.buffer[0], energy_test_mlp_data)
 
     @jax_required
     def test_sample_buffer_capacity_limit(self, energy_test_batch_size):
-        """Test that sample buffer respects capacity limits."""
+        """Test that sample buffer respects sample-count capacity limits."""
         capacity = 3
         buffer = SampleBuffer(capacity=capacity, reinit_prob=0.1)
 
@@ -282,8 +284,19 @@ class TestSampleBuffer:
             samples = jax.random.normal(key, (energy_test_batch_size, 8))
             buffer.update_buffer(samples)
 
-        # Buffer should not exceed capacity
-        assert len(buffer.buffer) <= capacity
+        # Buffer should not exceed capacity in retained samples
+        assert buffer.num_samples == capacity
+
+    @jax_required
+    def test_sample_buffer_clear(self, energy_test_mlp_data):
+        """Test clearing all retained samples from the sample buffer."""
+        buffer = SampleBuffer(capacity=50, reinit_prob=0.1)
+        buffer.update_buffer(energy_test_mlp_data)
+
+        buffer.clear()
+
+        assert buffer.buffer == []
+        assert buffer.num_samples == 0
 
     @jax_required
     def test_sample_buffer_initial_sampling_fresh_samples(self, energy_rng_key):
@@ -523,7 +536,7 @@ class TestPersistentContrastiveDivergence:
         sample_buffer = SampleBuffer(capacity=64, reinit_prob=0.1)
 
         # Initially empty buffer
-        initial_buffer_size = len(sample_buffer.buffer)
+        initial_buffer_size = sample_buffer.num_samples
 
         # Run persistent contrastive divergence
         initial_samples, final_samples = persistent_contrastive_divergence(
@@ -535,7 +548,7 @@ class TestPersistentContrastiveDivergence:
         )
 
         # Buffer should be updated
-        final_buffer_size = len(sample_buffer.buffer)
+        final_buffer_size = sample_buffer.num_samples
         assert final_buffer_size > initial_buffer_size
 
     @jax_required
@@ -644,8 +657,9 @@ class TestMCMCIntegration:
             assert jnp.all(jnp.isfinite(fake_samples))
             assert fake_samples.shape == real_samples.shape
 
-            # Buffer should grow (up to capacity)
-            assert len(sample_buffer.buffer) >= min(iteration + 1, sample_buffer.capacity)
+            # Buffer should grow up to the retained sample capacity
+            expected_samples = min((iteration + 1) * real_samples.shape[0], sample_buffer.capacity)
+            assert sample_buffer.num_samples == expected_samples
 
     @jax_required
     def test_mcmc_numerical_stability(self, energy_rng_key):

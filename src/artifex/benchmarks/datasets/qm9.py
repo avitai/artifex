@@ -1,16 +1,17 @@
 """QM9 molecular dataset for SE(3)-equivariant molecular flows."""
 
-from typing import Any, Iterator
+from collections.abc import Iterator
+from typing import Any
 
 import jax
 import jax.numpy as jnp
 from flax import nnx
 
-from artifex.benchmarks.datasets.base import DatasetProtocol
+from artifex.benchmarks.runtime_guards import demo_mode_from_mapping, require_demo_mode
 from artifex.generative_models.core.configuration import DataConfig
 
 
-class QM9Dataset(DatasetProtocol):
+class QM9Dataset:
     """QM9 molecular dataset for molecular conformation generation.
 
     The QM9 dataset contains 134,000 small organic molecules with up to 9 heavy atoms
@@ -18,6 +19,7 @@ class QM9Dataset(DatasetProtocol):
     thermodynamic properties computed using DFT.
 
     For SE(3)-equivariant flows, we focus on molecular conformations and properties.
+    Structurally conforms to DatasetProtocol.
     """
 
     def __init__(
@@ -41,11 +43,16 @@ class QM9Dataset(DatasetProtocol):
         if not isinstance(config, DataConfig):
             raise TypeError(f"config must be DataConfig, got {type(config).__name__}")
 
-        # Extract QM9-specific parameters from config metadata BEFORE calling super().__init__
+        self.config = config
+        self.data_path = data_path
+        self.rngs = rngs
+
+        # Extract QM9-specific parameters from config metadata
         self.max_atoms = config.metadata.get("max_atoms", 29)
         self.batch_size = config.metadata.get("batch_size", 32)
         self.split = config.split
         self.num_conformations = config.metadata.get("num_conformations", 100)
+        self.demo_mode = demo_mode_from_mapping(config.metadata)
 
         # QM9 atom types: H, C, N, O, F
         self.atom_types_map = {"H": 0, "C": 1, "N": 2, "O": 3, "F": 4}
@@ -54,8 +61,16 @@ class QM9Dataset(DatasetProtocol):
         # Initialize num_molecules for later use
         self.num_molecules = 1000  # Default, will be updated in _setup_mock_data
 
-        # Now call parent init which will call _load_dataset
-        super().__init__(data_path, config, rngs=rngs)
+        require_demo_mode(
+            enabled=self.demo_mode,
+            component="QM9Dataset",
+            detail=(
+                "This retained QM9 loader still fabricates molecular batches instead of loading "
+                "benchmark-grade QM9 conformations."
+            ),
+        )
+
+        self._load_dataset()
 
     def _load_dataset(self):
         """Load the dataset."""
@@ -214,7 +229,7 @@ class QM9Dataset(DatasetProtocol):
 
             return True
 
-        except Exception:
+        except (KeyError, IndexError, TypeError, AttributeError):
             return False
 
     def get_batch(self, batch_size: int | None = None) -> dict[str, jax.Array]:
@@ -240,5 +255,30 @@ class QM9Dataset(DatasetProtocol):
         }
 
     def __len__(self) -> int:
-        """Return number of batches in dataset."""
-        return self.num_molecules // self.batch_size
+        """Return number of molecules in dataset."""
+        return self.num_molecules
+
+    def __getitem__(self, idx: int) -> dict[str, jax.Array]:
+        """Get a single molecule by index.
+
+        Args:
+            idx: Molecule index
+
+        Returns:
+            Dictionary with molecule data
+        """
+        if idx < 0 or idx >= self.num_molecules:
+            raise IndexError(f"Index {idx} out of range for dataset of size {self.num_molecules}")
+        n_atoms = int(jax.random.randint(self.rngs.params(), (), 3, self.max_atoms - 5))
+        coords, atom_types = self._generate_realistic_molecule(n_atoms)
+        padded_coords = jnp.zeros((self.max_atoms, 3))
+        padded_coords = padded_coords.at[:n_atoms].set(coords)
+        padded_types = jnp.zeros(self.max_atoms, dtype=jnp.int32)
+        padded_types = padded_types.at[:n_atoms].set(atom_types)
+        mask = jnp.arange(self.max_atoms) < n_atoms
+        return {
+            "coordinates": padded_coords,
+            "atom_types": padded_types,
+            "atom_mask": mask,
+            "num_atoms": jnp.array(n_atoms),
+        }

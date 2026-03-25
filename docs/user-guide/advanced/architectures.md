@@ -598,7 +598,7 @@ class CustomVAE(nnx.Module):
         mean = self.mean_layer(x)
         logvar = self.logvar_layer(x)
 
-        return {"mean": mean, "logvar": logvar}
+        return {"mean": mean, "log_var": logvar}
 
     def reparameterize(
         self,
@@ -678,7 +678,7 @@ class CustomVAE(nnx.Module):
             use_running_average: Use running stats for batch norm
 
         Returns:
-            Dictionary with 'reconstruction', 'mean', 'logvar', 'latent'
+            Dictionary with 'reconstructed', 'mean', 'log_var', 'latent'
         """
         # Encode
         latent_params = self.encode(x, use_running_average=use_running_average)
@@ -686,7 +686,7 @@ class CustomVAE(nnx.Module):
         # Reparameterize
         z = self.reparameterize(
             latent_params["mean"],
-            latent_params["logvar"],
+            latent_params["log_var"],
             rngs=rngs
         )
 
@@ -694,9 +694,9 @@ class CustomVAE(nnx.Module):
         reconstruction = self.decode(z, use_running_average=use_running_average)
 
         return {
-            "reconstruction": reconstruction,
+            "reconstructed": reconstruction,
             "mean": latent_params["mean"],
-            "logvar": latent_params["logvar"],
+            "log_var": latent_params["log_var"],
             "latent": z,
         }
 
@@ -715,7 +715,7 @@ model = CustomVAE(
 x = jnp.ones((32, 28, 28, 1))
 output = model(x, rngs=nnx.Rngs(1))
 
-print(f"Reconstruction shape: {output['reconstruction'].shape}")  # (32, 28, 28, 1)
+print(f"Reconstruction shape: {output['reconstructed'].shape}")  # (32, 28, 28, 1)
 print(f"Latent shape: {output['latent'].shape}")  # (32, 20)
 ```
 
@@ -1237,16 +1237,16 @@ class MyCustomGenerativeModel(nnx.Module):
         output = self.encoder(x, rngs=rngs, **kwargs)
 
         # Compute loss
-        reconstruction_loss = jnp.mean((x - output["reconstruction"]) ** 2)
+        reconstruction_loss = jnp.mean((x - output["reconstructed"]) ** 2)
         kl_loss = -0.5 * jnp.mean(
-            1 + output["logvar"] - output["mean"] ** 2 - jnp.exp(output["logvar"])
+            1 + output["log_var"] - output["mean"] ** 2 - jnp.exp(output["log_var"])
         )
         total_loss = reconstruction_loss + kl_loss
 
         # Return Artifex-compatible output
         return {
             "loss": total_loss,
-            "reconstruction": output["reconstruction"],
+            "reconstructed": output["reconstructed"],
             "latent": output["latent"],
             "reconstruction_loss": reconstruction_loss,
             "kl_loss": kl_loss,
@@ -1285,6 +1285,7 @@ model = MyCustomGenerativeModel(
 # Integrate with Artifex's trainer
 trainer = Trainer(
     model=model,
+    loss_fn=task_loss_fn,
     # ... other config
 )
 
@@ -1317,14 +1318,14 @@ def custom_vae_loss(
 
     # Reconstruction loss
     recon_loss = jnp.mean(
-        (batch["data"] - output["reconstruction"]) ** 2
+        (batch["data"] - output["reconstructed"]) ** 2
     )
 
     # KL divergence
     kl_loss = -0.5 * jnp.mean(
-        1 + output["logvar"]
+        1 + output["log_var"]
         - output["mean"] ** 2
-        - jnp.exp(output["logvar"])
+        - jnp.exp(output["log_var"])
     )
 
     # Total loss with β-weighting

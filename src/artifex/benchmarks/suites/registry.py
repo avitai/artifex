@@ -1,16 +1,18 @@
 """Registry for benchmark suites.
 
-This module provides a registry for benchmark suites, allowing suites to be
-registered and discovered by name.
+Uses calibrax.core.Registry as the backing store for suite registration
+and discovery by name.
 """
 
-from typing import Callable
+from collections.abc import Callable
+
+from calibrax.core import Registry
 
 from artifex.benchmarks import Benchmark
 
 
-# Registry for benchmark suites
-_suite_registry: dict[str, Callable[[], list[Benchmark]]] = {}
+# Module-level calibrax Registry for suite factories.
+_suite_registry: Registry[Callable[[], list[Benchmark]]] = Registry()
 
 
 def register_suite(name: str, suite_fn: Callable[[], list[Benchmark]]) -> None:
@@ -20,7 +22,7 @@ def register_suite(name: str, suite_fn: Callable[[], list[Benchmark]]) -> None:
         name: Name to register the suite under.
         suite_fn: Function that returns a list of benchmarks.
     """
-    _suite_registry[name] = suite_fn
+    _suite_registry.register(name, suite_fn)
 
 
 def get_suite(name: str) -> list[Benchmark]:
@@ -35,9 +37,7 @@ def get_suite(name: str) -> list[Benchmark]:
     Raises:
         KeyError: If the suite isn't registered.
     """
-    if name not in _suite_registry:
-        raise KeyError(f"Benchmark suite '{name}' not found in registry")
-    return _suite_registry[name]()
+    return _suite_registry.get(name)()
 
 
 def list_suites() -> list[str]:
@@ -46,4 +46,4 @@ def list_suites() -> list[str]:
     Returns:
         List of suite names.
     """
-    return list(_suite_registry.keys())
+    return _suite_registry.list_names()

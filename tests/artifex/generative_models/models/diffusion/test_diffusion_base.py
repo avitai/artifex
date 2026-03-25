@@ -169,6 +169,14 @@ class TestDiffusionModel:
         expected_broadcast = jnp.broadcast_to(expected_values.reshape(3, 1, 1), broadcast_shape)
         assert jnp.allclose(extracted, expected_broadcast)
 
+    def test_extract_into_tensor_rejects_non_broadcastable_timestep_batch(self, model):
+        """DiffusionModel should reject mismatched timestep batches."""
+        arr = jnp.arange(10, dtype=jnp.float32)
+        timesteps = jnp.array([1, 3], dtype=jnp.int32)
+
+        with pytest.raises(ValueError, match="timesteps batch"):
+            model._extract_into_tensor(arr, timesteps, (3, 2, 2))
+
     def test_predict_start_from_noise(self, model, input_data):
         """Test predict_start_from_noise method."""
         # Create timesteps
@@ -313,9 +321,9 @@ class TestDiffusionModel:
 
         # Check that result is a dictionary
         assert isinstance(result, dict)
-        assert "loss" in result
-        assert jnp.isscalar(result["loss"])
-        assert jnp.isfinite(result["loss"])
+        assert "total_loss" in result
+        assert jnp.isscalar(result["total_loss"])
+        assert jnp.isfinite(result["total_loss"])
 
         # Check other metrics
         assert "mse_loss" in result
@@ -345,8 +353,8 @@ class TestDiffusionModel:
 
             # Verify we get a valid loss
             assert isinstance(result, dict)
-            assert "loss" in result
-            assert jnp.isfinite(result["loss"])
+            assert "total_loss" in result
+            assert jnp.isfinite(result["total_loss"])
         finally:
             # Restore original function
             jax.random.randint = original_randint
@@ -372,8 +380,8 @@ class TestDiffusionModel:
 
             # Verify we get a valid loss
             assert isinstance(result, dict)
-            assert "loss" in result
-            assert jnp.isfinite(result["loss"])
+            assert "total_loss" in result
+            assert jnp.isfinite(result["total_loss"])
         finally:
             # Restore original function
             jax.random.normal = original_normal

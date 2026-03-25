@@ -42,7 +42,7 @@ try:
 
         # Use the parameters in a simple JAX operation
         x = jnp.ones((2, 10))
-        result = jnp.matmul(x, params.value)
+        result = jnp.matmul(x, params[...])
 
         # Check output shape
         assert result.shape == (2, 5)
@@ -55,7 +55,7 @@ try:
         # Check module has parameters
         assert hasattr(linear, "kernel")
         assert hasattr(linear, "bias")
-        assert linear.kernel.value.shape == (10, 5)
+        assert linear.kernel[...].shape == (10, 5)
 
     def test_nnx_linear_call():
         """Test calling an NNX Linear layer."""

@@ -44,13 +44,23 @@ class DDPMModel(DiffusionModel):
         self.loss_type = config.loss_type
         self.clip_denoised = config.clip_denoised
 
-        # Store input shape from config
+        # Store input shape from config using the public HWC image convention.
         self.input_dim = config.input_shape
-        # Extract in_channels from input_shape (C, H, W format)
         if len(config.input_shape) > 0:
-            self.in_channels = config.input_shape[0]
+            self.in_channels = config.input_shape[-1]
         else:
             self.in_channels = 1
+
+        if len(config.input_shape) == 3 and hasattr(config.backbone, "in_channels"):
+            expected_channels = config.input_shape[-1]
+            backbone_channels = config.backbone.in_channels
+            if backbone_channels != expected_channels:
+                raise ValueError(
+                    "DDPMConfig.input_shape must use the public HWC convention "
+                    "and match the backbone channel count; expected "
+                    f"last-dimension channel count {expected_channels}, got "
+                    f"backbone.in_channels={backbone_channels}"
+                )
 
         # Store noise schedule parameters for convenience
         self.noise_steps = config.noise_schedule.num_timesteps
@@ -115,6 +125,8 @@ class DDPMModel(DiffusionModel):
         n_samples_or_shape: int | tuple[int, ...],
         scheduler: str = "ddpm",
         steps: int | None = None,
+        *,
+        rngs: nnx.Rngs | None = None,
     ) -> jax.Array:
         """Sample from the diffusion model.
 
@@ -122,6 +134,7 @@ class DDPMModel(DiffusionModel):
             n_samples_or_shape: Number of samples or full shape including batch dimension
             scheduler: Sampling scheduler to use ('ddpm', 'ddim')
             steps: Number of sampling steps (if None, use default)
+            rngs: Optional RNG streams overriding the model-owned RNGs
 
         Returns:
             Generated samples
@@ -139,14 +152,15 @@ class DDPMModel(DiffusionModel):
         # Set default steps if not provided
         if steps is None:
             steps = self.noise_steps
+        assert steps is not None
 
         # Sample using selected scheduler
         if scheduler == "ddpm":
             # Default DDPM sampling
-            return self.generate(n_samples, shape=input_shape)
+            return self.generate(n_samples, shape=input_shape, rngs=rngs)
         elif scheduler == "ddim":
             # DDIM sampling (deterministic)
-            return self._sample_ddim(n_samples, input_shape, steps)
+            return self._sample_ddim(n_samples, input_shape, steps, rngs=rngs)
         else:
             raise ValueError(f"Unknown scheduler: {scheduler}")
 
@@ -171,6 +185,7 @@ class DDPMModel(DiffusionModel):
         shape: tuple[int, ...],
         steps: int,
         eta: float = 0.0,
+        rngs: nnx.Rngs | None = None,
     ) -> jax.Array:
         """DDIM sampling implementation.
 
@@ -179,12 +194,14 @@ class DDPMModel(DiffusionModel):
             shape: Sample shape
             steps: Number of steps
             eta: DDIM parameter (0 = deterministic, 1 = DDPM)
+            rngs: Optional RNG streams overriding the model-owned RNGs
 
         Returns:
             Generated samples
         """
         # Initialize noise using self.rngs
-        x = jax.random.normal(self.rngs.sample(), (n_samples, *shape))
+        active_rngs = self.rngs if rngs is None else rngs
+        x = jax.random.normal(active_rngs.sample(), (n_samples, *shape))
 
         # Create timestep schedule for DDIM
         timesteps = jnp.linspace(self.noise_steps - 1, 0, steps, dtype=jnp.int32)
@@ -202,7 +219,14 @@ class DDPMModel(DiffusionModel):
             if i < len(timesteps) - 1:
                 t_prev = timesteps[i + 1]
                 t_prev_batch = jnp.full((n_samples,), t_prev, dtype=jnp.int32)
-                x = self._ddim_step(x, t_batch, t_prev_batch, predicted_noise, eta)
+                x = self._ddim_step(
+                    x,
+                    t_batch,
+                    t_prev_batch,
+                    predicted_noise,
+                    eta,
+                    rngs=active_rngs,
+                )
             else:
                 # Last step - predict x_0 directly
                 x = self.predict_start_from_noise(x, t_batch, predicted_noise)
@@ -217,6 +241,8 @@ class DDPMModel(DiffusionModel):
         t_prev: jax.Array,
         predicted_noise: jax.Array,
         eta: float = 0.0,
+        *,
+        rngs: nnx.Rngs | None = None,
     ) -> jax.Array:
         """Single DDIM step.
 
@@ -226,6 +252,7 @@ class DDPMModel(DiffusionModel):
             t_prev: Previous timestep
             predicted_noise: Predicted noise
             eta: DDIM interpolation parameter
+            rngs: Optional RNG streams overriding the model-owned RNGs
 
         Returns:
             Next sample x_{t-1}
@@ -250,7 +277,8 @@ class DDPMModel(DiffusionModel):
 
         # Add noise if eta > 0 using self.rngs
         if eta > 0:
-            noise = jax.random.normal(self.rngs.sample(), x_t.shape)
+            active_rngs = self.rngs if rngs is None else rngs
+            noise = jax.random.normal(active_rngs.sample(), x_t.shape)
             random_noise = sigma_t * noise
         else:
             random_noise = 0.0

@@ -93,7 +93,7 @@ class TestSinusoidalPositionalEncoding:
         assert pe.dropout_rate == 0.0
         assert isinstance(pe.pe, nnx.Param)
         assert not pe.pe.trainable
-        assert pe.pe.value.shape == (100, 64)
+        assert pe.pe[...].shape == (100, 64)
         assert pe.dropout is None
 
         # Test with custom parameters and dropout
@@ -105,7 +105,7 @@ class TestSinusoidalPositionalEncoding:
         assert pe.dim == 32
         assert pe.max_len == 50
         assert pe.dropout_rate == 0.1
-        assert pe.pe.value.shape == (50, 32)
+        assert pe.pe[...].shape == (50, 32)
         assert pe.dropout is not None
 
     def test_odd_dimension_handling(self):
@@ -114,9 +114,9 @@ class TestSinusoidalPositionalEncoding:
         key = jax.random.key(0)
         rngs = nnx.Rngs(default=key)
         pe = SinusoidalPositionalEncoding(dim=65, max_len=10, rngs=rngs)
-        assert pe.pe.value.shape == (10, 65)
+        assert pe.pe[...].shape == (10, 65)
         # Should not raise any errors and produce valid values
-        assert jnp.isfinite(pe.pe.value).all()
+        assert jnp.isfinite(pe.pe[...]).all()
 
     def test_pe_values(self):
         """Test the computed positional encoding values."""
@@ -134,11 +134,11 @@ class TestSinusoidalPositionalEncoding:
                 div_term_val = jnp.exp(current_dim_val * (-jnp.log(10000.0) / dim))
 
                 expected_sin = jnp.sin(pos_idx * div_term_val)
-                assert jnp.allclose(pe.pe.value[pos_idx, i], expected_sin, atol=1e-6)
+                assert jnp.allclose(pe.pe[...][pos_idx, i], expected_sin, atol=1e-6)
 
                 if i + 1 < dim:
                     expected_cos = jnp.cos(pos_idx * div_term_val)
-                    assert jnp.allclose(pe.pe.value[pos_idx, i + 1], expected_cos, atol=1e-6)
+                    assert jnp.allclose(pe.pe[...][pos_idx, i + 1], expected_cos, atol=1e-6)
 
     def test_forward(self):
         """Test forward pass."""
@@ -151,12 +151,12 @@ class TestSinusoidalPositionalEncoding:
         rngs = nnx.Rngs(default=key)
         pe = SinusoidalPositionalEncoding(dim=dim, max_len=10, rngs=rngs)
         y = pe(x, deterministic=True)
-        assert jnp.allclose(y, pe.pe.value[:seq_len, :])  # Broadcasting handles batch
+        assert jnp.allclose(y, pe.pe[...][:seq_len, :])  # Broadcasting handles batch
         assert y.shape == (batch_size, seq_len, dim)
 
         x = jnp.ones((batch_size, seq_len, dim))
         y = pe(x, deterministic=True)
-        expected = x + pe.pe.value[:seq_len, :]
+        expected = x + pe.pe[...][:seq_len, :]
         assert jnp.allclose(y, expected)
         assert y.shape == (batch_size, seq_len, dim)
 
@@ -174,7 +174,7 @@ class TestSinusoidalPositionalEncoding:
 
         # Test deterministic mode
         y_deterministic = pe(x, deterministic=True, rngs=rngs)
-        expected = x + pe.pe.value[:seq_len, :]
+        expected = x + pe.pe[...][:seq_len, :]
         assert jnp.allclose(y_deterministic, expected)
 
         # Test with dropout (non-deterministic)
@@ -249,7 +249,7 @@ class TestLearnedPositionalEncoding:
         assert pe_no_dropout.dropout_rate == 0.0
         assert isinstance(pe_no_dropout.pe, nnx.Param)
         assert pe_no_dropout.pe.trainable  # Should be trainable
-        assert pe_no_dropout.pe.value.shape == (100, 64)
+        assert pe_no_dropout.pe[...].shape == (100, 64)
         assert pe_no_dropout.dropout is None
 
         # Test with dropout
@@ -261,7 +261,7 @@ class TestLearnedPositionalEncoding:
         assert pe_with_dropout.dim == 32
         assert pe_with_dropout.max_len == 50
         assert pe_with_dropout.dropout_rate == 0.1
-        assert pe_with_dropout.pe.value.shape == (50, 32)
+        assert pe_with_dropout.pe[...].shape == (50, 32)
         assert pe_with_dropout.dropout is not None
 
     def test_rngs_required(self):
@@ -280,7 +280,7 @@ class TestLearnedPositionalEncoding:
         key = jax.random.key(0)
         rngs = nnx.Rngs(params=key)
         pe = LearnedPositionalEncoding(dim=64, max_len=10, kernel_init=ones_init, rngs=rngs)
-        assert jnp.all(pe.pe.value == 1.0)
+        assert jnp.all(pe.pe[...] == 1.0)
 
     def test_trainable_parameter(self):
         """Test that the positional encoding parameter is trainable."""
@@ -300,12 +300,12 @@ class TestLearnedPositionalEncoding:
         rngs = nnx.Rngs(params=key)
         pe = LearnedPositionalEncoding(dim=dim, max_len=10, rngs=rngs)
         y = pe(x, deterministic=True)
-        assert jnp.allclose(y, pe.pe.value[:seq_len, :])
+        assert jnp.allclose(y, pe.pe[...][:seq_len, :])
         assert y.shape == (batch_size, seq_len, dim)
 
         x = jnp.ones((batch_size, seq_len, dim))
         y = pe(x, deterministic=True)
-        expected = x + pe.pe.value[:seq_len, :]
+        expected = x + pe.pe[...][:seq_len, :]
         assert jnp.allclose(y, expected)
         assert y.shape == (batch_size, seq_len, dim)
 
@@ -323,7 +323,7 @@ class TestLearnedPositionalEncoding:
         pe = LearnedPositionalEncoding(dim=dim, max_len=10, dropout_rate=dropout_rate, rngs=rngs)
 
         y_deterministic = pe(x, deterministic=True, rngs=rngs)
-        expected = x + pe.pe.value[:seq_len, :]
+        expected = x + pe.pe[...][:seq_len, :]
         assert jnp.allclose(y_deterministic, expected)
 
         y_with_dropout = pe(x, deterministic=False, rngs=rngs)
@@ -354,7 +354,7 @@ class TestLearnedPositionalEncoding:
         pe2 = LearnedPositionalEncoding(dim=64, max_len=10, rngs=rngs2)
 
         # Different random keys should produce different initializations
-        assert not jnp.allclose(pe1.pe.value, pe2.pe.value)
+        assert not jnp.allclose(pe1.pe[...], pe2.pe[...])
 
 
 class TestRotaryPositionalEncoding:
@@ -374,8 +374,8 @@ class TestRotaryPositionalEncoding:
         assert isinstance(pe_no_dropout.cos, nnx.Param)
         assert not pe_no_dropout.sin.trainable
         assert not pe_no_dropout.cos.trainable
-        assert pe_no_dropout.sin.value.shape == (100, 32)  # dim/2 = 64/2 = 32
-        assert pe_no_dropout.cos.value.shape == (100, 32)
+        assert pe_no_dropout.sin[...].shape == (100, 32)  # dim/2 = 64/2 = 32
+        assert pe_no_dropout.cos[...].shape == (100, 32)
         assert pe_no_dropout.dropout is None
 
         # Test with dropout
@@ -392,8 +392,8 @@ class TestRotaryPositionalEncoding:
         assert pe_with_dropout.max_len == 50
         assert pe_with_dropout.dropout_rate == 0.1
         assert pe_with_dropout.base == 1000
-        assert pe_with_dropout.sin.value.shape == (50, 16)  # dim/2 = 32/2 = 16
-        assert pe_with_dropout.cos.value.shape == (50, 16)
+        assert pe_with_dropout.sin[...].shape == (50, 16)  # dim/2 = 32/2 = 16
+        assert pe_with_dropout.cos[...].shape == (50, 16)
         assert pe_with_dropout.dropout is not None
 
     def test_odd_dim_raises_error(self):
@@ -421,8 +421,8 @@ class TestRotaryPositionalEncoding:
         expected_sin = jnp.sin(sinusoid_inp)
         expected_cos = jnp.cos(sinusoid_inp)
 
-        assert jnp.allclose(pe.sin.value, expected_sin, atol=1e-6)
-        assert jnp.allclose(pe.cos.value, expected_cos, atol=1e-6)
+        assert jnp.allclose(pe.sin[...], expected_sin, atol=1e-6)
+        assert jnp.allclose(pe.cos[...], expected_cos, atol=1e-6)
 
     def test_rotate_half_helper(self):
         """Test the _rotate_half helper function."""
@@ -458,8 +458,8 @@ class TestRotaryPositionalEncoding:
             x_left = x_s[: dim // 2]  # [1, 2] or [5, 6]
             x_right = x_s[dim // 2 :]  # [3, 4] or [7, 8]
 
-            sin_pos_s = pe.sin.value[s_idx, :]
-            cos_pos_s = pe.cos.value[s_idx, :]
+            sin_pos_s = pe.sin[...][s_idx, :]
+            cos_pos_s = pe.cos[...][s_idx, :]
 
             expected_left_rotated = x_left * cos_pos_s - x_right * sin_pos_s
             expected_right_rotated = x_left * sin_pos_s + x_right * cos_pos_s
@@ -533,8 +533,8 @@ class TestRotaryPositionalEncoding:
         pe2 = RotaryPositionalEncoding(dim=dim, max_len=max_len, base=1000, rngs=rngs2)
 
         # Different bases should produce different sin/cos values
-        assert not jnp.allclose(pe1.sin.value, pe2.sin.value)
-        assert not jnp.allclose(pe1.cos.value, pe2.cos.value)
+        assert not jnp.allclose(pe1.sin[...], pe2.sin[...])
+        assert not jnp.allclose(pe1.cos[...], pe2.cos[...])
 
 
 class TestIntegration:
@@ -597,48 +597,3 @@ class TestIntegration:
         assert not jnp.allclose(y_sin, y_learned)
         assert not jnp.allclose(y_sin, y_rotary)
         assert not jnp.allclose(y_learned, y_rotary)
-
-
-if __name__ == "__main__":
-    # Manual test runner for quick verification
-    print("Running manual checks (subset of tests)...")
-
-    # Test base functionality
-    test_base = TestPositionalEncoding()
-    test_base.test_base_class_init()
-    test_base.test_dropout_creation()
-    print("✓ Base tests passed")
-
-    # Test sinusoidal encoding
-    test_sin = TestSinusoidalPositionalEncoding()
-    test_sin.test_init()
-    test_sin.test_pe_values()
-    test_sin.test_forward()
-    test_sin.test_sequence_length_validation()
-    print("✓ Sinusoidal tests passed")
-
-    # Test learned encoding
-    test_learned = TestLearnedPositionalEncoding()
-    test_learned.test_rngs_required()
-    key = jax.random.key(0)
-    rngs = nnx.Rngs(params=key)
-    # Run a subset that doesn't require additional setup
-    print("✓ Learned tests (subset) passed")
-
-    # Test rotary encoding
-    test_rotary = TestRotaryPositionalEncoding()
-    test_rotary.test_init()
-    test_rotary.test_odd_dim_raises_error()
-    test_rotary.test_frequency_values()
-    test_rotary.test_forward_simple()
-    test_rotary.test_sequence_length_validation()
-    print("✓ Rotary tests passed")
-
-    # Test integration
-    test_integration = TestIntegration()
-    test_integration.test_all_encodings_same_output_shape()
-    test_integration.test_encodings_modify_input_differently()
-    print("✓ Integration tests passed")
-
-    print("\nAll manual checks completed successfully!")
-    print("Run 'pytest' for the complete test suite with detailed output.")

@@ -1,49 +1,23 @@
-# Evaluation
+# Timeseries Evaluation
 
-**Module:** `generative_models.modalities.timeseries.evaluation`
+**Status:** `Supported family-scoped modality owner`
 
-**Source:** `generative_models/modalities/timeseries/evaluation.py`
+**Scope:** `Timeseries helper owner`
 
-## Overview
+**Module:** `artifex.generative_models.modalities.timeseries.evaluation`
 
-Evaluation metrics for timeseries modality.
+**Source:** `src/artifex/generative_models/modalities/timeseries/evaluation.py`
 
-## Classes
+Evaluation helpers for the timeseries helper package.
 
-### TimeseriesEvaluationSuite
+## Top-Level Module Exports
 
-```python
-class TimeseriesEvaluationSuite
-```
+- `TimeseriesEvaluationSuite`
+- `compute_timeseries_metrics()`
 
-## Functions
+## Class APIs
 
-### **init**
+### `TimeseriesEvaluationSuite`
 
-```python
-def __init__()
-```
-
-### compute_metrics
-
-```python
-def compute_metrics()
-```
-
-### compute_timeseries_metrics
-
-```python
-def compute_timeseries_metrics()
-```
-
-### evaluate_batch
-
-```python
-def evaluate_batch()
-```
-
-## Module Statistics
-
-- **Classes:** 1
-- **Functions:** 4
-- **Imports:** 7
+- `evaluate_batch()`
+- `compute_metrics()`

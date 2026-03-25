@@ -6,12 +6,12 @@
 
 ## Overview
 
-This example provides a comprehensive exploration of BlackJAX samplers integrated with Artifex's distribution framework. It compares four different approaches to MCMC sampling: Artifex's HMC wrapper, Artifex's MALA wrapper, Artifex's NUTS wrapper, and direct BlackJAX API usage.
+This example provides a complete exploration of BlackJAX samplers integrated with Artifex's distribution framework. It compares four different approaches to MCMC sampling: Artifex's HMC wrapper, Artifex's MALA wrapper, Artifex's NUTS wrapper, and direct BlackJAX API usage. Pass an explicit JAX key or `nnx.Rngs` to every Artifex helper call; the wrapper layer does not fabricate fallback RNG state.
 
 ## Files
 
-- Python script: [`examples/generative_models/sampling/blackjax_sampling_examples.py`](https://github.com/avitai/artifex/examples/generative_models/sampling/blackjax_sampling_examples.py)
-- Jupyter notebook: [`examples/generative_models/sampling/blackjax_sampling_examples.ipynb`](https://github.com/avitai/artifex/examples/generative_models/sampling/blackjax_sampling_examples.ipynb)
+- Python script: [`examples/generative_models/sampling/blackjax_sampling_examples.py`](https://github.com/avitai/artifex/blob/main/examples/generative_models/sampling/blackjax_sampling_examples.py)
+- Jupyter notebook: [`examples/generative_models/sampling/blackjax_sampling_examples.ipynb`](https://github.com/avitai/artifex/blob/main/examples/generative_models/sampling/blackjax_sampling_examples.ipynb)
 
 ## Quick Start
 
@@ -128,7 +128,7 @@ NUTS automatically tunes the HMC trajectory length by building a tree of states 
 NUTS builds a balanced binary tree of trajectory states by recursively doubling until:
 
 1. The trajectory makes a U-turn (forward/backward directions oppose)
-2. Maximum tree depth is reached (`max_num_doublings`)
+2. An internal trajectory limit is reached
 
 The U-turn criterion is:
 
@@ -221,16 +221,15 @@ nuts_samples = nuts_sampling(
     n_samples=500,  # Fewer samples due to memory
     n_burnin=200,
     step_size=0.8,
-    max_num_doublings=5,  # Control memory usage
 )
 ```
 
 **Key Points:**
 
 - NUTS is memory-intensive due to trajectory tree storage
-- Use `max_num_doublings` to control memory usage (default: 10)
 - Excellent for complex posteriors where tuning is difficult
-- This example uses a simpler distribution to demonstrate the API
+- This example uses a simpler distribution to demonstrate the retained wrapper API
+- Use the direct BlackJAX API if you need engine-specific tuning beyond the published wrapper controls
 
 ### Example 4: Direct BlackJAX HMC
 
@@ -375,16 +374,9 @@ For the bimodal mixture, expect:
 
 **Step Size (`step_size`):**
 
-- Often auto-tuned during warmup
-- Can set manually if needed
-- Usually between 0.1-1.0
-
-**Max Doublings (`max_num_doublings`):**
-
-- Controls trajectory length and memory
-- Default: 10 (max trajectory length = 2^10 = 1024)
-- Reduce if encountering memory errors
-- Values 5-7 often sufficient
+- Can be set manually if needed
+- Usually between 0.1-1.0 for the examples in this page
+- Use the direct BlackJAX API when you need lower-level engine tuning beyond the retained wrapper surface
 
 ## Experiments to Try
 
@@ -436,14 +428,14 @@ For the bimodal mixture, expect:
 **Solution**:
 
 ```python
-# Reduce memory usage
+# Reduce retained wrapper work
 nuts_samples = nuts_sampling(
     log_prob_fn,
     init_state,
     key,
-    n_samples=500,  # Reduce sample count
+    n_samples=500,
     n_burnin=200,
-    max_num_doublings=5,  # Lower from default 10
+    step_size=0.5,
 )
 ```
 
@@ -493,7 +485,7 @@ nuts_samples = nuts_sampling(
 
 - [BlackJAX Documentation](https://blackjax-devs.github.io/blackjax/)
 - [BlackJAX Sampling Book](https://blackjax-devs.github.io/sampling-book/)
-- [MCMC Diagnostics Guide](https://mc-stan.org/docs/reference-manual/mcmc-diagnostics.html)
+- [Stan MCMC Sampling Reference](https://mc-stan.org/docs/reference-manual/mcmc.html)
 - [HMC Tutorial by Betancourt](https://arxiv.org/abs/1701.02434)
 - [NUTS Paper](https://arxiv.org/abs/1111.4246)
 - Artifex Sampling Module Documentation
@@ -527,7 +519,7 @@ nuts_samples = nuts_sampling(
 
 If you encounter issues:
 
-1. Check that BlackJAX is installed: `pip install blackjax`
+1. Check that BlackJAX is importable: `python -c "import blackjax; print(blackjax.__version__)"`
 2. Verify JAX GPU/CPU setup is correct
 3. Review error messages for parameter constraints
 4. Check BlackJAX documentation for API changes

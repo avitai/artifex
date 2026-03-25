@@ -197,6 +197,22 @@ def test_batch():
     }
 
 
+@pytest.fixture
+def explicit_loss_fn():
+    """Explicit objective adapter for the generic Trainer contract."""
+
+    def loss_fn(
+        model: nnx.Module,
+        batch: dict[str, jax.Array],
+        rng: jax.Array,
+        step: int | jax.Array,
+    ):
+        del step
+        return model.loss_fn(batch, rng)
+
+    return loss_fn
+
+
 # =============================================================================
 # Trainer Extensions Parameter Tests
 # =============================================================================
@@ -206,7 +222,7 @@ class TestTrainerExtensionsParameter:
     """Tests for trainer extensions parameter."""
 
     def test_trainer_accepts_extensions_parameter(
-        self, simple_model, training_config, extension_config, rngs
+        self, simple_model, training_config, extension_config, rngs, explicit_loss_fn
     ):
         """Trainer should accept extensions parameter."""
         extension = TestModelExtension(extension_config, rngs=rngs)
@@ -215,34 +231,45 @@ class TestTrainerExtensionsParameter:
         trainer = Trainer(
             model=simple_model,
             training_config=training_config,
+            loss_fn=explicit_loss_fn,
             extensions=extensions,
         )
 
         assert hasattr(trainer, "extensions")
         assert trainer.extensions == extensions
 
-    def test_trainer_extensions_default_none(self, simple_model, training_config):
+    def test_trainer_extensions_default_none(self, simple_model, training_config, explicit_loss_fn):
         """Trainer extensions should default to empty dict when None."""
         trainer = Trainer(
             model=simple_model,
             training_config=training_config,
+            loss_fn=explicit_loss_fn,
         )
 
         assert hasattr(trainer, "extensions")
         assert trainer.extensions == {}
 
-    def test_trainer_accepts_empty_extensions(self, simple_model, training_config):
+    def test_trainer_accepts_empty_extensions(
+        self, simple_model, training_config, explicit_loss_fn
+    ):
         """Trainer should accept empty extensions dict."""
         trainer = Trainer(
             model=simple_model,
             training_config=training_config,
+            loss_fn=explicit_loss_fn,
             extensions={},
         )
 
         assert trainer.extensions == {}
 
     def test_trainer_accepts_multiple_extensions(
-        self, simple_model, training_config, extension_config, loss_extension_config, rngs
+        self,
+        simple_model,
+        training_config,
+        extension_config,
+        loss_extension_config,
+        rngs,
+        explicit_loss_fn,
     ):
         """Trainer should accept multiple extensions."""
         model_ext = TestModelExtension(extension_config, rngs=rngs)
@@ -256,6 +283,7 @@ class TestTrainerExtensionsParameter:
         trainer = Trainer(
             model=simple_model,
             training_config=training_config,
+            loss_fn=explicit_loss_fn,
             extensions=extensions,
         )
 
@@ -273,7 +301,7 @@ class TestExtensionLossAggregation:
     """Tests for extension loss aggregation in training."""
 
     def test_train_step_includes_extension_loss(
-        self, simple_model, training_config, extension_config, rngs, test_batch
+        self, simple_model, training_config, extension_config, rngs, test_batch, explicit_loss_fn
     ):
         """Train step should include extension losses in total loss."""
         extension = TestModelExtension(extension_config, rngs=rngs)
@@ -282,6 +310,7 @@ class TestExtensionLossAggregation:
         trainer = Trainer(
             model=simple_model,
             training_config=training_config,
+            loss_fn=explicit_loss_fn,
             extensions=extensions,
         )
 
@@ -299,6 +328,7 @@ class TestExtensionLossAggregation:
         loss_extension_config,
         rngs,
         test_batch,
+        explicit_loss_fn,
     ):
         """Train step should aggregate multiple extension losses."""
         model_ext = TestModelExtension(extension_config, rngs=rngs)
@@ -312,6 +342,7 @@ class TestExtensionLossAggregation:
         trainer = Trainer(
             model=simple_model,
             training_config=training_config,
+            loss_fn=explicit_loss_fn,
             extensions=extensions,
         )
 
@@ -322,7 +353,7 @@ class TestExtensionLossAggregation:
         assert "loss_ext_loss" in metrics
 
     def test_total_loss_includes_weighted_extension_losses(
-        self, simple_model, training_config, rngs, test_batch
+        self, simple_model, training_config, rngs, test_batch, explicit_loss_fn
     ):
         """Total loss should include extension losses weighted by config."""
         config_weight_2 = ExtensionConfig(
@@ -336,12 +367,14 @@ class TestExtensionLossAggregation:
         trainer_no_ext = Trainer(
             model=simple_model,
             training_config=training_config,
+            loss_fn=explicit_loss_fn,
         )
 
         # Trainer with extensions
         trainer_with_ext = Trainer(
             model=SimpleModel(rngs=rngs),  # Fresh model
             training_config=training_config,
+            loss_fn=explicit_loss_fn,
             extensions={"test_ext": extension},
         )
 
@@ -355,7 +388,7 @@ class TestExtensionLossAggregation:
         assert "test_ext_loss" not in metrics_no_ext
 
     def test_disabled_extension_not_included_in_loss(
-        self, simple_model, training_config, rngs, test_batch
+        self, simple_model, training_config, rngs, test_batch, explicit_loss_fn
     ):
         """Disabled extensions should not contribute to loss."""
         disabled_config = ExtensionConfig(
@@ -368,6 +401,7 @@ class TestExtensionLossAggregation:
         trainer = Trainer(
             model=simple_model,
             training_config=training_config,
+            loss_fn=explicit_loss_fn,
             extensions={"disabled_ext": extension},
         )
 
@@ -386,7 +420,7 @@ class TestExtensionGradients:
     """Tests for gradient flow through extensions."""
 
     def test_gradients_flow_through_extension_loss(
-        self, simple_model, training_config, extension_config, rngs, test_batch
+        self, simple_model, training_config, extension_config, rngs, test_batch, explicit_loss_fn
     ):
         """Gradients should flow through extension loss to model."""
         extension = TestModelExtension(extension_config, rngs=rngs)
@@ -394,19 +428,20 @@ class TestExtensionGradients:
         trainer = Trainer(
             model=simple_model,
             training_config=training_config,
+            loss_fn=explicit_loss_fn,
             extensions={"test_ext": extension},
         )
 
         # Get initial params
         initial_params = nnx.state(trainer.model, nnx.Param)
-        initial_dense_kernel = initial_params["dense"]["kernel"].value.copy()
+        initial_dense_kernel = initial_params["dense"]["kernel"][...].copy()
 
         # Run train step
         trainer.train_step(test_batch)
 
         # Get updated params
         updated_params = nnx.state(trainer.model, nnx.Param)
-        updated_dense_kernel = updated_params["dense"]["kernel"].value
+        updated_dense_kernel = updated_params["dense"]["kernel"][...]
 
         # Params should have changed (gradients flowed)
         assert not jnp.allclose(initial_dense_kernel, updated_dense_kernel)
@@ -420,8 +455,38 @@ class TestExtensionGradients:
 class TestCallbackExtensionIntegration:
     """Tests for callback extension integration."""
 
+    def test_callback_on_batch_begin_called(
+        self,
+        simple_model,
+        training_config,
+        callback_extension_config,
+        rngs,
+        test_batch,
+        explicit_loss_fn,
+    ):
+        """Callback on_batch_begin should be called before each train step."""
+        callback_ext = TestCallbackExtension(callback_extension_config, rngs=rngs)
+
+        trainer = Trainer(
+            model=simple_model,
+            training_config=training_config,
+            loss_fn=explicit_loss_fn,
+            extensions={"callback": callback_ext},
+        )
+
+        trainer.train_step(test_batch)
+        trainer.train_step(test_batch)
+
+        assert callback_ext.batch_begin_count == 2
+
     def test_callback_on_batch_end_called(
-        self, simple_model, training_config, callback_extension_config, rngs, test_batch
+        self,
+        simple_model,
+        training_config,
+        callback_extension_config,
+        rngs,
+        test_batch,
+        explicit_loss_fn,
     ):
         """Callback on_batch_end should be called after each train step."""
         callback_ext = TestCallbackExtension(callback_extension_config, rngs=rngs)
@@ -429,6 +494,7 @@ class TestCallbackExtensionIntegration:
         trainer = Trainer(
             model=simple_model,
             training_config=training_config,
+            loss_fn=explicit_loss_fn,
             extensions={"callback": callback_ext},
         )
 
@@ -449,7 +515,14 @@ class TestExtensionStateSerialization:
     """Tests for extension state in checkpoints."""
 
     def test_checkpoint_includes_extension_state(
-        self, simple_model, training_config, extension_config, rngs, test_batch, tmp_path
+        self,
+        simple_model,
+        training_config,
+        extension_config,
+        rngs,
+        test_batch,
+        tmp_path,
+        explicit_loss_fn,
     ):
         """Checkpoint should include extension state."""
         extension = TestModelExtension(extension_config, rngs=rngs)
@@ -457,6 +530,7 @@ class TestExtensionStateSerialization:
         trainer = Trainer(
             model=simple_model,
             training_config=training_config,
+            loss_fn=explicit_loss_fn,
             extensions={"test_ext": extension},
             checkpoint_dir=str(tmp_path),
         )
@@ -486,7 +560,7 @@ class TestTrainerExtensionJITCompatibility:
     """Tests for JIT compatibility with extensions."""
 
     def test_train_step_jit_compatible_with_extensions(
-        self, simple_model, training_config, extension_config, rngs, test_batch
+        self, simple_model, training_config, extension_config, rngs, test_batch, explicit_loss_fn
     ):
         """Train step should be JIT compatible with extensions."""
         extension = TestModelExtension(extension_config, rngs=rngs)
@@ -494,6 +568,7 @@ class TestTrainerExtensionJITCompatibility:
         trainer = Trainer(
             model=simple_model,
             training_config=training_config,
+            loss_fn=explicit_loss_fn,
             extensions={"test_ext": extension},
         )
 

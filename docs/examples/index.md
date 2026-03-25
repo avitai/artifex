@@ -7,6 +7,17 @@
 
 ## Quick Start
 
+This catalog includes four published example buckets: runtime-backed Artifex
+tutorials, standalone concept walkthroughs, exploratory workflows, and
+validation utilities. Runtime-backed tutorials instantiate shipped Artifex
+owners end to end. Standalone concept walkthroughs are clearly labeled raw
+JAX/Flax NNX pedagogy that do not instantiate shipped Artifex runtime owners.
+Exploratory workflows keep useful lower-level or partially retained material
+visible without presenting it as canonical. Validation utilities are quick
+environment or technology-stack checks rather than model tutorials.
+Still-relevant topics without runnable pairs live in [Planned Example
+Topics](../roadmap/planned-examples.md).
+
 <div class="example-cards">
 
 <div class="example-card" data-tags="vae,mnist,beginner,image">
@@ -95,22 +106,6 @@
 
 <div class="example-cards">
 
-<div class="example-card" data-tags="diffusion,ddpm,intermediate,image">
-<div class="card-header">
-<h3><a href="diffusion/simple-diffusion.md">Simple Diffusion</a></h3>
-<span class="difficulty intermediate">Intermediate</span>
-</div>
-<p>Introduction to diffusion models with DDPM</p>
-<div class="tags">
-<span class="tag">DDPM</span>
-<span class="tag">Denoising</span>
-<span class="tag">Image</span>
-</div>
-<div class="card-footer">
-<span class="time">⏱ 20 min</span>
-</div>
-</div>
-
 <div class="example-card" data-tags="diffusion,dit,transformer,advanced,scalable">
 <div class="card-header">
 <h3><a href="diffusion/dit-demo.md">DiT Demo</a></h3>
@@ -166,53 +161,6 @@
 </div>
 </div>
 
-<div class="example-card" data-tags="gan,wgan,stylegan,advanced">
-<div class="card-header">
-<h3><a href="advanced/advanced-gan.md">Advanced GAN</a></h3>
-<span class="difficulty advanced">Advanced</span>
-</div>
-<p>WGAN, StyleGAN, and progressive training</p>
-<div class="tags">
-<span class="tag">WGAN</span>
-<span class="tag">StyleGAN</span>
-<span class="tag">Progressive</span>
-</div>
-<div class="card-footer">
-<span class="time">⏱ 45 min</span>
-</div>
-</div>
-
-<div class="example-card" data-tags="diffusion,ddim,latent,guidance,advanced">
-<div class="card-header">
-<h3><a href="advanced/advanced-diffusion.md">Advanced Diffusion</a></h3>
-<span class="difficulty advanced">Advanced</span>
-</div>
-<p>DDIM, latent diffusion, and guidance techniques</p>
-<div class="tags">
-<span class="tag">DDIM</span>
-<span class="tag">Latent</span>
-<span class="tag">Guidance</span>
-</div>
-<div class="card-footer">
-<span class="time">⏱ 50 min</span>
-</div>
-</div>
-
-<div class="example-card" data-tags="flow,spline,maf,iaf,advanced">
-<div class="card-header">
-<h3><a href="advanced/advanced-flow.md">Advanced Flow</a></h3>
-<span class="difficulty advanced">Advanced</span>
-</div>
-<p>Neural spline flows, MAF, and IAF architectures</p>
-<div class="tags">
-<span class="tag">Spline</span>
-<span class="tag">MAF</span>
-<span class="tag">IAF</span>
-</div>
-<div class="card-footer">
-<span class="time">⏱ 40 min</span>
-</div>
-</div>
 
 </div>
 
@@ -233,56 +181,6 @@
 </div>
 <div class="card-footer">
 <span class="time">⏱ 25 min</span>
-</div>
-</div>
-
-<div class="example-card" data-tags="audio,wavenet,spectrogram,intermediate">
-<div class="card-header">
-<h3><a href="audio/simple-audio-generation.md">Audio Generation</a></h3>
-<span class="difficulty intermediate">Intermediate</span>
-</div>
-<p>Generate audio with generative models</p>
-<div class="tags">
-<span class="tag">Audio</span>
-<span class="tag">WaveNet</span>
-<span class="tag">Spectrogram</span>
-</div>
-<div class="card-footer">
-<span class="time">⏱ 30 min</span>
-</div>
-</div>
-
-<div class="example-card" data-tags="text,character,rnn,temperature,beginner">
-<div class="card-header">
-<h3><a href="text/simple-text-generation.md">Simple Text Generation</a></h3>
-<span class="difficulty beginner">Beginner</span>
-</div>
-<p>Character-level text generation with temperature sampling</p>
-<div class="tags">
-<span class="tag">Text</span>
-<span class="tag">Character-Level</span>
-<span class="tag">RNN</span>
-<span class="tag">Temperature</span>
-</div>
-<div class="card-footer">
-<span class="time">⏱ 5 min</span>
-</div>
-</div>
-
-<div class="example-card" data-tags="multimodal,image,text,retrieval,intermediate">
-<div class="card-header">
-<h3><a href="multimodal/simple-image-text.md">Simple Image-Text Multimodal</a></h3>
-<span class="difficulty intermediate">Intermediate</span>
-</div>
-<p>Multimodal learning with image and text encoders</p>
-<div class="tags">
-<span class="tag">Multimodal</span>
-<span class="tag">Image</span>
-<span class="tag">Text</span>
-<span class="tag">Retrieval</span>
-</div>
-<div class="card-footer">
-<span class="time">⏱ 10 min</span>
 </div>
 </div>
 
@@ -362,7 +260,7 @@
 <h3><a href="geometric/geometric-benchmark-demo.md">Geometric Benchmark</a></h3>
 <span class="difficulty advanced">Advanced</span>
 </div>
-<p>Comprehensive evaluation on geometric tasks</p>
+<p>Complete evaluation on geometric tasks</p>
 <div class="tags">
 <span class="tag">Benchmark</span>
 <span class="tag">ShapeNet</span>
@@ -378,39 +276,6 @@
 ## Protein Modeling
 
 <div class="example-cards">
-
-<div class="example-card" data-tags="protein,diffusion,generation,advanced">
-<div class="card-header">
-<h3><a href="protein/protein-diffusion-example.md">Protein Diffusion</a></h3>
-<span class="difficulty advanced">Advanced</span>
-</div>
-<p>Generate 3D protein structures with diffusion models</p>
-<div class="tags">
-<span class="tag">Diffusion</span>
-<span class="tag">3D Generation</span>
-<span class="tag">Constraints</span>
-<span class="tag">Visualization</span>
-</div>
-<div class="card-footer">
-<span class="time">⏱ 5 min</span>
-</div>
-</div>
-
-<div class="example-card" data-tags="protein,validation,setup,beginner">
-<div class="card-header">
-<h3><a href="protein/protein-diffusion-tech-validation.md">Protein Tech Validation</a></h3>
-<span class="difficulty beginner">Beginner</span>
-</div>
-<p>Validate your environment for protein diffusion modeling</p>
-<div class="tags">
-<span class="tag">Validation</span>
-<span class="tag">Setup</span>
-<span class="tag">JAX</span>
-</div>
-<div class="card-footer">
-<span class="time">⏱ 5 min</span>
-</div>
-</div>
 
 <div class="example-card" data-tags="protein,extensions,constraints,intermediate">
 <div class="card-header">
@@ -568,7 +433,7 @@
 <h3><a href="losses/loss-examples.md">Loss Functions</a></h3>
 <span class="difficulty intermediate">Intermediate</span>
 </div>
-<p>Comprehensive guide to Artifex loss functions</p>
+<p>Complete guide to Artifex loss functions</p>
 <div class="tags">
 <span class="tag">Losses</span>
 <span class="tag">KL</span>
@@ -613,6 +478,136 @@
 
 </div>
 
+## Exploratory Workflows
+
+<div class="example-cards">
+
+<div class="example-card" data-tags="exploratory,gan,wgan,dcgan,lsgan,conditional">
+<div class="card-header">
+<h3><a href="advanced/advanced-gan.md">Advanced GAN</a></h3>
+<span class="difficulty advanced">Advanced</span>
+</div>
+<p>Exploratory comparison of lower-level GAN building blocks and custom training loops</p>
+<div class="tags">
+<span class="tag">Exploratory</span>
+<span class="tag">GAN</span>
+<span class="tag">Lower-Level</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 45 min</span>
+</div>
+</div>
+
+<div class="example-card" data-tags="exploratory,protein,structure,pointcloud,graph">
+<div class="card-header">
+<h3><a href="protein/protein-diffusion-example.md">Protein Diffusion</a></h3>
+<span class="difficulty advanced">Advanced</span>
+</div>
+<p>Exploratory direct-owner workflow for protein point-cloud and graph model surfaces</p>
+<div class="tags">
+<span class="tag">Exploratory</span>
+<span class="tag">Protein</span>
+<span class="tag">Direct Owners</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 15 min</span>
+</div>
+</div>
+
+</div>
+
+## Validation Utilities
+
+<div class="example-cards">
+
+<div class="example-card" data-tags="validation,protein,setup,jax,nnx">
+<div class="card-header">
+<h3><a href="protein/protein-diffusion-tech-validation.md">Protein Tech Validation</a></h3>
+<span class="difficulty beginner">Beginner</span>
+</div>
+<p>Validation utility for JAX/Flax NNX environment checks around protein experimentation</p>
+<div class="tags">
+<span class="tag">Validation</span>
+<span class="tag">Protein</span>
+<span class="tag">Setup</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 5 min</span>
+</div>
+</div>
+
+</div>
+
+## Standalone Concept Walkthroughs
+
+<div class="example-cards">
+
+<div class="example-card" data-tags="standalone,diffusion,ddpm,nnx,image">
+<div class="card-header">
+<h3><a href="diffusion/simple-diffusion.md">Simple Diffusion</a></h3>
+<span class="difficulty intermediate">Intermediate</span>
+</div>
+<p>Standalone JAX/Flax NNX walkthrough of diffusion denoising concepts</p>
+<div class="tags">
+<span class="tag">Standalone</span>
+<span class="tag">Diffusion</span>
+<span class="tag">Image</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 20 min</span>
+</div>
+</div>
+
+<div class="example-card" data-tags="standalone,audio,waveform,nnx">
+<div class="card-header">
+<h3><a href="audio/simple-audio-generation.md">Audio Generation</a></h3>
+<span class="difficulty intermediate">Intermediate</span>
+</div>
+<p>Standalone waveform-generation walkthrough with raw NNX layers</p>
+<div class="tags">
+<span class="tag">Standalone</span>
+<span class="tag">Audio</span>
+<span class="tag">Waveform</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 30 min</span>
+</div>
+</div>
+
+<div class="example-card" data-tags="standalone,text,character,rnn,temperature">
+<div class="card-header">
+<h3><a href="text/simple-text-generation.md">Simple Text Generation</a></h3>
+<span class="difficulty beginner">Beginner</span>
+</div>
+<p>Standalone character-level text generation walkthrough</p>
+<div class="tags">
+<span class="tag">Standalone</span>
+<span class="tag">Text</span>
+<span class="tag">Character-Level</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 5 min</span>
+</div>
+</div>
+
+<div class="example-card" data-tags="standalone,multimodal,image,text,retrieval">
+<div class="card-header">
+<h3><a href="multimodal/simple-image-text.md">Simple Image-Text Multimodal</a></h3>
+<span class="difficulty intermediate">Intermediate</span>
+</div>
+<p>Standalone image-text retrieval walkthrough with local encoders</p>
+<div class="tags">
+<span class="tag">Standalone</span>
+<span class="tag">Multimodal</span>
+<span class="tag">Retrieval</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 10 min</span>
+</div>
+</div>
+
+</div>
+
 ## Reference Tables
 
 <details markdown="1">
@@ -623,13 +618,13 @@
 | Model | Examples | Level |
 |-------|----------|-------|
 | **VAE** | [Basic](basic/vae-mnist.md), [Advanced](advanced/advanced-vae.md), [β-VAE Benchmark](vae/multi-beta-vae-benchmark-demo.md) | ⭐ - ⭐⭐⭐ |
-| **GAN** | [Basic](basic/simple-gan.md), [Advanced](advanced/advanced-gan.md) | ⭐ - ⭐⭐⭐ |
-| **Diffusion** | [Basic](basic/diffusion-mnist.md), [Training](basic/diffusion-mnist-demo.md), [Simple](diffusion/simple-diffusion.md), [DiT](diffusion/dit-demo.md), [Advanced](advanced/advanced-diffusion.md) | ⭐ - ⭐⭐⭐ |
-| **Flow** | [Basic](basic/flow-mnist.md), [Advanced](advanced/advanced-flow.md) | ⭐ - ⭐⭐⭐ |
+| **GAN** | [Basic](basic/simple-gan.md), Exploratory [Advanced Workflow](advanced/advanced-gan.md) | ⭐ - ⭐⭐⭐ |
+| **Diffusion** | [Basic](basic/diffusion-mnist.md), [Training](basic/diffusion-mnist-demo.md), Standalone [Simple](diffusion/simple-diffusion.md), [DiT](diffusion/dit-demo.md) | ⭐ - ⭐⭐⭐ |
+| **Flow** | [Basic](basic/flow-mnist.md) | ⭐ - ⭐⭐ |
 | **EBM** | [Simple EBM](energy/simple-ebm.md) | ⭐⭐⭐ |
-| **Text** | [Simple Text Generation](text/simple-text-generation.md) | ⭐ |
-| **Multimodal** | [Image-Text](multimodal/simple-image-text.md) | ⭐⭐ |
-| **Protein** | [Modality](protein/protein-model-with-modality.md), [Point Cloud](protein/protein-point-cloud-example.md), [Extensions](protein/protein-extensions-with-config.md), [Ligand](protein/protein-ligand-benchmark-demo.md) | ⭐⭐ - ⭐⭐⭐ |
+| **Text** | Standalone [Simple Text Generation](text/simple-text-generation.md) | ⭐ |
+| **Multimodal** | Standalone [Image-Text](multimodal/simple-image-text.md) | ⭐⭐ |
+| **Protein** | [Modality](protein/protein-model-with-modality.md), [Point Cloud](protein/protein-point-cloud-example.md), [Extensions](protein/protein-extensions-with-config.md), [Ligand](protein/protein-ligand-benchmark-demo.md), Exploratory [Protein Diffusion](protein/protein-diffusion-example.md), Validation [Tech Check](protein/protein-diffusion-tech-validation.md) | ⭐⭐ - ⭐⭐⭐ |
 | **Geometric** | [Benchmark](geometric/geometric-benchmark-demo.md) | ⭐⭐⭐ |
 
 ### By Dataset
@@ -637,10 +632,10 @@
 | Dataset | Examples |
 |---------|----------|
 | **MNIST** | [VAE](basic/vae-mnist.md) · [GAN](basic/simple-gan.md) · [Diffusion](basic/diffusion-mnist.md) · [Diffusion Training](basic/diffusion-mnist-demo.md) · [Flow](basic/flow-mnist.md) |
-| **Text** | [Simple Text Generation](text/simple-text-generation.md) |
-| **Multimodal** | [Image-Text](multimodal/simple-image-text.md) |
-| **Audio** | [Audio Generation](audio/simple-audio-generation.md) |
-| **Protein/3D** | [Modality](protein/protein-model-with-modality.md) · [Point Cloud](protein/protein-point-cloud-example.md) · [Extensions](protein/protein-extensions-with-config.md) · [Ligand](protein/protein-ligand-benchmark-demo.md) · [Geometric](geometric/geometric-benchmark-demo.md) |
+| **Text** | Standalone [Simple Text Generation](text/simple-text-generation.md) |
+| **Multimodal** | Standalone [Image-Text](multimodal/simple-image-text.md) |
+| **Audio** | Standalone [Audio Generation](audio/simple-audio-generation.md) |
+| **Protein/3D** | [Modality](protein/protein-model-with-modality.md) · [Point Cloud](protein/protein-point-cloud-example.md) · [Extensions](protein/protein-extensions-with-config.md) · [Ligand](protein/protein-ligand-benchmark-demo.md) · Exploratory [Protein Diffusion](protein/protein-diffusion-example.md) · Validation [Tech Check](protein/protein-diffusion-tech-validation.md) · [Geometric](geometric/geometric-benchmark-demo.md) |
 
 ### By Topic
 
@@ -660,9 +655,13 @@
 
 **Loss Functions** · [Loss Examples](losses/loss-examples.md)
 
-**Text Generation** · [Simple Text Generation](text/simple-text-generation.md)
+**Text Generation** · Standalone [Simple Text Generation](text/simple-text-generation.md)
 
-**Multimodal Learning** · [Image-Text](multimodal/simple-image-text.md)
+**Multimodal Learning** · Standalone [Image-Text](multimodal/simple-image-text.md)
+
+**Exploratory Workflows** · [Advanced GAN](advanced/advanced-gan.md) · [Protein Diffusion](protein/protein-diffusion-example.md)
+
+**Validation Utilities** · [Protein Tech Validation](protein/protein-diffusion-tech-validation.md)
 
 </details>
 
@@ -672,17 +671,17 @@
 
 <div class="info-card">
 <h3>🚀 Getting Started</h3>
-<p>New to Artifex? Start with the <a href="#">beginner examples</a> on MNIST.</p>
+<p>New to Artifex? Start with the <a href="basic/vae-mnist.md">beginner examples</a> on MNIST.</p>
 </div>
 
 <div class="info-card">
 <h3>📖 Learn More</h3>
-<p>Check the <a href="overview/">Examples Overview</a> for detailed guidance.</p>
+<p>Check the <a href="overview.md">Examples Overview</a> for detailed guidance.</p>
 </div>
 
 <div class="info-card">
 <h3>🤝 Contribute</h3>
-<p>Share your examples! See the <a href="../community/contributing/">Contributing Guide</a>.</p>
+<p>Share your examples! See the <a href="../community/contributing.md">Contributing Guide</a>.</p>
 </div>
 
 </div>

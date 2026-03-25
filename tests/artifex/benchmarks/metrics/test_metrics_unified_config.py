@@ -37,6 +37,7 @@ class TestImageMetricsUnifiedConfig:
             metric_params={
                 "fid": {
                     "mock_inception": True,
+                    "demo_mode": True,
                     "higher_is_better": False,
                 }
             },
@@ -62,6 +63,7 @@ class TestImageMetricsUnifiedConfig:
             metric_params={
                 "fid": {
                     "mock_inception": True,
+                    "demo_mode": True,
                     "higher_is_better": False,
                 }
             },
@@ -87,6 +89,7 @@ class TestImageMetricsUnifiedConfig:
             metric_params={
                 "lpips": {
                     "mock_implementation": True,
+                    "demo_mode": True,
                     "higher_is_better": False,
                 }
             },
@@ -152,6 +155,7 @@ class TestImageMetricsUnifiedConfig:
             metric_params={
                 "inception_score": {
                     "mock_inception": True,
+                    "demo_mode": True,
                     "splits": 10,
                     "higher_is_better": True,
                 }
@@ -172,7 +176,7 @@ class TestImageMetricsUnifiedConfig:
         from artifex.benchmarks.metrics.image import create_fid_metric
 
         # Create a metric with a unique name
-        metric = create_fid_metric(rngs=rngs, config_name="test_fid_config")
+        metric = create_fid_metric(rngs=rngs, config_name="test_fid_config", mock_inception=True)
 
         # Verify the config was created with the correct name
         assert metric.config.name == "test_fid_config"
@@ -184,7 +188,9 @@ class TestImageMetricsUnifiedConfig:
         from artifex.benchmarks.metrics.image import FIDMetric
 
         config = EvaluationConfig(
-            name="fid_base_test", metrics=["fid"], metric_params={"fid": {"mock_inception": True}}
+            name="fid_base_test",
+            metrics=["fid"],
+            metric_params={"fid": {"mock_inception": True, "demo_mode": True}},
         )
 
         metric = FIDMetric(rngs=rngs, config=config)
@@ -259,7 +265,3 @@ class TestAudioMetricsUnifiedConfig:
 
         metric = SpectralMetric(rngs=rngs, config=config)
         assert isinstance(metric.config, EvaluationConfig)
-
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])

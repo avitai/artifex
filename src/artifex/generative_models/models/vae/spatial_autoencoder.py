@@ -6,22 +6,11 @@ unlike traditional VAE encoders that flatten to vectors.
 
 from flax import nnx
 
+from artifex.generative_models.core.base import get_activation_function
 from artifex.generative_models.core.configuration.network_configs import (
     DecoderConfig,
     EncoderConfig,
 )
-
-
-def _get_activation_fn(activation: str):
-    """Get activation function by name."""
-    if activation == "relu":
-        return nnx.relu
-    elif activation == "silu":
-        return nnx.silu
-    elif activation == "gelu":
-        return nnx.gelu
-    else:
-        raise ValueError(f"Unsupported activation: {activation}")
 
 
 class SpatialEncoder(nnx.Module):
@@ -56,7 +45,7 @@ class SpatialEncoder(nnx.Module):
         # Extract input channels from input_shape (last dimension for NHWC)
         input_channels = config.input_shape[-1] if len(config.input_shape) >= 3 else 3
 
-        self.activation_fn = _get_activation_fn(activation)
+        self.activation_fn = get_activation_function(activation)
 
         # Create convolutional layers with stride 2 for downsampling
         conv_layers = []
@@ -147,7 +136,7 @@ class SpatialDecoder(nnx.Module):
         output_channels = config.output_shape[-1] if len(config.output_shape) >= 3 else 3
         activation = config.activation
 
-        self.activation_fn = _get_activation_fn(activation)
+        self.activation_fn = get_activation_function(activation)
 
         # Initial convolution from latent channels
         self.input_conv = nnx.Conv(

@@ -6,11 +6,16 @@ import pytest
 from flax import nnx
 
 from artifex.generative_models.core.configuration import (
-    ProteinConstraintConfig,
+    ProteinDihedralConfig,
+    ProteinExtensionConfig,
+    ProteinExtensionsConfig,
     ProteinPointCloudConfig,
 )
 from artifex.generative_models.core.configuration.geometric_config import (
     PointCloudNetworkConfig,
+)
+from artifex.generative_models.modalities.protein.losses import (
+    create_protein_structure_loss,
 )
 from artifex.generative_models.models.geometric.protein_point_cloud import (
     ProteinPointCloudModel,
@@ -30,11 +35,18 @@ def model_config():
         activation="relu",
         dropout_rate=0.1,
     )
-    constraint_config = ProteinConstraintConfig(
-        backbone_weight=1.0,
-        bond_weight=1.0,
-        angle_weight=0.5,
-        dihedral_weight=0.3,
+    extensions = ProteinExtensionsConfig(
+        name="protein_extensions",
+        backbone=ProteinExtensionConfig(
+            name="backbone",
+            weight=1.0,
+            bond_length_weight=1.0,
+            bond_angle_weight=0.5,
+        ),
+        dihedral=ProteinDihedralConfig(
+            name="dihedral",
+            weight=0.3,
+        ),
     )
     return ProteinPointCloudConfig(
         name="protein_point_cloud",
@@ -44,8 +56,7 @@ def model_config():
         num_residues=8,
         num_atoms_per_residue=4,
         backbone_indices=(0, 1, 2, 3),
-        use_constraints=True,
-        constraint_config=constraint_config,
+        extensions=extensions,
     )
 
 
@@ -103,6 +114,32 @@ def test_protein_point_cloud_init(model_config):
     assert model.dihedral_constraint is not None
 
 
+def test_protein_point_cloud_config_rejects_non_bundle_extensions():
+    """Protein point-cloud models should use the canonical protein extension bundle."""
+    network = PointCloudNetworkConfig(
+        name="protein_pc_network",
+        hidden_dims=(32,),
+        embed_dim=32,
+        num_heads=4,
+        num_layers=2,
+        use_positional_encoding=True,
+        activation="relu",
+        dropout_rate=0.1,
+    )
+
+    with pytest.raises(TypeError, match="ProteinExtensionsConfig"):
+        ProteinPointCloudConfig(
+            name="protein_point_cloud",
+            network=network,
+            num_points=32,
+            point_dim=3,
+            num_residues=8,
+            num_atoms_per_residue=4,
+            backbone_indices=(0, 1, 2, 3),
+            extensions="invalid",
+        )
+
+
 def test_protein_point_cloud_call(model_config, protein_data):
     """Test forward pass through the model."""
     # Create RNG keys
@@ -118,12 +155,15 @@ def test_protein_point_cloud_call(model_config, protein_data):
 
     # Check that outputs have the expected structure
     assert "positions" in outputs
+    assert "atom_positions" in outputs
     assert "embeddings" in outputs
 
     # Check shapes
     batch_size = protein_data["atom_positions"].shape[0]
     expected_shape = (batch_size, model.num_residues, model.num_atoms, 3)
     assert outputs["positions"].shape == expected_shape
+    assert outputs["atom_positions"].shape == expected_shape
+    assert jnp.allclose(outputs["positions"], outputs["atom_positions"])
 
     # Check that extension outputs are included
     assert "extension_outputs" in outputs
@@ -222,6 +262,7 @@ def test_amino_acid_encoding(model_config):
     actual_batch_size = outputs["positions"].shape[0]
     shape = (actual_batch_size, model.num_residues, model.num_atoms, 3)
     assert outputs["positions"].shape == shape
+    assert outputs["atom_positions"].shape == shape
 
 
 def test_loss_function(model_config, protein_data):
@@ -236,16 +277,7 @@ def test_loss_function(model_config, protein_data):
 
     # Get outputs
     outputs = model(protein_data, deterministic=True)
-
-    # Make sure the output and input shapes match for the loss function
-    # Because the test fixture uses atom_positions but model might produce positions
-    if "positions" in outputs and "atom_positions" in protein_data:
-        # Make a copy to avoid modifying the original
-        test_data = dict(protein_data)
-        test_data["positions"] = test_data.pop("atom_positions")
-        loss_dict = model.loss_fn(test_data, outputs)
-    else:
-        loss_dict = model.loss_fn(protein_data, outputs)
+    loss_dict = model.loss_fn(protein_data, outputs)
 
     # Verify loss structure
     assert "mse_loss" in loss_dict
@@ -253,9 +285,70 @@ def test_loss_function(model_config, protein_data):
 
     # Check if constraints are included in the loss
     if model.backbone_constraint:
-        constraint_names = ["proteinbackboneconstraint", "protein_backbone"]
-        assert any(name in loss_dict for name in constraint_names)
+        assert "backbone" in loss_dict
 
     if model.dihedral_constraint:
-        constraint_names = ["proteindihedralconstraint", "protein_dihedral"]
-        assert any(name in loss_dict for name in constraint_names)
+        assert "dihedral" in loss_dict
+
+
+def test_structure_loss_accepts_protein_point_cloud_outputs(model_config, protein_data):
+    """Protein structure losses should work directly with model outputs."""
+    key = jax.random.PRNGKey(0)
+    key, dropout_key = jax.random.split(key)
+    rngs = nnx.Rngs(params=key, dropout=dropout_key)
+
+    model = ProteinPointCloudModel(model_config, rngs=rngs)
+    outputs = model(protein_data, deterministic=True)
+
+    loss_fn = create_protein_structure_loss(
+        rmsd_weight=1.0,
+        backbone_weight=0.5,
+        dihedral_weight=0.3,
+    )
+
+    losses = loss_fn(protein_data, outputs)
+
+    assert set(losses) == {"total_loss", "rmsd_loss", "backbone_loss", "dihedral_loss"}
+    for value in losses.values():
+        assert jnp.isfinite(value)
+
+
+def test_loss_function_does_not_swallow_extension_errors(model_config, protein_data, monkeypatch):
+    """Extension failures should fail the loss calculation instead of fabricating zeros."""
+    key = jax.random.PRNGKey(0)
+    key, dropout_key = jax.random.split(key)
+    rngs = nnx.Rngs(params=key, dropout=dropout_key)
+
+    model = ProteinPointCloudModel(model_config, rngs=rngs)
+    outputs = model(protein_data, deterministic=True)
+
+    def fail_loss_fn(*args, **kwargs):
+        raise RuntimeError("extension failure")
+
+    monkeypatch.setattr(model.extension_modules["backbone"], "loss_fn", fail_loss_fn)
+
+    with pytest.raises(RuntimeError, match="extension failure"):
+        model.loss_fn(protein_data, outputs)
+
+
+def test_loss_function_passes_protein_shaped_tensors_to_extensions(
+    model_config, protein_data, monkeypatch
+):
+    """Protein extensions must receive residue/atom-shaped coordinates, not flattened clouds."""
+    key = jax.random.PRNGKey(0)
+    key, dropout_key = jax.random.split(key)
+    rngs = nnx.Rngs(params=key, dropout=dropout_key)
+
+    model = ProteinPointCloudModel(model_config, rngs=rngs)
+    outputs = model(protein_data, deterministic=True)
+
+    def assert_shape(batch, model_outputs, **kwargs):
+        del kwargs
+        assert batch["atom_positions"].ndim == 4
+        assert model_outputs["atom_positions"].ndim == 4
+        return jnp.array(0.0)
+
+    monkeypatch.setattr(model.extension_modules["backbone"], "loss_fn", assert_shape)
+
+    loss_dict = model.loss_fn(protein_data, outputs)
+    assert jnp.isfinite(loss_dict["total_loss"])

@@ -1,6 +1,6 @@
 # Modality Architecture Test Suite
 
-This directory contains comprehensive tests for the modality architecture that enables the separation of model architectures from domain-specific (modality) functionality.
+This directory contains complete tests for the modality architecture that enables the separation of model architectures from domain-specific (modality) functionality.
 
 ## Test Structure
 

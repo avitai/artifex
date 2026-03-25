@@ -135,18 +135,18 @@ class _CliffordConvNd(nnx.Module):
         if self.rotation:
             w = jnp.concatenate(
                 [
-                    self.weight.value,
-                    self.scale_param.value[None],
+                    self.weight[...],
+                    self.scale_param[...][None],
                     self.zero_kernel[None],
                 ],
                 axis=0,
             )
         else:
-            w = self.weight.value
+            w = self.weight[...]
 
         _, kernel = self._get_kernel(w, self.metric)
 
-        bias_flat = self.bias.value.reshape(-1) if self.bias is not None else None
+        bias_flat = self.bias[...].reshape(-1) if self.bias is not None else None
 
         return clifford_convnd(
             x,

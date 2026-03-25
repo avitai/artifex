@@ -4,7 +4,7 @@ This implementation is shared between MAF and IAF models and is based on
 the reference implementations from benchmark_VAE and other sources.
 """
 
-from typing import Sequence
+from collections.abc import Sequence
 
 import jax
 import jax.numpy as jnp

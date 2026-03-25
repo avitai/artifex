@@ -103,6 +103,7 @@ class TestStyleGAN3DiscriminatorConfig:
         assert config.img_channels == 3
         assert config.base_channels == 64
         assert config.max_channels == 512
+        assert not hasattr(config, "use_spectral_norm")
 
     def test_config_creation_custom(self):
         """Test creating config with custom values."""

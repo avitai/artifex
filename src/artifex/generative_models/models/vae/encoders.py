@@ -52,6 +52,8 @@ class MLPEncoder(nnx.Module):
             input_features = 1
             for dim in input_shape:
                 input_features *= dim
+        if input_features is None:
+            raise ValueError("MLPEncoder requires a non-empty input_shape")
 
         self.latent_dim = latent_dim
 
@@ -82,6 +84,8 @@ class MLPEncoder(nnx.Module):
             x = x.reshape(batch_size, -1)
 
         features = self.backbone(x)
+        if isinstance(features, tuple):
+            features = features[0]
         mean = self.mean_proj(features)
         log_var = self.logvar_proj(features)
         return mean, log_var
@@ -280,7 +284,7 @@ def create_encoder(
 
     Args:
         config: EncoderConfig with network architecture settings
-        encoder_type: Type of encoder (dense, cnn, resnet)
+        encoder_type: Type of encoder (dense, cnn, spatial)
         conditional: Whether to create conditional encoder
         num_classes: Number of classes for conditional encoder (one-hot dimension)
         rngs: Random number generators
@@ -314,7 +318,7 @@ def create_encoder(
     elif encoder_type == "cnn":
         encoder = CNNEncoder(config=config, rngs=rngs)
     elif encoder_type == "resnet":
-        encoder = ResNetEncoder(config=config, rngs=rngs)
+        raise ValueError('encoder_type="resnet" is not supported by the retained VAE surface')
     elif encoder_type == "spatial":
         from artifex.generative_models.models.vae.spatial_autoencoder import SpatialEncoder
 
@@ -324,6 +328,8 @@ def create_encoder(
 
     # Wrap in conditional encoder if needed
     if conditional:
+        if num_classes is None:
+            raise ValueError("num_classes is required when conditional=True")
         encoder = ConditionalEncoder(
             encoder=encoder,
             num_classes=num_classes,

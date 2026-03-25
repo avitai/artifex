@@ -11,6 +11,8 @@ from artifex.generative_models.core.configuration.network_configs import (
 )
 from artifex.generative_models.core.configuration.vae_config import VAEConfig
 from artifex.generative_models.models.vae.base import VAE
+from artifex.generative_models.models.vae.decoders import create_decoder
+from artifex.generative_models.models.vae.encoders import create_encoder
 
 
 @pytest.fixture
@@ -77,6 +79,32 @@ def vae_components(rngs, vae_config):
 
 class TestVAE:
     """Test suite for the base VAE class."""
+
+    def test_create_encoder_rejects_placeholder_resnet_surface(self, rngs):
+        """The retained VAE helper surface should reject the dead resnet path explicitly."""
+        config = EncoderConfig(
+            name="test_encoder",
+            hidden_dims=(64, 32),
+            activation="relu",
+            input_shape=(100,),
+            latent_dim=10,
+        )
+
+        with pytest.raises(ValueError, match="resnet"):
+            create_encoder(config, encoder_type="resnet", rngs=rngs)
+
+    def test_create_decoder_rejects_placeholder_resnet_surface(self, rngs):
+        """The retained VAE helper surface should reject the dead resnet path explicitly."""
+        config = DecoderConfig(
+            name="test_decoder",
+            hidden_dims=(32, 64),
+            activation="relu",
+            output_shape=(100,),
+            latent_dim=10,
+        )
+
+        with pytest.raises(ValueError, match="resnet"):
+            create_decoder(config, decoder_type="resnet", rngs=rngs)
 
     def test_initialization(self, rngs, vae_components):
         """Test VAE initialization."""
@@ -202,25 +230,26 @@ class TestVAE:
         outputs = vae(x)
 
         # Test loss function
-        losses = vae.loss_fn(x=x, outputs=outputs)
+        losses = vae.loss_fn(x, outputs)
 
         # Check loss components
         assert "reconstruction_loss" in losses
         assert "kl_loss" in losses
-        assert "loss" in losses
+        assert "total_loss" in losses
+        assert "loss" not in losses
 
         # Check values are reasonable
         assert not jnp.isnan(losses["reconstruction_loss"])
         assert not jnp.isnan(losses["kl_loss"])
-        assert not jnp.isnan(losses["loss"])
+        assert not jnp.isnan(losses["total_loss"])
 
         # Test with custom beta
         beta = 0.5
-        custom_losses = vae.loss_fn(x=x, outputs=outputs, beta=beta)
+        custom_losses = vae.loss_fn(x, outputs, beta=beta)
 
         # Check beta affects the total loss
         expected_loss = custom_losses["reconstruction_loss"] + beta * custom_losses["kl_loss"]
-        assert jnp.isclose(custom_losses["loss"], expected_loss)
+        assert jnp.isclose(custom_losses["total_loss"], expected_loss)
 
     def test_custom_reconstruction_loss(self, rngs, vae_components):
         """Test VAE with custom reconstruction loss function."""
@@ -238,14 +267,14 @@ class TestVAE:
             return jnp.mean(jnp.abs(predictions - targets))
 
         # Calculate losses with custom function
-        losses = vae.loss_fn(x=x, outputs=outputs, reconstruction_loss_fn=custom_loss_fn)
+        losses = vae.loss_fn(x, outputs, reconstruction_loss_fn=custom_loss_fn)
 
         # Verify loss is reasonable
-        assert not jnp.isnan(losses["loss"])
+        assert not jnp.isnan(losses["total_loss"])
         assert losses["reconstruction_loss"] >= 0.0
 
         # Verify using a different loss function changes the reconstruction loss value
-        default_losses = vae.loss_fn(x=x, outputs=outputs)
+        default_losses = vae.loss_fn(x, outputs)
         # The values should be different unless data is exactly 0 or 1
         if not jnp.all((x == 0) | (x == 1)):
             assert not jnp.isclose(
@@ -309,7 +338,7 @@ class TestVAE:
         vae = VAE(config=config, rngs=rngs)
 
         # Create sample RNG
-        params_key = rngs["params"].key.value
+        params_key = rngs["params"]()
         sample_rngs = nnx.Rngs(sample=params_key)
 
         n_samples = 3
@@ -569,7 +598,7 @@ class TestCNNVAE:
 
 
 class TestVAEJITCompatibility:
-    """Comprehensive JIT compatibility tests for VAE."""
+    """Complete JIT compatibility tests for VAE."""
 
     def test_vae_jit_forward_pass(self, rngs, vae_components):
         """Test that VAE forward pass can be JIT compiled."""
@@ -716,8 +745,8 @@ class TestVAEJITCompatibility:
         @jax.jit
         def loss_fn(model, x):
             outputs = model(x)
-            losses = model.loss_fn(x=x, outputs=outputs)
-            return losses["loss"]
+            losses = model.loss_fn(x, outputs)
+            return losses["total_loss"]
 
         # Compute gradients using nnx.grad
         grad_fn = nnx.grad(loss_fn)
@@ -739,15 +768,16 @@ class TestVAEJITCompatibility:
 
         @jax.jit
         def compute_loss(model, x, outputs):
-            return model.loss_fn(x=x, outputs=outputs)
+            return model.loss_fn(x, outputs)
 
         losses = compute_loss(vae, x, outputs)
 
         # Check loss components
         assert "reconstruction_loss" in losses
         assert "kl_loss" in losses
-        assert "loss" in losses
-        assert jnp.isfinite(losses["loss"])
+        assert "total_loss" in losses
+        assert "loss" not in losses
+        assert jnp.isfinite(losses["total_loss"])
 
     def test_vae_jit_reconstruct(self, rngs, vae_components):
         """Test that VAE reconstruct method can be JIT compiled."""
@@ -803,8 +833,8 @@ class TestVAEJITCompatibility:
             # Forward pass
             outputs = model(x)
             # Compute loss
-            losses = model.loss_fn(x=x, outputs=outputs)
-            return losses["loss"], outputs
+            losses = model.loss_fn(x, outputs)
+            return losses["total_loss"], outputs
 
         # Run training step
         loss, outputs = train_step(vae, x)

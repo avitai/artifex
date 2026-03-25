@@ -1,97 +1,38 @@
-# Adapters
+# Timeseries Adapters
 
-**Module:** `generative_models.modalities.timeseries.adapters`
+**Status:** `Supported family-scoped modality owner`
 
-**Source:** `generative_models/modalities/timeseries/adapters.py`
+**Scope:** `Timeseries helper owner`
 
-## Overview
+**Module:** `artifex.generative_models.modalities.timeseries.adapters`
 
-Model adapters for timeseries modality.
+**Source:** `src/artifex/generative_models/modalities/timeseries/adapters.py`
 
-## Classes
+Adapter owners for the timeseries helper package.
 
-### TimeseriesDiffusionAdapter
+## Top-Level Module Exports
 
-```python
-class TimeseriesDiffusionAdapter
-```
+- `TimeseriesAdapterConfig`
+- `TimeseriesTransformerAdapter`
+- `TimeseriesRNNAdapter`
+- `TimeseriesDiffusionAdapter`
+- `TimeseriesVAEAdapter`
+- `get_timeseries_adapter()`
 
-### TimeseriesRNNAdapter
+## Class APIs
 
-```python
-class TimeseriesRNNAdapter
-```
+### `TimeseriesTransformerAdapter`
 
-### TimeseriesTransformerAdapter
+- `create()`
 
-```python
-class TimeseriesTransformerAdapter
-```
+### `TimeseriesRNNAdapter`
 
-### TimeseriesVAEAdapter
+- `create()`
 
-```python
-class TimeseriesVAEAdapter
-```
+### `TimeseriesDiffusionAdapter`
 
-## Functions
+- `create()`
 
-### **init**
+### `TimeseriesVAEAdapter`
 
-```python
-def __init__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### create
-
-```python
-def create()
-```
-
-### create
-
-```python
-def create()
-```
-
-### create
-
-```python
-def create()
-```
-
-### create
-
-```python
-def create()
-```
-
-### get_timeseries_adapter
-
-```python
-def get_timeseries_adapter()
-```
-
-## Module Statistics
-
-- **Classes:** 4
-- **Functions:** 9
-- **Imports:** 17
+- `create()`

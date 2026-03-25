@@ -108,11 +108,11 @@ class TestGANTrainingConfig:
 
         config = GANTrainingConfig()
         assert config.loss_type == "vanilla"
-        assert config.n_critic == 1
         assert config.gp_weight == 10.0
         assert config.gp_target == 1.0
         assert config.r1_weight == 0.0
         assert config.label_smoothing == 0.0
+        assert not hasattr(config, "n_critic")
 
     def test_config_custom_values(self) -> None:
         """GANTrainingConfig should accept custom values."""
@@ -122,16 +122,23 @@ class TestGANTrainingConfig:
 
         config = GANTrainingConfig(
             loss_type="wasserstein",
-            n_critic=5,
             gp_weight=15.0,
             r1_weight=10.0,
             label_smoothing=0.1,
         )
         assert config.loss_type == "wasserstein"
-        assert config.n_critic == 5
         assert config.gp_weight == 15.0
         assert config.r1_weight == 10.0
         assert config.label_smoothing == 0.1
+
+    def test_config_rejects_removed_n_critic(self) -> None:
+        """GANTrainingConfig should reject the removed trainer-owned cadence knob."""
+        from artifex.generative_models.training.trainers.gan_trainer import (
+            GANTrainingConfig,
+        )
+
+        with pytest.raises(TypeError, match="n_critic"):
+            GANTrainingConfig(n_critic=5)
 
     def test_config_all_loss_types(self) -> None:
         """GANTrainingConfig should support all loss types."""
@@ -429,7 +436,7 @@ class TestTrainingSteps:
 
         # Get initial params
         initial_params = nnx.state(discriminator, nnx.Param)
-        initial_fc1_kernel = initial_params["fc1"]["kernel"].value.copy()
+        initial_fc1_kernel = initial_params["fc1"]["kernel"][...].copy()
 
         # Run discriminator step
         trainer.discriminator_step(
@@ -438,7 +445,7 @@ class TestTrainingSteps:
 
         # Get updated params
         updated_params = nnx.state(discriminator, nnx.Param)
-        updated_fc1_kernel = updated_params["fc1"]["kernel"].value
+        updated_fc1_kernel = updated_params["fc1"]["kernel"][...]
 
         # Discriminator params should have changed
         assert not jnp.allclose(initial_fc1_kernel, updated_fc1_kernel)
@@ -490,14 +497,14 @@ class TestTrainingSteps:
 
         # Get initial params
         initial_params = nnx.state(generator, nnx.Param)
-        initial_fc1_kernel = initial_params["fc1"]["kernel"].value.copy()
+        initial_fc1_kernel = initial_params["fc1"]["kernel"][...].copy()
 
         # Run generator step
         trainer.generator_step(generator, discriminator, g_opt, latent_vectors)
 
         # Get updated params
         updated_params = nnx.state(generator, nnx.Param)
-        updated_fc1_kernel = updated_params["fc1"]["kernel"].value
+        updated_fc1_kernel = updated_params["fc1"]["kernel"][...]
 
         # Generator params should have changed
         assert not jnp.allclose(initial_fc1_kernel, updated_fc1_kernel)

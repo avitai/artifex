@@ -4,7 +4,7 @@
 ![Runtime](https://img.shields.io/badge/Runtime-~15s-green)
 ![Format](https://img.shields.io/badge/Format-Script%20%2B%20Notebook-blue)
 
-Comprehensive demonstration of loss functions for geometric models including point clouds, meshes, and voxel grids.
+Complete demonstration of loss functions for geometric models including point clouds, meshes, and voxel grids.
 
 ## Files
 
@@ -23,7 +23,7 @@ jupyter notebook examples/generative_models/geometric/geometric_losses_demo.ipyn
 
 ## Overview
 
-This example provides a comprehensive tour of loss functions used for different 3D geometric representations. Understanding these losses is crucial for training effective generative models for 3D data.
+This example provides a complete tour of loss functions used for different 3D geometric representations. Understanding these losses is crucial for training effective generative models for 3D data.
 
 ### Learning Objectives
 
@@ -94,28 +94,17 @@ $$
 - Good for most applications
 
 ```python
-from artifex.generative_models.core.configuration import (
-    PointCloudConfig,
-    PointCloudNetworkConfig,
+from artifex.generative_models.core.losses.geometric import (
+    chamfer_distance,
+    earth_mover_distance,
+    hausdorff_distance,
 )
 
-network_config = PointCloudNetworkConfig(
-    name="chamfer_network",
-    hidden_dims=(64,),  # Tuple for frozen dataclass
-    activation="gelu",
-    embed_dim=64,
-    num_heads=4,
-    num_layers=2,
-    dropout_rate=0.1,
-)
+pred_points = ...
+target_points = ...
 
-chamfer_config = PointCloudConfig(
-    name="chamfer_point_cloud",
-    network=network_config,
-    num_points=125,
-    loss_type="chamfer",  # Chamfer distance loss
-    dropout_rate=0.1,
-)
+chamfer = chamfer_distance(pred_points, target_points)
+hausdorff = hausdorff_distance(pred_points, target_points)
 ```
 
 #### Earth Mover's Distance (EMD)
@@ -135,14 +124,7 @@ Where $\phi$ is a bijection between X and Y.
 - Fine geometric details matter
 
 ```python
-# Same network config, different loss type
-earth_mover_config = PointCloudConfig(
-    name="earth_mover_point_cloud",
-    network=network_config,
-    num_points=125,
-    loss_type="earth_mover",  # EMD loss
-    dropout_rate=0.1,
-)
+emd = earth_mover_distance(pred_points, target_points)
 ```
 
 ### 2. Mesh Losses
@@ -171,39 +153,20 @@ $$
 \mathcal{L}_{\text{edge}} = \sum_{(i,j) \in E} (|\mathbf{v}_i - \mathbf{v}_j|_{\text{pred}} - |\mathbf{v}_i - \mathbf{v}_j|_{\text{true}})^2
 $$
 
-#### Configuring Weights
+#### Explicit Mesh Loss Composition
 
 ```python
-from artifex.generative_models.core.configuration import (
-    MeshConfig,
-    MeshNetworkConfig,
-)
+from artifex.generative_models.core.losses.geometric import get_mesh_loss
 
-mesh_network = MeshNetworkConfig(
-    name="mesh_network",
-    hidden_dims=(128, 64),  # Tuple for frozen dataclass
-    activation="gelu",
-)
+pred_mesh = (pred_vertices, pred_faces, pred_normals)
+target_mesh = (target_vertices, target_faces, target_normals)
 
-# Smooth surfaces (e.g., CAD models)
-normal_config = MeshConfig(
-    name="smooth_mesh",
-    network=mesh_network,
-    num_vertices=512,
-    vertex_loss_weight=0.5,   # Reduce vertex constraint
-    normal_loss_weight=1.0,   # Emphasize smoothness
-    edge_loss_weight=0.1,     # Light edge preservation
-)
-
-# Sharp edges (e.g., furniture)
-edge_config = MeshConfig(
-    name="sharp_mesh",
-    network=mesh_network,
-    num_vertices=512,
-    vertex_loss_weight=0.5,
-    normal_loss_weight=0.1,   # Less smoothing
-    edge_loss_weight=1.0,     # Strong edge preservation
-)
+default_mesh_loss = get_mesh_loss()(pred_mesh, target_mesh)
+smooth_mesh_loss = get_mesh_loss(
+    vertex_weight=0.5,
+    normal_weight=1.0,
+    edge_weight=0.1,
+)(pred_mesh, target_mesh)
 ```
 
 ### 3. Voxel Losses
@@ -299,16 +262,13 @@ dice_config = VoxelConfig(
 
 ```
 ===== Point Cloud Loss Functions Demo =====
-Chamfer distance loss: {'total_loss': 2.92, 'mse_loss': 2.92}
-Earth Mover distance loss: {'total_loss': 3.61, 'mse_loss': 3.61}
+Chamfer distance loss: 0.0075
+Earth Mover distance loss: 0.0866
+Hausdorff distance loss: 0.0866
 
 ===== Mesh Loss Functions Demo =====
-Default model vertex weight: 1.0
-Default model normal weight: 1.0
-Default model edge weight: 1.0
-Normal-focused model vertex weight: 0.5
-Normal-focused model normal weight: 1.0
-Normal-focused model edge weight: 0.1
+Default mesh loss: 0.0300
+Smooth-surface weighted mesh loss: 0.0150
 
 ===== Voxel Loss Functions Demo =====
 Binary cross-entropy loss: {'total_loss': 0.68, ...}

@@ -5,7 +5,8 @@ support various types of positional encodings using the latest Flax NNX API.
 """
 
 import logging
-from typing import Callable, Literal
+from collections.abc import Callable
+from typing import Literal
 
 import jax
 import jax.numpy as jnp

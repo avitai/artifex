@@ -1,14 +1,27 @@
 """Image evaluation metrics for the image modality.
 
-This module provides comprehensive evaluation metrics for image generation,
-including Frechet Inception Distance (FID), Inception Score (IS), and perceptual metrics.
+This module provides evaluation metrics for image generation,
+including MSE, PSNR, SSIM, MS-SSIM, Vendi Score, and perceptual metrics.
+Delegates to calibrax for core metric computations.
 """
+
+import logging
 
 import jax
 import jax.numpy as jnp
+from calibrax.metrics.functional.image import (
+    ms_ssim as calibrax_ms_ssim,
+    psnr as calibrax_psnr,
+    ssim as calibrax_ssim,
+    vendi_score as calibrax_vendi_score,
+)
+from calibrax.metrics.functional.regression import mse as calibrax_mse
 from flax import nnx
 
 from .base import ImageModalityConfig
+
+
+logger = logging.getLogger(__name__)
 
 
 class ImageMetrics(nnx.Module):
@@ -21,6 +34,7 @@ class ImageMetrics(nnx.Module):
             config: Image modality configuration
             rngs: Random number generators
         """
+        super().__init__()
         self.config = config
         self.rngs = rngs
 
@@ -40,7 +54,10 @@ class ImageMetrics(nnx.Module):
 
 
 class MSEMetric(ImageMetrics):
-    """Mean Squared Error between generated and reference images."""
+    """Mean Squared Error between generated and reference images.
+
+    Delegates to calibrax.metrics.functional.regression.mse.
+    """
 
     def compute_metric(
         self, generated_images: jnp.ndarray, reference_images: jnp.ndarray | None = None
@@ -57,12 +74,16 @@ class MSEMetric(ImageMetrics):
         if reference_images is None:
             raise ValueError("MSE metric requires reference images")
 
-        mse = jnp.mean((generated_images - reference_images) ** 2)
-        return {"mse": float(mse)}
+        mse_value = calibrax_mse(generated_images, reference_images)
+        return {"mse": float(mse_value)}
 
 
 class PSNRMetric(ImageMetrics):
-    """Peak Signal-to-Noise Ratio metric."""
+    """Peak Signal-to-Noise Ratio metric.
+
+    Delegates to calibrax.metrics.functional.image.psnr per image,
+    then averages across the batch.
+    """
 
     def compute_metric(
         self, generated_images: jnp.ndarray, reference_images: jnp.ndarray | None = None
@@ -70,8 +91,8 @@ class PSNRMetric(ImageMetrics):
         """Compute PSNR between generated and reference images.
 
         Args:
-            generated_images: Generated images
-            reference_images: Reference images
+            generated_images: Generated images [batch, H, W, C]
+            reference_images: Reference images [batch, H, W, C]
 
         Returns:
             Dictionary with PSNR value
@@ -79,15 +100,17 @@ class PSNRMetric(ImageMetrics):
         if reference_images is None:
             raise ValueError("PSNR metric requires reference images")
 
-        mse = jnp.mean((generated_images - reference_images) ** 2)
-        # Assuming images are in [0, 1] range
-        max_pixel_value = 1.0
-        psnr = 20 * jnp.log10(max_pixel_value / jnp.sqrt(mse + 1e-8))
-        return {"psnr": float(psnr)}
+        psnr_per_image = jax.vmap(calibrax_psnr)(generated_images, reference_images)
+        mean_psnr = jnp.mean(psnr_per_image)
+        return {"psnr": float(mean_psnr)}
 
 
 class SSIMMetric(ImageMetrics):
-    """Structural Similarity Index Metric."""
+    """Structural Similarity Index Metric.
+
+    Delegates to calibrax.metrics.functional.image.ssim per image,
+    then averages across the batch.
+    """
 
     def __init__(
         self,
@@ -112,60 +135,14 @@ class SSIMMetric(ImageMetrics):
         self.k1 = k1
         self.k2 = k2
 
-    def _gaussian_kernel(self, size: int, sigma: float = 1.5) -> jnp.ndarray:
-        """Create a Gaussian kernel for SSIM computation."""
-        coords = jnp.arange(size, dtype=jnp.float32) - (size - 1) / 2
-        kernel = jnp.exp(-(coords**2) / (2 * sigma**2))
-        kernel = kernel / jnp.sum(kernel)
-        return kernel[:, None] * kernel[None, :]
-
-    def _ssim_single_channel(self, img1: jnp.ndarray, img2: jnp.ndarray) -> jnp.ndarray:
-        """Compute SSIM for a single channel."""
-        # Create Gaussian kernel
-        kernel = self._gaussian_kernel(self.window_size)
-        kernel = kernel / jnp.sum(kernel)
-
-        # Pad images for convolution
-        pad_size = self.window_size // 2
-        padding = [(pad_size, pad_size), (pad_size, pad_size)]
-
-        img1_padded = jnp.pad(img1, padding, mode="reflect")
-        img2_padded = jnp.pad(img2, padding, mode="reflect")
-
-        # Compute local means
-        mu1 = jax.scipy.signal.convolve2d(img1_padded, kernel, mode="valid")
-        mu2 = jax.scipy.signal.convolve2d(img2_padded, kernel, mode="valid")
-
-        # Compute local variances and covariance
-        mu1_sq = mu1**2
-        mu2_sq = mu2**2
-        mu1_mu2 = mu1 * mu2
-
-        sigma1_sq = jax.scipy.signal.convolve2d(img1_padded**2, kernel, mode="valid") - mu1_sq
-        sigma2_sq = jax.scipy.signal.convolve2d(img2_padded**2, kernel, mode="valid") - mu2_sq
-        sigma12 = (
-            jax.scipy.signal.convolve2d(img1_padded * img2_padded, kernel, mode="valid") - mu1_mu2
-        )
-
-        # SSIM constants
-        c1 = (self.k1 * 1.0) ** 2  # Assuming dynamic range of 1.0
-        c2 = (self.k2 * 1.0) ** 2
-
-        # Compute SSIM
-        numerator = (2 * mu1_mu2 + c1) * (2 * sigma12 + c2)
-        denominator = (mu1_sq + mu2_sq + c1) * (sigma1_sq + sigma2_sq + c2)
-        ssim_map = numerator / denominator
-
-        return jnp.mean(ssim_map)
-
     def compute_metric(
         self, generated_images: jnp.ndarray, reference_images: jnp.ndarray | None = None
     ) -> dict[str, float]:
         """Compute SSIM between generated and reference images.
 
         Args:
-            generated_images: Generated images
-            reference_images: Reference images
+            generated_images: Generated images [batch, H, W, C]
+            reference_images: Reference images [batch, H, W, C]
 
         Returns:
             Dictionary with SSIM value
@@ -173,22 +150,73 @@ class SSIMMetric(ImageMetrics):
         if reference_images is None:
             raise ValueError("SSIM metric requires reference images")
 
-        # Compute SSIM for each image pair and channel
-        ssim_values = []
+        def _ssim_single(gen_img: jnp.ndarray, ref_img: jnp.ndarray) -> jnp.ndarray:
+            return calibrax_ssim(
+                gen_img,
+                ref_img,
+                filter_size=self.window_size,
+                k1=self.k1,
+                k2=self.k2,
+            )
 
-        for gen_img, ref_img in zip(generated_images, reference_images):
-            if gen_img.shape[-1] == 1:  # Grayscale
-                ssim_val = self._ssim_single_channel(gen_img[..., 0], ref_img[..., 0])
-                ssim_values.append(ssim_val)
-            else:  # Multi-channel
-                channel_ssims = []
-                for c in range(gen_img.shape[-1]):
-                    ssim_val = self._ssim_single_channel(gen_img[..., c], ref_img[..., c])
-                    channel_ssims.append(ssim_val)
-                ssim_values.append(jnp.mean(jnp.array(channel_ssims)))
-
-        mean_ssim = jnp.mean(jnp.array(ssim_values))
+        ssim_per_image = jax.vmap(_ssim_single)(generated_images, reference_images)
+        mean_ssim = jnp.mean(ssim_per_image)
         return {"ssim": float(mean_ssim)}
+
+
+class MSSSIMMetric(ImageMetrics):
+    """Multi-Scale Structural Similarity Index Metric.
+
+    Delegates to calibrax.metrics.functional.image.ms_ssim per image.
+    Requires images at least ~160x160 for default 5-scale decomposition.
+    """
+
+    def compute_metric(
+        self, generated_images: jnp.ndarray, reference_images: jnp.ndarray | None = None
+    ) -> dict[str, float]:
+        """Compute MS-SSIM between generated and reference images.
+
+        Args:
+            generated_images: Generated images [batch, H, W, C]
+            reference_images: Reference images [batch, H, W, C]
+
+        Returns:
+            Dictionary with MS-SSIM value
+        """
+        if reference_images is None:
+            raise ValueError("MS-SSIM metric requires reference images")
+
+        ms_ssim_per_image = jax.vmap(calibrax_ms_ssim)(generated_images, reference_images)
+        mean_ms_ssim = jnp.mean(ms_ssim_per_image)
+        return {"ms_ssim": float(mean_ms_ssim)}
+
+
+class VendiScoreMetric(ImageMetrics):
+    """Vendi Score diversity metric for generated images.
+
+    Measures diversity using eigenvalue entropy of a similarity matrix.
+    Delegates to calibrax.metrics.functional.image.vendi_score.
+    """
+
+    def compute_metric(
+        self, generated_images: jnp.ndarray, reference_images: jnp.ndarray | None = None
+    ) -> dict[str, float]:
+        """Compute Vendi Score for generated images.
+
+        Args:
+            generated_images: Generated images [batch, H, W, C]
+            reference_images: Not used (diversity is self-referential)
+
+        Returns:
+            Dictionary with Vendi Score (>= 1.0, higher means more diverse)
+        """
+        batch_size = generated_images.shape[0]
+        flat_images = generated_images.reshape(batch_size, -1)
+        norms = jnp.linalg.norm(flat_images, axis=1, keepdims=True)
+        normalized = flat_images / jnp.maximum(norms, 1e-8)
+        similarity_matrix = normalized @ normalized.T
+        vendi = calibrax_vendi_score(similarity_matrix)
+        return {"vendi_score": float(vendi)}
 
 
 class PerceptualDistanceMetric(ImageMetrics):
@@ -271,7 +299,7 @@ class PerceptualDistanceMetric(ImageMetrics):
 
 
 class ImageEvaluationSuite(nnx.Module):
-    """Comprehensive image evaluation suite."""
+    """Complete image evaluation suite."""
 
     def __init__(
         self,
@@ -287,6 +315,7 @@ class ImageEvaluationSuite(nnx.Module):
             metrics: List of metrics to compute
             rngs: Random number generators
         """
+        super().__init__()
         self.config = config
         self.rngs = rngs
 
@@ -303,6 +332,10 @@ class ImageEvaluationSuite(nnx.Module):
                 metrics_dict[metric_name] = PSNRMetric(config, rngs=rngs)
             elif metric_name == "ssim":
                 metrics_dict[metric_name] = SSIMMetric(config, rngs=rngs)
+            elif metric_name == "ms_ssim":
+                metrics_dict[metric_name] = MSSSIMMetric(config, rngs=rngs)
+            elif metric_name == "vendi_score":
+                metrics_dict[metric_name] = VendiScoreMetric(config, rngs=rngs)
             elif metric_name == "perceptual_distance":
                 metrics_dict[metric_name] = PerceptualDistanceMetric(config, rngs=rngs)
             else:
@@ -328,7 +361,7 @@ class ImageEvaluationSuite(nnx.Module):
                 metric_results = metric_instance.compute_metric(generated_images, reference_images)
                 results.update(metric_results)
             except ValueError as e:
-                print(f"Warning: Could not compute {metric_name}: {e}")
+                logger.warning("Could not compute %s: %s", metric_name, e)
                 results[metric_name] = float("nan")
 
         return results

@@ -1,428 +1,267 @@
-"""Text dataset handling for the text modality.
+"""Text datasets backed by datarax MemorySource.
 
-This module provides utilities for loading and processing text datasets,
-including synthetic data generation for testing and development.
-
-Note: Dataset classes don't inherit from nnx.Module because they're data
-containers, not neural network modules.
+Provides pure data generation functions and factory functions that wrap
+generated data in datarax MemorySource for pipeline integration.
 """
 
-from abc import ABC
-from typing import Iterator
+from typing import Any
 
 import jax
 import jax.numpy as jnp
+from datarax.sources import MemorySource, MemorySourceConfig
 from flax import nnx
 
-from artifex.generative_models.core.configuration import ModalityConfig
+
+# ---------------------------------------------------------------------------
+# Tokenization (standalone function)
+# ---------------------------------------------------------------------------
 
 
-class TextDataset(ABC):
-    """Base class for text datasets."""
+def simple_tokenize(
+    text: str,
+    *,
+    vocab_size: int = 10000,
+    max_length: int = 512,
+    pad_token_id: int = 0,
+    bos_token_id: int = 2,
+    eos_token_id: int = 3,
+    case_sensitive: bool = False,
+) -> jnp.ndarray:
+    """Simple hash-based tokenization.
 
-    def __init__(
-        self,
-        config: ModalityConfig,
-        split: str = "train",
-        *,
-        rngs: nnx.Rngs,
-    ):
-        """Initialize text dataset.
+    Args:
+        text: Input text string.
+        vocab_size: Size of the vocabulary.
+        max_length: Maximum sequence length.
+        pad_token_id: Token ID for padding.
+        bos_token_id: Token ID for beginning of sequence.
+        eos_token_id: Token ID for end of sequence.
+        case_sensitive: Whether tokenization is case-sensitive.
 
-        Args:
-            config: Text modality configuration (ModalityConfig)
-            split: Dataset split ('train', 'val', 'test')
-            rngs: Random number generators
-        """
-        self.config = config
-        self.split = split
-        self.rngs = rngs
+    Returns:
+        Token IDs as JAX array of shape (max_length,).
+    """
+    if not case_sensitive:
+        text = text.lower()
 
-        # Extract text-specific parameters from config metadata
-        text_params = (
-            self.config.metadata.get("text_params", {}) if hasattr(self.config, "metadata") else {}
+    words = text.strip().split()
+    tokens: list[int] = [bos_token_id]
+
+    for word in words:
+        token_id = hash(word) % (vocab_size - 4) + 4
+        tokens.append(token_id)
+
+    tokens.append(eos_token_id)
+
+    if len(tokens) > max_length:
+        tokens = tokens[:max_length]
+    else:
+        tokens.extend([pad_token_id] * (max_length - len(tokens)))
+
+    return jnp.array(tokens, dtype=jnp.int32)
+
+
+# ---------------------------------------------------------------------------
+# Text generation (pure functions)
+# ---------------------------------------------------------------------------
+
+
+def _generate_text(idx: int, pattern_type: str) -> str:
+    """Generate text deterministically based on index.
+
+    Args:
+        idx: Sample index used as seed.
+        pattern_type: Type of text pattern.
+
+    Returns:
+        Generated text string.
+    """
+    if pattern_type == "random_sentences":
+        return _generate_random_sentence(idx)
+    elif pattern_type == "repeated_phrases":
+        return _generate_repeated_phrase(idx)
+    elif pattern_type == "sequences":
+        return _generate_sequence(idx)
+    elif pattern_type == "palindromes":
+        return _generate_palindrome(idx)
+    else:
+        return f"sample text {idx}"
+
+
+def _generate_random_sentence(seed: int) -> str:
+    """Generate a random sentence."""
+    key = jax.random.key(seed)
+    subjects = ["the cat", "a dog", "the bird", "a fish", "the robot"]
+    verbs = ["runs", "jumps", "flies", "swims", "thinks"]
+    adverbs = ["quickly", "slowly", "gracefully", "loudly", "quietly"]
+
+    subj_idx = int(jax.random.randint(key, (), 0, len(subjects)))
+    key1, key2 = jax.random.split(key)
+    verb_idx = int(jax.random.randint(key1, (), 0, len(verbs)))
+    adv_idx = int(jax.random.randint(key2, (), 0, len(adverbs)))
+
+    return f"{subjects[subj_idx]} {verbs[verb_idx]} {adverbs[adv_idx]}"
+
+
+def _generate_repeated_phrase(seed: int) -> str:
+    """Generate text with repeated phrases."""
+    phrases = [
+        "hello world",
+        "machine learning",
+        "neural networks",
+        "deep learning",
+    ]
+    phrase = phrases[seed % len(phrases)]
+    repeats = (seed % 3) + 1
+    return " ".join([phrase] * repeats)
+
+
+def _generate_sequence(seed: int) -> str:
+    """Generate numerical sequences as text."""
+    start = seed % 10
+    length = (seed % 5) + 3
+    return " ".join(str(start + i) for i in range(length))
+
+
+def _generate_palindrome(seed: int) -> str:
+    """Generate palindromic text."""
+    words = ["racecar", "level", "noon", "civic", "radar"]
+    word = words[seed % len(words)]
+    return f"{word} is a palindrome {word}"
+
+
+# ---------------------------------------------------------------------------
+# Data generation (pure functions)
+# ---------------------------------------------------------------------------
+
+
+def generate_synthetic_text_data(
+    num_samples: int,
+    *,
+    vocab_size: int = 10000,
+    max_length: int = 512,
+    pattern_type: str = "random_sentences",
+    pad_token_id: int = 0,
+    bos_token_id: int = 2,
+    eos_token_id: int = 3,
+    case_sensitive: bool = False,
+) -> dict[str, Any]:
+    """Generate synthetic text data with token sequences.
+
+    Args:
+        num_samples: Number of text samples.
+        vocab_size: Size of the vocabulary.
+        max_length: Maximum sequence length.
+        pattern_type: Text generation pattern
+            ('random_sentences', 'repeated_phrases', 'sequences', 'palindromes').
+        pad_token_id: Token ID for padding.
+        bos_token_id: Token ID for beginning of sequence.
+        eos_token_id: Token ID for end of sequence.
+        case_sensitive: Whether tokenization is case-sensitive.
+
+    Returns:
+        Dictionary with 'text_tokens' array of shape (num_samples, max_length)
+        and 'index' array of shape (num_samples,).
+    """
+    texts = [_generate_text(i, pattern_type) for i in range(num_samples)]
+    tokens = [
+        simple_tokenize(
+            text,
+            vocab_size=vocab_size,
+            max_length=max_length,
+            pad_token_id=pad_token_id,
+            bos_token_id=bos_token_id,
+            eos_token_id=eos_token_id,
+            case_sensitive=case_sensitive,
         )
-        self.vocab_size = text_params.get("vocab_size", 10000)
-        self.max_length = text_params.get("max_length", 512)
-        self.pad_token_id = text_params.get("pad_token_id", 0)
-        self.unk_token_id = text_params.get("unk_token_id", 1)
-        self.bos_token_id = text_params.get("bos_token_id", 2)
-        self.eos_token_id = text_params.get("eos_token_id", 3)
-        self.case_sensitive = text_params.get("case_sensitive", False)
-
-    def __len__(self) -> int:
-        """Return dataset size."""
-        raise NotImplementedError
-
-    def __iter__(self) -> Iterator[dict[str, jax.Array]]:
-        """Iterate over dataset samples."""
-        raise NotImplementedError
-
-    def get_batch(self, batch_size: int) -> dict[str, jax.Array]:
-        """Get a batch of samples.
-
-        Args:
-            batch_size: Number of samples in batch
-
-        Returns:
-            Batch dictionary with 'text_tokens' and potentially 'labels'
-        """
-        raise NotImplementedError
-
-
-class SyntheticTextDataset(TextDataset):
-    """Synthetic text dataset for testing and development."""
-
-    def __init__(
-        self,
-        config: ModalityConfig,
-        dataset_size: int = 1000,
-        pattern_type: str = "random_sentences",
-        split: str = "train",
-        *,
-        rngs: nnx.Rngs,
-    ):
-        """Initialize synthetic text dataset.
-
-        Args:
-            config: Text modality configuration (ModalityConfig)
-            dataset_size: Number of synthetic samples
-            pattern_type: Type of pattern to generate
-                ('random_sentences', 'repeated_phrases', 'sequences', 'palindromes')
-            split: Dataset split
-            rngs: Random number generators
-        """
-        super().__init__(config, split, rngs=rngs)
-        self.dataset_size = dataset_size
-        self.pattern_type = pattern_type
-        self._generate_dataset()
-
-    def _generate_dataset(self):
-        """Generate synthetic text data."""
-        self._texts = []
-        self._tokens = []
-
-        # Generate texts based on pattern type
-        for i in range(self.dataset_size):
-            if self.pattern_type == "random_sentences":
-                text = self._generate_random_sentence(i)
-            elif self.pattern_type == "repeated_phrases":
-                text = self._generate_repeated_phrase(i)
-            elif self.pattern_type == "sequences":
-                text = self._generate_sequence(i)
-            elif self.pattern_type == "palindromes":
-                text = self._generate_palindrome(i)
-            else:
-                text = f"sample text {i}"
-
-            self._texts.append(text)
-            # Convert to tokens using simple tokenization
-            tokens = self._simple_tokenize(text)
-            self._tokens.append(tokens)
-
-    def _generate_random_sentence(self, seed: int) -> str:
-        """Generate a random sentence.
-
-        Args:
-            seed: Random seed for reproducibility
-
-        Returns:
-            Generated sentence
-        """
-        key = jax.random.key(seed)
-
-        # Simple word vocabulary
-        subjects = ["the cat", "a dog", "the bird", "a fish", "the robot"]
-        verbs = ["runs", "jumps", "flies", "swims", "thinks"]
-        objects = ["quickly", "slowly", "gracefully", "loudly", "quietly"]
-
-        # Random selection
-        subj_idx = jax.random.randint(key, (), 0, len(subjects))
-        verb_idx = jax.random.randint(jax.random.split(key)[0], (), 0, len(verbs))
-        obj_idx = jax.random.randint(jax.random.split(key)[1], (), 0, len(objects))
-
-        subject = subjects[int(subj_idx)]
-        verb = verbs[int(verb_idx)]
-        obj = objects[int(obj_idx)]
-
-        return f"{subject} {verb} {obj}"
-
-    def _generate_repeated_phrase(self, seed: int) -> str:
-        """Generate text with repeated phrases.
-
-        Args:
-            seed: Random seed
-
-        Returns:
-            Text with repeated phrases
-        """
-        phrases = ["hello world", "machine learning", "neural networks", "deep learning"]
-        phrase = phrases[seed % len(phrases)]
-        repeats = (seed % 3) + 1
-        return " ".join([phrase] * repeats)
-
-    def _generate_sequence(self, seed: int) -> str:
-        """Generate numerical sequences as text.
-
-        Args:
-            seed: Random seed
-
-        Returns:
-            Sequence as text
-        """
-        start = seed % 10
-        length = (seed % 5) + 3
-        sequence = [str(start + i) for i in range(length)]
-        return " ".join(sequence)
-
-    def _generate_palindrome(self, seed: int) -> str:
-        """Generate palindromic text.
-
-        Args:
-            seed: Random seed
-
-        Returns:
-            Palindromic text
-        """
-        words = ["racecar", "level", "noon", "civic", "radar"]
-        word = words[seed % len(words)]
-        return f"{word} is a palindrome {word}"
-
-    def _simple_tokenize(self, text: str) -> jax.Array:
-        """Simple tokenization for synthetic data.
-
-        Args:
-            text: Input text
-
-        Returns:
-            Token sequence as JAX array
-        """
-        if not self.case_sensitive:
-            text = text.lower()
-
-        words = text.strip().split()
-        tokens = []
-
-        # Add BOS token
-        tokens.append(self.bos_token_id)
-
-        # Convert words to token IDs
-        for word in words:
-            # Simple hash-based assignment
-            token_id = hash(word) % (self.vocab_size - 4) + 4
-            tokens.append(token_id)
-
-        # Add EOS token
-        tokens.append(self.eos_token_id)
-
-        # Pad or truncate to max_length
-        if len(tokens) > self.max_length:
-            tokens = tokens[: self.max_length]
-        else:
-            tokens.extend([self.pad_token_id] * (self.max_length - len(tokens)))
-
-        return jnp.array(tokens, dtype=jnp.int32)
-
-    def __len__(self) -> int:
-        """Return dataset size."""
-        return self.dataset_size
-
-    def __iter__(self) -> Iterator[dict[str, jax.Array]]:
-        """Iterate over dataset samples."""
-        for i in range(self.dataset_size):
-            yield {
-                "text_tokens": self._tokens[i],
-                "text": self._texts[i],
-                "index": jnp.array(i, dtype=jnp.int32),
-            }
-
-    def get_batch(self, batch_size: int) -> dict[str, jax.Array]:
-        """Get a batch of samples.
-
-        Args:
-            batch_size: Number of samples in batch
-
-        Returns:
-            Batch dictionary with text data
-        """
-        key = self.rngs.sample()
-
-        # Random sampling with replacement
-        indices = jax.random.randint(key, (batch_size,), 0, self.dataset_size)
-
-        batch_tokens = []
-        batch_texts = []
-
-        for idx in indices:
-            batch_tokens.append(self._tokens[int(idx)])
-            batch_texts.append(self._texts[int(idx)])
-
-        return {
-            "text_tokens": jnp.stack(batch_tokens),
-            "texts": batch_texts,  # Keep as strings for reference
-            "indices": indices,
-        }
-
-    def get_sample_text(self, index: int) -> str:
-        """Get sample text by index.
-
-        Args:
-            index: Sample index
-
-        Returns:
-            Text sample
-        """
-        if index < 0 or index >= self.dataset_size:
-            raise IndexError(f"Index {index} out of range [0, {self.dataset_size})")
-        return self._texts[index]
-
-    def get_vocab_stats(self) -> dict[str, int]:
-        """Get vocabulary statistics.
-
-        Returns:
-            Dictionary with vocabulary statistics
-        """
-        all_tokens: set[int] = set()
-        for tokens in self._tokens:
-            all_tokens.update(tokens.tolist())
-
-        return {
-            "unique_tokens": len(all_tokens),
-            "vocab_coverage": len(all_tokens) / self.vocab_size,
-            "total_sequences": self.dataset_size,
-            "max_length": self.max_length,
-        }
-
-
-class SimpleTextDataset(TextDataset):
-    """Simple text dataset from list of strings."""
-
-    def __init__(
-        self,
-        config: ModalityConfig,
-        texts: list[str],
-        split: str = "train",
-        *,
-        rngs: nnx.Rngs,
-    ):
-        """Initialize simple text dataset.
-
-        Args:
-            config: Text modality configuration (ModalityConfig)
-            texts: List of text strings
-            split: Dataset split
-            rngs: Random number generators
-        """
-        super().__init__(config, split, rngs=rngs)
-        self.texts = texts
-        self._preprocess_texts()
-
-    def _preprocess_texts(self):
-        """Preprocess texts into token sequences."""
-        self._tokens = []
-        for text in self.texts:
-            tokens = self._simple_tokenize(text)
-            self._tokens.append(tokens)
-
-    def _simple_tokenize(self, text: str) -> jax.Array:
-        """Simple tokenization.
-
-        Args:
-            text: Input text
-
-        Returns:
-            Token sequence
-        """
-        if not self.case_sensitive:
-            text = text.lower()
-
-        words = text.strip().split()
-        tokens = [self.bos_token_id]
-
-        for word in words:
-            token_id = hash(word) % (self.vocab_size - 4) + 4
-            tokens.append(token_id)
-
-        tokens.append(self.eos_token_id)
-
-        # Pad or truncate
-        if len(tokens) > self.max_length:
-            tokens = tokens[: self.max_length]
-        else:
-            tokens.extend([self.pad_token_id] * (self.max_length - len(tokens)))
-
-        return jnp.array(tokens, dtype=jnp.int32)
-
-    def __len__(self) -> int:
-        """Return dataset size."""
-        return len(self.texts)
-
-    def __iter__(self) -> Iterator[dict[str, jax.Array]]:
-        """Iterate over dataset samples."""
-        for i, text in enumerate(self.texts):
-            yield {
-                "text_tokens": self._tokens[i],
-                "text": text,
-                "index": jnp.array(i, dtype=jnp.int32),
-            }
-
-    def get_batch(self, batch_size: int) -> dict[str, jax.Array]:
-        """Get a batch of samples.
-
-        Args:
-            batch_size: Number of samples in batch
-
-        Returns:
-            Batch dictionary
-        """
-        key = self.rngs.sample()
-
-        indices = jax.random.randint(key, (batch_size,), 0, len(self.texts))
-
-        batch_tokens = jnp.stack([self._tokens[int(idx)] for idx in indices])
-        batch_texts = [self.texts[int(idx)] for idx in indices]
-
-        return {
-            "text_tokens": batch_tokens,
-            "texts": batch_texts,
-            "indices": indices,
-        }
+        for text in texts
+    ]
+
+    return {
+        "text_tokens": jnp.stack(tokens),
+        "index": jnp.arange(num_samples, dtype=jnp.int32),
+    }
+
+
+def generate_text_from_strings(
+    texts: list[str],
+    *,
+    vocab_size: int = 10000,
+    max_length: int = 512,
+    pad_token_id: int = 0,
+    bos_token_id: int = 2,
+    eos_token_id: int = 3,
+    case_sensitive: bool = False,
+) -> dict[str, jnp.ndarray]:
+    """Generate token data from a list of text strings.
+
+    Args:
+        texts: List of text strings.
+        vocab_size: Size of the vocabulary.
+        max_length: Maximum sequence length.
+        pad_token_id: Token ID for padding.
+        bos_token_id: Token ID for beginning of sequence.
+        eos_token_id: Token ID for end of sequence.
+        case_sensitive: Whether tokenization is case-sensitive.
+
+    Returns:
+        Dictionary with 'text_tokens' and 'index' arrays.
+    """
+    tokens = [
+        simple_tokenize(
+            text,
+            vocab_size=vocab_size,
+            max_length=max_length,
+            pad_token_id=pad_token_id,
+            bos_token_id=bos_token_id,
+            eos_token_id=eos_token_id,
+            case_sensitive=case_sensitive,
+        )
+        for text in texts
+    ]
+
+    return {
+        "text_tokens": jnp.stack(tokens),
+        "index": jnp.arange(len(texts), dtype=jnp.int32),
+    }
+
+
+# ---------------------------------------------------------------------------
+# Factory functions — return MemorySource instances
+# ---------------------------------------------------------------------------
 
 
 def create_text_dataset(
-    config: ModalityConfig,
     dataset_type: str = "synthetic",
-    split: str = "train",
     *,
     rngs: nnx.Rngs,
-    **kwargs,
-) -> TextDataset:
-    """Factory function to create text datasets.
+    shuffle: bool = False,
+    **kwargs: Any,
+) -> MemorySource:
+    """Create a text dataset as a MemorySource.
 
     Args:
-        config: Text modality configuration
-        dataset_type: Type of dataset ('synthetic', 'simple')
-        split: Dataset split
-        rngs: Random number generators
-        **kwargs: Additional arguments for specific dataset types
+        dataset_type: Type of dataset ('synthetic', 'simple').
+        rngs: Random number generators.
+        shuffle: Whether to shuffle data on iteration.
+        **kwargs: Additional generation parameters.
+            For 'synthetic': dataset_size, vocab_size, max_length, pattern_type, etc.
+            For 'simple': texts (list[str]), vocab_size, max_length, etc.
 
     Returns:
-        Text dataset instance
+        MemorySource backed by generated text data.
+
+    Raises:
+        ValueError: If dataset_type is unknown.
     """
     if dataset_type == "synthetic":
-        return SyntheticTextDataset(
-            config=config,
-            split=split,
-            rngs=rngs,
-            **kwargs,
-        )
+        num_samples = kwargs.pop("dataset_size", kwargs.pop("num_samples", 1000))
+        data = generate_synthetic_text_data(num_samples, **kwargs)
     elif dataset_type == "simple":
-        texts = kwargs.get("texts", ["hello world", "machine learning", "deep learning"])
-        return SimpleTextDataset(
-            config=config,
-            texts=texts,
-            split=split,
-            rngs=rngs,
-        )
+        texts = kwargs.pop("texts", ["hello world", "machine learning", "deep learning"])
+        data = generate_text_from_strings(texts, **kwargs)
     else:
         raise ValueError(f"Unknown dataset type: {dataset_type}")
+
+    source_config = MemorySourceConfig(shuffle=shuffle)
+    return MemorySource(source_config, data, rngs=rngs)

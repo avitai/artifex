@@ -225,18 +225,17 @@ class TestTextMetricsUnifiedConfig:
         metric = BLEUMetric(rngs=rngs, config=config)
         real_texts, generated_texts = test_texts
 
-        # Valid inputs
-        assert metric.validate_inputs(real_texts, generated_texts)
+        # Valid inputs — should not raise
+        metric.validate_inputs(real_texts, generated_texts)
 
         # Invalid inputs - empty lists
-        assert not metric.validate_inputs([], [])
+        with pytest.raises(ValueError):
+            metric.validate_inputs([], [])
 
         # Invalid inputs - mismatched lengths
-        assert not metric.validate_inputs(real_texts, generated_texts[:1])
+        with pytest.raises(ValueError):
+            metric.validate_inputs(real_texts, generated_texts[:1])
 
         # Invalid inputs - non-string data
-        assert not metric.validate_inputs([1, 2, 3], ["text"])
-
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+        with pytest.raises(ValueError):
+            metric.validate_inputs([1, 2, 3], ["text"])

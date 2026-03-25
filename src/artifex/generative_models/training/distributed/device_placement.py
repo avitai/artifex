@@ -18,9 +18,10 @@ Performance Guidelines (per JAX guide):
 
 from __future__ import annotations
 
+from collections.abc import Iterator
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Iterator
+from typing import Any
 
 import jax
 import numpy as np

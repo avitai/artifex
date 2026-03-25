@@ -1,12 +1,9 @@
 """Utilities for protein modality.
 
-This module provides utility functions for creating and working with
-protein-specific modality components.
+This module provides adapter lookup helpers around the shared model-family
+boundary used by the retained protein modality surface.
 """
 
-from typing import Type
-
-from artifex.generative_models.core.base import GenerativeModel
 from artifex.generative_models.modalities.base import ModelAdapter
 from artifex.generative_models.modalities.protein.adapters import (
     ProteinDiffusionAdapter,
@@ -16,9 +13,12 @@ from artifex.generative_models.modalities.protein.adapters import (
 
 
 def get_protein_adapter(
-    model_cls: str | Type[GenerativeModel] | None = None,
+    model_cls: str | type[object] | None = None,
 ) -> ModelAdapter:
     """Get the appropriate protein adapter for a model class or name.
+
+    This lookup preserves the shared model-family boundary; it does not imply
+    automatic class swapping inside the factory.
 
     Args:
         model_cls: The model class to adapt or adapter name to get.

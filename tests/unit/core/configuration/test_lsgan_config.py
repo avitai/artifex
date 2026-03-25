@@ -716,7 +716,6 @@ class TestLSGANConfigEdgeCases:
             hidden_dims=(128, 256, 512, 1024),
             activation="silu",
             leaky_relu_slope=0.3,
-            use_spectral_norm=True,
             dropout_rate=0.2,
             kernel_size=(4, 4),
             stride=(2, 2),
@@ -740,5 +739,5 @@ class TestLSGANConfigEdgeCases:
         assert config.discriminator.input_shape == (64, 64, 3)
         assert config.discriminator.hidden_dims == (128, 256, 512, 1024)
         assert config.discriminator.activation == "silu"
-        assert config.discriminator.use_spectral_norm is True
+        assert config.discriminator.leaky_relu_slope == 0.3
         assert config.discriminator.dropout_rate == 0.2

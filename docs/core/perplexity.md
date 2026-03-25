@@ -1,53 +1,19 @@
 # Perplexity
 
-**Module:** `generative_models.core.evaluation.metrics.text.perplexity`
+`Perplexity` lives in
+`artifex.generative_models.core.evaluation.metrics.text.perplexity`.
 
-**Source:** `generative_models/core/evaluation/metrics/text/perplexity.py`
+## Current Contract
 
-## Overview
+- accepts a caller-supplied callable `model` when you want the metric to
+  compute log probabilities from token inputs
+- also supports direct `log_probs` input at compute time when the caller
+  already owns the language-model forward pass
+- lower perplexity remains better
 
-Perplexity metric implementation using JAX and NNX.
-
-Perplexity is a common evaluation metric for language models that measures
-how well a probability model predicts a sample. Lower perplexity indicates
-better prediction performance.
-
-## Classes
-
-### Perplexity
+## Example
 
 ```python
-class Perplexity
+metric = Perplexity(model=language_model, batch_size=32, rngs=nnx.Rngs(0))
+result = metric.compute(inputs=token_ids)
 ```
-
-## Functions
-
-### **init**
-
-```python
-def __init__()
-```
-
-### calculate_perplexity
-
-```python
-def calculate_perplexity()
-```
-
-### compute
-
-```python
-def compute()
-```
-
-### compute_log_probs
-
-```python
-def compute_log_probs()
-```
-
-## Module Statistics
-
-- **Classes:** 1
-- **Functions:** 4
-- **Imports:** 5

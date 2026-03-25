@@ -1,4 +1,4 @@
-"""Tests for artifex.generative_models.core.evaluation.benchmarks.base module."""
+"""Tests for the benchmark foundation surface under artifex.benchmarks.core."""
 
 import os
 import tempfile
@@ -9,13 +9,7 @@ import jax.numpy as jnp
 import pytest
 from tests.utils.test_models import MockModel
 
-from artifex.generative_models.core.evaluation.benchmarks.base import (
-    Benchmark,
-)
-from artifex.generative_models.core.evaluation.benchmarks.types import (
-    BenchmarkConfig,
-    BenchmarkResult,
-)
+from artifex.benchmarks.core import Benchmark, BenchmarkConfig, BenchmarkResult
 
 
 class TestBenchmarkConfig:

@@ -1,44 +1,44 @@
-# Validation
+# Configuration Validation Helpers
 
-**Module:** `generative_models.core.configuration.validation`
-
-**Source:** `generative_models/core/configuration/validation.py`
+Supported owner: `artifex.generative_models.core.configuration.validation`
 
 ## Overview
 
-Centralized configuration validation utilities.
+This module contains low-level validation helpers used by typed config
+Dataclasses in their `__post_init__` hooks. It is not a high-level
+compatibility or migration layer.
 
-This module provides shared validation functions to eliminate duplication
-across the codebase and ensure consistent error handling.
+## Retained Helpers
 
-## Functions
+The live module currently provides helpers such as:
 
-### ensure_model_configuration_compatibility
+- `validate_positive_int`
+- `validate_non_negative_int`
+- `validate_positive_float`
+- `validate_non_negative_float`
+- `validate_positive_tuple`
+- `validate_positive_int_tuple`
+- `validate_dropout_rate`
+- `validate_probability`
+- `validate_range`
+- `validate_learning_rate`
+- `validate_activation`
 
-```python
-def ensure_model_configuration_compatibility()
-```
-
-### validate_base_configuration
-
-```python
-def validate_base_configuration()
-```
-
-### validate_configuration_type
-
-```python
-def validate_configuration_type()
-```
-
-### validate_model_configuration
+## Typical Imports
 
 ```python
-def validate_model_configuration()
+from artifex.generative_models.core.configuration.validation import (
+    validate_activation,
+    validate_non_negative_float,
+    validate_positive_int,
+)
 ```
 
-## Module Statistics
+Use these helpers inside concrete config classes instead of reviving deleted
+compatibility shims.
 
-- **Classes:** 0
-- **Functions:** 4
-- **Imports:** 2
+## Related Pages
+
+- [Configuration Overview](configuration.md)
+- [Unified Configuration Backend](unified.md)
+- [API Configuration Reference](../api/core/configuration.md)

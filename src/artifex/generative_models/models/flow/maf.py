@@ -4,7 +4,8 @@ Based on the paper "Masked Autoregressive Flow for Density Estimation" by Papama
 Reference implementations from benchmark_VAE and other sources are used as guidance.
 """
 
-from typing import Any, Sequence
+from collections.abc import Sequence
+from typing import Any
 
 import jax
 import jax.numpy as jnp

@@ -3,7 +3,7 @@
 This module provides ResNet and Bottleneck block implementations using the latest Flax NNX API.
 """
 
-from typing import Callable, Sequence
+from collections.abc import Callable, Sequence
 
 import jax
 from flax import nnx

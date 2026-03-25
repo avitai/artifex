@@ -7,11 +7,12 @@ The signature should be:
     EBM(config: EBMConfig, *, rngs: nnx.Rngs)
 
 NOT:
-    EBM(config: ModelConfig, *, rngs, energy_fn, ...)
+    EBM(config: legacy catch-all config, *, rngs, energy_fn, ...)
 
 Following TDD - these tests define the expected behavior.
 """
 
+import dataclasses
 import inspect
 
 import pytest
@@ -24,6 +25,14 @@ from artifex.generative_models.core.configuration.energy_config import (
     MCMCConfig,
     SampleBufferConfig,
 )
+
+
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
+class LegacyModelConfig:
+    """Minimal legacy catch-all config used for rejection tests."""
+
+    name: str
+    model_class: str
 
 
 # =============================================================================
@@ -255,17 +264,12 @@ class TestEBMErrorHandling:
     """Test error handling in EBM model."""
 
     def test_reject_model_configuration(self, rngs):
-        """Test that ModelConfig is rejected."""
-        from artifex.generative_models.core.configuration import ModelConfig
+        """Test that generic model_class-driven configs are rejected."""
         from artifex.generative_models.models.energy.ebm import EBM
 
-        # Old-style Pydantic config should be rejected
-        old_config = ModelConfig(
+        old_config = LegacyModelConfig(
             name="test",
             model_class="test",
-            input_dim=10,
-            hidden_dims=[32, 64],
-            output_dim=1,
         )
 
         with pytest.raises(TypeError):

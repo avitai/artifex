@@ -1,131 +1,39 @@
-# Blackjax Samplers
+# BlackJAX Samplers
 
-**Module:** `generative_models.core.sampling.blackjax_samplers`
+**Module:** `artifex.generative_models.core.sampling.blackjax_samplers`
 
-**Source:** `generative_models/core/sampling/blackjax_samplers.py`
+**Source:** `src/artifex/generative_models/core/sampling/blackjax_samplers.py`
 
 ## Overview
 
-BlackJAX integration module.
+Artifex keeps BlackJAX as the canonical MCMC engine. The Artifex helper layer is
+now intentionally thin: it prepares scalar joint log-density callables, manages
+burn-in and thinning loops, and requires explicit RNG ownership from the caller.
 
-This module provides integration with BlackJAX, a library of samplers
-for JAX. It allows using BlackJAX's advanced MCMC samplers with our
-distribution framework.
+Pass an explicit JAX key or `nnx.Rngs` to every public sampling helper. The
+wrapper layer does not fabricate fallback keys, and the sampler constructors do
+not own hidden RNG state.
 
-## Classes
+## Public Helper Contract
 
-### BlackJAXHMC
+- `hmc_sampling(...)` exposes live HMC controls: `step_size`,
+  `num_integration_steps`, `inverse_mass_matrix`, and `thinning`.
+- `nuts_sampling(...)` exposes live NUTS controls: `step_size`,
+  `inverse_mass_matrix`, and `thinning`.
+- `mala_sampling(...)` exposes live MALA controls: `step_size` and `thinning`.
+- Passing a `Distribution` uses its `log_prob(...)` output as the log-density
+  owner and collapses non-scalar outputs to one scalar joint log probability.
 
-```python
-class BlackJAXHMC
-```
+## Class Contract
 
-### BlackJAXMALA
+`BlackJAXHMC`, `BlackJAXNUTS`, and `BlackJAXMALA` are thin stateful wrappers over
+BlackJAX kernels. They prepare kernels and states, but they do not accept hidden
+constructor-level RNG knobs. Sampling keys are supplied explicitly to `init(...)`
+and advanced through `step(...)`.
 
-```python
-class BlackJAXMALA
-```
+## When To Use Direct BlackJAX
 
-### BlackJAXNUTS
-
-```python
-class BlackJAXNUTS
-```
-
-### BlackJAXSamplerState
-
-```python
-class BlackJAXSamplerState
-```
-
-## Functions
-
-### **init**
-
-```python
-def __init__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### ensure_scalar_log_prob
-
-```python
-def ensure_scalar_log_prob()
-```
-
-### hmc_sampling
-
-```python
-def hmc_sampling()
-```
-
-### init
-
-```python
-def init()
-```
-
-### init
-
-```python
-def init()
-```
-
-### init
-
-```python
-def init()
-```
-
-### mala_sampling
-
-```python
-def mala_sampling()
-```
-
-### nuts_sampling
-
-```python
-def nuts_sampling()
-```
-
-### scalar_log_prob
-
-```python
-def scalar_log_prob()
-```
-
-### step
-
-```python
-def step()
-```
-
-### step
-
-```python
-def step()
-```
-
-### step
-
-```python
-def step()
-```
-
-## Module Statistics
-
-- **Classes:** 4
-- **Functions:** 14
-- **Imports:** 7
+Use the direct BlackJAX API when you need engine-specific tuning or richer
+per-step diagnostics than the Artifex helper layer publishes. Use the Artifex
+helpers when the thinner public surface is sufficient and you want a fully owned
+burn-in and thinning loop.

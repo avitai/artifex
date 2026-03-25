@@ -29,16 +29,20 @@ artifex/
 │   │   ├── audio/          # Audio models (WaveNet)
 │   │   └── backbones/      # Shared architectures
 │   ├── modalities/         # Multi-modal support
-│   ├── training/           # Training infrastructure
+│   ├── training/           # Training infrastructure and RL fine-tuning helpers
+│   │   ├── rl/             # Policy-gradient and preference-optimization trainers
 │   ├── inference/          # Generation and serving
 │   ├── factory/            # Model creation
 │   ├── extensions/         # Domain-specific extensions
-│   ├── fine_tuning/        # LoRA, adapters, RL
 │   ├── scaling/            # Distributed training
-│   └── zoo/                # Pre-configured models
+│   └── zoo/                # Retired preset compatibility boundary
 ├── utils/                  # Shared utilities
 └── visualization/          # Plotting and visualization
 ```
+
+Current fine-tuning support lives under `generative_models/training/rl` as
+RL fine-tuning helpers; there is no separate `artifex.generative_models.fine_tuning`
+package in the shipped runtime.
 
 ## Core Design Patterns
 
@@ -113,7 +117,7 @@ The factory:
 
 - **protocols/**: Interface definitions for models, trainers, data loaders
 - **configuration/**: Frozen dataclass configs for all model types
-- **losses/**: Composable loss functions (MSE, adversarial, perceptual)
+- **losses/**: Functional loss primitives (MSE, adversarial, perceptual)
 - **sampling/**: MCMC, ancestral, ODE/SDE samplers
 - **distributions/**: Probability distributions for generative modeling
 - **evaluation/**: Metrics and benchmarks
@@ -194,17 +198,14 @@ Latent Space → Model.generate() → Samples → Post-processing
 1. Create directory in `modalities/`
 2. Implement datasets, evaluation, representations
 3. Register in modality factory
-4. Add comprehensive tests
+4. Add complete tests
 
 ### Custom Losses
 
 ```python
-from artifex.generative_models.core.losses import CompositeLoss, WeightedLoss
-
-custom_loss = CompositeLoss([
-    WeightedLoss(mse_loss, weight=1.0, name="reconstruction"),
-    WeightedLoss(custom_fn, weight=0.1, name="custom"),
-])
+reconstruction_loss = mse_loss(predictions, targets)
+custom_loss = custom_fn(predictions, targets)
+total_loss = reconstruction_loss + 0.1 * custom_loss
 ```
 
 ## Hardware Management

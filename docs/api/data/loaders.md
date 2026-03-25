@@ -1,6 +1,23 @@
 # Data API Reference
 
-Complete API reference for Artifex's data loading system, including datasets, modalities, and utility functions.
+API reference for Artifex's data loading system. All datasets use datarax `MemorySource` as the data container. Pure data generation functions produce dictionaries of arrays, and factory functions wrap those dictionaries in `MemorySource` instances for pipeline integration.
+
+## Design Overview
+
+The dataset API follows a two-layer design:
+
+1. **Pure generation functions** produce `dict[str, jnp.ndarray]` from parameters. They have no side effects and do not depend on datarax.
+2. **Factory functions** call the generation functions and wrap the result in a `MemorySource`. They accept `rngs: nnx.Rngs` and return a `MemorySource` (or a tuple when additional config is needed).
+
+`MemorySource` provides `__len__`, `__getitem__`, `__iter__`, and `get_batch`. To build a training pipeline, pass the source to `datarax.from_source`:
+
+```python
+import datarax
+from flax import nnx
+
+source = create_image_dataset(rngs=nnx.Rngs(0))
+pipeline = datarax.from_source(source, batch_size=32)
+```
 
 ## Core Protocols
 
@@ -66,7 +83,7 @@ class ModelAdapter(Protocol):
         """Create a model with modality-specific adaptations.
 
         Args:
-            config: Model configuration (must be ModelConfig)
+            config: Typed model configuration accepted by the factory surface
             rngs: Random number generator keys
             **kwargs: Additional keyword arguments for model creation
 
@@ -76,273 +93,86 @@ class ModelAdapter(Protocol):
         ...
 ```
 
-### `BaseDataset`
-
-Abstract base class for all datasets.
-
-```python
-class BaseDataset(nnx.Module, ABC):
-    """Abstract base class for modality datasets."""
-
-    def __init__(
-        self,
-        config: BaseModalityConfig,
-        split: str = "train",
-        *,
-        rngs: nnx.Rngs,
-    ):
-        """Initialize dataset.
-
-        Args:
-            config: Modality configuration
-            split: Dataset split ('train', 'val', 'test')
-            rngs: Random number generators
-        """
-        ...
-
-    @abstractmethod
-    def __len__(self) -> int:
-        """Return dataset size."""
-        ...
-
-    @abstractmethod
-    def __iter__(self) -> Iterator[dict[str, jax.Array]]:
-        """Iterate over dataset samples."""
-        ...
-
-    @abstractmethod
-    def get_batch(self, batch_size: int) -> dict[str, jax.Array]:
-        """Get a batch of samples.
-
-        Args:
-            batch_size: Number of samples in batch
-
-        Returns:
-            Batch dictionary with modality-specific data
-        """
-        ...
-
-    def get_sample(self, index: int) -> dict[str, jax.Array]:
-        """Get a single sample by index.
-
-        Args:
-            index: Sample index
-
-        Returns:
-            Sample data
-
-        Raises:
-            IndexError: If index is out of range
-        """
-        ...
-
-    def get_data_statistics(self) -> dict[str, Any]:
-        """Get dataset statistics.
-
-        Returns:
-            Dictionary with dataset statistics
-        """
-        ...
-```
+---
 
 ## Image Modality
 
-### `ImageModalityConfig`
+Module: `artifex.generative_models.modalities.image.datasets`
 
-Configuration for image modality processing.
+### `generate_synthetic_images`
 
-```python
-@dataclass
-class ImageModalityConfig:
-    """Configuration for image modality processing."""
-
-    representation: ImageRepresentation = ImageRepresentation.RGB
-    height: int = 64
-    width: int | None = None
-    channels: int | None = None
-    normalize: bool = True
-    augmentation: bool = False
-    resize_method: str = "bilinear"
-
-    def __post_init__(self):
-        """Set defaults and validate configuration."""
-        ...
-```
-
-**Parameters:**
-
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `representation` | `ImageRepresentation` | `RGB` | Image representation format (RGB, RGBA, GRAYSCALE) |
-| `height` | `int` | `64` | Image height in pixels |
-| `width` | `int \| None` | `None` | Image width in pixels (defaults to height for square images) |
-| `channels` | `int \| None` | `None` | Number of channels (auto-determined if None) |
-| `normalize` | `bool` | `True` | Whether to normalize pixel values to [0, 1] |
-| `augmentation` | `bool` | `False` | Whether to enable data augmentation |
-| `resize_method` | `str` | `"bilinear"` | Method for resizing ('bilinear', 'nearest') |
-
-### `ImageModality`
-
-Base image modality class providing unified interface for image generation.
+Generate synthetic image data as a plain dictionary.
 
 ```python
-class ImageModality(GenerativeModel):
-    """Base image modality class."""
+def generate_synthetic_images(
+    num_samples: int,
+    *,
+    height: int = 64,
+    width: int = 64,
+    channels: int = 3,
+    pattern_type: str = "random",
+) -> dict[str, jnp.ndarray]:
+    """Generate synthetic image data.
 
-    name = "image"
+    Args:
+        num_samples: Number of images to generate.
+        height: Image height in pixels.
+        width: Image width in pixels.
+        channels: Number of color channels.
+        pattern_type: Pattern for generation
+            ('random', 'gradient', 'checkerboard', 'circles').
 
-    def __init__(
-        self,
-        config: ImageModalityConfig | None = None,
-        *,
-        rngs: nnx.Rngs,
-    ):
-        """Initialize image modality.
+    Returns:
+        Dictionary with 'images' array of shape (num_samples, H, W, C).
 
-        Args:
-            config: Image modality configuration
-            rngs: Random number generators
-        """
-        ...
-
-    @property
-    def image_shape(self) -> tuple[int, int, int]:
-        """Image shape (height, width, channels)."""
-        ...
-
-    @property
-    def output_shape(self) -> tuple[int, int, int]:
-        """Output shape for generated images."""
-        ...
-
-    def generate(
-        self,
-        n_samples: int = 1,
-        height: int | None = None,
-        width: int | None = None,
-        *,
-        rngs: nnx.Rngs | None = None,
-        **kwargs,
-    ) -> jax.Array:
-        """Generate image samples.
-
-        Args:
-            n_samples: Number of image samples to generate
-            height: Height override (uses config default if None)
-            width: Width override (uses config default if None)
-            rngs: Random number generators
-            **kwargs: Additional generation parameters
-
-        Returns:
-            Generated image array of shape (n_samples, height, width, channels)
-        """
-        ...
-
-    def process(self, data: jax.Array, **kwargs) -> jax.Array:
-        """Process image data for multi-modal fusion.
-
-        Args:
-            data: Image data with shape (height, width, channels) or
-                  (batch, height, width, channels)
-            **kwargs: Additional processing arguments
-
-        Returns:
-            Processed image features as flattened array
-        """
-        ...
-```
-
-### `SyntheticImageDataset`
-
-Synthetic image dataset for testing and development.
-
-```python
-class SyntheticImageDataset(ImageDataset):
-    """Synthetic image dataset."""
-
-    def __init__(
-        self,
-        config: ImageModalityConfig,
-        dataset_size: int = 1000,
-        pattern_type: str = "random",
-        split: str = "train",
-        *,
-        rngs: nnx.Rngs,
-    ):
-        """Initialize synthetic image dataset.
-
-        Args:
-            config: Image modality configuration
-            dataset_size: Number of synthetic samples
-            pattern_type: Type of pattern to generate
-                ('random', 'gradient', 'checkerboard', 'circles')
-            split: Dataset split
-            rngs: Random number generators
-        """
-        ...
-
-    def get_batch(self, batch_size: int) -> dict[str, jax.Array]:
-        """Generate a batch of synthetic images.
-
-        Args:
-            batch_size: Number of images to generate
-
-        Returns:
-            Batch dictionary with 'images' key
-        """
-        ...
+    Raises:
+        ValueError: If height, width, or channels is non-positive.
+        ValueError: If pattern_type is unknown.
+    """
 ```
 
 **Pattern Types:**
 
-- `"random"`: Random noise patterns
-- `"gradient"`: Linear gradients with varying directions
-- `"checkerboard"`: Checkerboard patterns with random sizes
-- `"circles"`: Circular patterns with random positions/radii
+| Pattern | Description |
+|---------|-------------|
+| `"random"` | Random noise patterns |
+| `"gradient"` | Linear gradients with varying directions |
+| `"checkerboard"` | Checkerboard patterns with random sizes |
+| `"circles"` | Circular patterns with random positions and radii |
 
-### `MNISTLikeDataset`
+### `generate_mnist_like_images`
 
-MNIST-like synthetic dataset for digit-like patterns.
+Generate MNIST-like digit pattern data as a plain dictionary.
 
 ```python
-class MNISTLikeDataset(ImageDataset):
-    """MNIST-like synthetic dataset."""
+def generate_mnist_like_images(
+    num_samples: int,
+    *,
+    height: int = 28,
+    width: int = 28,
+    channels: int = 1,
+    num_classes: int = 10,
+) -> dict[str, jnp.ndarray]:
+    """Generate MNIST-like digit pattern data.
 
-    def __init__(
-        self,
-        config: ImageModalityConfig,
-        dataset_size: int = 1000,
-        num_classes: int = 10,
-        split: str = "train",
-        *,
-        rngs: nnx.Rngs,
-    ):
-        """Initialize MNIST-like dataset.
+    Args:
+        num_samples: Number of images to generate.
+        height: Image height in pixels.
+        width: Image width in pixels.
+        channels: Number of color channels.
+        num_classes: Number of digit classes.
 
-        Args:
-            config: Image modality configuration (should be grayscale, 28x28)
-            dataset_size: Number of synthetic samples
-            num_classes: Number of classes to generate
-            split: Dataset split
-            rngs: Random number generators
-        """
-        ...
+    Returns:
+        Dictionary with 'images' and 'labels' arrays.
 
-    def get_batch(self, batch_size: int) -> dict[str, jax.Array]:
-        """Generate a batch of digit-like images with labels.
-
-        Args:
-            batch_size: Number of images to generate
-
-        Returns:
-            Batch dictionary with 'images' and 'labels' keys
-        """
-        ...
+    Raises:
+        ValueError: If height, width, or channels is non-positive.
+    """
 ```
 
 ### `create_image_dataset`
 
-Factory function to create image datasets.
+Factory function returning a `MemorySource` of image data.
 
 ```python
 def create_image_dataset(
@@ -350,674 +180,828 @@ def create_image_dataset(
     config: ImageModalityConfig | None = None,
     *,
     rngs: nnx.Rngs,
-    **kwargs,
-) -> ImageDataset:
-    """Factory function to create image datasets.
+    shuffle: bool = False,
+    **kwargs: Any,
+) -> MemorySource:
+    """Create an image dataset as a MemorySource.
 
     Args:
-        dataset_type: Type of dataset ('synthetic', 'mnist_like')
-        config: Image modality configuration
-        rngs: Random number generators
-        **kwargs: Additional dataset parameters
+        dataset_type: Type of dataset ('synthetic', 'mnist_like').
+        config: Optional modality configuration. If provided,
+            height/width/channels are extracted from it.
+        rngs: Random number generators.
+        shuffle: Whether to shuffle data on iteration.
+        **kwargs: Additional generation parameters
+            (height, width, channels, dataset_size, pattern_type, num_classes).
 
     Returns:
-        Created dataset instance
+        MemorySource backed by generated image data.
 
     Raises:
-        ValueError: If dataset_type is unknown
+        ValueError: If dataset_type is unknown.
     """
-    ...
 ```
+
+**Usage:**
+
+```python
+from flax import nnx
+from artifex.generative_models.modalities.image.datasets import create_image_dataset
+
+rngs = nnx.Rngs(0)
+
+# Synthetic random images
+source = create_image_dataset(
+    dataset_type="synthetic",
+    rngs=rngs,
+    height=32,
+    width=32,
+    channels=3,
+    dataset_size=500,
+    pattern_type="gradient",
+)
+
+# MNIST-like digit patterns
+source = create_image_dataset(
+    dataset_type="mnist_like",
+    rngs=rngs,
+    height=28,
+    width=28,
+    channels=1,
+    num_classes=10,
+    dataset_size=1000,
+)
+
+batch = source.get_batch(32)
+print(batch["images"].shape)  # (32, 28, 28, 1)
+```
+
+---
 
 ## Text Modality
 
-### `TextDataset`
+Module: `artifex.generative_models.modalities.text.datasets`
 
-Base class for text datasets.
+### `simple_tokenize`
+
+Hash-based tokenization of a text string into a fixed-length token array.
 
 ```python
-class TextDataset(nnx.Module):
-    """Base class for text datasets."""
+def simple_tokenize(
+    text: str,
+    *,
+    vocab_size: int = 10000,
+    max_length: int = 512,
+    pad_token_id: int = 0,
+    bos_token_id: int = 2,
+    eos_token_id: int = 3,
+    case_sensitive: bool = False,
+) -> jnp.ndarray:
+    """Simple hash-based tokenization.
 
-    def __init__(
-        self,
-        config: ModalityConfiguration,
-        split: str = "train",
-        *,
-        rngs: nnx.Rngs,
-    ):
-        """Initialize text dataset.
+    Args:
+        text: Input text string.
+        vocab_size: Size of the vocabulary.
+        max_length: Maximum sequence length.
+        pad_token_id: Token ID for padding.
+        bos_token_id: Token ID for beginning of sequence.
+        eos_token_id: Token ID for end of sequence.
+        case_sensitive: Whether tokenization is case-sensitive.
 
-        Args:
-            config: Text modality configuration (ModalityConfiguration)
-            split: Dataset split ('train', 'val', 'test')
-            rngs: Random number generators
-        """
-        ...
-
-    def __len__(self) -> int:
-        """Return dataset size."""
-        ...
-
-    def __iter__(self) -> Iterator[dict[str, jax.Array]]:
-        """Iterate over dataset samples."""
-        ...
-
-    def get_batch(self, batch_size: int) -> dict[str, jax.Array]:
-        """Get a batch of samples.
-
-        Args:
-            batch_size: Number of samples in batch
-
-        Returns:
-            Batch dictionary with 'text_tokens' and potentially 'labels'
-        """
-        ...
+    Returns:
+        Token IDs as JAX array of shape (max_length,).
+    """
 ```
 
-**Text Parameters (in config.metadata["text_params"]):**
+### `generate_synthetic_text_data`
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `vocab_size` | `int` | `10000` | Vocabulary size |
-| `max_length` | `int` | `512` | Maximum sequence length |
-| `pad_token_id` | `int` | `0` | Padding token ID |
-| `unk_token_id` | `int` | `1` | Unknown token ID |
-| `bos_token_id` | `int` | `2` | Beginning-of-sequence token ID |
-| `eos_token_id` | `int` | `3` | End-of-sequence token ID |
-| `case_sensitive` | `bool` | `False` | Whether to preserve case |
-
-### `SyntheticTextDataset`
-
-Synthetic text dataset for testing and development.
+Generate synthetic text data with token sequences.
 
 ```python
-class SyntheticTextDataset(TextDataset):
-    """Synthetic text dataset."""
+def generate_synthetic_text_data(
+    num_samples: int,
+    *,
+    vocab_size: int = 10000,
+    max_length: int = 512,
+    pattern_type: str = "random_sentences",
+    pad_token_id: int = 0,
+    bos_token_id: int = 2,
+    eos_token_id: int = 3,
+    case_sensitive: bool = False,
+) -> dict[str, Any]:
+    """Generate synthetic text data with token sequences.
 
-    def __init__(
-        self,
-        config: ModalityConfiguration,
-        dataset_size: int = 1000,
-        pattern_type: str = "random_sentences",
-        split: str = "train",
-        *,
-        rngs: nnx.Rngs,
-    ):
-        """Initialize synthetic text dataset.
+    Args:
+        num_samples: Number of text samples.
+        vocab_size: Size of the vocabulary.
+        max_length: Maximum sequence length.
+        pattern_type: Text generation pattern
+            ('random_sentences', 'repeated_phrases', 'sequences', 'palindromes').
+        pad_token_id: Token ID for padding.
+        bos_token_id: Token ID for beginning of sequence.
+        eos_token_id: Token ID for end of sequence.
+        case_sensitive: Whether tokenization is case-sensitive.
 
-        Args:
-            config: Text modality configuration (ModalityConfiguration)
-            dataset_size: Number of synthetic samples
-            pattern_type: Type of pattern to generate
-                ('random_sentences', 'repeated_phrases', 'sequences', 'palindromes')
-            split: Dataset split
-            rngs: Random number generators
-        """
-        ...
-
-    def get_batch(self, batch_size: int) -> dict[str, jax.Array]:
-        """Get a batch of samples.
-
-        Args:
-            batch_size: Number of samples in batch
-
-        Returns:
-            Batch dictionary with text data
-        """
-        ...
-
-    def get_vocab_stats(self) -> dict[str, int]:
-        """Get vocabulary statistics.
-
-        Returns:
-            Dictionary with vocabulary statistics
-        """
-        ...
+    Returns:
+        Dictionary with 'text_tokens' array of shape (num_samples, max_length)
+        and 'index' array of shape (num_samples,).
+    """
 ```
 
 **Pattern Types:**
 
-- `"random_sentences"`: Simple subject-verb-adverb sentences
-- `"repeated_phrases"`: Repeated phrases for pattern testing
-- `"sequences"`: Numerical sequences
-- `"palindromes"`: Palindromic text patterns
+| Pattern | Description |
+|---------|-------------|
+| `"random_sentences"` | Simple subject-verb-adverb sentences |
+| `"repeated_phrases"` | Repeated phrases for pattern testing |
+| `"sequences"` | Numerical sequences |
+| `"palindromes"` | Palindromic text patterns |
 
-### `SimpleTextDataset`
+### `generate_text_from_strings`
 
-Simple text dataset from list of strings.
+Generate token data from a list of text strings.
 
 ```python
-class SimpleTextDataset(TextDataset):
-    """Simple text dataset from list of strings."""
+def generate_text_from_strings(
+    texts: list[str],
+    *,
+    vocab_size: int = 10000,
+    max_length: int = 512,
+    pad_token_id: int = 0,
+    bos_token_id: int = 2,
+    eos_token_id: int = 3,
+    case_sensitive: bool = False,
+) -> dict[str, jnp.ndarray]:
+    """Generate token data from a list of text strings.
 
-    def __init__(
-        self,
-        config: ModalityConfiguration,
-        texts: list[str],
-        split: str = "train",
-        *,
-        rngs: nnx.Rngs,
-    ):
-        """Initialize simple text dataset.
+    Args:
+        texts: List of text strings.
+        vocab_size: Size of the vocabulary.
+        max_length: Maximum sequence length.
+        pad_token_id: Token ID for padding.
+        bos_token_id: Token ID for beginning of sequence.
+        eos_token_id: Token ID for end of sequence.
+        case_sensitive: Whether tokenization is case-sensitive.
 
-        Args:
-            config: Text modality configuration (ModalityConfiguration)
-            texts: List of text strings
-            split: Dataset split
-            rngs: Random number generators
-        """
-        ...
+    Returns:
+        Dictionary with 'text_tokens' and 'index' arrays.
+    """
 ```
 
 ### `create_text_dataset`
 
-Factory function to create text datasets.
+Factory function returning a `MemorySource` of text data.
 
 ```python
 def create_text_dataset(
-    config: ModalityConfiguration,
     dataset_type: str = "synthetic",
-    split: str = "train",
     *,
     rngs: nnx.Rngs,
-    **kwargs,
-) -> TextDataset:
-    """Factory function to create text datasets.
+    shuffle: bool = False,
+    **kwargs: Any,
+) -> MemorySource:
+    """Create a text dataset as a MemorySource.
 
     Args:
-        config: Text modality configuration
-        dataset_type: Type of dataset ('synthetic', 'simple')
-        split: Dataset split
-        rngs: Random number generators
-        **kwargs: Additional arguments for specific dataset types
+        dataset_type: Type of dataset ('synthetic', 'simple').
+        rngs: Random number generators.
+        shuffle: Whether to shuffle data on iteration.
+        **kwargs: Additional generation parameters.
+            For 'synthetic': dataset_size, vocab_size, max_length, pattern_type, etc.
+            For 'simple': texts (list[str]), vocab_size, max_length, etc.
 
     Returns:
-        Text dataset instance
+        MemorySource backed by generated text data.
 
     Raises:
-        ValueError: If dataset_type is unknown
+        ValueError: If dataset_type is unknown.
     """
-    ...
 ```
+
+**Usage:**
+
+```python
+from flax import nnx
+from artifex.generative_models.modalities.text.datasets import create_text_dataset
+
+rngs = nnx.Rngs(0)
+
+# Synthetic text
+source = create_text_dataset(
+    dataset_type="synthetic",
+    rngs=rngs,
+    dataset_size=500,
+    vocab_size=5000,
+    max_length=128,
+    pattern_type="random_sentences",
+)
+
+# From raw strings
+source = create_text_dataset(
+    dataset_type="simple",
+    rngs=rngs,
+    texts=["hello world", "machine learning", "deep learning"],
+    vocab_size=5000,
+    max_length=64,
+)
+
+batch = source.get_batch(16)
+print(batch["text_tokens"].shape)  # (16, 64)
+```
+
+---
 
 ## Audio Modality
 
-### `AudioModalityConfig`
+Module: `artifex.generative_models.modalities.audio.datasets`
 
-Configuration for audio modality processing.
+### `generate_synthetic_audio`
 
-```python
-@dataclass
-class AudioModalityConfig:
-    """Configuration for audio modality processing."""
-
-    representation: AudioRepresentation = AudioRepresentation.RAW_WAVEFORM
-    sample_rate: int = 16000
-    n_mel_channels: int = 80
-    hop_length: int = 256
-    n_fft: int = 1024
-    duration: float = 2.0
-    normalize: bool = True
-```
-
-**Parameters:**
-
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `representation` | `AudioRepresentation` | `RAW_WAVEFORM` | Audio representation format |
-| `sample_rate` | `int` | `16000` | Audio sample rate in Hz |
-| `n_mel_channels` | `int` | `80` | Number of mel-spectrogram channels |
-| `hop_length` | `int` | `256` | Hop length for STFT/mel-spectrogram |
-| `n_fft` | `int` | `1024` | FFT size for spectral representations |
-| `duration` | `float` | `2.0` | Default audio duration in seconds |
-| `normalize` | `bool` | `True` | Whether to normalize audio values |
-
-### `AudioModality`
-
-Base audio modality class providing unified interface for audio generation.
+Generate synthetic audio waveform data as a plain dictionary.
 
 ```python
-class AudioModality(GenerativeModel):
-    """Base audio modality class."""
+def generate_synthetic_audio(
+    num_samples: int,
+    *,
+    sample_rate: int = 16000,
+    duration: float = 2.0,
+    normalize: bool = True,
+    audio_types: tuple[str, ...] = ("sine", "noise", "chirp"),
+) -> dict[str, jnp.ndarray]:
+    """Generate synthetic audio data.
 
-    def __init__(
-        self,
-        config: AudioModalityConfig | None = None,
-        *,
-        rngs: nnx.Rngs,
-    ):
-        """Initialize audio modality.
+    Args:
+        num_samples: Number of audio clips to generate.
+        sample_rate: Audio sample rate in Hz.
+        duration: Audio duration in seconds.
+        normalize: Whether to normalize audio values.
+        audio_types: Tuple of audio types to cycle through.
 
-        Args:
-            config: Audio modality configuration
-            rngs: Random number generators
-        """
-        ...
-
-    @property
-    def n_time_steps(self) -> int:
-        """Number of time steps for raw waveform."""
-        ...
-
-    @property
-    def n_time_frames(self) -> int:
-        """Number of time frames for spectral representations."""
-        ...
-
-    @property
-    def output_shape(self) -> tuple[int, ...]:
-        """Output shape for generated audio."""
-        ...
-
-    def generate(
-        self,
-        n_samples: int = 1,
-        duration: float | None = None,
-        *,
-        rngs: nnx.Rngs | None = None,
-        **kwargs,
-    ) -> jnp.ndarray:
-        """Generate audio samples.
-
-        Args:
-            n_samples: Number of audio samples to generate
-            duration: Duration override (uses config default if None)
-            rngs: Random number generators
-            **kwargs: Additional generation parameters
-
-        Returns:
-            Generated audio array
-        """
-        ...
-```
-
-### `SyntheticAudioDataset`
-
-Synthetic audio dataset for testing and benchmarking.
-
-```python
-class SyntheticAudioDataset(AudioDataset):
-    """Synthetic audio dataset."""
-
-    def __init__(
-        self,
-        config: AudioModalityConfig,
-        n_samples: int = 1000,
-        audio_types: list | None = None,
-        name: str = "SyntheticAudioDataset",
-    ):
-        """Initialize synthetic audio dataset.
-
-        Args:
-            config: Audio modality configuration
-            n_samples: Number of synthetic samples to generate
-            audio_types: Types of audio to generate ["sine", "noise", "chirp"]
-            name: Dataset name
-        """
-        ...
-
-    def __getitem__(self, idx: int) -> dict[str, jax.Array]:
-        """Get dataset item.
-
-        Args:
-            idx: Item index
-
-        Returns:
-            Dictionary containing 'audio' and optional metadata
-        """
-        ...
-
-    def collate_fn(
-        self,
-        batch: list[dict[str, jax.Array]]
-    ) -> dict[str, jax.Array]:
-        """Collate function for batching.
-
-        Args:
-            batch: List of dataset items
-
-        Returns:
-            Batched data dictionary
-        """
-        ...
+    Returns:
+        Dictionary with 'audio' array of shape (num_samples, n_time_steps).
+    """
 ```
 
 **Audio Types:**
 
-- `"sine"`: Sine waves with random frequencies (200-800 Hz)
-- `"noise"`: White Gaussian noise
-- `"chirp"`: Linear frequency sweeps
+| Type | Description |
+|------|-------------|
+| `"sine"` | Sine waves with random frequencies (200--800 Hz) |
+| `"noise"` | White Gaussian noise |
+| `"chirp"` | Linear frequency sweeps (200--800 Hz) |
 
 ### `create_audio_dataset`
 
-Factory function to create audio datasets.
+Factory function returning a `MemorySource` of audio data.
 
 ```python
 def create_audio_dataset(
     dataset_type: str = "synthetic",
     config: AudioModalityConfig | None = None,
-    **kwargs
-) -> AudioDataset:
-    """Factory function to create audio datasets.
+    *,
+    rngs: nnx.Rngs | None = None,
+    shuffle: bool = False,
+    **kwargs: Any,
+) -> MemorySource:
+    """Create an audio dataset as a MemorySource.
 
     Args:
-        dataset_type: Type of dataset to create ("synthetic")
-        config: Audio modality configuration
-        **kwargs: Additional dataset-specific parameters
+        dataset_type: Type of dataset to create ('synthetic').
+        config: Optional modality configuration. If provided,
+            sample_rate/duration/normalize are extracted from it.
+        rngs: Random number generators.
+        shuffle: Whether to shuffle data on iteration.
+        **kwargs: Additional generation parameters
+            (n_samples, sample_rate, duration, normalize, audio_types).
 
     Returns:
-        Audio dataset instance
+        MemorySource backed by generated audio data.
 
     Raises:
-        ValueError: If dataset_type is unknown
+        ValueError: If dataset_type is unknown.
     """
-    ...
 ```
+
+**Usage:**
+
+```python
+from flax import nnx
+from artifex.generative_models.modalities.audio.datasets import create_audio_dataset
+
+rngs = nnx.Rngs(0)
+
+source = create_audio_dataset(
+    dataset_type="synthetic",
+    rngs=rngs,
+    n_samples=200,
+    sample_rate=16000,
+    duration=1.0,
+    audio_types=("sine", "noise"),
+)
+
+batch = source.get_batch(8)
+print(batch["audio"].shape)  # (8, 16000)
+```
+
+---
 
 ## Multi-Modal
 
-### `MultiModalDataset`
+Module: `artifex.generative_models.modalities.multi_modal.datasets`
 
-Dataset containing multiple aligned modalities.
+### `generate_multi_modal_data`
 
-```python
-class MultiModalDataset(BaseDataset):
-    """Dataset containing multiple aligned modalities."""
-
-    def __init__(
-        self,
-        modalities: list[str],
-        num_samples: int,
-        image_shape: tuple[int, int, int] = (32, 32, 3),
-        text_vocab_size: int = 1000,
-        text_sequence_length: int = 50,
-        audio_sample_rate: int = 16000,
-        audio_duration: float = 1.0,
-        alignment_strength: float = 0.8,
-        *,
-        rngs: nnx.Rngs,
-    ):
-        """Initialize multi-modal dataset.
-
-        Args:
-            modalities: List of modality names to include
-            num_samples: Number of samples in the dataset
-            image_shape: Shape of image data
-            text_vocab_size: Vocabulary size for text
-            text_sequence_length: Length of text sequences
-            audio_sample_rate: Audio sampling rate
-            audio_duration: Audio clip duration in seconds
-            alignment_strength: How strongly modalities are aligned (0-1)
-            rngs: Random number generators
-        """
-        ...
-
-    def __getitem__(self, idx: int) -> dict[str, jax.Array]:
-        """Get a sample from the dataset.
-
-        Args:
-            idx: Sample index
-
-        Returns:
-            Dictionary containing data for each modality
-
-        Raises:
-            IndexError: If index is out of range
-        """
-        ...
-
-    def get_batch(self, batch_size: int) -> dict[str, jax.Array]:
-        """Get a batch of samples.
-
-        Args:
-            batch_size: Batch size
-
-        Returns:
-            Batch of multi-modal data
-        """
-        ...
-```
-
-### `MultiModalPairedDataset`
-
-Dataset with explicitly paired multi-modal data.
+Generate synthetic aligned multi-modal data as a plain dictionary.
 
 ```python
-class MultiModalPairedDataset(BaseDataset):
-    """Dataset with explicitly paired multi-modal data."""
+def generate_multi_modal_data(
+    modalities: tuple[str, ...],
+    num_samples: int,
+    *,
+    alignment_strength: float = 0.8,
+    image_shape: tuple[int, int, int] = (32, 32, 3),
+    text_vocab_size: int = 1000,
+    text_sequence_length: int = 50,
+    audio_sample_rate: int = 16000,
+    audio_duration: float = 1.0,
+) -> dict[str, jnp.ndarray]:
+    """Generate synthetic aligned multi-modal data.
 
-    def __init__(
-        self,
-        pairs: list[tuple[str, str]],
-        data: dict[str, jax.Array],
-        alignments: jax.Array | None = None,
-    ):
-        """Initialize paired multi-modal dataset.
+    Creates data across specified modalities using a shared latent
+    representation to ensure cross-modal alignment.
 
-        Args:
-            pairs: List of modality pairs
-            data: Dictionary of modality data
-            alignments: Optional alignment scores for pairs
-        """
-        ...
+    Args:
+        modalities: Modality names to generate (e.g. "image", "text", "audio").
+        num_samples: Number of samples to generate.
+        alignment_strength: How strongly modalities are correlated (0-1).
+        image_shape: Shape of image data (H, W, C).
+        text_vocab_size: Vocabulary size for text token sampling.
+        text_sequence_length: Length of text sequences.
+        audio_sample_rate: Audio sampling rate in Hz.
+        audio_duration: Audio clip duration in seconds.
 
-    def __getitem__(self, idx: int) -> dict[str, jax.Array | float]:
-        """Get a paired sample.
-
-        Args:
-            idx: Sample index
-
-        Returns:
-            Dictionary with paired data
-        """
-        ...
+    Returns:
+        Dictionary mapping modality names to arrays of shape (num_samples, ...).
+        Also includes 'alignment_score' and 'latent' arrays.
+    """
 ```
 
 ### `create_synthetic_multi_modal_dataset`
 
-Create a synthetic multi-modal dataset.
+Factory function returning a `MemorySource` of aligned multi-modal data.
 
 ```python
 def create_synthetic_multi_modal_dataset(
-    modalities: list[str],
+    modalities: tuple[str, ...] | list[str],
     num_samples: int = 1000,
     alignment_strength: float = 0.8,
     *,
     rngs: nnx.Rngs,
-    **kwargs,
-) -> MultiModalDataset:
-    """Create a synthetic multi-modal dataset.
+    shuffle: bool = False,
+    **kwargs: Any,
+) -> MemorySource:
+    """Create a synthetic multi-modal dataset as a MemorySource.
 
     Args:
-        modalities: List of modality names
-        num_samples: Number of samples
-        alignment_strength: How strongly modalities are aligned
-        rngs: Random number generators
-        **kwargs: Additional arguments for dataset
+        modalities: Modality names to include.
+        num_samples: Number of samples to generate.
+        alignment_strength: How strongly modalities are aligned (0-1).
+        rngs: Random number generators.
+        shuffle: Whether to shuffle data on iteration.
+        **kwargs: Additional generation parameters (image_shape, etc.).
 
     Returns:
-        Multi-modal dataset
+        MemorySource backed by generated multi-modal data.
     """
-    ...
 ```
 
-## Utility Functions
+### `create_paired_multi_modal_dataset`
 
-### `validate_modality_interface`
-
-Validate that an instance implements the Modality protocol.
+Wrap pre-existing paired multi-modal data in a `MemorySource`.
 
 ```python
-def validate_modality_interface(modality_instance: Any) -> bool:
-    """Validate that an instance implements the Modality protocol.
+def create_paired_multi_modal_dataset(
+    data: dict[str, jax.Array],
+    alignments: jax.Array | None = None,
+    *,
+    rngs: nnx.Rngs | None = None,
+    shuffle: bool = False,
+) -> MemorySource:
+    """Create a paired multi-modal dataset from pre-existing data.
 
     Args:
-        modality_instance: Instance to validate
+        data: Dictionary mapping modality names to data arrays.
+            All arrays must have the same first dimension.
+        alignments: Optional alignment scores array.
+        rngs: Random number generators.
+        shuffle: Whether to shuffle data on iteration.
 
     Returns:
-        True if instance implements Modality protocol
-    """
-    ...
-```
-
-### `create_modality_factory`
-
-Create a factory function for a modality.
-
-```python
-def create_modality_factory(
-    modality_class: type,
-    default_config: BaseModalityConfig,
-):
-    """Create a factory function for a modality.
-
-    Args:
-        modality_class: The modality class to instantiate
-        default_config: Default configuration
-
-    Returns:
-        Factory function
-    """
-    ...
-```
-
-## Registry Functions
-
-### `register_modality`
-
-Register a modality in the global registry.
-
-```python
-def register_modality(name: str, modality_class: type):
-    """Register a modality.
-
-    Args:
-        name: Modality name
-        modality_class: Modality class
-    """
-    ...
-```
-
-### `get_modality`
-
-Get a modality class by name.
-
-```python
-def get_modality(name: str) -> type:
-    """Get a modality by name.
-
-    Args:
-        name: Modality name
-
-    Returns:
-        Modality class
+        MemorySource backed by paired data.
 
     Raises:
-        KeyError: If modality not found
+        ValueError: If modalities have different sample counts.
     """
-    ...
 ```
 
-### `list_modalities`
+### `create_aligned_dataset`
 
-List all registered modalities.
+Create an aligned multi-modal dataset from source data, generating missing modalities.
 
 ```python
-def list_modalities() -> list[str]:
-    """List all registered modalities.
+def create_aligned_dataset(
+    source_data: dict[str, jax.Array],
+    target_modalities: list[str],
+    alignment_model: nnx.Module | None = None,
+    *,
+    rngs: nnx.Rngs,
+) -> MemorySource:
+    """Create an aligned multi-modal dataset from source data.
+
+    Takes existing modality data and generates additional aligned
+    modalities, then wraps everything in a MemorySource.
+
+    Args:
+        source_data: Source modality data arrays.
+        target_modalities: Target modalities to generate.
+        alignment_model: Optional model for alignment (unused placeholder).
+        rngs: Random number generators.
 
     Returns:
-        List of modality names
+        MemorySource with source + generated modality data.
     """
-    ...
 ```
+
+**Usage:**
+
+```python
+from flax import nnx
+from artifex.generative_models.modalities.multi_modal.datasets import (
+    create_synthetic_multi_modal_dataset,
+    create_paired_multi_modal_dataset,
+)
+
+rngs = nnx.Rngs(0)
+
+# Generate aligned image + text data
+source = create_synthetic_multi_modal_dataset(
+    modalities=("image", "text"),
+    num_samples=500,
+    alignment_strength=0.9,
+    rngs=rngs,
+    image_shape=(32, 32, 3),
+    text_vocab_size=1000,
+    text_sequence_length=50,
+)
+
+batch = source.get_batch(16)
+print(batch["image"].shape)  # (16, 32, 32, 3)
+print(batch["text"].shape)   # (16, 50)
+
+# Wrap existing paired arrays
+import jax.numpy as jnp
+paired_source = create_paired_multi_modal_dataset(
+    data={
+        "image": jnp.ones((100, 32, 32, 3)),
+        "text": jnp.ones((100, 50), dtype=jnp.int32),
+    },
+    rngs=rngs,
+)
+```
+
+---
+
+## Tabular Modality
+
+Module: `artifex.generative_models.modalities.tabular.datasets`
+
+### `generate_synthetic_tabular_data`
+
+Generate synthetic tabular data with mixed feature types.
+
+```python
+def generate_synthetic_tabular_data(
+    modality_config: TabularModalityConfig,
+    num_samples: int,
+    *,
+    key: jax.Array | None = None,
+) -> dict[str, jnp.ndarray]:
+    """Generate synthetic tabular data with mixed feature types.
+
+    Args:
+        modality_config: Tabular modality configuration with feature definitions.
+        num_samples: Number of samples to generate.
+        key: Optional RNG key. If None, uses jax.random.key(0).
+
+    Returns:
+        Dictionary mapping feature names to data arrays.
+    """
+```
+
+### `compute_feature_statistics`
+
+Compute statistics about tabular features.
+
+```python
+def compute_feature_statistics(
+    data: dict[str, jnp.ndarray],
+    modality_config: TabularModalityConfig,
+    num_samples: int,
+) -> dict[str, dict[str, Any]]:
+    """Compute statistics about tabular features.
+
+    Args:
+        data: Dictionary mapping feature names to data arrays.
+        modality_config: Tabular modality configuration.
+        num_samples: Number of samples in the dataset.
+
+    Returns:
+        Dictionary mapping feature names to their statistics.
+    """
+```
+
+### `create_synthetic_tabular_dataset`
+
+Factory function creating a `MemorySource` with configurable feature ratios.
+
+```python
+def create_synthetic_tabular_dataset(
+    num_features: int = 10,
+    num_samples: int = 1000,
+    numerical_ratio: float = 0.4,
+    categorical_ratio: float = 0.3,
+    ordinal_ratio: float = 0.2,
+    binary_ratio: float = 0.1,
+    max_categorical_cardinality: int = 10,
+    *,
+    rngs: nnx.Rngs,
+    shuffle: bool = False,
+) -> tuple[MemorySource, TabularModalityConfig]:
+    """Create a synthetic tabular dataset with mixed feature types.
+
+    Args:
+        num_features: Total number of features.
+        num_samples: Number of samples to generate.
+        numerical_ratio: Proportion of numerical features.
+        categorical_ratio: Proportion of categorical features.
+        ordinal_ratio: Proportion of ordinal features.
+        binary_ratio: Proportion of binary features.
+        max_categorical_cardinality: Maximum vocabulary size for categorical.
+        rngs: Random number generators.
+        shuffle: Whether to shuffle data on iteration.
+
+    Returns:
+        Tuple of (MemorySource, TabularModalityConfig).
+
+    Raises:
+        ValueError: If ratios don't sum to 1.0.
+    """
+```
+
+### `create_simple_tabular_dataset`
+
+Factory function creating a simple 5-feature tabular dataset for testing.
+
+```python
+def create_simple_tabular_dataset(
+    num_samples: int = 500,
+    split: str = "train",
+    *,
+    rngs: nnx.Rngs,
+    shuffle: bool = False,
+) -> tuple[MemorySource, TabularModalityConfig]:
+    """Create a simple tabular dataset for testing.
+
+    Args:
+        num_samples: Number of samples to generate.
+        split: Dataset split (unused, kept for API compatibility).
+        rngs: Random number generators.
+        shuffle: Whether to shuffle data on iteration.
+
+    Returns:
+        Tuple of (MemorySource, TabularModalityConfig).
+    """
+```
+
+**Usage:**
+
+```python
+from flax import nnx
+from artifex.generative_models.modalities.tabular.datasets import (
+    create_synthetic_tabular_dataset,
+    create_simple_tabular_dataset,
+)
+
+rngs = nnx.Rngs(0)
+
+# Full synthetic tabular dataset
+source, config = create_synthetic_tabular_dataset(
+    num_features=10,
+    num_samples=1000,
+    numerical_ratio=0.4,
+    categorical_ratio=0.3,
+    ordinal_ratio=0.2,
+    binary_ratio=0.1,
+    rngs=rngs,
+)
+
+# Simple 5-feature dataset for quick testing
+source, config = create_simple_tabular_dataset(
+    num_samples=200,
+    rngs=rngs,
+)
+
+batch = source.get_batch(32)
+print(list(batch.keys()))  # ['age', 'income', 'category', 'education', 'is_member']
+```
+
+---
+
+## Timeseries Modality
+
+Module: `artifex.generative_models.modalities.timeseries.datasets`
+
+### `generate_synthetic_timeseries`
+
+Generate synthetic timeseries data as a plain dictionary.
+
+```python
+def generate_synthetic_timeseries(
+    num_samples: int,
+    *,
+    sequence_length: int = 100,
+    num_features: int = 1,
+    pattern_type: str = "sinusoidal",
+    noise_level: float = 0.1,
+    trend_strength: float = 0.0,
+    seasonal_period: int | None = None,
+    key: jax.Array | None = None,
+) -> dict[str, jnp.ndarray]:
+    """Generate synthetic timeseries data.
+
+    Args:
+        num_samples: Number of time series to generate.
+        sequence_length: Length of each time series.
+        num_features: Number of features per timestep.
+        pattern_type: Type of pattern ('sinusoidal', 'random_walk',
+            'ar', 'seasonal', 'mixed').
+        noise_level: Standard deviation of noise to add.
+        trend_strength: Strength of linear trend component.
+        seasonal_period: Period for seasonal patterns.
+        key: Optional RNG key. If None, uses jax.random.key(0).
+
+    Returns:
+        Dictionary with 'timeseries' array of shape
+        (num_samples, sequence_length, num_features).
+
+    Raises:
+        ValueError: If sequence_length, num_features, or num_samples is non-positive.
+        ValueError: If noise_level is negative.
+        ValueError: If pattern_type is unknown.
+    """
+```
+
+**Pattern Types:**
+
+| Pattern | Description |
+|---------|-------------|
+| `"sinusoidal"` | Sine waves with random frequencies and phases |
+| `"random_walk"` | Cumulative random steps |
+| `"ar"` | AR(1) autoregressive process |
+| `"seasonal"` | Seasonal patterns with harmonics |
+| `"mixed"` | Combination of sinusoidal, seasonal, and random walk |
+
+### `create_synthetic_timeseries_dataset`
+
+Factory function returning a `MemorySource` of timeseries data.
+
+```python
+def create_synthetic_timeseries_dataset(
+    sequence_length: int = 100,
+    num_features: int = 1,
+    num_samples: int = 1000,
+    pattern_type: str = "sinusoidal",
+    noise_level: float = 0.1,
+    *,
+    rngs: nnx.Rngs | None = None,
+    shuffle: bool = False,
+    **kwargs: Any,
+) -> MemorySource:
+    """Create a synthetic timeseries dataset as a MemorySource.
+
+    Args:
+        sequence_length: Length of each time series.
+        num_features: Number of features per timestep.
+        num_samples: Number of time series to generate.
+        pattern_type: Type of pattern to generate.
+        noise_level: Level of noise to add.
+        rngs: Random number generators.
+        shuffle: Whether to shuffle data on iteration.
+        **kwargs: Additional parameters (trend_strength, seasonal_period).
+
+    Returns:
+        MemorySource backed by generated timeseries data.
+    """
+```
+
+### `create_simple_timeseries_dataset`
+
+Convenience wrapper creating a small single-feature sinusoidal dataset for testing.
+
+```python
+def create_simple_timeseries_dataset(
+    sequence_length: int = 50,
+    num_samples: int = 100,
+    *,
+    rngs: nnx.Rngs | None = None,
+    shuffle: bool = False,
+    **kwargs: Any,
+) -> MemorySource:
+    """Create a simple timeseries dataset for testing.
+
+    Args:
+        sequence_length: Length of each time series.
+        num_samples: Number of time series to generate.
+        rngs: Random number generators.
+        shuffle: Whether to shuffle data on iteration.
+        **kwargs: Additional parameters.
+
+    Returns:
+        MemorySource backed by generated timeseries data.
+    """
+```
+
+**Usage:**
+
+```python
+from flax import nnx
+from artifex.generative_models.modalities.timeseries.datasets import (
+    create_synthetic_timeseries_dataset,
+    create_simple_timeseries_dataset,
+)
+
+rngs = nnx.Rngs(0)
+
+# Multi-feature seasonal timeseries
+source = create_synthetic_timeseries_dataset(
+    sequence_length=200,
+    num_features=3,
+    num_samples=500,
+    pattern_type="seasonal",
+    noise_level=0.05,
+    rngs=rngs,
+    seasonal_period=50,
+)
+
+# Simple sinusoidal for quick tests
+source = create_simple_timeseries_dataset(
+    sequence_length=50,
+    num_samples=100,
+    rngs=rngs,
+)
+
+batch = source.get_batch(16)
+print(batch["timeseries"].shape)  # (16, 50, 1)
+```
+
+---
+
+## MemorySource Interface
+
+`MemorySource` (from `datarax.sources`) wraps a `dict[str, jnp.ndarray]` and exposes:
+
+| Method / Property | Description |
+|-------------------|-------------|
+| `__len__()` | Total number of samples |
+| `__getitem__(idx)` | Get a single sample as a dict |
+| `__iter__()` | Iterate over samples one at a time |
+| `get_batch(batch_size)` | Get a batch of samples as a dict of stacked arrays |
+
+To build a full data pipeline with shuffling, batching, and prefetching:
+
+```python
+import datarax
+from flax import nnx
+from artifex.generative_models.modalities.image.datasets import create_image_dataset
+
+source = create_image_dataset(rngs=nnx.Rngs(0), dataset_size=1000)
+pipeline = datarax.from_source(source, batch_size=32)
+
+for batch in pipeline:
+    images = batch["images"]
+    # ... training step
+```
+
+---
 
 ## Type Aliases
 
 Common type aliases used throughout the data API:
 
 ```python
-# Modality data types
 ModalityData = jax.Array
 ModalityBatch = dict[str, jax.Array]
-ModalityConfig = BaseModalityConfig
 EvaluationMetrics = dict[str, float]
-```
-
-## Examples
-
-### Creating a Custom Dataset
-
-```python
-from typing import Iterator
-import jax.numpy as jnp
-from artifex.generative_models.modalities.base import BaseDataset
-
-class MyCustomDataset(BaseDataset):
-    """Custom dataset implementation."""
-
-    def __init__(
-        self,
-        config: BaseModalityConfig,
-        data_paths: list[str],
-        split: str = "train",
-        *,
-        rngs: nnx.Rngs,
-    ):
-        super().__init__(config, split, rngs=rngs)
-        self.data_paths = data_paths
-        self.data = self._load_data()
-
-    def _load_data(self):
-        # Implement data loading logic
-        pass
-
-    def __len__(self) -> int:
-        return len(self.data)
-
-    def __iter__(self) -> Iterator[dict[str, jax.Array]]:
-        for sample in self.data:
-            yield sample
-
-    def get_batch(self, batch_size: int) -> dict[str, jax.Array]:
-        # Implement batch sampling logic
-        pass
-```
-
-### Using Factory Functions
-
-```python
-from flax import nnx
-
-# Create datasets using factories
-rngs = nnx.Rngs(0)
-
-# Image dataset
-image_dataset = create_image_dataset(
-    dataset_type="synthetic",
-    config=image_config,
-    pattern_type="gradient",
-    dataset_size=1000,
-    rngs=rngs
-)
-
-# Text dataset
-text_dataset = create_text_dataset(
-    config=text_config,
-    dataset_type="synthetic",
-    pattern_type="random_sentences",
-    dataset_size=1000,
-    rngs=rngs
-)
-
-# Audio dataset
-audio_dataset = create_audio_dataset(
-    dataset_type="synthetic",
-    config=audio_config,
-    n_samples=1000,
-    audio_types=["sine", "noise"]
-)
 ```
 
 ## See Also

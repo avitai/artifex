@@ -1,0 +1,14 @@
+name: distributed_default
+description: Portable typed baseline for distributed training overrides.
+enabled: false
+backend: gloo
+world_size: 1
+rank: 0
+local_rank: 0
+num_nodes: 1
+num_processes_per_node: 1
+master_addr: localhost
+master_port: 29500
+tensor_parallel_size: 1
+pipeline_parallel_size: 1
+mixed_precision: "no"

@@ -6,7 +6,7 @@
 
 ## Overview
 
-This example provides a comprehensive tour of the Artifex framework's core features and design patterns. Learn how to leverage the unified configuration system, factory pattern, composable losses, sampling methods, and modality adapters for building production-ready generative models.
+This example provides a complete tour of the Artifex framework's core features and design patterns. Learn how to leverage the unified configuration system, factory pattern, composable losses, sampling methods, and modality adapters for building production-ready generative models.
 
 ## What You'll Learn
 
@@ -16,7 +16,7 @@ This example provides a comprehensive tour of the Artifex framework's core featu
 
     ---
 
-    Type-safe model, training, and data configurations with Pydantic validation
+    Type-safe model, training, and data configurations with frozen dataclass validation
 
 - :material-factory: **Factory Pattern**
 
@@ -24,7 +24,7 @@ This example provides a comprehensive tour of the Artifex framework's core featu
 
     Consistent model creation interface across all model types (VAE, GAN, diffusion)
 
-- :material-function-variant: **Composable Losses**
+- :material-function-variant: **Explicit Loss Composition**
 
     ---
 
@@ -56,8 +56,8 @@ This example is available in two formats:
 ### Run the Python Script
 
 ```bash
-# Activate environment
-source activate.sh
+# Install Artifex if needed
+pip install artifex
 
 # Run the example
 python examples/generative_models/framework_features_demo.py
@@ -66,8 +66,8 @@ python examples/generative_models/framework_features_demo.py
 ### Run the Jupyter Notebook
 
 ```bash
-# Activate environment
-source activate.sh
+# Install Artifex if needed
+pip install artifex
 
 # Launch Jupyter
 jupyter lab examples/generative_models/framework_features_demo.ipynb
@@ -153,22 +153,15 @@ Combine multiple loss functions with different weights:
 $$L_{\text{total}} = \sum_{i=1}^{n} w_i \cdot L_i(\text{pred}, \text{target})$$
 
 ```python
-from artifex.generative_models.core.losses import (
-    CompositeLoss,
-    WeightedLoss,
-    mse_loss,
-    mae_loss,
-)
+from artifex.generative_models.core.losses import mse_loss, mae_loss
 
-# Create composite loss
-composite = CompositeLoss([
-    WeightedLoss(mse_loss, weight=1.0, name="reconstruction"),
-    WeightedLoss(mae_loss, weight=0.5, name="l1_penalty"),
-], return_components=True)
-
-# Compute loss with component tracking
-total_loss, components = composite(predictions, targets)
-# components = {"reconstruction": 0.15, "l1_penalty": 0.08}
+reconstruction_loss = mse_loss(predictions, targets)
+l1_penalty = mae_loss(predictions, targets)
+total_loss = reconstruction_loss + 0.5 * l1_penalty
+components = {
+    "reconstruction": reconstruction_loss,
+    "l1_penalty": l1_penalty,
+}
 ```
 
 ### 4. Sampling Methods
@@ -248,7 +241,7 @@ The example demonstrates framework features in five sections:
 
 1. **Configuration System** - Create type-safe configs for models, training, data
 2. **Factory Pattern** - Instantiate models from configurations
-3. **Composable Losses** - Combine weighted loss functions
+3. **Explicit Loss Composition** - Build multi-term objectives directly from loss primitives
 4. **Sampling Methods** - MCMC and SDE sampling for generation
 5. **Modality System** - Domain-specific adapters and evaluation
 
@@ -299,13 +292,11 @@ Each section is self-contained and can be run independently.
 2. **Custom Loss Combinations**
 
    ```python
-   # Add perceptual loss to composite
+   # Add perceptual loss explicitly
    from artifex.generative_models.core.losses import PerceptualLoss
 
-   composite = CompositeLoss([
-       WeightedLoss(mse_loss, weight=1.0, name="recon"),
-       WeightedLoss(PerceptualLoss(), weight=0.1, name="perceptual"),
-   ])
+   perceptual_loss = PerceptualLoss()
+   total_loss = mse_loss(predictions, targets) + 0.1 * perceptual_loss(predictions, targets)
    ```
 
 3. **Adjust Sampling Parameters**
@@ -448,6 +439,6 @@ rngs = nnx.Rngs(
 
 ### Papers
 
-- **Pydantic**: [Pydantic Documentation](https://docs.pydantic.dev/) - Configuration validation
+- **Python dataclasses**: [dataclasses documentation](https://docs.python.org/3/library/dataclasses.html) - immutable typed config backend
 - **JAX**: [JAX Documentation](https://jax.readthedocs.io/) - Array programming and JIT compilation
 - **Flax NNX**: [Flax NNX Guide](https://flax.readthedocs.io/en/latest/nnx/index.html) - Neural network library

@@ -5,13 +5,10 @@ Replaces U-Net backbone with Vision Transformers for improved scalability.
 """
 
 import math
-from typing import Optional
 
 import jax
 import jax.numpy as jnp
 from flax import nnx
-
-from artifex.generative_models.core.base import GenerativeModule
 
 
 def modulate(x: jax.Array, shift: jax.Array, scale: jax.Array) -> jax.Array:
@@ -169,7 +166,7 @@ class LabelEmbedder(nnx.Module):
         labels: jax.Array,
         *,
         deterministic: bool = False,
-        force_drop_ids: Optional[jax.Array] = None,
+        force_drop_ids: jax.Array | None = None,
     ) -> jax.Array:
         """Embed class labels with optional dropout.
 
@@ -329,7 +326,7 @@ class FinalLayer(nnx.Module):
         return x
 
 
-class DiffusionTransformer(GenerativeModule):
+class DiffusionTransformer(nnx.Module):
     """Diffusion Transformer (DiT) for diffusion models.
 
     A transformer backbone that replaces U-Net in diffusion models,
@@ -345,7 +342,7 @@ class DiffusionTransformer(GenerativeModule):
         depth: int = 12,
         num_heads: int = 8,
         mlp_ratio: float = 4.0,
-        num_classes: Optional[int] = None,
+        num_classes: int | None = None,
         dropout_rate: float = 0.0,
         learn_sigma: bool = False,
         *,
@@ -366,7 +363,7 @@ class DiffusionTransformer(GenerativeModule):
             learn_sigma: Whether to learn variance
             rngs: Random number generators
         """
-        super().__init__(rngs=rngs)  # Pass rngs to GenerativeModule
+        super().__init__()
 
         self.img_size = img_size
         self.patch_size = patch_size
@@ -459,10 +456,9 @@ class DiffusionTransformer(GenerativeModule):
         self,
         x: jax.Array,
         t: jax.Array,
-        y: Optional[jax.Array] = None,
+        y: jax.Array | None = None,
         *,
         deterministic: bool = False,
-        cfg_scale: float = 1.0,
     ) -> jax.Array:
         """Forward pass of Diffusion Transformer.
 
@@ -471,7 +467,6 @@ class DiffusionTransformer(GenerativeModule):
             t: Timesteps [batch]
             y: Optional class labels [batch]
             deterministic: Whether to apply dropout
-            cfg_scale: Classifier-free guidance scale
 
         Returns:
             Predicted noise or learned mean/variance [batch, height, width, channels]
@@ -483,7 +478,7 @@ class DiffusionTransformer(GenerativeModule):
         x = x.reshape(batch_size, -1, self.hidden_size)
 
         # Add positional embedding
-        x = x + self.pos_embed.value
+        x = x + self.pos_embed[...]
 
         # Time and optional label embeddings
         t_emb = self.time_embed(t)
@@ -507,11 +502,3 @@ class DiffusionTransformer(GenerativeModule):
         x = self.unpatchify(x)
 
         return x
-
-    def generate(self, n_samples: int = 1, *, rngs: nnx.Rngs, **kwargs):
-        """Generate samples (placeholder for GenerativeModule interface)."""
-        raise NotImplementedError("Use with DiffusionModel wrapper for generation")
-
-    def loss_fn(self, batch, model_outputs, **kwargs):
-        """Compute loss (placeholder for GenerativeModule interface)."""
-        raise NotImplementedError("Use with DiffusionModel wrapper for loss computation")

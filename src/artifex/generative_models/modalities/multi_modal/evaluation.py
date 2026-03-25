@@ -4,13 +4,22 @@ This module provides evaluation metrics for multi-modal models, including
 cross-modal alignment, consistency, and quality metrics.
 """
 
+from typing import Any
+
 import jax
 import jax.numpy as jnp
 from flax import nnx
 
+from artifex.generative_models.modalities.multi_modal.base import (
+    validate_multi_modal_helper_modalities,
+)
+from artifex.generative_models.modalities.text.base import create_default_text_params
+
 
 class MultiModalEvaluationSuite(nnx.Module):
     """Evaluation suite for multi-modal models."""
+
+    modality_evaluators: dict[str, Any] = nnx.data()
 
     def __init__(
         self,
@@ -31,7 +40,7 @@ class MultiModalEvaluationSuite(nnx.Module):
             rngs: Random number generators
         """
         super().__init__()
-        self.modalities = modalities
+        self.modalities = list(validate_multi_modal_helper_modalities(modalities))
         self.alignment_method = alignment_method
         self.alignment_dim = alignment_dim
 
@@ -61,11 +70,16 @@ class MultiModalEvaluationSuite(nnx.Module):
         modality_dims = {
             "image": 3072,  # 32x32x3 flattened
             "text": 50,  # Text embedding dimension
-            "audio": 256,  # Audio feature dimension
         }
 
         for modality in self.modalities:
-            input_dim = modality_dims.get(modality, 256)
+            input_dim = modality_dims.get(modality)
+            if input_dim is None:
+                # Some retained helper modalities, such as raw audio waveforms,
+                # do not have one stable flattened width. Let the pairwise
+                # alignment path use its dynamic fallback projection instead of
+                # baking in a mismatched fixed Linear input size.
+                continue
 
             # Create projector to map to common alignment dimension
             projectors[modality] = nnx.Sequential(
@@ -92,7 +106,7 @@ class MultiModalEvaluationSuite(nnx.Module):
             rngs: Random number generators
         """
         # Build evaluators dict first, then wrap in nnx.Dict
-        evaluators: dict[str, nnx.Module] = {}
+        evaluators: dict[str, Any] = {}
 
         # Create evaluators with appropriate configs
         for modality in self.modalities:
@@ -123,11 +137,7 @@ class MultiModalEvaluationSuite(nnx.Module):
                     default_metrics=["perplexity", "bleu", "rouge"],
                     preprocessing_steps=[],
                     metadata={
-                        "text_params": {
-                            "vocab_size": 10000,
-                            "max_length": 128,
-                            "pad_token_id": 0,
-                        }
+                        "text_params": create_default_text_params(max_length=128),
                     },
                 )
                 evaluators[modality] = TextEvaluationSuite(config=config, rngs=rngs or nnx.Rngs())
@@ -140,10 +150,9 @@ class MultiModalEvaluationSuite(nnx.Module):
                 )
 
                 config = AudioModalityConfig()
-                evaluators[modality] = AudioEvaluationSuite(config=config, rngs=rngs or nnx.Rngs())
+                evaluators[modality] = AudioEvaluationSuite(config=config)
 
-        # Store as nnx.Dict for proper parameter tracking
-        self.modality_evaluators = nnx.Dict(evaluators)
+        self.modality_evaluators = evaluators
 
     def evaluate(
         self,
@@ -443,6 +452,7 @@ def compute_multi_modal_metrics(
     Returns:
         Dictionary of computed metrics
     """
+    normalized_modalities = list(validate_multi_modal_helper_modalities(modalities))
     results = {}
 
     if metric_names is None:
@@ -450,7 +460,7 @@ def compute_multi_modal_metrics(
 
     # Compute modality-specific metrics
     if "mse" in metric_names:
-        for modality in modalities:
+        for modality in normalized_modalities:
             if modality in generated and modality in reference:
                 mse = jnp.mean((generated[modality] - reference[modality]) ** 2)
                 results[f"{modality}_mse"] = float(mse)
@@ -459,9 +469,9 @@ def compute_multi_modal_metrics(
     if "alignment" in metric_names:
         alignment_scores = []
 
-        for i in range(len(modalities)):
-            for j in range(i + 1, len(modalities)):
-                mod1, mod2 = modalities[i], modalities[j]
+        for i in range(len(normalized_modalities)):
+            for j in range(i + 1, len(normalized_modalities)):
+                mod1, mod2 = normalized_modalities[i], normalized_modalities[j]
 
                 if mod1 in generated and mod2 in generated:
                     # Simple alignment based on correlation
@@ -580,11 +590,11 @@ class CrossModalContrastiveLoss(nnx.Module):
             labels = jnp.eye(batch_size)
 
         # Cross-entropy loss
-        log_probs = jax.nn.log_softmax(similarity, axis=1)
+        log_probs = nnx.log_softmax(similarity, axis=1)
         loss1 = -jnp.sum(labels * log_probs) / batch_size
 
         # Symmetric loss
-        log_probs2 = jax.nn.log_softmax(similarity.T, axis=1)
+        log_probs2 = nnx.log_softmax(similarity.T, axis=1)
         loss2 = -jnp.sum(labels.T * log_probs2) / batch_size
 
         return (loss1 + loss2) / 2

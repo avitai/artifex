@@ -13,7 +13,7 @@ This directory contains Jupyter notebooks with examples, tutorials, and demonstr
 
 ### New Model Examples
 
-Artifex now includes comprehensive examples for new model types:
+Artifex now includes complete examples for new model types:
 
 - **Energy-Based Models**: See `examples/` directory for EBM training and sampling examples
 - **Advanced MCMC Sampling**: Langevin dynamics and persistent contrastive divergence
@@ -70,6 +70,6 @@ Each notebook generally follows this structure:
 When adding new notebooks, please:
 
 1. Ensure all dependencies are documented
-2. Include comprehensive explanations with markdown cells
+2. Include complete explanations with markdown cells
 3. Add the notebook to this README
 4. Run `pre-commit` to ensure the notebook is properly formatted and stripped of outputs

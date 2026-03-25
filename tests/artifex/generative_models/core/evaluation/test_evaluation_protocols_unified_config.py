@@ -146,9 +146,9 @@ class MockEvaluationSuite(BaseEvaluationSuite):
         if isinstance(config, EvaluationConfig):
             from dataclasses import dataclass
 
-            from artifex.generative_models.core.protocols.configuration import BaseModalityConfig
+            from artifex.generative_models.core.configuration import BaseModalityConfig
 
-            @dataclass
+            @dataclass(frozen=True, slots=True, kw_only=True)
             class TempConfig(BaseModalityConfig):
                 name: str = config.name
 

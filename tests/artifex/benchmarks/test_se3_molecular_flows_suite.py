@@ -51,6 +51,7 @@ def mock_qm9_config():
             "max_atoms": 29,
             "batch_size": 8,
             "num_conformations": 100,
+            "demo_mode": True,
         },
     )
 

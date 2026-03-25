@@ -1,365 +1,204 @@
-"""Synthetic datasets for timeseries modality."""
+"""Timeseries datasets backed by datarax MemorySource.
 
-from typing import Iterator
+Provides pure data generation functions and factory functions that wrap
+generated data in datarax MemorySource for pipeline integration.
+"""
+
+from typing import Any
 
 import jax
 import jax.numpy as jnp
+from datarax.sources import MemorySource, MemorySourceConfig
 from flax import nnx
 
-from ..base import BaseDataset
+
+# ---------------------------------------------------------------------------
+# Data generation (pure functions)
+# ---------------------------------------------------------------------------
 
 
-class SyntheticTimeseriesDataset(BaseDataset):
-    """Synthetic timeseries dataset for testing and development.
+def generate_synthetic_timeseries(
+    num_samples: int,
+    *,
+    sequence_length: int = 100,
+    num_features: int = 1,
+    pattern_type: str = "sinusoidal",
+    noise_level: float = 0.1,
+    trend_strength: float = 0.0,
+    seasonal_period: int | None = None,
+    key: jax.Array | None = None,
+) -> dict[str, jnp.ndarray]:
+    """Generate synthetic timeseries data.
 
-    Generates time series with various patterns including:
-    - Sinusoidal patterns with noise
-    - Trend components
-    - Seasonal patterns
-    - Random walks
-    - AR/MA processes
+    Args:
+        num_samples: Number of time series to generate.
+        sequence_length: Length of each time series.
+        num_features: Number of features per timestep.
+        pattern_type: Type of pattern ('sinusoidal', 'random_walk',
+            'ar', 'seasonal', 'mixed').
+        noise_level: Standard deviation of noise to add.
+        trend_strength: Strength of linear trend component.
+        seasonal_period: Period for seasonal patterns.
+        key: Optional RNG key. If None, uses jax.random.key(0).
+
+    Returns:
+        Dictionary with 'timeseries' array of shape
+        (num_samples, sequence_length, num_features).
+
+    Raises:
+        ValueError: If sequence_length, num_features, or num_samples is non-positive.
+        ValueError: If noise_level is negative.
+        ValueError: If pattern_type is unknown.
     """
+    if sequence_length <= 0:
+        raise ValueError("sequence_length must be positive")
+    if num_features <= 0:
+        raise ValueError("num_features must be positive")
+    if num_samples <= 0:
+        raise ValueError("num_samples must be positive")
+    if noise_level < 0:
+        raise ValueError("noise_level must be non-negative")
 
-    def __init__(
-        self,
-        config: dict,
-        split: str = "train",
-        sequence_length: int = 100,
-        num_features: int = 1,
-        num_samples: int = 1000,
-        pattern_type: str = "sinusoidal",
-        noise_level: float = 0.1,
-        sampling_rate: float = 1.0,
-        seasonal_period: int | None = None,
-        trend_strength: float = 0.0,
-        *,
-        rngs: nnx.Rngs,
-    ):
-        """Initialize the synthetic timeseries dataset.
+    if key is None:
+        key = jax.random.key(0)
 
-        Args:
-            config: Dataset configuration
-            split: Dataset split ('train', 'val', 'test')
-            sequence_length: Length of each time series
-            num_features: Number of features per timestep
-            num_samples: Number of time series to generate
-            pattern_type: Type of pattern ('sinusoidal', 'random_walk', 'ar', 'seasonal')
-            noise_level: Standard deviation of noise to add
-            sampling_rate: Sampling rate of the time series
-            seasonal_period: Period for seasonal patterns
-            trend_strength: Strength of linear trend component
-            rngs: Random number generator keys
-        """
-        super().__init__(config, split=split, rngs=rngs)
-        self.sequence_length = sequence_length
-        self.num_features = num_features
-        self.num_samples = num_samples
-        self.pattern_type = pattern_type
-        self.noise_level = noise_level
-        self.sampling_rate = sampling_rate
-        self.seasonal_period = seasonal_period
-        self.trend_strength = trend_strength
+    keys = jax.random.split(key, num_samples)
 
-        # Validate parameters
-        if sequence_length <= 0:
-            raise ValueError("sequence_length must be positive")
-        if num_features <= 0:
-            raise ValueError("num_features must be positive")
-        if num_samples <= 0:
-            raise ValueError("num_samples must be positive")
-        if noise_level < 0:
-            raise ValueError("noise_level must be non-negative")
-
-        # Generate the dataset
-        key = rngs.sample()
-
-        self._data = self._generate_data(key)
-
-    def get_batch(self, batch_size: int) -> dict[str, jax.Array]:
-        """Get a batch of samples.
-
-        Args:
-            batch_size: Number of samples in batch
-
-        Returns:
-            Batch dictionary with timeseries data
-        """
-        # Generate random indices for the batch
-        key = jax.random.key(42)  # TODO: Use proper RNG from self.rngs
-        indices = jax.random.choice(key, self.num_samples, shape=(batch_size,), replace=True)
-
-        batch_data = self._data[indices]
-
-        return {
-            "timeseries": batch_data,
-            "sequence_length": jnp.array(self.sequence_length),
-            "num_features": jnp.array(self.num_features),
-        }
-
-    def get_sample(self, index: int) -> dict[str, jax.Array]:
-        """Get a single sample by index.
-
-        Args:
-            index: Sample index
-
-        Returns:
-            Sample data
-        """
-        if index < 0 or index >= len(self):
-            raise IndexError(f"Index {index} out of range [0, {len(self)})")
-
-        return {
-            "timeseries": self._data[index],
-            "sequence_length": jnp.array(self.sequence_length),
-            "num_features": jnp.array(self.num_features),
-        }
-
-    def _generate_data(self, key: jax.Array) -> jnp.ndarray:
-        """Generate synthetic timeseries data.
-
-        Args:
-            key: Random key for generation
-
-        Returns:
-            Generated timeseries data of shape (num_samples, sequence_length, num_features)
-        """
-        keys = jax.random.split(key, self.num_samples)
-
-        def generate_single_series(series_key):
-            return self._generate_single_timeseries(series_key)
-
-        # Generate all series
-        data = jax.vmap(generate_single_series)(keys)
-
-        return data
-
-    def _generate_single_timeseries(self, key: jax.Array) -> jnp.ndarray:
-        """Generate a single timeseries.
-
-        Args:
-            key: Random key for this series
-
-        Returns:
-            Single timeseries of shape (sequence_length, num_features)
-        """
-        keys = jax.random.split(key, 4)
-
-        # Time indices
-        t = jnp.arange(self.sequence_length, dtype=jnp.float32)
-
-        if self.pattern_type == "sinusoidal":
-            data = self._generate_sinusoidal(t, keys[0])
-        elif self.pattern_type == "random_walk":
-            data = self._generate_random_walk(keys[0])
-        elif self.pattern_type == "ar":
-            data = self._generate_ar_process(keys[0])
-        elif self.pattern_type == "seasonal":
-            data = self._generate_seasonal(t, keys[0])
-        elif self.pattern_type == "mixed":
-            data = self._generate_mixed_pattern(t, keys[0])
-        else:
-            raise ValueError(f"Unknown pattern type: {self.pattern_type}")
-
-        # Add trend component
-        if self.trend_strength > 0:
-            trend = self.trend_strength * t[:, None] / self.sequence_length
-            data = data + trend
-
-        # Add noise
-        if self.noise_level > 0:
-            noise = (
-                jax.random.normal(keys[1], (self.sequence_length, self.num_features))
-                * self.noise_level
-            )
-            data = data + noise
-
-        return data
-
-    def _generate_sinusoidal(self, t: jnp.ndarray, key: jax.Array) -> jnp.ndarray:
-        """Generate sinusoidal patterns.
-
-        Args:
-            t: Time indices
-            key: Random key
-
-        Returns:
-            Sinusoidal timeseries
-        """
-        keys = jax.random.split(key, self.num_features + 2)
-
-        # Random frequencies and phases for each feature
-        frequencies = jax.random.uniform(keys[0], (self.num_features,), minval=0.1, maxval=2.0)
-        phases = jax.random.uniform(keys[1], (self.num_features,), minval=0, maxval=2 * jnp.pi)
-
-        # Generate sinusoidal patterns
-        t_expanded = t[:, None]  # Shape: (sequence_length, 1)
-        frequencies_expanded = frequencies[None, :]  # Shape: (1, num_features)
-        phases_expanded = phases[None, :]  # Shape: (1, num_features)
-
-        data = jnp.sin(2 * jnp.pi * frequencies_expanded * t_expanded + phases_expanded)
-
-        return data
-
-    def _generate_random_walk(self, key: jax.Array) -> jnp.ndarray:
-        """Generate random walk patterns.
-
-        Args:
-            key: Random key
-
-        Returns:
-            Random walk timeseries
-        """
-        # Generate random steps
-        steps = jax.random.normal(key, (self.sequence_length, self.num_features))
-
-        # Compute cumulative sum for random walk
-        data = jnp.cumsum(steps, axis=0)
-
-        return data
-
-    def _generate_ar_process(self, key: jax.Array) -> jnp.ndarray:
-        """Generate AR(1) process.
-
-        Args:
-            key: Random key
-
-        Returns:
-            AR process timeseries
-        """
-        keys = jax.random.split(key, 3)
-
-        # AR coefficients (between -0.9 and 0.9 for stability)
-        ar_coefs = jax.random.uniform(keys[0], (self.num_features,), minval=-0.9, maxval=0.9)
-
-        # Initialize the series
-        data = jnp.zeros((self.sequence_length, self.num_features))
-
-        # Initial value
-        initial_value = jax.random.normal(keys[1], (self.num_features,))
-        data = data.at[0].set(initial_value)
-
-        # Generate noise for the entire series
-        noise = jax.random.normal(keys[2], (self.sequence_length - 1, self.num_features))
-
-        # Generate AR process iteratively
-        for i in range(1, self.sequence_length):
-            data = data.at[i].set(ar_coefs * data[i - 1] + noise[i - 1])
-
-        return data
-
-    def _generate_seasonal(self, t: jnp.ndarray, key: jax.Array) -> jnp.ndarray:
-        """Generate seasonal patterns.
-
-        Args:
-            t: Time indices
-            key: Random key
-
-        Returns:
-            Seasonal timeseries
-        """
-        if self.seasonal_period is None:
-            period = self.sequence_length // 4  # Default to 1/4 of sequence length
-        else:
-            period = self.seasonal_period
-
-        keys = jax.random.split(key, self.num_features + 1)
-
-        # Random amplitudes for each feature
-        amplitudes = jax.random.uniform(keys[0], (self.num_features,), minval=0.5, maxval=2.0)
-
-        # Generate seasonal pattern
-        t_expanded = t[:, None]
-        amplitudes_expanded = amplitudes[None, :]
-
-        seasonal_component = amplitudes_expanded * jnp.sin(2 * jnp.pi * t_expanded / period)
-
-        # Add some harmonics for more complex seasonal patterns
-        harmonics = (
-            amplitudes_expanded * 0.3 * jnp.sin(4 * jnp.pi * t_expanded / period + jnp.pi / 4)
+    def generate_single(series_key: jax.Array) -> jnp.ndarray:
+        return _generate_single_timeseries(
+            series_key,
+            sequence_length=sequence_length,
+            num_features=num_features,
+            pattern_type=pattern_type,
+            noise_level=noise_level,
+            trend_strength=trend_strength,
+            seasonal_period=seasonal_period,
         )
 
-        data = seasonal_component + harmonics
+    data = jax.vmap(generate_single)(keys)
+    return {"timeseries": data}
 
-        return data
 
-    def _generate_mixed_pattern(self, t: jnp.ndarray, key: jax.Array) -> jnp.ndarray:
-        """Generate mixed patterns combining multiple components.
+def _generate_single_timeseries(
+    key: jax.Array,
+    *,
+    sequence_length: int,
+    num_features: int,
+    pattern_type: str,
+    noise_level: float,
+    trend_strength: float,
+    seasonal_period: int | None,
+) -> jnp.ndarray:
+    """Generate a single timeseries.
 
-        Args:
-            t: Time indices
-            key: Random key
+    Args:
+        key: Random key for this series.
+        sequence_length: Length of the series.
+        num_features: Number of features.
+        pattern_type: Type of pattern.
+        noise_level: Noise level.
+        trend_strength: Trend strength.
+        seasonal_period: Seasonal period.
 
-        Returns:
-            Mixed pattern timeseries
-        """
-        keys = jax.random.split(key, 4)
+    Returns:
+        Single timeseries of shape (sequence_length, num_features).
+    """
+    keys = jax.random.split(key, 4)
+    t = jnp.arange(sequence_length, dtype=jnp.float32)
 
-        # Combine different patterns
-        sinusoidal = self._generate_sinusoidal(t, keys[0]) * 0.4
-        seasonal = self._generate_seasonal(t, keys[1]) * 0.3
+    if pattern_type == "sinusoidal":
+        data = _generate_sinusoidal(t, keys[0], num_features)
+    elif pattern_type == "random_walk":
+        data = _generate_random_walk(keys[0], sequence_length, num_features)
+    elif pattern_type == "ar":
+        data = _generate_ar_process(keys[0], sequence_length, num_features)
+    elif pattern_type == "seasonal":
+        data = _generate_seasonal(t, keys[0], num_features, sequence_length, seasonal_period)
+    elif pattern_type == "mixed":
+        data = _generate_mixed_pattern(t, keys[0], num_features, sequence_length, seasonal_period)
+    else:
+        raise ValueError(f"Unknown pattern type: {pattern_type}")
 
-        # Add some random walk component
-        rw_steps = jax.random.normal(keys[2], (self.sequence_length, self.num_features)) * 0.1
-        random_walk = jnp.cumsum(rw_steps, axis=0) * 0.3
+    if trend_strength > 0:
+        trend = trend_strength * t[:, None] / sequence_length
+        data = data + trend
 
-        data = sinusoidal + seasonal + random_walk
+    if noise_level > 0:
+        noise = jax.random.normal(keys[1], (sequence_length, num_features)) * noise_level
+        data = data + noise
 
-        return data
+    return data
 
-    def __len__(self) -> int:
-        """Get the number of samples in the dataset."""
-        return self.num_samples
 
-    def __iter__(self) -> Iterator[dict[str, jax.Array]]:
-        """Iterate over the dataset."""
-        for i in range(self.num_samples):
-            yield {
-                "timeseries": self._data[i],
-                "sequence_length": jnp.array(self.sequence_length),
-                "num_features": jnp.array(self.num_features),
-            }
+def _generate_sinusoidal(t: jnp.ndarray, key: jax.Array, num_features: int) -> jnp.ndarray:
+    """Generate sinusoidal patterns."""
+    keys = jax.random.split(key, num_features + 2)
+    frequencies = jax.random.uniform(keys[0], (num_features,), minval=0.1, maxval=2.0)
+    phases = jax.random.uniform(keys[1], (num_features,), minval=0, maxval=2 * jnp.pi)
+    t_expanded = t[:, None]
+    return jnp.sin(2 * jnp.pi * frequencies[None, :] * t_expanded + phases[None, :])
 
-    def __getitem__(self, idx: int) -> jnp.ndarray:
-        """Get a single sample from the dataset.
 
-        Args:
-            idx: Index of the sample
+def _generate_random_walk(key: jax.Array, sequence_length: int, num_features: int) -> jnp.ndarray:
+    """Generate random walk patterns."""
+    steps = jax.random.normal(key, (sequence_length, num_features))
+    return jnp.cumsum(steps, axis=0)
 
-        Returns:
-            Timeseries sample of shape (sequence_length, num_features)
-        """
-        if idx >= self.num_samples:
-            raise IndexError(f"Index {idx} out of range for dataset of size {self.num_samples}")
-        return self._data[idx]
 
-    def batch_iterator(self, batch_size: int) -> Iterator[jnp.ndarray]:
-        """Create batched iterator over the dataset.
+def _generate_ar_process(key: jax.Array, sequence_length: int, num_features: int) -> jnp.ndarray:
+    """Generate AR(1) process."""
+    keys = jax.random.split(key, 3)
+    ar_coefs = jax.random.uniform(keys[0], (num_features,), minval=-0.9, maxval=0.9)
+    data = jnp.zeros((sequence_length, num_features))
+    initial_value = jax.random.normal(keys[1], (num_features,))
+    data = data.at[0].set(initial_value)
+    noise = jax.random.normal(keys[2], (sequence_length - 1, num_features))
+    for i in range(1, sequence_length):
+        data = data.at[i].set(ar_coefs * data[i - 1] + noise[i - 1])
+    return data
 
-        Args:
-            batch_size: Size of each batch
 
-        Yields:
-            Batches of timeseries data of shape (batch_size, sequence_length, num_features)
-        """
-        for i in range(0, self.num_samples, batch_size):
-            end_idx = min(i + batch_size, self.num_samples)
-            yield self._data[i:end_idx]
+def _generate_seasonal(
+    t: jnp.ndarray,
+    key: jax.Array,
+    num_features: int,
+    sequence_length: int,
+    seasonal_period: int | None,
+) -> jnp.ndarray:
+    """Generate seasonal patterns."""
+    if seasonal_period is None:
+        period = sequence_length // 4
+    else:
+        period = seasonal_period
 
-    def get_statistics(self) -> dict[str, jnp.ndarray]:
-        """Get statistical information about the dataset.
+    keys = jax.random.split(key, num_features + 1)
+    amplitudes = jax.random.uniform(keys[0], (num_features,), minval=0.5, maxval=2.0)
+    t_expanded = t[:, None]
+    amplitudes_expanded = amplitudes[None, :]
+    seasonal = amplitudes_expanded * jnp.sin(2 * jnp.pi * t_expanded / period)
+    harmonics = amplitudes_expanded * 0.3 * jnp.sin(4 * jnp.pi * t_expanded / period + jnp.pi / 4)
+    return seasonal + harmonics
 
-        Returns:
-            Dictionary with statistical measures
-        """
-        return {
-            "mean": jnp.mean(self._data, axis=(0, 1)),
-            "std": jnp.std(self._data, axis=(0, 1)),
-            "min": jnp.min(self._data, axis=(0, 1)),
-            "max": jnp.max(self._data, axis=(0, 1)),
-            "sequence_length": self.sequence_length,
-            "num_features": self.num_features,
-            "num_samples": self.num_samples,
-        }
+
+def _generate_mixed_pattern(
+    t: jnp.ndarray,
+    key: jax.Array,
+    num_features: int,
+    sequence_length: int,
+    seasonal_period: int | None,
+) -> jnp.ndarray:
+    """Generate mixed patterns combining multiple components."""
+    keys = jax.random.split(key, 4)
+    sinusoidal = _generate_sinusoidal(t, keys[0], num_features) * 0.4
+    seasonal = _generate_seasonal(t, keys[1], num_features, sequence_length, seasonal_period) * 0.3
+    rw_steps = jax.random.normal(keys[2], (sequence_length, num_features)) * 0.1
+    random_walk = jnp.cumsum(rw_steps, axis=0) * 0.3
+    return sinusoidal + seasonal + random_walk
+
+
+# ---------------------------------------------------------------------------
+# Factory functions — return MemorySource instances
+# ---------------------------------------------------------------------------
 
 
 def create_synthetic_timeseries_dataset(
@@ -368,48 +207,63 @@ def create_synthetic_timeseries_dataset(
     num_samples: int = 1000,
     pattern_type: str = "sinusoidal",
     noise_level: float = 0.1,
-    **kwargs,
-) -> SyntheticTimeseriesDataset:
-    """Factory function to create a synthetic timeseries dataset.
+    *,
+    rngs: nnx.Rngs | None = None,
+    shuffle: bool = False,
+    **kwargs: Any,
+) -> MemorySource:
+    """Create a synthetic timeseries dataset as a MemorySource.
 
     Args:
-        sequence_length: Length of each time series
-        num_features: Number of features per timestep
-        num_samples: Number of time series to generate
-        pattern_type: Type of pattern to generate
-        noise_level: Level of noise to add
-        **kwargs: Additional arguments passed to the dataset
+        sequence_length: Length of each time series.
+        num_features: Number of features per timestep.
+        num_samples: Number of time series to generate.
+        pattern_type: Type of pattern to generate.
+        noise_level: Level of noise to add.
+        rngs: Random number generators.
+        shuffle: Whether to shuffle data on iteration.
+        **kwargs: Additional parameters (trend_strength, seasonal_period).
 
     Returns:
-        Synthetic timeseries dataset
+        MemorySource backed by generated timeseries data.
     """
-    rngs = nnx.Rngs(42)  # Default seed
+    if rngs is None:
+        rngs = nnx.Rngs(42)
 
-    return SyntheticTimeseriesDataset(
+    key = rngs.sample() if rngs is not None else jax.random.key(0)
+    data = generate_synthetic_timeseries(
+        num_samples,
         sequence_length=sequence_length,
         num_features=num_features,
-        num_samples=num_samples,
         pattern_type=pattern_type,
         noise_level=noise_level,
-        rngs=rngs,
+        key=key,
         **kwargs,
     )
+
+    source_config = MemorySourceConfig(shuffle=shuffle)
+    return MemorySource(source_config, data, rngs=rngs)
 
 
 def create_simple_timeseries_dataset(
     sequence_length: int = 50,
     num_samples: int = 100,
-    **kwargs,
-) -> SyntheticTimeseriesDataset:
-    """Factory function to create a simple timeseries dataset for testing.
+    *,
+    rngs: nnx.Rngs | None = None,
+    shuffle: bool = False,
+    **kwargs: Any,
+) -> MemorySource:
+    """Create a simple timeseries dataset for testing.
 
     Args:
-        sequence_length: Length of each time series
-        num_samples: Number of time series to generate
-        **kwargs: Additional arguments
+        sequence_length: Length of each time series.
+        num_samples: Number of time series to generate.
+        rngs: Random number generators.
+        shuffle: Whether to shuffle data on iteration.
+        **kwargs: Additional parameters.
 
     Returns:
-        Simple synthetic timeseries dataset
+        MemorySource backed by generated timeseries data.
     """
     return create_synthetic_timeseries_dataset(
         sequence_length=sequence_length,
@@ -417,5 +271,7 @@ def create_simple_timeseries_dataset(
         num_samples=num_samples,
         pattern_type="sinusoidal",
         noise_level=0.05,
+        rngs=rngs,
+        shuffle=shuffle,
         **kwargs,
     )

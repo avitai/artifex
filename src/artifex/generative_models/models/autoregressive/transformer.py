@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 
 import jax
 import jax.numpy as jnp
@@ -87,7 +87,7 @@ class TransformerAutoregressiveModel(AutoregressiveModel):
             self.dropout = nnx.Dropout(rate=self.dropout_rate, rngs=rngs)
 
         # Transformer layers
-        self.transformer_layers: list[TransformerEncoderBlock] = nnx.List([])
+        self.transformer_layers = cast(list[TransformerEncoderBlock], nnx.List([]))
         for _ in range(self.num_layers):
             layer = TransformerEncoderBlock(
                 hidden_dim=self.embed_dim,
@@ -255,7 +255,7 @@ class TransformerAutoregressiveModel(AutoregressiveModel):
 
             # Get logits for current position
             outputs = self(current_seq, rngs=rngs, training=False, **kwargs)
-            logits = outputs["logits"]
+            logits = cast(jax.Array, outputs["logits"])
 
             # Extract logits for current position
             current_logits = logits[:, pos, :]  # [n_samples, vocab_size]
@@ -330,6 +330,10 @@ class TransformerAutoregressiveModel(AutoregressiveModel):
         Returns:
             Generated sequences [n_samples, max_length]
         """
+        raise NotImplementedError(
+            "KV-cached transformer generation is not implemented; use generate(...) instead."
+        )
+
         if rngs is None:
             rngs = self._rngs
 
@@ -358,7 +362,7 @@ class TransformerAutoregressiveModel(AutoregressiveModel):
 
             # Get logits for current position
             outputs = self(current_seq, rngs=rngs, training=False, **kwargs)
-            logits = outputs["logits"]
+            logits = cast(jax.Array, outputs["logits"])
 
             # Extract logits for current position
             current_logits = logits[:, pos, :]  # [n_samples, vocab_size]
@@ -535,6 +539,10 @@ class TransformerAutoregressiveModel(AutoregressiveModel):
         Returns:
             Attention weights [batch, num_heads, seq_len, seq_len]
         """
+        raise NotImplementedError(
+            "Attention-weight extraction is not implemented by the retained transformer surface."
+        )
+
         if layer_idx is None:
             layer_idx = self.num_layers - 1
 

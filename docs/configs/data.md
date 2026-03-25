@@ -1,51 +1,37 @@
-# Data
+# Data Config
 
-**Module:** `configs.schema.data`
+`DataConfig` is the typed dataclass for dataset selection and data-loading
+behavior.
 
-**Source:** `configs/schema/data.py`
-
-## Classes
-
-### DataConfig
+## Public Import
 
 ```python
-class DataConfig
+from pathlib import Path
+
+from artifex.configs import DataConfig
+
+config = DataConfig(
+    name="cifar10_data",
+    dataset_name="cifar10",
+    data_dir=Path("./data/cifar10"),
+    split="train",
+    num_workers=4,
+    prefetch_factor=2,
+)
 ```
 
-### DatasetConfig
+## Key Fields
 
-```python
-class DatasetConfig
-```
-
-### ProteinDatasetConfig
-
-```python
-class ProteinDatasetConfig
-```
-
-## Functions
-
-### validate_data_path
-
-```python
-def validate_data_path()
-```
-
-### validate_max_seq_length
-
-```python
-def validate_max_seq_length()
-```
-
-### validate_positive_int
-
-```python
-def validate_positive_int()
-```
-
-## Module Statistics
-
-- **Classes:** 3
-- **Functions:** 3
-- **Imports:** 2
+- `dataset_name`
+- `data_dir`
+- `split`
+- `num_workers`
+- `prefetch_factor`
+- `pin_memory`
+- `shuffle`
+- `drop_remainder`
+- `prefetch_size`
+- `augmentation`
+- `augmentation_params`
+- `validation_split`
+- `test_split`

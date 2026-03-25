@@ -1,6 +1,12 @@
-"""Dataset management protocols and utilities."""
+"""Benchmark dataset infrastructure using calibrax protocols."""
 
-from .base import DatasetLoader, DatasetProtocol, DatasetRegistry, DatasetValidator
+from .base import (
+    DatasetRegistry,
+    DatasetValidator,
+)
 
 
-__all__ = ["DatasetProtocol", "DatasetRegistry", "DatasetValidator", "DatasetLoader"]
+__all__ = [
+    "DatasetRegistry",
+    "DatasetValidator",
+]

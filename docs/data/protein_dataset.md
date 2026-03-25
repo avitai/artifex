@@ -1,70 +1,27 @@
 # Protein Dataset
 
-**Module:** `data.protein_dataset`
+This page is retained for historical links.
 
-**Source:** `data/protein_dataset.py`
+There is no `artifex.data.protein_dataset` module in the live runtime. The
+canonical owner is `artifex.data.protein.dataset`, re-exported through
+`artifex.data.protein`.
 
-## Overview
-
-Protein dataset implementation for diffusion models.
-
-This module provides dataset classes for loading, processing, and batching
-protein structure data for diffusion models.
-
-## Classes
-
-### ProteinDataset
+## Current Imports
 
 ```python
-class ProteinDataset
+from artifex.data.protein import ProteinDataset, ProteinDatasetConfig
+
+config = ProteinDatasetConfig(max_seq_length=128)
+dataset = ProteinDataset(config, data_dir="./protein-pickles")
 ```
 
-### ProteinStructure
+Use these current helpers from the canonical module:
 
-```python
-class ProteinStructure
-```
+- `ProteinDataset`
+- `ProteinDatasetConfig`
+- `ProteinStructure`
+- `protein_collate_fn`
+- `create_synthetic_protein_dataset`
+- `pdb_to_protein_example`
 
-## Functions
-
-### **init**
-
-```python
-def __init__()
-```
-
-### collate_batch
-
-```python
-def collate_batch()
-```
-
-### create_synthetic_protein_dataset
-
-```python
-def create_synthetic_protein_dataset()
-```
-
-### from_numpy
-
-```python
-def from_numpy()
-```
-
-### get_batch
-
-```python
-def get_batch()
-```
-
-### get_statistics
-
-```python
-def get_statistics()
-```
-
-## Module Statistics
-
-- **Classes:** 2
-- **Functions:** 6
-- **Imports:** 4
+See [Protein Dataset Module](dataset.md) for the maintained reference page.

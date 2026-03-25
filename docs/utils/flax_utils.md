@@ -1,11 +1,9 @@
 # Flax Utils
 
-**Module:** `generative_models.utils.jax.flax_utils`
+**Status:** `Coming soon`
+**Planned module target:** `artifex.generative_models.utils.jax.flax_utils`
 
-**Source:** `generative_models/utils/jax/flax_utils.py`
+`artifex.generative_models.utils.jax.flax_utils` is still relevant to the roadmap, but it is not shipped yet.
 
-## Module Statistics
-
-- **Classes:** 0
-- **Functions:** 0
-- **Imports:** 0
+See [Utilities](index.md) for the current utility docs.
+See [Planned Modules Roadmap](../roadmap/planned-modules.md#utilities) for status and scope.

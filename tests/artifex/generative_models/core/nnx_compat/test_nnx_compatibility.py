@@ -170,10 +170,3 @@ def test_distributions():
         print(f"  Success! Sample: {samples.shape}, Log prob: {log_prob.shape}")
     except Exception as e:
         print(f"  Failed: {e}")
-
-
-if __name__ == "__main__":
-    test_resnet_blocks()
-    test_positional_encodings()
-    test_distributions()
-    print("\nAll tests completed!")

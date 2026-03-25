@@ -33,9 +33,6 @@ def should_run_gpu_intensive_tests():
     1. GPU is available and properly configured, OR
     2. JAX_PLATFORMS is set to 'cpu', OR
     3. RUN_RESNET_GPU_TESTS is explicitly set to '1'
-
-    Note: With proper CUDA configuration (JAX_SKIP_CUDA_CONSTRAINTS_CHECK=1),
-    these tests should run successfully on GPU.
     """
     # Import here to avoid circular imports
     from tests.utils.gpu_test_utils import is_gpu_available
@@ -759,39 +756,3 @@ class TestIntegration:
         for block in blocks:
             x = block(x, deterministic=True)
             assert x.shape == (2, 32, 32, 64)
-
-
-if __name__ == "__main__":
-    # Manual test runner for quick verification
-    print("Running manual ResNet tests...")
-
-    # Create test fixture
-    rng_keys = {
-        "params": jax.random.key(42),
-        "dropout": jax.random.key(43),
-        "batch_stats": jax.random.key(44),
-        "extra": jax.random.key(45),
-    }
-
-    # Test basic components
-    test_resnet = TestResNetBlock()
-    test_resnet.test_init_default(rng_keys)
-    test_resnet.test_parameter_validation(rng_keys)
-    print("✓ ResNetBlock tests passed")
-
-    test_bottleneck = TestBottleneckBlock()
-    test_bottleneck.test_init_default(rng_keys)
-    test_bottleneck.test_parameter_validation(rng_keys)
-    print("✓ BottleneckBlock tests passed")
-
-    test_factory = TestFactoryFunctions()
-    test_factory.test_create_resnet_block_basic(rng_keys)
-    test_factory.test_create_resnet_stage_basic(rng_keys)
-    print("✓ Factory function tests passed")
-
-    test_helpers = TestHelperMethods()
-    test_helpers.test_process_size_param(rng_keys)
-    print("✓ Helper method tests passed")
-
-    print("\nAll manual tests completed successfully!")
-    print("Run 'pytest' for the complete test suite with forward pass tests.")

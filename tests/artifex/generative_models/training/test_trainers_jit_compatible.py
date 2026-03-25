@@ -54,7 +54,7 @@ class SimpleVAEModel(nnx.Module):
         self.decoder = nnx.Linear(latent_dim, dim, rngs=rngs)
         self.latent_dim = latent_dim
 
-    def __call__(self, x: jax.Array) -> tuple[jax.Array, jax.Array, jax.Array]:
+    def __call__(self, x: jax.Array) -> dict[str, jax.Array]:
         # Encode
         h = self.encoder(x)
         mean, logvar = jnp.split(h, 2, axis=-1)
@@ -64,7 +64,12 @@ class SimpleVAEModel(nnx.Module):
         z = mean + std * eps
         # Decode
         recon = self.decoder(z)
-        return recon, mean, logvar
+        return {
+            "reconstructed": recon,
+            "mean": mean,
+            "log_var": logvar,
+            "z": z,
+        }
 
 
 class SimpleFlowModel(nnx.Module):
@@ -273,8 +278,8 @@ class TestDiffusionTrainerJITCompatible:
 
         # Handle both Variable objects (older) and raw arrays (newer)
         def extract_value(x):
-            if hasattr(x, "value"):
-                return jnp.copy(x.value)
+            if isinstance(x, nnx.Variable):
+                return jnp.copy(x[...])
             return jnp.copy(x)
 
         initial_params = jax.tree.map(extract_value, initial_state)

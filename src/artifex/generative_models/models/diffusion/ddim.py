@@ -41,8 +41,8 @@ class DDIMModel(DDPMModel):
         super().__init__(config, rngs=rngs)
 
         # DDIM-specific parameters from config
-        self.eta = config.eta  # 0 = deterministic, 1 = stochastic (DDPM)
-        self.ddim_steps = config.num_inference_steps
+        self.eta: float = float(config.eta)  # 0 = deterministic, 1 = stochastic (DDPM)
+        self.ddim_steps: int = int(config.num_inference_steps)
         self.skip_type = config.skip_type  # "uniform" or "quadratic"
 
     def get_ddim_timesteps(self, ddim_steps: int) -> jax.Array:
@@ -73,6 +73,8 @@ class DDIMModel(DDPMModel):
         t_prev: jax.Array,
         predicted_noise: jax.Array,
         eta: float | None = None,
+        *,
+        rngs: nnx.Rngs | None = None,
     ) -> jax.Array:
         """Perform a single DDIM sampling step.
 
@@ -82,12 +84,13 @@ class DDIMModel(DDPMModel):
             t_prev: Previous timestep
             predicted_noise: Predicted noise from the model
             eta: DDIM interpolation parameter (0=deterministic, 1=DDPM)
+            rngs: Optional RNG streams overriding the model-owned RNGs
 
         Returns:
             Sample at timestep t_prev
         """
-        if eta is None:
-            eta = self.eta
+        eta_value = self.eta if eta is None else eta
+        active_rngs = self.rngs if rngs is None else rngs
 
         # Get alpha values
         alpha_t = self._extract_into_tensor(self.alphas_cumprod, t, x_t.shape)
@@ -99,14 +102,14 @@ class DDIMModel(DDPMModel):
 
         # DDIM variance
         sigma_t = (
-            eta
+            eta_value
             * jnp.sqrt((1 - alpha_t_prev) / (1 - alpha_t))
             * jnp.sqrt(1 - alpha_t / alpha_t_prev)
         )
 
-        # Add noise if eta > 0 using stored self.rngs
-        if eta > 0:
-            noise = jax.random.normal(self.rngs.sample(), x_t.shape)
+        # Add noise if eta > 0 using the active RNG stream
+        if eta_value > 0:
+            noise = jax.random.normal(active_rngs.sample(), x_t.shape)
             random_noise = sigma_t * noise
         else:
             random_noise = 0.0
@@ -125,6 +128,7 @@ class DDIMModel(DDPMModel):
         n_samples: int,
         steps: int | None = None,
         eta: float | None = None,
+        rngs: nnx.Rngs | None = None,
     ) -> jax.Array:
         """Generate samples using DDIM.
 
@@ -132,23 +136,23 @@ class DDIMModel(DDPMModel):
             n_samples: Number of samples to generate
             steps: Number of DDIM steps (default: self.ddim_steps)
             eta: DDIM interpolation parameter
+            rngs: Optional RNG streams overriding the model-owned RNGs
 
         Returns:
             Generated samples
         """
-        if steps is None:
-            steps = self.ddim_steps
-        if eta is None:
-            eta = self.eta
+        steps_value = self.ddim_steps if steps is None else steps
+        eta_value = self.eta if eta is None else eta
+        active_rngs = self.rngs if rngs is None else rngs
 
         # Get sample shape
         input_shape = self._get_sample_shape()
 
-        # Initialize with noise using stored self.rngs
-        x = jax.random.normal(self.rngs.sample(), (n_samples, *input_shape))
+        # Initialize with noise using the active RNG stream
+        x = jax.random.normal(active_rngs.sample(), (n_samples, *input_shape))
 
         # Get DDIM timesteps
-        timesteps = self.get_ddim_timesteps(steps)
+        timesteps = self.get_ddim_timesteps(steps_value)
 
         # DDIM sampling loop
         for i in range(len(timesteps)):
@@ -176,15 +180,59 @@ class DDIMModel(DDPMModel):
             t_prev_batch = jnp.full((n_samples,), t_prev, dtype=jnp.int32)
 
             # DDIM step
-            x = self.ddim_step(x, t_batch, t_prev_batch, predicted_noise, eta=eta)
+            x = self.ddim_step(
+                x,
+                t_batch,
+                t_prev_batch,
+                predicted_noise,
+                eta=eta_value,
+                rngs=active_rngs,
+            )
 
         return jnp.clip(x, -1.0, 1.0)
+
+    def generate(
+        self,
+        n_samples: int = 1,
+        *,
+        shape: tuple[int, ...] | None = None,
+        clip_denoised: bool = True,
+        rngs: nnx.Rngs | None = None,
+    ) -> jax.Array:
+        """Generate samples using the retained DDIM fast-sampling path.
+
+        Args:
+            n_samples: Number of samples to generate
+            shape: Optional sample shape override; must match the configured shape
+            clip_denoised: Unused compatibility parameter kept for the diffusion interface
+            rngs: Optional RNG streams overriding the model-owned RNGs
+
+        Returns:
+            Generated samples
+        """
+        del clip_denoised
+
+        configured_shape = self._get_sample_shape()
+        if shape is not None and tuple(shape) != tuple(configured_shape):
+            raise ValueError(
+                "DDIMModel.generate(...) only supports the configured sample shape; "
+                f"expected {configured_shape}, got {shape}"
+            )
+
+        return self.ddim_sample(
+            n_samples,
+            steps=self.ddim_steps,
+            eta=self.eta,
+            rngs=rngs,
+        )
 
     def sample(
         self,
         n_samples: int,
         scheduler: str = "ddim",
         steps: int | None = None,
+        *,
+        rngs: nnx.Rngs | None = None,
     ) -> jax.Array:
         """Sample from the model.
 
@@ -192,15 +240,16 @@ class DDIMModel(DDPMModel):
             n_samples: Number of samples to generate
             scheduler: Sampling scheduler ("ddim" or "ddpm")
             steps: Number of sampling steps
+            rngs: Optional RNG streams overriding the model-owned RNGs
 
         Returns:
             Generated samples
         """
         if scheduler == "ddim":
-            return self.ddim_sample(n_samples, steps=steps)
+            return self.ddim_sample(n_samples, steps=steps, rngs=rngs)
         elif scheduler == "ddpm":
             # Use parent DDPM sampling
-            return super().sample(n_samples, scheduler="ddpm", steps=steps)
+            return super().sample(n_samples, scheduler="ddpm", steps=steps, rngs=rngs)
         else:
             raise ValueError(f"Unknown scheduler: {scheduler}")
 

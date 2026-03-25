@@ -38,7 +38,7 @@ Artifex is undergoing a significant architectural refactoring. The library is be
   - Protocol-based architecture
   - Factory pattern for model creation
   - GPU/CPU device management
-  - Composable loss functions
+  - Explicit functional loss building blocks
 
 ### In Progress
 

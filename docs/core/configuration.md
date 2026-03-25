@@ -1,73 +1,54 @@
 # Configuration
 
-**Module:** `generative_models.core.protocols.configuration`
+Artifex uses one typed configuration foundation across the generative stack:
 
-**Source:** `generative_models/core/protocols/configuration.py`
+- frozen dataclasses
+- `slots=True`
+- `kw_only=True`
+- validation in `__post_init__`
+- typed loading through `from_dict(...)` and YAML helpers
 
-## Overview
+The supported public surface is `artifex.generative_models.core.configuration`, not `core.protocols`.
 
-Configuration protocol definitions for artifex.generative_models.core.
+## Core Types
 
-## Classes
+### `BaseConfig`
 
-### BaseConfig
+`BaseConfig` is the named runtime base for the main model, training, evaluation, and extension config families.
 
-```python
-class BaseConfig
-```
+### `ModalityConfig`
 
-### BaseModalityConfig
+`ModalityConfig` is the richer typed document used for modality metadata-driven integrations such as text and molecular modality setup.
 
-```python
-class BaseModalityConfig
-```
+### `BaseModalityConfig`
 
-### ConfigTemplate
+`BaseModalityConfig` is the lightweight runtime base for modality-processing configs used by image, audio, timeseries, tabular, and multi-modal components.
 
-```python
-class ConfigTemplate
-```
+It provides:
 
-## Functions
+- immutable runtime settings
+- shared normalization / augmentation / batch-size fields
+- cooperative validation through `validate()`
+- typed `from_dict(...)` loading
 
-### **init**
+## Modality Runtime Configs
 
-```python
-def __init__()
-```
+The modality runtime layer now follows the same frozen config contract as the rest of Artifex:
 
-### from_dict
+- `ImageModalityConfig`
+- `AudioModalityConfig`
+- `TimeseriesModalityConfig`
+- `TabularModalityConfig`
+- `MultiModalModalityConfig`
 
-```python
-def from_dict()
-```
+Sequence-style config fields use tuples at runtime rather than mutable lists.
 
-### generate
+## Templates
 
-```python
-def generate()
-```
+Configuration templates are concrete helpers, not protocols. Artifex uses them through the configuration management layer in `core.configuration.management.templates`.
 
-### to_dict
+## Related Pages
 
-```python
-def to_dict()
-```
-
-### update
-
-```python
-def update()
-```
-
-### validate
-
-```python
-def validate()
-```
-
-## Module Statistics
-
-- **Classes:** 3
-- **Functions:** 6
-- **Imports:** 3
+- [API Configuration Reference](../api/core/configuration.md)
+- [Training Configuration Guide](../user-guide/training/configuration.md)
+- [Core Architecture](architecture.md)

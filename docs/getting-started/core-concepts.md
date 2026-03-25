@@ -488,77 +488,81 @@ graph TB
 ### Key Design Principles
 
 1. **Protocol-Based**: Type-safe interfaces using Python Protocols
-2. **Configuration-Driven**: Pydantic-based unified configuration system
+2. **Configuration-Driven**: Frozen dataclass-based unified configuration system
 3. **Factory Pattern**: Centralized model creation
 4. **Hardware-Aware**: Automatic GPU/CPU/TPU detection and optimization
 5. **Modular**: Composable components for flexibility
 
 ### Configuration System
 
-All models use a unified configuration class:
+Artifex uses family-specific frozen dataclass configs. There is no supported
+catch-all generic model config on the public model-creation path.
 
 ```python
-from artifex.generative_models.core.configuration import ModelConfig
+from artifex.generative_models.core.configuration import (
+    DecoderConfig,
+    EncoderConfig,
+    VAEConfig,
+)
 
-config = ModelConfig(
-    # Required fields
+encoder = EncoderConfig(
+    name="vae_encoder",
+    input_shape=(28, 28, 1),
+    latent_dim=32,
+    hidden_dims=(256, 128, 64),
+    activation="gelu",
+)
+decoder = DecoderConfig(
+    name="vae_decoder",
+    latent_dim=32,
+    output_shape=(28, 28, 1),
+    hidden_dims=(64, 128, 256),
+    activation="gelu",
+)
+config = VAEConfig(
     name="vae_experiment",
-    model_class="artifex.generative_models.models.vae.VAE",  # Fully qualified class name
-    input_dim=(28, 28, 1),         # Input dimensions (int or tuple)
-
-    # Architecture
-    hidden_dims=(256, 128, 64),    # Hidden layer sizes
-    output_dim=32,                 # Output/latent dimensions
-    activation="gelu",             # Activation function
-
-    # Model-specific parameters (functional hyperparameters)
-    parameters={
-        "beta": 1.0,                # VAE-specific: β-VAE weight
-        "kl_weight": 1.0,           # KL divergence weight
-        "reconstruction_loss": "mse" # Reconstruction loss type
-    },
-
-    # Optional metadata (non-functional tracking info)
+    encoder=encoder,
+    decoder=decoder,
+    kl_weight=1.0,
     metadata={
         "experiment_id": "vae_001",
-        "dataset": "mnist"
-    }
+        "dataset": "mnist",
+    },
 )
 ```
 
 **Benefits**:
 
-- Type-safe with Pydantic validation
-- Serializable (save/load configurations)
-- Versioned for reproducibility
-- Extensible for custom models
+- type-safe nested validation at construction time
+- serialization through `from_dict()` / `from_yaml()` and `to_dict()`
+- reproducible family-specific runtime behavior
+- no string-based `model_class` dispatch on the public factory surface
 
 ### Device Management
 
-Artifex automatically handles GPU/CPU/TPU:
+Artifex exposes the active JAX runtime through `DeviceManager`:
 
 ```python
-from artifex.generative_models.core.device_manager import get_device_manager
+from artifex.generative_models.core import DeviceManager
 import jax
 
-# Automatic device detection
-manager = get_device_manager()
+# Runtime inspection
+manager = DeviceManager()
 info = manager.get_device_info()
 print(f"Using: {info['backend']}")  # gpu, cpu, or tpu
 print(f"Device count: {len(jax.devices())}")
+```
 
-# Explicit configuration
-from artifex.generative_models.core.device_manager import configure_for_generative_models, MemoryStrategy
+For explicit backend verification, use:
 
-manager = configure_for_generative_models(
-    memory_strategy=MemoryStrategy.BALANCED,  # 75% GPU memory
-    enable_mixed_precision=True                # BF16/FP16
-)
+```bash
+source ./activate.sh
+uv run python scripts/verify_gpu_setup.py --json
 ```
 
 ### Protocol System
 
-Models implement the `GenerativeModelProtocol`:
+Models share a narrow base protocol centered on inference and generation:
 
 ```python
 from typing import Any, Protocol
@@ -566,7 +570,7 @@ from flax import nnx
 import jax
 
 class GenerativeModelProtocol(Protocol):
-    """Base protocol for all generative models."""
+    """Shared inference/generation protocol."""
 
     def __call__(self, x: Any, *, rngs: nnx.Rngs | None = None, **kwargs) -> dict[str, Any]:
         """Forward pass."""
@@ -575,21 +579,20 @@ class GenerativeModelProtocol(Protocol):
     def generate(self, n_samples: int = 1, *, rngs: nnx.Rngs | None = None, **kwargs) -> jax.Array:
         """Generate samples from the model."""
         ...
-
-    def loss_fn(self, batch: Any, model_outputs: dict[str, Any], *, rngs: nnx.Rngs | None = None, **kwargs) -> dict[str, Any]:
-        """Compute loss."""
-        ...
-
-    def sample(self, num_samples: int, **kwargs: Any) -> jax.Array:
-        """Generate samples (alias for generate)."""
-        ...
 ```
 
 This enables:
 
 - **Type checking** at development time
-- **Generic training loops** that work with any model
-- **Consistent interfaces** across model types
+- **Consistent inference/generation surfaces** across model types
+- **Room for family-native capabilities** such as `sample(...)`, `log_prob(...)`,
+  `encode(...)`, `decode(...)`, or explicit adversarial objectives where those
+  methods are semantically real
+
+Single-objective families often expose `loss_fn(...)` directly. Multi-objective
+families such as GANs instead use explicit helpers like
+`generator_objective(...)` and `discriminator_objective(...)` or trainer-owned
+objectives.
 
 ## JAX and Flax NNX Basics
 
@@ -666,58 +669,41 @@ samples = jax.random.normal(rngs.sample(), (10, 784))
 
 ## Multi-Modal Support
 
-Artifex supports multiple data modalities. Some datasets are currently implemented while others are planned for future releases:
+Artifex supports multiple data modalities:
 
 ### Image
 
-!!! note "Coming Soon"
-    CIFAR10Dataset is planned but not yet implemented.
+The image modality is available in `artifex.generative_models.modalities.image` with dataset loading, evaluation metrics, and representation support.
 
 ```python
-# Planned API (not yet available)
-from artifex.data.datasets.image import CIFAR10Dataset
-
-dataset = CIFAR10Dataset(root='./data', train=True)
+from artifex.generative_models.modalities.image import datasets, evaluation, representations
 ```
 
 ### Text
 
-!!! note "Coming Soon"
-    WikipediaDataset is planned but not yet implemented.
+The text modality is available in `artifex.generative_models.modalities.text` with dataset loading, evaluation, and representation support.
 
 ```python
-# Planned API (not yet available)
-from artifex.data.datasets.text import WikipediaDataset
-
-dataset = WikipediaDataset(
-    tokenizer='bpe',
-    max_length=512
-)
+from artifex.generative_models.modalities.text import datasets, evaluation, representations
 ```
 
 ### Audio
 
-!!! note "Coming Soon"
-    LibriSpeechDataset is planned but not yet implemented.
+The audio modality is available in `artifex.generative_models.modalities.audio` with dataset loading, evaluation, and representation support.
 
 ```python
-# Planned API (not yet available)
-from artifex.data.datasets.audio import LibriSpeechDataset
-
-dataset = LibriSpeechDataset(
-    root='./data',
-    sample_rate=16000
-)
+from artifex.generative_models.modalities.audio import datasets, evaluation, representations
 ```
 
 ### Protein
 
 ```python
-from artifex.data.protein_dataset import ProteinDataset
+from artifex.data.protein import ProteinDataset, ProteinDatasetConfig
 
+dataset_config = ProteinDatasetConfig(max_seq_length=128)
 dataset = ProteinDataset(
-    pdb_dir='./data/pdb',
-    with_constraints=True
+    dataset_config,
+    data_dir="./data/pdb",
 )
 ```
 

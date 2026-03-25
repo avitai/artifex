@@ -222,7 +222,7 @@ class TestEnergyBasedModelProperties:
         )
 
         # Loss should be finite
-        assert jnp.isfinite(loss_dict["loss"])
+        assert jnp.isfinite(loss_dict["total_loss"])
         assert jnp.isfinite(loss_dict["contrastive_divergence"])
         assert jnp.isfinite(loss_dict["regularization"])
 
@@ -417,8 +417,8 @@ class TestSampleBufferProperties:
             samples = jax.random.normal(subkey, (5, 8))
             buffer.update_buffer(samples)
 
-            # Invariant: buffer size <= capacity
-            assert len(buffer.buffer) <= capacity
+            # Invariant: retained sample count <= capacity
+            assert buffer.num_samples <= capacity
 
     @jax_required
     def test_buffer_deterministic_sampling(self, energy_rng_key):

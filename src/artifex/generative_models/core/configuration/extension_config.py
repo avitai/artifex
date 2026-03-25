@@ -22,11 +22,9 @@ from .validation import validate_non_negative_float, validate_probability
 # =============================================================================
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class ExtensionConfig(BaseConfig):
     """Base configuration for all extensions.
-
-    This replaces the Pydantic-based ExtensionConfig with a frozen dataclass.
 
     Attributes:
         weight: Weight for the extension's contribution to loss (default: 1.0).
@@ -38,11 +36,11 @@ class ExtensionConfig(BaseConfig):
 
     def __post_init__(self) -> None:
         """Validate extension configuration."""
-        super().__post_init__()
+        super(ExtensionConfig, self).__post_init__()
         validate_non_negative_float(self.weight, "weight")
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class ConstraintExtensionConfig(ExtensionConfig):
     """Configuration for constraint extensions.
 
@@ -59,11 +57,11 @@ class ConstraintExtensionConfig(ExtensionConfig):
 
     def __post_init__(self) -> None:
         """Validate constraint extension configuration."""
-        super().__post_init__()
+        super(ConstraintExtensionConfig, self).__post_init__()
         validate_non_negative_float(self.tolerance, "tolerance")
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class AugmentationExtensionConfig(ExtensionConfig):
     """Configuration for augmentation extensions.
 
@@ -79,11 +77,11 @@ class AugmentationExtensionConfig(ExtensionConfig):
 
     def __post_init__(self) -> None:
         """Validate augmentation extension configuration."""
-        super().__post_init__()
+        super(AugmentationExtensionConfig, self).__post_init__()
         validate_probability(self.probability, "probability")
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class SamplingExtensionConfig(ExtensionConfig):
     """Configuration for sampling extensions.
 
@@ -99,12 +97,12 @@ class SamplingExtensionConfig(ExtensionConfig):
 
     def __post_init__(self) -> None:
         """Validate sampling extension configuration."""
-        super().__post_init__()
+        super(SamplingExtensionConfig, self).__post_init__()
         validate_non_negative_float(self.guidance_scale, "guidance_scale")
         validate_non_negative_float(self.temperature, "temperature")
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class LossExtensionConfig(ExtensionConfig):
     """Configuration for loss extensions.
 
@@ -120,7 +118,7 @@ class LossExtensionConfig(ExtensionConfig):
 
     def __post_init__(self) -> None:
         """Validate loss extension configuration."""
-        super().__post_init__()
+        super(LossExtensionConfig, self).__post_init__()
         if self.warmup_steps < 0:
             raise ValueError(f"warmup_steps must be non-negative, got {self.warmup_steps}")
 
@@ -131,7 +129,7 @@ class LossExtensionConfig(ExtensionConfig):
             )
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class EvaluationExtensionConfig(ExtensionConfig):
     """Configuration for evaluation extensions.
 
@@ -147,10 +145,10 @@ class EvaluationExtensionConfig(ExtensionConfig):
 
     def __post_init__(self) -> None:
         """Validate evaluation extension configuration."""
-        super().__post_init__()
+        super(EvaluationExtensionConfig, self).__post_init__()
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class CallbackExtensionConfig(ExtensionConfig):
     """Configuration for callback extensions.
 
@@ -168,12 +166,12 @@ class CallbackExtensionConfig(ExtensionConfig):
 
     def __post_init__(self) -> None:
         """Validate callback extension configuration."""
-        super().__post_init__()
+        super(CallbackExtensionConfig, self).__post_init__()
         if self.frequency < 1:
             raise ValueError(f"frequency must be at least 1, got {self.frequency}")
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class ModalityExtensionConfig(ExtensionConfig):
     """Configuration for modality extensions.
 
@@ -189,10 +187,10 @@ class ModalityExtensionConfig(ExtensionConfig):
 
     def __post_init__(self) -> None:
         """Validate modality extension configuration."""
-        super().__post_init__()
+        super(ModalityExtensionConfig, self).__post_init__()
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class ArchitectureExtensionConfig(ExtensionConfig):
     """Configuration for architecture extensions.
 
@@ -212,7 +210,7 @@ class ArchitectureExtensionConfig(ExtensionConfig):
 
     def __post_init__(self) -> None:
         """Validate architecture extension configuration."""
-        super().__post_init__()
+        super(ArchitectureExtensionConfig, self).__post_init__()
         if self.rank < 1:
             raise ValueError(f"rank must be at least 1, got {self.rank}")
         validate_non_negative_float(self.alpha, "alpha")
@@ -224,7 +222,7 @@ class ArchitectureExtensionConfig(ExtensionConfig):
 # =============================================================================
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class ProteinExtensionConfig(ConstraintExtensionConfig):
     """Protein-specific extension configuration.
 
@@ -250,13 +248,13 @@ class ProteinExtensionConfig(ConstraintExtensionConfig):
 
     def __post_init__(self) -> None:
         """Validate protein extension configuration."""
-        super().__post_init__()
+        super(ProteinExtensionConfig, self).__post_init__()
         validate_non_negative_float(self.bond_length_weight, "bond_length_weight")
         validate_non_negative_float(self.bond_angle_weight, "bond_angle_weight")
         validate_non_negative_float(self.dihedral_weight, "dihedral_weight")
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class ProteinDihedralConfig(ConstraintExtensionConfig):
     """Configuration for protein dihedral angle constraints.
 
@@ -280,13 +278,13 @@ class ProteinDihedralConfig(ConstraintExtensionConfig):
 
     def __post_init__(self) -> None:
         """Validate protein dihedral configuration."""
-        super().__post_init__()
+        super(ProteinDihedralConfig, self).__post_init__()
         validate_non_negative_float(self.phi_weight, "phi_weight")
         validate_non_negative_float(self.psi_weight, "psi_weight")
         validate_non_negative_float(self.omega_weight, "omega_weight")
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class ProteinMixinConfig(ExtensionConfig):
     """Configuration for protein mixin extensions.
 
@@ -304,14 +302,64 @@ class ProteinMixinConfig(ExtensionConfig):
 
     def __post_init__(self) -> None:
         """Validate protein mixin configuration."""
-        super().__post_init__()
+        super(ProteinMixinConfig, self).__post_init__()
         if self.embedding_dim < 1:
             raise ValueError(f"embedding_dim must be at least 1, got {self.embedding_dim}")
         if self.num_aa_types < 1:
             raise ValueError(f"num_aa_types must be at least 1, got {self.num_aa_types}")
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
+class ProteinExtensionsConfig(BaseConfig):
+    """Canonical typed bundle for protein extension composition.
+
+    This bundle is the single supported shape for configuring the protein
+    extension surface. It intentionally replaces the ad hoc dict-shaped helper
+    contract used by older examples and modality code.
+
+    Attributes:
+        bond_length: Optional bond-length monitoring extension.
+        bond_angle: Optional bond-angle monitoring extension.
+        backbone: Optional backbone constraint extension.
+        dihedral: Optional dihedral constraint extension.
+        mixin: Optional amino-acid feature extension.
+    """
+
+    bond_length: ProteinExtensionConfig | None = None
+    bond_angle: ProteinExtensionConfig | None = None
+    backbone: ProteinExtensionConfig | None = None
+    dihedral: ProteinDihedralConfig | None = None
+    mixin: ProteinMixinConfig | None = None
+
+    def __post_init__(self) -> None:
+        """Validate the protein extension bundle."""
+        super(ProteinExtensionsConfig, self).__post_init__()
+
+        for field_name, config in (
+            ("bond_length", self.bond_length),
+            ("bond_angle", self.bond_angle),
+            ("backbone", self.backbone),
+            ("dihedral", self.dihedral),
+            ("mixin", self.mixin),
+        ):
+            if config is None:
+                continue
+
+            expected_type = {
+                "bond_length": ProteinExtensionConfig,
+                "bond_angle": ProteinExtensionConfig,
+                "backbone": ProteinExtensionConfig,
+                "dihedral": ProteinDihedralConfig,
+                "mixin": ProteinMixinConfig,
+            }[field_name]
+
+            if not isinstance(config, expected_type):
+                raise TypeError(
+                    f"{field_name} must be {expected_type.__name__}, got {type(config).__name__}"
+                )
+
+
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class ChemicalConstraintConfig(ConstraintExtensionConfig):
     """Configuration for chemical/molecular constraints.
 
@@ -329,12 +377,12 @@ class ChemicalConstraintConfig(ConstraintExtensionConfig):
 
     def __post_init__(self) -> None:
         """Validate chemical constraint configuration."""
-        super().__post_init__()
+        super(ChemicalConstraintConfig, self).__post_init__()
         if self.max_ring_size < 3:
             raise ValueError(f"max_ring_size must be at least 3, got {self.max_ring_size}")
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class ImageAugmentationConfig(AugmentationExtensionConfig):
     """Configuration for image augmentation extensions.
 
@@ -356,7 +404,7 @@ class ImageAugmentationConfig(AugmentationExtensionConfig):
 
     def __post_init__(self) -> None:
         """Validate image augmentation configuration."""
-        super().__post_init__()
+        super(ImageAugmentationConfig, self).__post_init__()
         validate_non_negative_float(self.random_rotation, "random_rotation")
 
         if len(self.brightness_range) != 2:
@@ -370,7 +418,7 @@ class ImageAugmentationConfig(AugmentationExtensionConfig):
             raise ValueError("contrast_range[0] must be <= contrast_range[1]")
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class AudioSpectralConfig(ExtensionConfig):
     """Configuration for audio spectral analysis extensions.
 
@@ -392,7 +440,7 @@ class AudioSpectralConfig(ExtensionConfig):
 
     def __post_init__(self) -> None:
         """Validate audio spectral configuration."""
-        super().__post_init__()
+        super(AudioSpectralConfig, self).__post_init__()
         if self.n_fft < 1:
             raise ValueError(f"n_fft must be at least 1, got {self.n_fft}")
         if self.hop_length < 1:
@@ -408,7 +456,7 @@ class AudioSpectralConfig(ExtensionConfig):
                 raise ValueError("f_max must be greater than f_min")
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class TextEmbeddingConfig(ExtensionConfig):
     """Configuration for text embedding extensions.
 
@@ -428,7 +476,7 @@ class TextEmbeddingConfig(ExtensionConfig):
 
     def __post_init__(self) -> None:
         """Validate text embedding configuration."""
-        super().__post_init__()
+        super(TextEmbeddingConfig, self).__post_init__()
         if self.vocab_size < 1:
             raise ValueError(f"vocab_size must be at least 1, got {self.vocab_size}")
         if self.embedding_dim < 1:
@@ -446,7 +494,7 @@ class TextEmbeddingConfig(ExtensionConfig):
 # =============================================================================
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class ClassifierFreeGuidanceConfig(SamplingExtensionConfig):
     """Configuration for classifier-free guidance.
 
@@ -459,10 +507,10 @@ class ClassifierFreeGuidanceConfig(SamplingExtensionConfig):
 
     def __post_init__(self) -> None:
         """Validate classifier-free guidance configuration."""
-        super().__post_init__()
+        super(ClassifierFreeGuidanceConfig, self).__post_init__()
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class ConstrainedSamplingConfig(SamplingExtensionConfig):
     """Configuration for constrained sampling.
 
@@ -478,7 +526,7 @@ class ConstrainedSamplingConfig(SamplingExtensionConfig):
 
     def __post_init__(self) -> None:
         """Validate constrained sampling configuration."""
-        super().__post_init__()
+        super(ConstrainedSamplingConfig, self).__post_init__()
         validate_non_negative_float(self.constraint_weight, "constraint_weight")
         if self.projection_steps < 0:
             raise ValueError(f"projection_steps must be non-negative, got {self.projection_steps}")
@@ -489,7 +537,7 @@ class ConstrainedSamplingConfig(SamplingExtensionConfig):
 # =============================================================================
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class ExtensionPipelineConfig(BaseConfig):
     """Configuration for a pipeline of extensions.
 
@@ -507,7 +555,7 @@ class ExtensionPipelineConfig(BaseConfig):
 
     def __post_init__(self) -> None:
         """Validate extension pipeline configuration."""
-        super().__post_init__()
+        super(ExtensionPipelineConfig, self).__post_init__()
         valid_reductions = {"sum", "mean", "weighted_sum"}
         if self.loss_reduction not in valid_reductions:
             raise ValueError(

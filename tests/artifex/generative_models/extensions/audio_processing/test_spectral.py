@@ -1,6 +1,6 @@
 """Tests for spectral analysis extension.
 
-This module contains comprehensive tests for the SpectralAnalysis extension
+This module contains complete tests for the SpectralAnalysis extension
 that provides spectral analysis utilities for audio processing.
 """
 
@@ -465,7 +465,7 @@ class TestInverseMelSpectrogram:
 
 
 class TestExtractSpectralFeatures:
-    """Tests for comprehensive spectral feature extraction."""
+    """Tests for complete spectral feature extraction."""
 
     def test_extract_spectral_features_keys(self, spectral, test_audio):
         """Test that all expected features are extracted."""

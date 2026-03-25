@@ -1,79 +1,41 @@
-# Distributed
+# Distributed Config
 
-**Module:** `configs.schema.distributed`
+`DistributedConfig` describes multi-process topology, device-mesh shape, and
+distributed runtime policy.
 
-**Source:** `configs/schema/distributed.py`
-
-## Overview
-
-Enhanced distributed training configuration schema with improved validation.
-
-## Classes
-
-### DistributedBackend
+## Public Import
 
 ```python
-class DistributedBackend
+from artifex.configs import DistributedBackend, DistributedConfig
+
+config = DistributedConfig(
+    name="multi_gpu",
+    enabled=True,
+    backend=DistributedBackend.NCCL,
+    world_size=4,
+    num_nodes=1,
+    num_processes_per_node=4,
+    tensor_parallel_size=2,
+    pipeline_parallel_size=1,
+)
 ```
 
-### DistributedConfig
+## Key Fields
 
-```python
-class DistributedConfig
-```
+- `enabled`
+- `backend`
+- `world_size`
+- `rank`
+- `local_rank`
+- `num_nodes`
+- `num_processes_per_node`
+- `master_addr`
+- `master_port`
+- `tensor_parallel_size`
+- `pipeline_parallel_size`
+- `mesh_shape`
+- `mesh_axis_names`
+- `mixed_precision`
 
-## Functions
-
-### get_data_parallel_size
-
-```python
-def get_data_parallel_size()
-```
-
-### get_mesh_config
-
-```python
-def get_mesh_config()
-```
-
-### is_local_main_process
-
-```python
-def is_local_main_process()
-```
-
-### is_main_process
-
-```python
-def is_main_process()
-```
-
-### validate_distributed_consistency
-
-```python
-def validate_distributed_consistency()
-```
-
-### validate_port
-
-```python
-def validate_port()
-```
-
-### validate_positive_int
-
-```python
-def validate_positive_int()
-```
-
-### validate_rank_non_negative
-
-```python
-def validate_rank_non_negative()
-```
-
-## Module Statistics
-
-- **Classes:** 2
-- **Functions:** 8
-- **Imports:** 4
+The dataclass validates cross-field consistency and auto-configures a mesh when
+distributed mode is enabled without an explicit mesh.

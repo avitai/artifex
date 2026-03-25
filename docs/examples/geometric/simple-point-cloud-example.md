@@ -18,7 +18,7 @@ Learn how to generate and visualize 3D point clouds using Artifex's PointCloudMo
 ```bash
 # Clone and setup
 cd artifex
-source activate.sh
+pip install artifex
 
 # Run Python script
 python examples/generative_models/geometric/simple_point_cloud_example.py
@@ -37,7 +37,7 @@ This tutorial teaches you how to work with point clouds—the fundamental repres
 - [x] Configure PointCloudModel with transformer architecture
 - [x] Generate 3D point clouds from learned distributions
 - [x] Visualize point clouds in 3D space
-- [x] Control generation diversity with temperature
+- [x] Generate multiple point clouds in a single call
 
 ### Prerequisites
 
@@ -184,15 +184,13 @@ The model initializes its transformer layers with random weights.
 point_clouds = model.generate(
     rngs=rngs,
     n_samples=2,        # Generate 2 point clouds
-    temperature=0.8,    # Control diversity
 )
 ```
 
-**Temperature effects:**
+**Batch generation:**
 
-- **0.5-0.7**: Focused, consistent samples
-- **0.8-1.0**: Balanced diversity ← Recommended
-- **1.0+**: High diversity, may be noisy
+- Use `n_samples` to generate several candidate point clouds at once
+- Re-run with a different RNG seed to explore alternate shapes
 
 ### Step 5: Visualize in 3D
 
@@ -251,17 +249,14 @@ Each visualization shows a 3D scatter plot with:
 
 **Tradeoff**: More points = better shape representation but slower generation
 
-### 2. Adjust Temperature
+### 2. Generate Larger Batches
 
 ```python
-# Low temperature (focused samples)
-temperature=0.6
-
-# High temperature (diverse samples)
-temperature=1.2
+# Compare multiple samples in one call
+n_samples=5
 ```
 
-**Try it**: Generate 5 samples at different temperatures and compare diversity
+**Try it**: Generate 5 samples in one batch and compare the resulting shapes
 
 ### 3. Modify Architecture Depth
 

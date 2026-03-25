@@ -126,7 +126,7 @@ class ScoreDiffusionModel(DiffusionModel):
         batch_size = x.shape[0]
 
         # Sample random time steps
-        t = jax.random.uniform(rngs.time(), (batch_size,))
+        t = jax.random.uniform(rngs.timestep(), (batch_size,))
 
         # Get noise level and expand for broadcasting
         sigma = self._get_sigma(t)

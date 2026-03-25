@@ -1,6 +1,6 @@
 """Tests for Latent Diffusion Model (LDM) implementation.
 
-This module provides comprehensive tests for the LDM model, covering
+This module provides complete tests for the LDM model, covering
 initialization, encoder/decoder functionality, reparameterization, diffusion
 process, and mathematical correctness.
 """
@@ -453,18 +453,18 @@ class TestLDMModel:
         outputs = model(x)
 
         # Check all expected keys
-        assert "reconstruction" in outputs
+        assert "reconstructed" in outputs
         assert "mean" in outputs
-        assert "logvar" in outputs
+        assert "log_var" in outputs
         assert "latent" in outputs
         assert "noisy_latent" in outputs
         assert "predicted_noise" in outputs
         assert "true_noise" in outputs
 
         # Check shapes
-        assert outputs["reconstruction"].shape == (batch_size, 16, 16, 1)
+        assert outputs["reconstructed"].shape == (batch_size, 16, 16, 1)
         assert outputs["mean"].shape == (batch_size, image_ldm_config.encoder.latent_dim)
-        assert outputs["logvar"].shape == (batch_size, image_ldm_config.encoder.latent_dim)
+        assert outputs["log_var"].shape == (batch_size, image_ldm_config.encoder.latent_dim)
 
     def test_scale_factor_effect_on_latent(self, ldm_config, base_rngs):
         """Test that scale factor affects latent codes."""
@@ -546,7 +546,7 @@ class TestLDMModel:
 
         outputs = model(x, t)
 
-        assert jnp.all(jnp.isfinite(outputs["reconstruction"]))
+        assert jnp.all(jnp.isfinite(outputs["reconstructed"]))
         assert jnp.all(jnp.isfinite(outputs["predicted_noise"]))
 
     def test_image_ldm_forward(self, image_ldm_config, base_rngs):
@@ -557,8 +557,8 @@ class TestLDMModel:
         x = jnp.ones((batch_size, 16, 16, 1))
         outputs = model(x)
 
-        assert outputs["reconstruction"].shape == (batch_size, 16, 16, 1)
-        assert jnp.all(jnp.isfinite(outputs["reconstruction"]))
+        assert outputs["reconstructed"].shape == (batch_size, 16, 16, 1)
+        assert jnp.all(jnp.isfinite(outputs["reconstructed"]))
 
 
 class TestLDMSampling:

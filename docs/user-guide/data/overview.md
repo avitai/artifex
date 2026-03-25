@@ -12,11 +12,11 @@ This guide provides an overview of Artifex's data loading system, including the 
 
     Unified interface for different data types (images, text, audio) with automatic preprocessing and validation
 
-- :material-database:{ .lg .middle } **Dataset Classes**
+- :material-database:{ .lg .middle } **MemorySource Datasets**
 
     ---
 
-    Protocol-based dataset interface compatible with JAX/Flax, supporting batching and iteration
+    Factory-based dataset creation backed by datarax `MemorySource`, supporting indexing, batching, and iteration
 
 - :material-speedometer:{ .lg .middle } **Efficient Pipeline**
 
@@ -85,7 +85,7 @@ The data system uses protocol-based interfaces for maximum flexibility:
 | Component | Purpose | Key Methods |
 |-----------|---------|-------------|
 | **Modality** | Defines data type interface | `get_extensions()`, `get_adapter()` |
-| **BaseDataset** | Dataset abstraction | `__len__()`, `__iter__()`, `get_batch()` |
+| **MemorySource** | Dataset backed by in-memory data | `__len__()`, `__getitem__()`, `__iter__()`, `get_batch()` |
 | **BaseProcessor** | Data preprocessing | `process()`, `preprocess()`, `postprocess()` |
 | **BaseEvaluationSuite** | Modality evaluation | `evaluate_batch()`, `compute_quality_metrics()` |
 | **ModelAdapter** | Model adaptation | `create()` |
@@ -145,6 +145,8 @@ classDiagram
     BaseModalityImplementation <|-- AudioModality
 ```
 
+`BaseModalityConfig` is a frozen typed runtime config from the core configuration layer. Image, audio, timeseries, tabular, and multi-modal runtime configs follow the same immutable dataclass contract.
+
 ### Supported Modalities
 
 #### Image Modality
@@ -180,12 +182,12 @@ print(f"Output shape: {modality.output_shape}")  # (64, 64, 3)
 
 ```python
 from artifex.generative_models.modalities import TextModality
-from artifex.generative_models.core.configuration import ModalityConfiguration
+from artifex.configs import ModalityConfig
 
 # Configure text modality
-config = ModalityConfiguration(
+config = ModalityConfig(
     name="text",
-    modality_type="text",
+    modality_name="text",
     metadata={
         "text_params": {
             "vocab_size": 10000,
@@ -270,82 +272,77 @@ print(sample.keys())  # dict_keys(['image', 'text', 'audio', 'alignment_score', 
 
 ## Dataset Interface
 
-All datasets in Artifex follow the `BaseDataset` protocol, providing a consistent interface regardless of modality.
+All datasets in Artifex are backed by `MemorySource` from the `datarax` library. Factory functions generate data and wrap it in a `MemorySource`, which provides a uniform interface for indexing, iteration, batching, and pipeline integration.
 
-### Base Dataset Protocol
+### MemorySource Interface
+
+`MemorySource` instances support:
+
+- `len(source)` -- total number of samples
+- `source[i]` -- retrieve a single sample by index (including negative indices)
+- `iter(source)` -- iterate over all samples one by one
+- `source.get_batch(batch_size)` -- retrieve a stacked batch of samples
 
 ```python
-from artifex.generative_models.modalities.base import BaseDataset
 from flax import nnx
-import jax.numpy as jnp
+from artifex.generative_models.modalities.image.datasets import create_image_dataset
 
-class CustomDataset(BaseDataset):
-    """Custom dataset implementation."""
+rngs = nnx.Rngs(0)
 
-    def __init__(
-        self,
-        config: BaseModalityConfig,
-        split: str = "train",
-        *,
-        rngs: nnx.Rngs,
-    ):
-        super().__init__(config, split, rngs=rngs)
-        # Initialize your dataset
-        self.data = self._load_data()
+# Factory returns a MemorySource
+source = create_image_dataset("synthetic", rngs=rngs, dataset_size=100, height=32, width=32)
 
-    def __len__(self) -> int:
-        """Return dataset size."""
-        return len(self.data)
+# Length
+print(len(source))  # 100
 
-    def __iter__(self) -> Iterator[dict[str, jax.Array]]:
-        """Iterate over dataset samples."""
-        for sample in self.data:
-            yield sample
+# Indexing
+sample = source[0]
+print(sample["images"].shape)  # (32, 32, 3)
 
-    def get_batch(self, batch_size: int) -> dict[str, jax.Array]:
-        """Get a batch of samples."""
-        # Sample random indices
-        key = self.rngs.sample() if "sample" in self.rngs else jax.random.key(0)
-        indices = jax.random.randint(key, (batch_size,), 0, len(self))
+# Iteration
+for sample in source:
+    print(sample["images"].shape)  # (32, 32, 3)
 
-        # Gather samples
-        samples = [self.data[int(idx)] for idx in indices]
-
-        # Stack into batch
-        batch = {}
-        for key in samples[0].keys():
-            batch[key] = jnp.stack([s[key] for s in samples])
-
-        return batch
-
-    def _load_data(self):
-        """Load dataset - implement your logic here."""
-        pass
+# Batching
+batch = source.get_batch(16)
+print(batch["images"].shape)  # (16, 32, 32, 3)
 ```
 
 ### Built-in Dataset Types
 
 #### Image Datasets
 
-**SyntheticImageDataset** - Generate synthetic image patterns:
+**Synthetic images** -- use `create_image_dataset()` with `dataset_type="synthetic"`:
 
 ```python
-from artifex.generative_models.modalities.image.datasets import (
-    SyntheticImageDataset
-)
+from artifex.generative_models.modalities.image.datasets import create_image_dataset
+from flax import nnx
 
-# Create synthetic dataset
-dataset = SyntheticImageDataset(
-    config=image_config,
+rngs = nnx.Rngs(0)
+
+# Create synthetic image dataset
+source = create_image_dataset(
+    "synthetic",
+    rngs=rngs,
     dataset_size=1000,
+    height=64,
+    width=64,
+    channels=3,
     pattern_type="gradient",  # or "random", "checkerboard", "circles"
-    split="train",
-    rngs=rngs
 )
 
 # Get batch
-batch = dataset.get_batch(batch_size=32)
+batch = source.get_batch(32)
 print(batch["images"].shape)  # (32, 64, 64, 3)
+```
+
+You can also pass an `ImageModalityConfig` instead of explicit dimensions:
+
+```python
+from artifex.generative_models.modalities.image.base import ImageModalityConfig
+
+config = ImageModalityConfig(height=64, width=64, channels=3)
+source = create_image_dataset("synthetic", config=config, rngs=rngs, dataset_size=1000)
 ```
 
 **Supported patterns:**
@@ -355,101 +352,121 @@ print(batch["images"].shape)  # (32, 64, 64, 3)
 - `checkerboard`: Checkerboard patterns with random sizes
 - `circles`: Circular patterns with random positions/radii
 
-**MNISTLikeDataset** - Generate digit-like patterns:
+**MNIST-like images** -- use `create_image_dataset()` with `dataset_type="mnist_like"`:
 
 ```python
-from artifex.generative_models.modalities.image.datasets import (
-    MNISTLikeDataset
-)
+from artifex.generative_models.modalities.image.datasets import create_image_dataset
+from flax import nnx
 
-# Create MNIST-like dataset
-dataset = MNISTLikeDataset(
-    config=grayscale_config,  # Should be 28x28 grayscale
+rngs = nnx.Rngs(0)
+
+# Create MNIST-like dataset with digit patterns
+source = create_image_dataset(
+    "mnist_like",
+    rngs=rngs,
     dataset_size=60000,
+    height=28,
+    width=28,
+    channels=1,
     num_classes=10,
-    split="train",
-    rngs=rngs
 )
 
 # Get labeled batch
-batch = dataset.get_batch(batch_size=128)
+batch = source.get_batch(128)
 print(batch["images"].shape)  # (128, 28, 28, 1)
 print(batch["labels"].shape)  # (128,)
 ```
 
 #### Text Datasets
 
-**SyntheticTextDataset** - Generate synthetic text:
+**Synthetic text** -- use `create_text_dataset()` with `dataset_type="synthetic"`:
 
 ```python
-from artifex.generative_models.modalities.text.datasets import (
-    SyntheticTextDataset
-)
+from artifex.generative_models.modalities.text.datasets import create_text_dataset
+from flax import nnx
+
+rngs = nnx.Rngs(0)
 
 # Create synthetic text dataset
-dataset = SyntheticTextDataset(
-    config=text_config,
+source = create_text_dataset(
+    "synthetic",
+    rngs=rngs,
     dataset_size=1000,
+    vocab_size=10000,
+    max_length=512,
     pattern_type="random_sentences",  # or "repeated_phrases", "sequences", "palindromes"
-    split="train",
-    rngs=rngs
 )
 
 # Get batch
-batch = dataset.get_batch(batch_size=32)
+batch = source.get_batch(32)
 print(batch["text_tokens"].shape)  # (32, 512)
-print(batch["texts"])  # List of raw text strings
 ```
 
-**SimpleTextDataset** - Load from text strings:
+**Text from strings** -- use `create_text_dataset()` with `dataset_type="simple"`:
 
 ```python
-from artifex.generative_models.modalities.text.datasets import (
-    SimpleTextDataset
-)
+from artifex.generative_models.modalities.text.datasets import create_text_dataset
+from flax import nnx
+
+rngs = nnx.Rngs(0)
 
 # Provide list of texts
 texts = [
     "The quick brown fox jumps over the lazy dog",
     "Machine learning is a subset of artificial intelligence",
-    "Deep learning uses neural networks"
+    "Deep learning uses neural networks",
 ]
 
-# Create dataset
-dataset = SimpleTextDataset(
-    config=text_config,
+# Create dataset from raw strings
+source = create_text_dataset(
+    "simple",
+    rngs=rngs,
     texts=texts,
-    split="train",
-    rngs=rngs
+    vocab_size=10000,
+    max_length=512,
 )
 
 # Iterate over samples
-for sample in dataset:
-    print(sample["text"])
+for sample in source:
     print(sample["text_tokens"].shape)  # (512,)
 ```
 
 #### Audio Datasets
 
-**SyntheticAudioDataset** - Generate synthetic audio:
+**Synthetic audio** -- use `create_audio_dataset()` with `dataset_type="synthetic"`:
 
 ```python
-from artifex.generative_models.modalities.audio.datasets import (
-    SyntheticAudioDataset
-)
+from artifex.generative_models.modalities.audio.datasets import create_audio_dataset
+from flax import nnx
+
+rngs = nnx.Rngs(0)
 
 # Create synthetic audio dataset
-dataset = SyntheticAudioDataset(
-    config=audio_config,
+source = create_audio_dataset(
+    "synthetic",
+    rngs=rngs,
     n_samples=1000,
-    audio_types=["sine", "noise", "chirp"],
-    name="SyntheticAudio"
+    sample_rate=16000,
+    duration=1.0,
+    audio_types=("sine", "noise", "chirp"),
 )
 
-# Get sample
-sample = dataset[0]
-print(sample["audio"].shape)  # (16000,) - 1 second at 16kHz
-print(sample["audio_type"])  # "sine" or "noise" or "chirp"
+# Get single sample
+sample = source[0]
+print(sample["audio"].shape)  # (16000,) - 1 second at 16 kHz
+
+# Get batch
+batch = source.get_batch(16)
+print(batch["audio"].shape)  # (16, 16000)
+```
+
+You can also pass an `AudioModalityConfig` to extract `sample_rate`, `duration`, and `normalize` automatically:
+
+```python
+from artifex.generative_models.modalities.audio.base import AudioModalityConfig
+
+config = AudioModalityConfig(sample_rate=16000, duration=2.0, normalize=True)
+source = create_audio_dataset("synthetic", config=config, rngs=rngs, n_samples=500)
 ```
 
 **Supported audio types:**
@@ -491,66 +508,36 @@ sequenceDiagram
     M->>M: Backward pass
 ```
 
-### Creating a Data Loader
+### Creating a Data Pipeline
 
-Artifex provides utility functions for creating data loaders compatible with JAX training loops:
+The recommended way to create batched pipelines is `from_source` from the `datarax` library. It wraps a `MemorySource` into a batched, iterable pipeline:
 
 ```python
-import jax
-import jax.numpy as jnp
+from datarax import from_source
 from flax import nnx
+from artifex.generative_models.modalities.image.datasets import create_image_dataset
 
-def create_data_loader(
-    dataset: BaseDataset,
-    batch_size: int,
-    shuffle: bool = True,
-    drop_last: bool = False
-):
-    """Create a simple data loader for JAX.
+rngs = nnx.Rngs(0)
 
-    Args:
-        dataset: Dataset to load from
-        batch_size: Batch size
-        shuffle: Whether to shuffle data
-        drop_last: Whether to drop last incomplete batch
-
-    Yields:
-        Batches of data as dictionaries
-    """
-    num_samples = len(dataset)
-
-    if shuffle:
-        # Generate random indices
-        key = jax.random.key(0)
-        indices = jax.random.permutation(key, num_samples)
-    else:
-        indices = jnp.arange(num_samples)
-
-    # Calculate number of batches
-    num_batches = num_samples // batch_size
-    if not drop_last and num_samples % batch_size != 0:
-        num_batches += 1
-
-    for i in range(num_batches):
-        start_idx = i * batch_size
-        end_idx = min(start_idx + batch_size, num_samples)
-        batch_indices = indices[start_idx:end_idx]
-
-        # Gather batch
-        batch = dataset.get_batch(len(batch_indices))
-        yield batch
-
-# Usage
-train_loader = create_data_loader(
-    dataset=train_dataset,
-    batch_size=128,
-    shuffle=True,
-    drop_last=True
+# Create a MemorySource
+source = create_image_dataset(
+    "synthetic", rngs=rngs, dataset_size=1000, height=64, width=64
 )
 
-for batch in train_loader:
-    # Training step
-    loss = train_step(model, batch)
+# Wrap into a batched pipeline
+pipeline = from_source(source, batch_size=32)
+
+for batch in pipeline:
+    images = batch["images"]
+    print(images.shape)  # (32, 64, 64, 3)
+    # Training step ...
+```
+
+You can also use `get_batch()` directly on the source for quick prototyping:
+
+```python
+batch = source.get_batch(64)
+print(batch["images"].shape)  # (64, 64, 64, 3)
 ```
 
 ## Preprocessing
@@ -647,11 +634,11 @@ config = ImageModalityConfig(
 ### Text Configuration
 
 ```python
-from artifex.generative_models.core.configuration import ModalityConfiguration
+from artifex.configs import ModalityConfig
 
-config = ModalityConfiguration(
+config = ModalityConfig(
     name="text",
-    modality_type="text",
+    modality_name="text",
     metadata={
         "text_params": {
             "vocab_size": 50000,
@@ -684,14 +671,13 @@ config = AudioModalityConfig(
 
 ## Complete Example
 
-Here's a complete example showing how to set up a data pipeline for training:
+Here is a complete example showing how to set up a data pipeline for training:
 
 ```python
-import jax
-import jax.numpy as jnp
+from datarax import from_source
 from flax import nnx
 from artifex.generative_models.modalities import ImageModality, ImageModalityConfig, ImageRepresentation
-from artifex.generative_models.modalities.image.datasets import SyntheticImageDataset
+from artifex.generative_models.modalities.image.datasets import create_image_dataset
 
 # Initialize RNG
 rngs = nnx.Rngs(0)
@@ -703,56 +689,40 @@ image_config = ImageModalityConfig(
     width=64,
     channels=3,
     normalize=True,
-    augmentation=False
+    augmentation=False,
 )
 
 # Create modality
 modality = ImageModality(config=image_config, rngs=rngs)
 
-# Create training dataset
-train_dataset = SyntheticImageDataset(
+# Create training dataset (MemorySource)
+train_source = create_image_dataset(
+    "synthetic",
     config=image_config,
+    rngs=rngs,
     dataset_size=10000,
     pattern_type="gradient",
-    split="train",
-    rngs=rngs
 )
 
-# Create validation dataset
-val_dataset = SyntheticImageDataset(
+# Create validation dataset (MemorySource)
+val_source = create_image_dataset(
+    "synthetic",
     config=image_config,
+    rngs=rngs,
     dataset_size=1000,
     pattern_type="gradient",
-    split="val",
-    rngs=rngs
 )
 
-# Create data loader
-def create_data_loader(dataset, batch_size, shuffle=True):
-    """Simple data loader for JAX."""
-    num_samples = len(dataset)
-
-    for epoch in range(num_epochs):
-        if shuffle:
-            key = jax.random.key(epoch)
-            indices = jax.random.permutation(key, num_samples)
-        else:
-            indices = jnp.arange(num_samples)
-
-        num_batches = num_samples // batch_size
-        for i in range(num_batches):
-            batch_indices = indices[i * batch_size:(i + 1) * batch_size]
-            batch = dataset.get_batch(batch_size)
-            yield batch
+# Build batched pipelines
+batch_size = 128
+train_pipeline = from_source(train_source, batch_size=batch_size)
+val_pipeline = from_source(val_source, batch_size=batch_size)
 
 # Training loop
-batch_size = 128
 num_epochs = 10
 
-train_loader = create_data_loader(train_dataset, batch_size, shuffle=True)
-
 for epoch in range(num_epochs):
-    for batch in train_loader:
+    for batch in train_pipeline:
         # Get images from batch
         images = batch["images"]
 
@@ -763,8 +733,7 @@ for epoch in range(num_epochs):
         # ... (use processed images for training)
 
     # Validation
-    val_loader = create_data_loader(val_dataset, batch_size, shuffle=False)
-    for val_batch in val_loader:
+    for val_batch in val_pipeline:
         images = val_batch["images"]
         # Validation step
         # ...
@@ -797,13 +766,13 @@ print(available)  # ['image', 'text', 'audio', 'protein', 'molecular', ...]
 ### Dataset Design
 
 !!! tip "DO"
-    - Use protocol-based interfaces for extensibility
-    - Implement `__len__()`, `__iter__()`, and `get_batch()`
+    - Use factory functions (`create_image_dataset`, `create_text_dataset`, etc.) for built-in data
+    - Wrap custom data dictionaries in `MemorySource` for pipeline compatibility
     - Return dictionaries with descriptive keys
     - Use JAX arrays for all numeric data
-    - Provide proper RNG handling
+    - Provide `rngs: nnx.Rngs` for reproducible shuffling and batching
     - Validate data shapes and types
-    - Cache preprocessed data when possible
+    - Use `from_source()` for batched iteration in training loops
 
 !!! danger "DON'T"
     - Use PyTorch or TensorFlow tensors
@@ -811,7 +780,7 @@ print(available)  # ['image', 'text', 'audio', 'protein', 'molecular', ...]
     - Perform heavy computation in `__iter__()`
     - Ignore RNG seeding for reproducibility
     - Mix different data types in same batch
-    - Load entire dataset into memory (unless small)
+    - Instantiate removed classes (`SyntheticImageDataset`, `MNISTLikeDataset`, etc.)
 
 ### Preprocessing
 
@@ -851,12 +820,13 @@ print(available)  # ['image', 'text', 'audio', 'protein', 'molecular', ...]
 
 Artifex's data system provides:
 
-- **Modality-centric architecture** - Unified interface for different data types
-- **Protocol-based design** - Easy to extend with custom datasets and modalities
-- **JAX-native** - Full JAX compatibility with JIT and GPU support
-- **Preprocessing pipelines** - Configurable normalization and augmentation
-- **Multi-modal support** - Native support for aligned multi-modal data
-- **Type safety** - Full type hints and validation
+- **Modality-centric architecture** -- Unified interface for different data types
+- **MemorySource-backed datasets** -- Factory functions return `MemorySource` instances with indexing, iteration, and batching
+- **datarax pipeline integration** -- Use `from_source()` for batched, iterable training pipelines
+- **JAX-native** -- Full JAX compatibility with JIT and GPU support
+- **Preprocessing pipelines** -- Configurable normalization and augmentation
+- **Multi-modal support** -- Native support for aligned multi-modal data
+- **Type safety** -- Full type hints and validation
 
 ## Next Steps
 

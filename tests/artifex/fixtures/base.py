@@ -5,10 +5,8 @@ including RNG management, standard data shapes, device configuration, and common
 testing utilities.
 """
 
-import jax
 import numpy as np
 import pytest
-from flax import nnx
 
 
 @pytest.fixture(scope="session")
@@ -18,6 +16,8 @@ def base_rngs():
     Returns:
         nnx.Rngs: Deterministic RNG state with seed 42
     """
+    from flax import nnx
+
     return nnx.Rngs(42)
 
 
@@ -64,6 +64,8 @@ def test_device():
     Returns:
         jax.Device: GPU device if available, otherwise CPU
     """
+    import jax
+
     gpu_devices = [d for d in jax.devices() if d.platform == "gpu"]
     if gpu_devices:
         return gpu_devices[0]
@@ -260,39 +262,6 @@ def memory_limits():
         "large_model": 2000,  # Large models should use < 2GB
         "test_data": 50,  # Test data should use < 50MB
     }
-
-
-@pytest.fixture
-def jax_config():
-    """JAX configuration for testing.
-
-    Returns:
-        dict: Dictionary with JAX configuration settings
-    """
-    return {
-        "jax_enable_x64": False,
-        "jax_platforms": "cpu",
-        "xla_python_client_mem_fraction": 0.75,
-        "xla_python_client_preallocate": False,
-    }
-
-
-@pytest.fixture(autouse=True)
-def setup_jax_environment(jax_config):
-    """Automatically setup JAX environment for each test.
-
-    Args:
-        jax_config: JAX configuration fixture
-    """
-    # Set JAX configuration
-    import os
-
-    for key, value in jax_config.items():
-        env_var = key.upper()
-        os.environ[env_var] = str(value)
-
-    # Clear JAX cache to ensure clean state
-    jax.clear_caches()
 
 
 @pytest.fixture

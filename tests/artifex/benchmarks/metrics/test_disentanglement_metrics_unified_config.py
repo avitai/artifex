@@ -89,6 +89,40 @@ class TestDisentanglementMetricsUnifiedConfig:
         assert isinstance(result["mig_score"], float)
         assert 0 <= result["mig_score"] <= 1
 
+    @pytest.mark.parametrize(
+        "metric_cls_name",
+        ["MutualInformationGapMetric", "SeparationMetric", "DisentanglementMetric"],
+    )
+    def test_disentanglement_metrics_require_direct_inputs(self, rngs, test_data, metric_cls_name):
+        """Disentanglement metrics should not accept legacy kwarg aliases."""
+        module = __import__(
+            "artifex.benchmarks.metrics.disentanglement",
+            fromlist=[metric_cls_name],
+        )
+        metric_cls = getattr(module, metric_cls_name)
+        metric_name = {
+            "MutualInformationGapMetric": "mig",
+            "SeparationMetric": "sap",
+            "DisentanglementMetric": "dci",
+        }[metric_cls_name]
+        config = EvaluationConfig(
+            name=f"{metric_name}_test",
+            metrics=[metric_name],
+            metric_params={metric_name: {}},
+            eval_batch_size=16,
+        )
+
+        metric = metric_cls(rngs=rngs, config=config)
+        factors, latents = test_data
+
+        with pytest.raises(TypeError, match="unexpected keyword argument"):
+            metric.compute(
+                factors,
+                latents,
+                latent_representations=latents,
+                ground_truth_factors=factors,
+            )
+
     def test_sap_metric_requires_evaluation_config(self, rngs):
         """Test that SAP metric requires EvaluationConfig."""
         from artifex.benchmarks.metrics.disentanglement import SeparationMetric
@@ -195,18 +229,17 @@ class TestDisentanglementMetricsUnifiedConfig:
         metric = MutualInformationGapMetric(rngs=rngs, config=config)
         factors, latents = test_data
 
-        # Valid inputs
-        assert metric.validate_inputs(factors, latents)
+        # Valid inputs — should not raise
+        metric.validate_inputs(factors, latents)
 
         # Invalid inputs - not arrays
-        assert not metric.validate_inputs([1, 2, 3], latents)
+        with pytest.raises(ValueError):
+            metric.validate_inputs([1, 2, 3], latents)
 
         # Invalid inputs - wrong dimensions
-        assert not metric.validate_inputs(factors[0], latents[0])
+        with pytest.raises(ValueError):
+            metric.validate_inputs(factors[0], latents[0])
 
         # Invalid inputs - batch size mismatch
-        assert not metric.validate_inputs(factors[:50], latents)
-
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+        with pytest.raises(ValueError):
+            metric.validate_inputs(factors[:50], latents)

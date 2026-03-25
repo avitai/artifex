@@ -282,7 +282,7 @@ class SplineCouplingLayer(FlowLayer):
     def __init__(
         self,
         mask: jax.Array,
-        hidden_dims: list[int] = [128, 128],
+        hidden_dims: list[int] | None = None,
         num_bins: int = 8,
         tail_bound: float = 3.0,
         *,
@@ -298,6 +298,8 @@ class SplineCouplingLayer(FlowLayer):
             rngs: Random number generators
         """
         super().__init__(rngs=rngs)
+        if hidden_dims is None:
+            hidden_dims = [128, 128]
         self.mask = mask
         self.num_bins = num_bins
         self.tail_bound = tail_bound
@@ -572,25 +574,3 @@ class NeuralSplineFlow(NormalizingFlow):
             Generated samples of shape (n_samples, input_dim)
         """
         return self.sample(n_samples, rngs=rngs)
-
-    def loss_fn(
-        self,
-        batch: dict[str, jax.Array],
-        model_outputs: dict[str, jax.Array],
-        *,
-        rngs: nnx.Rngs | None = None,
-    ) -> jax.Array:
-        """Compute loss for training.
-
-        Args:
-            batch: Batch dictionary containing 'x' key with data
-            model_outputs: Model outputs containing 'z' and 'log_det'
-
-        Returns:
-            Scalar loss value (negative log-likelihood)
-        """
-        x = batch["x"]
-        log_prob = self.log_prob(x, rngs=rngs)
-
-        # Return scalar loss (negative log-likelihood)
-        return -jnp.mean(log_prob)

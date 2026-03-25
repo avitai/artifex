@@ -1,5 +1,7 @@
 # Device Placement
 
+**Status:** `Supported runtime training surface`
+
 **Module:** `artifex.generative_models.training.distributed.device_placement`
 
 **Source:** `src/artifex/generative_models/training/distributed/device_placement.py`

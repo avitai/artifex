@@ -1,9 +1,9 @@
 """Configuration and fixtures for end-to-end tests."""
 
-import os
 import tempfile
+from collections.abc import Generator
 from pathlib import Path
-from typing import Any, Generator
+from typing import Any
 
 import jax
 import jax.numpy as jnp
@@ -34,19 +34,14 @@ def e2e_config() -> dict[str, Any]:
 
 @pytest.fixture
 def sample_dataset() -> dict[str, jax.Array]:
-    """Create a small sample dataset for E2E testing."""
-    # Ensure JAX uses CPU
-    os.environ["JAX_PLATFORMS"] = "cpu"
-
-    # Create synthetic data
+    """Create a small synthetic dataset for E2E testing."""
     batch_size = 16
     image_shape = (32, 32, 3)
 
-    data = {
+    return {
         "images": jnp.ones((batch_size, *image_shape)),
-        "labels": jnp.arange(batch_size) % 4,  # 4 classes
+        "labels": jnp.arange(batch_size) % 4,
     }
-    return data
 
 
 @pytest.fixture

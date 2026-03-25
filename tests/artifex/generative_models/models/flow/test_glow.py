@@ -28,12 +28,11 @@ def create_glow_config():
     return GlowConfig(
         name="test_glow",
         coupling_network=coupling_network,
-        input_dim=4,
-        latent_dim=4,
+        input_dim=8 * 8 * 4,
+        latent_dim=8 * 8 * 4,
         base_distribution="normal",
         base_distribution_params={"loc": 0.0, "scale": 1.0},
         image_shape=(8, 8, 4),  # (height, width, channels)
-        num_scales=2,
         blocks_per_scale=2,
     )
 
@@ -188,6 +187,13 @@ class TestInvertibleConv1x1:
         expected_log_det = jnp.repeat(expected_log_det, batch_size)
         assert jnp.allclose(log_det, expected_log_det, atol=1e-4)
 
+    def test_forward_raises_on_mismatched_channels(self, rngs, input_data):
+        """Mismatched channel counts should fail explicitly."""
+        layer = InvertibleConv1x1(num_channels=16, rngs=rngs)
+
+        with pytest.raises(ValueError, match="expected 16"):
+            layer.forward(input_data, rngs=rngs)
+
     def test_inverse(self, rngs, input_data):
         """Test inverse transformation."""
         num_channels = input_data.shape[-1]
@@ -338,6 +344,13 @@ class TestGlowBlock:
         # Individual components should be initialized
         assert block.actnorm.initialized
 
+    def test_forward_raises_on_mismatched_channels(self, rngs, input_data):
+        """Glow blocks should fail explicitly on channel mismatches."""
+        block = GlowBlock(num_channels=16, rngs=rngs)
+
+        with pytest.raises(ValueError, match="expected 16"):
+            block.forward(input_data, rngs=rngs)
+
     def test_inverse(self, rngs, input_data):
         """Test inverse transformation."""
         num_channels = input_data.shape[-1]
@@ -356,6 +369,13 @@ class TestGlowBlock:
         # Check reconstruction
         assert jnp.allclose(x, input_data, rtol=1e-5, atol=1e-5)
 
+    def test_inverse_raises_on_mismatched_channels(self, rngs, input_data):
+        """Glow block inverse should fail explicitly on channel mismatches."""
+        block = GlowBlock(num_channels=16, rngs=rngs)
+
+        with pytest.raises(ValueError, match="expected 16"):
+            block.inverse(input_data, rngs=rngs)
+
 
 class TestGlow:
     """Test cases for Glow model."""
@@ -366,12 +386,11 @@ class TestGlow:
 
         # Check attributes
         assert model.image_shape == config.image_shape
-        assert model.num_scales == config.num_scales
         assert model.blocks_per_scale == config.blocks_per_scale
         assert model.hidden_dims == list(config.coupling_network.hidden_dims)
 
         # Check flow layers
-        expected_layers = config.num_scales * config.blocks_per_scale
+        expected_layers = config.blocks_per_scale
         assert len(model.flow_layers) == expected_layers
 
         # Layers should be GlowBlocks
@@ -379,27 +398,16 @@ class TestGlow:
             assert isinstance(layer, GlowBlock)
 
     def test_init_flow_layers(self, config, rngs):
-        """Test _init_flow_layers method."""
+        """Test the retained single-scale Glow block stack."""
         model = Glow(config, rngs=rngs)
 
         # Check correct number of layers
-        expected_layers = config.num_scales * config.blocks_per_scale
+        expected_layers = config.blocks_per_scale
         assert len(model.flow_layers) == expected_layers
 
-        # Check each block
-        for i in range(expected_layers):
-            scale_idx = i // config.blocks_per_scale
-
-            # For first scale, channel count should match original channels
-            if scale_idx == 0:
-                expected_channels = config.image_shape[2]
-            # For each subsequent scale, channels are multiplied by 4
-            else:
-                expected_channels = config.image_shape[2] * (4**scale_idx)
-
-            block = model.flow_layers[i]
+        for block in model.flow_layers:
             assert isinstance(block, GlowBlock)
-            assert block.coupling.num_channels == expected_channels
+            assert block.coupling.num_channels == config.image_shape[2]
 
     def test_forward(self, config, rngs, input_data):
         """Test forward transformation through Glow."""
@@ -477,8 +485,8 @@ class TestGlow:
         # Samples should be finite
         assert jnp.all(jnp.isfinite(samples))
 
-    def test_single_scale(self, rngs, input_data):
-        """Test model with a single scale."""
+    def test_retained_single_scale_stack(self, rngs, input_data):
+        """Test model on the retained single-scale contract."""
         coupling_network = CouplingNetworkConfig(
             name="glow_coupling",
             hidden_dims=(32, 32),
@@ -491,7 +499,6 @@ class TestGlow:
             latent_dim=4,
             base_distribution="normal",
             image_shape=(8, 8, 4),
-            num_scales=1,
             blocks_per_scale=2,
         )
         model = Glow(config, rngs=rngs)
@@ -519,6 +526,5 @@ class TestGlow:
                 latent_dim=4,
                 base_distribution="normal",
                 image_shape=(8, 8, 4),
-                num_scales=2,
                 blocks_per_scale=0,
             )

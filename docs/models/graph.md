@@ -10,7 +10,8 @@ Graph model implementation with E(n) Equivariant Graph Neural Networks (EGNN).
 
 This module implements a generic graph model with E(n) equivariance support,
 which is useful for generating and processing molecular structures,
-including proteins.
+including proteins. `EGNNLayer` consumes node features already projected to the
+model's retained `hidden_dim` contract.
 
 ## Classes
 

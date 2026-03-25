@@ -6,6 +6,8 @@ Following Test-Driven Development principles:
 - Tests cover edge cases
 """
 
+import dataclasses
+
 import jax
 import jax.numpy as jnp
 import pytest
@@ -18,6 +20,8 @@ from artifex.generative_models.core.configuration import (
 )
 from artifex.generative_models.factory import ModelFactory
 from artifex.generative_models.modalities.image import (
+    AugmentationProcessor,
+    compute_image_metrics,
     ImageModality,
     ImageModalityAdapter,
     ImageModalityConfig,
@@ -84,6 +88,22 @@ class TestImageModalityConfig:
         assert config.channels == 4
         assert config.width == 512  # Should use specified width
 
+    def test_config_is_frozen_and_supports_from_dict(self):
+        """Image runtime config should use the frozen typed config standard."""
+        config = ImageModalityConfig.from_dict(
+            {
+                "representation": "grayscale",
+                "height": 128,
+            }
+        )
+
+        assert config.representation == ImageRepresentation.GRAYSCALE
+        assert config.width == 128
+        assert config.channels == 1
+
+        with pytest.raises(dataclasses.FrozenInstanceError):
+            config.height = 64
+
 
 class TestImageModality:
     """Test ImageModality class."""
@@ -149,6 +169,21 @@ class TestImageModality:
         assert images.shape == (4, 32, 32, 3)
         assert images.dtype == jnp.float32
 
+    def test_loss_fn_uses_canonical_total_loss(self):
+        """Image modality loss should follow the shared total_loss contract."""
+        rngs = nnx.Rngs(42)
+        config = ImageModalityConfig(height=16, width=16, channels=3)
+        modality = ImageModality(config=config, rngs=rngs)
+
+        batch = {"images": jnp.ones((2, 16, 16, 3))}
+        model_outputs = {"images": jnp.zeros((2, 16, 16, 3))}
+
+        losses = modality.loss_fn(batch, model_outputs)
+
+        assert "total_loss" in losses
+        assert "mse" in losses
+        assert jnp.isfinite(losses["total_loss"])
+
     def test_process_method(self):
         """Test process method for multi-modal fusion."""
         rngs = nnx.Rngs(42)
@@ -166,6 +201,52 @@ class TestImageModality:
         processed_batch = modality.process(batch)
 
         assert processed_batch.shape == (4, 32 * 32 * 3)
+
+
+class TestImageHelperSurface:
+    """Test the retained lightweight image helper contract."""
+
+    def test_compute_image_metrics_supports_modality_local_metrics(self):
+        """The helper layer should keep its documented modality-local metrics."""
+        rngs = nnx.Rngs(42)
+        generated = jnp.zeros((2, 32, 32, 3), dtype=jnp.float32)
+        reference = jnp.ones_like(generated) * 0.25
+
+        metrics = compute_image_metrics(
+            generated,
+            reference,
+            metrics=["mse", "psnr", "ssim"],
+            rngs=rngs,
+        )
+
+        assert set(metrics) == {"mse", "psnr", "ssim"}
+        assert all(jnp.isfinite(jnp.array(value)) for value in metrics.values())
+
+    @pytest.mark.parametrize("metric_name", ["fid", "is", "lpips"])
+    def test_compute_image_metrics_rejects_benchmark_owned_metrics(self, metric_name):
+        """Benchmark metrics should stay outside the image modality helper layer."""
+        rngs = nnx.Rngs(42)
+        generated = jnp.zeros((2, 32, 32, 3), dtype=jnp.float32)
+        reference = jnp.ones_like(generated) * 0.25
+
+        with pytest.raises(ValueError, match=f"Unknown metric: {metric_name}"):
+            compute_image_metrics(generated, reference, metrics=[metric_name], rngs=rngs)
+
+    def test_augmentation_processor_surface_matches_retained_runtime(self):
+        """Only the retained flip-and-brightness augmentation helpers should exist here."""
+        rngs = nnx.Rngs(42)
+        config = ImageModalityConfig(height=32, width=32, channels=3, augmentation=True)
+        processor = AugmentationProcessor(config=config, rngs=rngs)
+        images = jnp.ones((2, 32, 32, 3), dtype=jnp.float32) * 0.5
+
+        augmented = processor.augment_batch(images)
+
+        assert augmented.shape == images.shape
+        assert jnp.isfinite(augmented).all()
+        assert hasattr(processor, "random_flip")
+        assert hasattr(processor, "random_brightness")
+        assert not hasattr(processor, "random_rotation")
+        assert not hasattr(processor, "random_contrast")
 
 
 class TestImageModalityAdapter:
@@ -440,7 +521,3 @@ class TestEndToEndIntegration:
 
         # Currently adapter returns model unchanged
         assert adapted is model
-
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])

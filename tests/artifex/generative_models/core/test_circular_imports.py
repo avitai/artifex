@@ -13,7 +13,7 @@ class TestCircularImports(unittest.TestCase):
     def test_distribution_then_sampling(self):
         """Test importing Distribution first, then sampling modules."""
         # Import Distribution first
-        from artifex.generative_models.core.interfaces import Distribution
+        from artifex.generative_models.core.distributions.base import Distribution
         from artifex.generative_models.core.sampling.ancestral import ancestral_sampling
 
         # Then import from sampling
@@ -30,7 +30,7 @@ class TestCircularImports(unittest.TestCase):
         """Test importing sampling modules first, then Distribution."""
         # Import from sampling first
         # Then import Distribution
-        from artifex.generative_models.core.interfaces import Distribution
+        from artifex.generative_models.core.distributions.base import Distribution
         from artifex.generative_models.core.sampling.ancestral import ancestral_sampling
         from artifex.generative_models.core.sampling.mcmc import mcmc_sampling
 
@@ -40,7 +40,3 @@ class TestCircularImports(unittest.TestCase):
 
         # Verify Distribution is a class
         self.assertTrue(isinstance(Distribution, type))
-
-
-if __name__ == "__main__":
-    unittest.main()

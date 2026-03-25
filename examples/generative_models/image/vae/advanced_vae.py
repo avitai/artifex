@@ -1,4 +1,15 @@
 #!/usr/bin/env python
+# ---
+# jupyter:
+#   jupytext:
+#     formats: py:percent,ipynb
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+# ---
+
+# %%
 r"""Advanced VAE Examples - Showcase Artifex's Advanced VAE Features
 
 ## Overview
@@ -41,7 +52,7 @@ This example uses Artifex's VAE implementations with frozen dataclass configs:
 
 ## Prerequisites
 
-- Artifex installed (run `source activate.sh`)
+- Artifex installed (run `source ./activate.sh`)
 - Understanding of standard VAEs (see basic vae-mnist tutorial)
 - Familiarity with JAX and Flax NNX
 - Knowledge of variational inference concepts
@@ -49,8 +60,8 @@ This example uses Artifex's VAE implementations with frozen dataclass configs:
 ## Usage
 
 ```bash
-source activate.sh
-python examples/generative_models/image/vae/advanced_vae.py
+source ./activate.sh
+uv run python examples/generative_models/image/vae/advanced_vae.py
 ```
 
 ## Expected Output
@@ -124,6 +135,7 @@ By the end of this example, you will understand:
 Import Artifex's VAE implementations and utilities for training advanced variants.
 """
 
+import logging
 from itertools import islice
 from pathlib import Path
 
@@ -145,16 +157,29 @@ from artifex.generative_models.core.configuration.vae_config import (
     ConditionalVAEConfig,
     VQVAEConfig,
 )
-from artifex.generative_models.models.vae import BetaVAE, ConditionalVAE, VQVAE
-from artifex.generative_models.models.vae.beta_vae import BetaVAEWithCapacity
+from artifex.generative_models.models.vae import (
+    BetaVAE,
+    BetaVAEWithCapacity,
+    ConditionalVAE,
+    VQVAE,
+)
+
+
+logging.basicConfig(level=logging.INFO, format="%(message)s")
+LOGGER = logging.getLogger(__name__)
+
+
+def echo(message: str = "") -> None:
+    """Log example progress messages without using bare print statements."""
+    LOGGER.info(message)
 
 
 # Create output directory
 OUTPUT_DIR = Path("examples_output/advanced_vae")
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-print(f"JAX devices: {jax.devices()}")
-print(f"Output directory: {OUTPUT_DIR}")
+echo(f"JAX devices: {jax.devices()}")
+echo(f"Output directory: {OUTPUT_DIR}")
 
 
 # %% [markdown]
@@ -190,7 +215,7 @@ def load_real_mnist(batch_size=128):
     import grain.python as grain
     from datasets import load_dataset
 
-    print("\nLoading MNIST dataset...")
+    echo("\nLoading MNIST dataset...")
 
     # Load MNIST from Hugging Face (avoids TensorFlow dependency)
     ds = load_dataset("mnist")
@@ -222,7 +247,7 @@ def load_real_mnist(batch_size=128):
     train_source = MNISTDataSource(ds["train"])
     test_source = MNISTDataSource(ds["test"])
 
-    print(f"✓ MNIST loaded: {len(train_source)} training images, {len(test_source)} test images")
+    echo(f"✓ MNIST loaded: {len(train_source)} training images, {len(test_source)} test images")
 
     # Create samplers
     train_sampler = grain.IndexSampler(
@@ -254,7 +279,7 @@ def load_real_mnist(batch_size=128):
         worker_count=0,
     )
 
-    print(f"✓ Created Grain DataLoaders (batch_size={batch_size})")
+    echo(f"✓ Created Grain DataLoaders (batch_size={batch_size})")
 
     return train_loader, test_loader
 
@@ -344,8 +369,8 @@ def train_step(model, optimizer, images, step, labels=None):
             outputs = model(images)
 
         # Compute losses (step parameter needed for β/capacity annealing)
-        losses = model.loss_fn(x=images, outputs=outputs, step=step)
-        return losses["loss"], losses
+        losses = model.loss_fn(images, outputs, step=step)
+        return losses["total_loss"], losses
 
     # Compute gradients
     (_, losses), grads = nnx.value_and_grad(loss_fn, has_aux=True)(model)
@@ -373,24 +398,24 @@ def train_beta_vae(model, train_ds, num_epochs=5, learning_rate=1e-3, batches_pe
     Returns:
         Dictionary with training history
     """
-    print()
-    print("=" * 70)
-    print(f"Training β-VAE (β={model.beta_default}, warmup={model.beta_warmup_steps} steps)")
-    print("=" * 70)
+    echo()
+    echo("=" * 70)
+    echo(f"Training β-VAE (β={model.beta_default}, warmup={model.beta_warmup_steps} steps)")
+    echo("=" * 70)
 
     # Optimizer (NNX 0.11.0+ API requires wrt parameter)
     optimizer = nnx.Optimizer(model, optax.adam(learning_rate), wrt=nnx.Param)
 
-    history = {"loss": [], "recon_loss": [], "kl_loss": [], "beta": []}
+    history = {"total_loss": [], "recon_loss": [], "kl_loss": [], "beta": []}
     step_count = 0
 
     # Set model to training mode (enables dropout, batch norm training, etc.)
     model.train()
 
-    print("Compiling train step with JIT (first iteration will be slower)...")
+    echo("Compiling train step with JIT (first iteration will be slower)...")
 
     for epoch in range(num_epochs):
-        epoch_metrics = {"loss": [], "recon_loss": [], "kl_loss": [], "beta": []}
+        epoch_metrics = {"total_loss": [], "recon_loss": [], "kl_loss": [], "beta": []}
 
         # Limit batches per epoch from infinite iterator
         epoch_ds = islice(train_ds, batches_per_epoch)
@@ -410,7 +435,7 @@ def train_beta_vae(model, train_ds, num_epochs=5, learning_rate=1e-3, batches_pe
             losses = train_step(model, optimizer, images, step_count)
 
             # Track metrics
-            epoch_metrics["loss"].append(float(losses["loss"]))
+            epoch_metrics["total_loss"].append(float(losses["total_loss"]))
             epoch_metrics["recon_loss"].append(float(losses["reconstruction_loss"]))
             epoch_metrics["kl_loss"].append(float(losses["kl_loss"]))
             epoch_metrics["beta"].append(float(losses["beta"]))
@@ -418,7 +443,7 @@ def train_beta_vae(model, train_ds, num_epochs=5, learning_rate=1e-3, batches_pe
             # Update progress bar with current metrics
             pbar.set_postfix(
                 {
-                    "loss": f"{losses['loss']:.4f}",
+                    "total_loss": f"{losses['total_loss']:.4f}",
                     "recon": f"{losses['reconstruction_loss']:.4f}",
                     "kl": f"{losses['kl_loss']:.4f}",
                     "β": f"{losses['beta']:.3f}",
@@ -428,23 +453,23 @@ def train_beta_vae(model, train_ds, num_epochs=5, learning_rate=1e-3, batches_pe
             step_count += 1
 
         # Average metrics
-        avg_loss = np.mean(epoch_metrics["loss"])
+        avg_loss = np.mean(epoch_metrics["total_loss"])
         avg_recon = np.mean(epoch_metrics["recon_loss"])
         avg_kl = np.mean(epoch_metrics["kl_loss"])
         avg_beta = np.mean(epoch_metrics["beta"])
 
-        history["loss"].append(avg_loss)
+        history["total_loss"].append(avg_loss)
         history["recon_loss"].append(avg_recon)
         history["kl_loss"].append(avg_kl)
         history["beta"].append(avg_beta)
 
-        print(
+        echo(
             f"Epoch {epoch + 1}/{num_epochs} - "
             f"Loss: {avg_loss:.4f}, Recon: {avg_recon:.4f}, "
             f"KL: {avg_kl:.4f}, β: {avg_beta:.3f}"
         )
 
-    print("✓ β-VAE training complete")
+    echo("✓ β-VAE training complete")
     return history
 
 
@@ -527,25 +552,31 @@ def train_capacity_beta_vae(
     Returns:
         Dictionary with training history
     """
-    print()
-    print("=" * 70)
-    print(f"Training β-VAE with Capacity Control (C_max={model.capacity_max} nats)")
-    print("=" * 70)
+    echo()
+    echo("=" * 70)
+    echo(f"Training β-VAE with Capacity Control (C_max={model.capacity_max} nats)")
+    echo("=" * 70)
 
     # Optimizer (NNX 0.11.0+ API requires wrt parameter)
     optimizer = nnx.Optimizer(model, optax.adam(learning_rate), wrt=nnx.Param)
 
-    history = {"loss": [], "recon_loss": [], "kl_loss": [], "capacity": [], "capacity_loss": []}
+    history = {
+        "total_loss": [],
+        "recon_loss": [],
+        "kl_loss": [],
+        "capacity": [],
+        "capacity_loss": [],
+    }
     step_count = 0
 
     # Set model to training mode (enables dropout, batch norm training, etc.)
     model.train()
 
-    print("Compiling train step with JIT (first iteration will be slower)...")
+    echo("Compiling train step with JIT (first iteration will be slower)...")
 
     for epoch in range(num_epochs):
         epoch_metrics = {
-            "loss": [],
+            "total_loss": [],
             "recon_loss": [],
             "kl_loss": [],
             "capacity": [],
@@ -570,7 +601,7 @@ def train_capacity_beta_vae(
             losses = train_step(model, optimizer, images, step_count)
 
             # Track metrics
-            epoch_metrics["loss"].append(float(losses["loss"]))
+            epoch_metrics["total_loss"].append(float(losses["total_loss"]))
             epoch_metrics["recon_loss"].append(float(losses["reconstruction_loss"]))
             epoch_metrics["kl_loss"].append(float(losses["kl_loss"]))
             epoch_metrics["capacity"].append(float(losses["current_capacity"]))
@@ -579,7 +610,7 @@ def train_capacity_beta_vae(
             # Update progress bar
             pbar.set_postfix(
                 {
-                    "loss": f"{losses['loss']:.4f}",
+                    "total_loss": f"{losses['total_loss']:.4f}",
                     "recon": f"{losses['reconstruction_loss']:.4f}",
                     "C": f"{losses['current_capacity']:.2f}",
                 }
@@ -588,25 +619,25 @@ def train_capacity_beta_vae(
             step_count += 1
 
         # Average metrics
-        avg_loss = np.mean(epoch_metrics["loss"])
+        avg_loss = np.mean(epoch_metrics["total_loss"])
         avg_recon = np.mean(epoch_metrics["recon_loss"])
         avg_kl = np.mean(epoch_metrics["kl_loss"])
         avg_cap = np.mean(epoch_metrics["capacity"])
         avg_cap_loss = np.mean(epoch_metrics["capacity_loss"])
 
-        history["loss"].append(avg_loss)
+        history["total_loss"].append(avg_loss)
         history["recon_loss"].append(avg_recon)
         history["kl_loss"].append(avg_kl)
         history["capacity"].append(avg_cap)
         history["capacity_loss"].append(avg_cap_loss)
 
-        print(
+        echo(
             f"Epoch {epoch + 1}/{num_epochs} - "
             f"Loss: {avg_loss:.4f}, Recon: {avg_recon:.4f}, "
             f"KL: {avg_kl:.4f}, C: {avg_cap:.2f}"
         )
 
-    print("✓ Capacity β-VAE training complete")
+    echo("✓ Capacity β-VAE training complete")
     return history
 
 
@@ -686,24 +717,24 @@ def train_conditional_vae(model, train_ds, num_epochs=5, learning_rate=1e-3, bat
     Returns:
         Dictionary with training history
     """
-    print()
-    print("=" * 70)
-    print(f"Training Conditional VAE (condition_dim={model.condition_dim})")
-    print("=" * 70)
+    echo()
+    echo("=" * 70)
+    echo(f"Training Conditional VAE (condition_dim={model.condition_dim})")
+    echo("=" * 70)
 
     # Optimizer (NNX 0.11.0+ API requires wrt parameter)
     optimizer = nnx.Optimizer(model, optax.adam(learning_rate), wrt=nnx.Param)
 
-    history = {"loss": [], "recon_loss": [], "kl_loss": []}
+    history = {"total_loss": [], "recon_loss": [], "kl_loss": []}
     step_count = 0
 
     # Set model to training mode (enables dropout, batch norm training, etc.)
     model.train()
 
-    print("Compiling train step with JIT (first iteration will be slower)...")
+    echo("Compiling train step with JIT (first iteration will be slower)...")
 
     for epoch in range(num_epochs):
-        epoch_metrics = {"loss": [], "recon_loss": [], "kl_loss": []}
+        epoch_metrics = {"total_loss": [], "recon_loss": [], "kl_loss": []}
 
         # Limit batches per epoch from infinite iterator
         epoch_ds = islice(train_ds, batches_per_epoch)
@@ -724,14 +755,14 @@ def train_conditional_vae(model, train_ds, num_epochs=5, learning_rate=1e-3, bat
             losses = train_step(model, optimizer, images, step_count, labels=labels)
 
             # Track metrics
-            epoch_metrics["loss"].append(float(losses["loss"]))
+            epoch_metrics["total_loss"].append(float(losses["total_loss"]))
             epoch_metrics["recon_loss"].append(float(losses["reconstruction_loss"]))
             epoch_metrics["kl_loss"].append(float(losses["kl_loss"]))
 
             # Update progress bar
             pbar.set_postfix(
                 {
-                    "loss": f"{losses['loss']:.4f}",
+                    "total_loss": f"{losses['total_loss']:.4f}",
                     "recon": f"{losses['reconstruction_loss']:.4f}",
                     "kl": f"{losses['kl_loss']:.4f}",
                 }
@@ -740,20 +771,20 @@ def train_conditional_vae(model, train_ds, num_epochs=5, learning_rate=1e-3, bat
             step_count += 1
 
         # Average metrics
-        avg_loss = np.mean(epoch_metrics["loss"])
+        avg_loss = np.mean(epoch_metrics["total_loss"])
         avg_recon = np.mean(epoch_metrics["recon_loss"])
         avg_kl = np.mean(epoch_metrics["kl_loss"])
 
-        history["loss"].append(avg_loss)
+        history["total_loss"].append(avg_loss)
         history["recon_loss"].append(avg_recon)
         history["kl_loss"].append(avg_kl)
 
-        print(
+        echo(
             f"Epoch {epoch + 1}/{num_epochs} - "
             f"Loss: {avg_loss:.4f}, Recon: {avg_recon:.4f}, KL: {avg_kl:.4f}"
         )
 
-    print("✓ Conditional VAE training complete")
+    echo("✓ Conditional VAE training complete")
     return history
 
 
@@ -830,24 +861,24 @@ def train_vqvae(model, train_ds, num_epochs=5, learning_rate=1e-3, batches_per_e
     Returns:
         Dictionary with training history
     """
-    print()
-    print("=" * 70)
-    print(f"Training VQ-VAE (codebook={model.num_embeddings}, dim={model.embedding_dim})")
-    print("=" * 70)
+    echo()
+    echo("=" * 70)
+    echo(f"Training VQ-VAE (codebook={model.num_embeddings}, dim={model.embedding_dim})")
+    echo("=" * 70)
 
     # Optimizer (NNX 0.11.0+ API requires wrt parameter)
     optimizer = nnx.Optimizer(model, optax.adam(learning_rate), wrt=nnx.Param)
 
-    history = {"loss": [], "recon_loss": [], "vq_loss": [], "perplexity": []}
+    history = {"total_loss": [], "recon_loss": [], "vq_loss": [], "perplexity": []}
     step_count = 0
 
     # Set model to training mode (enables dropout, batch norm training, etc.)
     model.train()
 
-    print("Compiling train step with JIT (first iteration will be slower)...")
+    echo("Compiling train step with JIT (first iteration will be slower)...")
 
     for epoch in range(num_epochs):
-        epoch_metrics = {"loss": [], "recon_loss": [], "vq_loss": [], "perplexity": []}
+        epoch_metrics = {"total_loss": [], "recon_loss": [], "vq_loss": [], "perplexity": []}
 
         # Limit batches per epoch from infinite iterator
         epoch_ds = islice(train_ds, batches_per_epoch)
@@ -867,15 +898,15 @@ def train_vqvae(model, train_ds, num_epochs=5, learning_rate=1e-3, batches_per_e
             losses = train_step(model, optimizer, images, step_count)
 
             # Track metrics
-            epoch_metrics["loss"].append(float(losses["loss"]))
+            epoch_metrics["total_loss"].append(float(losses["total_loss"]))
             epoch_metrics["recon_loss"].append(float(losses["reconstruction_loss"]))
             epoch_metrics["vq_loss"].append(float(losses["vq_loss"]))
-            epoch_metrics["perplexity"].append(float(losses.get("perplexity", 0.0)))
+            epoch_metrics["perplexity"].append(float(losses["perplexity"]))
 
             # Update progress bar
             pbar.set_postfix(
                 {
-                    "loss": f"{losses['loss']:.4f}",
+                    "total_loss": f"{losses['total_loss']:.4f}",
                     "recon": f"{losses['reconstruction_loss']:.4f}",
                     "vq": f"{losses['vq_loss']:.4f}",
                 }
@@ -884,23 +915,23 @@ def train_vqvae(model, train_ds, num_epochs=5, learning_rate=1e-3, batches_per_e
             step_count += 1
 
         # Average metrics
-        avg_loss = np.mean(epoch_metrics["loss"])
+        avg_loss = np.mean(epoch_metrics["total_loss"])
         avg_recon = np.mean(epoch_metrics["recon_loss"])
         avg_vq = np.mean(epoch_metrics["vq_loss"])
         avg_perp = np.mean(epoch_metrics["perplexity"])
 
-        history["loss"].append(avg_loss)
+        history["total_loss"].append(avg_loss)
         history["recon_loss"].append(avg_recon)
         history["vq_loss"].append(avg_vq)
         history["perplexity"].append(avg_perp)
 
-        print(
+        echo(
             f"Epoch {epoch + 1}/{num_epochs} - "
             f"Loss: {avg_loss:.4f}, Recon: {avg_recon:.4f}, "
             f"VQ: {avg_vq:.4f}, Perplexity: {avg_perp:.1f}"
         )
 
-    print("✓ VQ-VAE training complete")
+    echo("✓ VQ-VAE training complete")
     return history
 
 
@@ -968,7 +999,7 @@ def visualize_vae_results(model, test_ds, variant_name, conditional=False):
     filename = variant_name.lower().replace(" ", "_").replace("-", "_") + "_results.png"
     output_path = OUTPUT_DIR / filename
     plt.savefig(output_path, dpi=150, bbox_inches="tight")
-    print(f"✓ Saved visualization to {output_path}")
+    echo(f"✓ Saved visualization to {output_path}")
 
     return fig
 
@@ -986,7 +1017,7 @@ def plot_training_curves(history, variant_name):
     fig, axes = plt.subplots(1, 2, figsize=(12, 4))
 
     # Total loss
-    axes[0].plot(history["loss"], label="Total Loss", linewidth=2, color="tab:blue")
+    axes[0].plot(history["total_loss"], label="Total Loss", linewidth=2, color="tab:blue")
     axes[0].set_xlabel("Epoch")
     axes[0].set_ylabel("Loss")
     axes[0].set_title("Total Loss")
@@ -1017,7 +1048,7 @@ def plot_training_curves(history, variant_name):
     filename = variant_name.lower().replace(" ", "_").replace("-", "_") + "_training.png"
     output_path = OUTPUT_DIR / filename
     plt.savefig(output_path, dpi=150, bbox_inches="tight")
-    print(f"✓ Saved training curves to {output_path}")
+    echo(f"✓ Saved training curves to {output_path}")
 
     return fig
 
@@ -1035,19 +1066,19 @@ production-ready implementations.
 # Cell 12: Main Execution
 def main():
     """Main execution: demonstrate all advanced VAE variants."""
-    print()
-    print("=" * 80)
-    print("ADVANCED VAE EXAMPLES - Artifex's Advanced Features on MNIST")
-    print("=" * 80)
+    echo()
+    echo("=" * 80)
+    echo("ADVANCED VAE EXAMPLES - Artifex's Advanced Features on MNIST")
+    echo("=" * 80)
 
     # Load data
     train_ds, test_ds = load_real_mnist(batch_size=128)
 
     # ========== β-VAE ==========
-    print()
-    print("=" * 80)
-    print("1. β-VAE: Disentangled Representations with β Annealing")
-    print("=" * 80)
+    echo()
+    echo("=" * 80)
+    echo("1. β-VAE: Disentangled Representations with β Annealing")
+    echo("=" * 80)
 
     beta_vae = create_beta_vae(beta=4.0, warmup_steps=1000)
     beta_history = train_beta_vae(beta_vae, train_ds, num_epochs=5)
@@ -1055,10 +1086,10 @@ def main():
     visualize_vae_results(beta_vae, test_ds, "β-VAE")
 
     # ========== Capacity β-VAE ==========
-    print()
-    print("=" * 80)
-    print("2. β-VAE with Capacity Control: Burgess et al. Method")
-    print("=" * 80)
+    echo()
+    echo("=" * 80)
+    echo("2. β-VAE with Capacity Control: Burgess et al. Method")
+    echo("=" * 80)
 
     capacity_vae = create_capacity_beta_vae(capacity_max=25.0, capacity_steps=5000)
     capacity_history = train_capacity_beta_vae(capacity_vae, train_ds, num_epochs=5)
@@ -1066,10 +1097,10 @@ def main():
     visualize_vae_results(capacity_vae, test_ds, "Capacity β-VAE")
 
     # ========== Conditional VAE ==========
-    print()
-    print("=" * 80)
-    print("3. Conditional VAE: Label-Conditioned Generation")
-    print("=" * 80)
+    echo()
+    echo("=" * 80)
+    echo("3. Conditional VAE: Label-Conditioned Generation")
+    echo("=" * 80)
 
     cvae = create_conditional_vae()
     cvae_history = train_conditional_vae(cvae, train_ds, num_epochs=5)
@@ -1077,10 +1108,10 @@ def main():
     visualize_vae_results(cvae, test_ds, "Conditional VAE", conditional=True)
 
     # ========== VQ-VAE ==========
-    print()
-    print("=" * 80)
-    print("4. VQ-VAE: Discrete Latent Codes with Codebook Monitoring")
-    print("=" * 80)
+    echo()
+    echo("=" * 80)
+    echo("4. VQ-VAE: Discrete Latent Codes with Codebook Monitoring")
+    echo("=" * 80)
 
     vqvae = create_vqvae(num_embeddings=512, embedding_dim=64)
     vqvae_history = train_vqvae(vqvae, train_ds, num_epochs=5)
@@ -1088,21 +1119,21 @@ def main():
     visualize_vae_results(vqvae, test_ds, "VQ-VAE")
 
     # Summary
-    print()
-    print("=" * 80)
-    print("SUMMARY")
-    print("=" * 80)
-    print("✓ Trained 4 advanced VAE variants using Artifex's implementations")
-    print(f"✓ Generated visualizations in {OUTPUT_DIR}")
-    print("✓ All models trained on real MNIST data (60,000 images)")
-    print()
-    print("Variants demonstrated:")
-    print("  1. β-VAE with β annealing (β=1.0→4.0)")
-    print("  2. β-VAE with capacity control (C_max=25 nats)")
-    print("  3. Conditional VAE (10 classes)")
-    print("  4. VQ-VAE (codebook_size=512)")
-    print()
-    print("=" * 80)
+    echo()
+    echo("=" * 80)
+    echo("SUMMARY")
+    echo("=" * 80)
+    echo("✓ Trained 4 advanced VAE variants using Artifex's implementations")
+    echo(f"✓ Generated visualizations in {OUTPUT_DIR}")
+    echo("✓ All models trained on real MNIST data (60,000 images)")
+    echo()
+    echo("Variants demonstrated:")
+    echo("  1. β-VAE with β annealing (β=1.0→4.0)")
+    echo("  2. β-VAE with capacity control (C_max=25 nats)")
+    echo("  3. Conditional VAE (10 classes)")
+    echo("  4. VQ-VAE (codebook_size=512)")
+    echo()
+    echo("=" * 80)
 
 
 if __name__ == "__main__":

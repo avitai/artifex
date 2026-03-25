@@ -1,13 +1,13 @@
 # Energy Model Test Suite
 
-This directory contains comprehensive unit tests, integration tests, and property-based tests for the energy-based models in the `artifex.generative_models.models.energy` package.
+This directory contains complete unit tests, integration tests, and property-based tests for the energy-based models in the `artifex.generative_models.models.energy` package.
 
 ## Test Structure
 
 ### 1. **`conftest.py`** - Test Infrastructure
 
 - **JAX Conditional Imports**: Graceful handling of environments with/without JAX
-- **Fixture System**: Comprehensive fixtures for RNG keys, test data, configurations
+- **Fixture System**: Complete fixtures for RNG keys, test data, configurations
 - **Test Data Generators**: Synthetic data for MLP and CNN testing
 - **Configuration Fixtures**: MCMC, buffer, and loss configurations for consistent testing
 - **Tolerance Settings**: Numerical tolerance settings for different test scenarios
@@ -139,7 +139,7 @@ This directory contains comprehensive unit tests, integration tests, and propert
 
 All tests include conditional JAX imports with fallback behavior for environments without JAX installed, ensuring the test suite doesn't break due to missing dependencies.
 
-### Comprehensive Fixtures
+### Complete Fixtures
 
 - **RNG Management**: Multiple RNG keys for different purposes
 - **Data Generation**: Synthetic datasets for various test scenarios
@@ -182,7 +182,7 @@ Ensures deterministic behavior with fixed seeds:
 
 ## Test Coverage
 
-The test suite provides comprehensive coverage of:
+The test suite provides complete coverage of:
 
 - **Core Functionality**: All public methods and classes
 - **Edge Cases**: Error conditions and boundary cases

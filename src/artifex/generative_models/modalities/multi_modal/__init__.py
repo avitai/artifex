@@ -1,8 +1,12 @@
-"""Multi-modal modality for combining multiple data modalities.
+"""Experimental multi-modal helper package for image, text, and audio.
 
-This module provides functionality for working with multiple modalities
-simultaneously, including cross-modal alignment, fusion strategies, and
-unified evaluation metrics.
+This helper layer provides aligned dataset generation, fusion helpers, and
+evaluation utilities for direct imports from
+`artifex.generative_models.modalities.multi_modal`.
+
+It is not registry-backed, is not available through `get_modality(...)`, and
+should be treated as an experimental helper surface rather than a shared
+factory-ready modality owner.
 """
 
 from artifex.generative_models.modalities.multi_modal.adapters import (
@@ -16,8 +20,9 @@ from artifex.generative_models.modalities.multi_modal.base import (
 )
 from artifex.generative_models.modalities.multi_modal.datasets import (
     create_aligned_dataset,
+    create_paired_multi_modal_dataset,
     create_synthetic_multi_modal_dataset,
-    MultiModalDataset,
+    generate_multi_modal_data,
 )
 from artifex.generative_models.modalities.multi_modal.evaluation import (
     compute_multi_modal_metrics,
@@ -34,19 +39,15 @@ from artifex.generative_models.modalities.multi_modal.representations import (
 )
 
 
-# Register multi-modal modality
-# from artifex.generative_models.modalities.registry import register_modality
-#
-# register_modality("multi_modal", MultiModalModality)
-
 __all__ = [
     # Base classes
     "MultiModalModality",
     "MultiModalModalityConfig",
     "MultiModalRepresentation",
     # Datasets
-    "MultiModalDataset",
+    "generate_multi_modal_data",
     "create_synthetic_multi_modal_dataset",
+    "create_paired_multi_modal_dataset",
     "create_aligned_dataset",
     # Evaluation
     "MultiModalEvaluationSuite",

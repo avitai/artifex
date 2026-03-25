@@ -1,12 +1,20 @@
-"""Benchmark protocols and interfaces."""
+"""CalibraX-first benchmark protocol re-exports."""
 
-from artifex.generative_models.core.evaluation.metrics.registry import MetricsRegistry
-
-from .core import BenchmarkConfig, BenchmarkResult
+from calibrax.core import (
+    BatchableDatasetProtocol,
+    BenchmarkProtocol,
+    DatasetProtocol,
+    MetricLearningProtocol,
+    MetricProtocol,
+    StatefulMetricProtocol,
+)
 
 
 __all__ = [
-    "BenchmarkConfig",
-    "BenchmarkResult",
-    "MetricsRegistry",
+    "BenchmarkProtocol",
+    "DatasetProtocol",
+    "BatchableDatasetProtocol",
+    "MetricProtocol",
+    "StatefulMetricProtocol",
+    "MetricLearningProtocol",
 ]

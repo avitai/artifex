@@ -3,6 +3,11 @@
 import jax
 import jax.numpy as jnp
 import numpy as np
+from calibrax.metrics.functional.regression import (
+    huber_loss as calibrax_huber_loss,
+    mae as calibrax_mae,
+    mse as calibrax_mse,
+)
 
 from artifex.generative_models.core.losses.reconstruction import (
     charbonnier_loss,
@@ -98,6 +103,15 @@ class TestMSELoss:
         expected = 2 * (predictions - targets) / len(predictions)
         np.testing.assert_allclose(gradients, expected)
 
+    def test_default_path_matches_calibrax_mse(self):
+        """Default MSE semantics should track the shared CalibraX primitive."""
+        predictions = jnp.array([[1.0, 2.0], [3.0, 4.0]])
+        targets = jnp.array([[0.0, 1.0], [1.0, 0.0]])
+
+        np.testing.assert_allclose(
+            mse_loss(predictions, targets), calibrax_mse(predictions, targets)
+        )
+
 
 class TestMAELoss:
     """Tests for the MAE loss function."""
@@ -129,6 +143,15 @@ class TestMAELoss:
         # = mean(2 + 2 + 1.5) = 5.5/3
         expected = jnp.mean(jnp.abs(predictions - targets) * weights)
         np.testing.assert_allclose(result, expected)
+
+    def test_default_path_matches_calibrax_mae(self):
+        """Default MAE semantics should track the shared CalibraX primitive."""
+        predictions = jnp.array([[1.0, -2.0], [3.0, -4.0]])
+        targets = jnp.array([[0.0, 0.0], [1.0, -1.0]])
+
+        np.testing.assert_allclose(
+            mae_loss(predictions, targets), calibrax_mae(predictions, targets)
+        )
 
 
 class TestHuberLoss:
@@ -170,6 +193,17 @@ class TestHuberLoss:
         expected = jnp.mean(jnp.where(errors <= delta, quadratic, linear))
 
         np.testing.assert_allclose(result, expected)
+
+    def test_default_path_matches_calibrax_huber(self):
+        """Default Huber semantics should track the shared CalibraX primitive."""
+        predictions = jnp.array([[0.5, 2.0], [-0.5, -2.0]])
+        targets = jnp.zeros_like(predictions)
+        delta = 1.0
+
+        np.testing.assert_allclose(
+            huber_loss(predictions, targets, delta=delta),
+            calibrax_huber_loss(predictions, targets, delta=delta),
+        )
 
 
 class TestCharbonnierLoss:

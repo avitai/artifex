@@ -1,22 +1,31 @@
 # Loss Functions
 
-Artifex provides a comprehensive catalog of loss functions for training generative models. These losses are organized into categories based on their purpose and mathematical foundation.
+Artifex exposes a curated public surface of functional loss primitives for
+generative models. Generic shared building blocks use CalibraX where that
+surface already exists, and Artifex keeps local implementations only for
+Artifex-specific needs or gaps that are not yet available in CalibraX.
 
 ## Overview
 
 <div class="grid cards" markdown>
 
-- :material-chart-line: **40+ Loss Functions**
+- :material-chart-line: **Functional Primitives**
 
     ---
 
-    Extensive catalog covering all generative model types
+    Narrow public building blocks for model families, trainers, and modalities
 
-- :material-link-variant: **Composable Framework**
+- :material-link-variant: **Explicit Composition**
 
     ---
 
-    Easily combine multiple losses with weights and scheduling
+    Compose objectives directly in JAX instead of through wrapper frameworks
+
+- :material-scale-balance: **CalibraX-Backed Shared Metrics**
+
+    ---
+
+    Use CalibraX-backed regression and divergence primitives where they already exist
 
 - :material-speedometer: **JAX-Optimized**
 
@@ -40,7 +49,7 @@ graph TD
     A --> C[Adversarial Losses]
     A --> D[Divergence Losses]
     A --> E[Perceptual Losses]
-    A --> F[Composable Framework]
+    A --> F[Composition Pattern]
 
     B --> B1[MSE]
     B --> B2[MAE]
@@ -61,9 +70,9 @@ graph TD
     E --> E2[Style Loss]
     E --> E3[Contextual Loss]
 
-    F --> F1[CompositeLoss]
-    F --> F2[WeightedLoss]
-    F --> F3[ScheduledLoss]
+    F --> F1[Direct weighted sums]
+    F --> F2[Explicit component dicts]
+    F --> F3[Trainer-owned schedules]
 
     style A fill:#e1f5ff
     style B fill:#b3e5fc
@@ -72,6 +81,13 @@ graph TD
     style E fill:#b3e5fc
     style F fill:#81d4fa
 ```
+
+The public rule is simple:
+
+- use shared primitives directly
+- prefer CalibraX-backed generic metrics and divergences when available
+- keep composition explicit inside trainers, family-local objective helpers, or
+  modality-specific glue
 
 ---
 
@@ -575,79 +591,34 @@ loss = perceptual(pred_images, target_images)
 
 ---
 
-## Composable Loss Framework
+## Explicit Loss Composition
 
-NNX-based framework for combining multiple losses.
-
-**Location**: `src/artifex/generative_models/core/losses/composable.py`
-
-### WeightedLoss
-
-Apply a weight to any loss function.
+Artifex keeps multi-term objectives explicit. Compose primitives directly and
+return a plain metrics dictionary from the owning model or trainer.
 
 ```python
-from artifex.generative_models.core.losses.composable import WeightedLoss
-from artifex.generative_models.core.losses.reconstruction import mse_loss
-
-# Wrap loss with weight
-weighted_mse = WeightedLoss(
-    loss_fn=mse_loss,
-    weight=0.5,
-    name="weighted_mse"
-)
-
-loss = weighted_mse(predictions, targets)  # 0.5 * MSE
-```
-
----
-
-### CompositeLoss
-
-Combine multiple losses into a single module.
-
-```python
-from artifex.generative_models.core.losses.composable import CompositeLoss, WeightedLoss
 from artifex.generative_models.core.losses.reconstruction import mse_loss, mae_loss
 
-# Create weighted losses
-loss1 = WeightedLoss(mse_loss, weight=1.0, name="mse")
-loss2 = WeightedLoss(mae_loss, weight=0.5, name="mae")
+reconstruction_loss = mse_loss(predictions, targets)
+l1_penalty = mae_loss(predictions, targets)
+total_loss = reconstruction_loss + 0.5 * l1_penalty
 
-# Combine losses
-composite = CompositeLoss(
-    losses=[loss1, loss2],
-    return_components=True
-)
-
-# Returns total loss and individual components
-total_loss, loss_dict = composite(predictions, targets)
-print(f"Total: {total_loss}")
-print(f"Components: {loss_dict}")  # {"mse": ..., "mae": ...}
+loss_dict = {
+    "total_loss": total_loss,
+    "reconstruction_loss": reconstruction_loss,
+    "l1_penalty": l1_penalty,
+}
 ```
 
----
-
-### ScheduledLoss
-
-Dynamic loss weight scheduling for curriculum learning.
+Use explicit schedule weights for curriculum learning:
 
 ```python
-from artifex.generative_models.core.losses.composable import ScheduledLoss
-
-def warmup_schedule(step):
-    """Linear warmup over 1000 steps."""
+def warmup_schedule(step: int) -> float:
     return min(1.0, step / 1000.0)
 
-scheduled_loss = ScheduledLoss(
-    loss_fn=mse_loss,
-    schedule_fn=warmup_schedule,
-    name="scheduled_mse"
-)
-
-# Weight increases over time
-loss_step_0 = scheduled_loss(pred, target, step=0)     # weight=0.0
-loss_step_500 = scheduled_loss(pred, target, step=500) # weight=0.5
-loss_step_1000 = scheduled_loss(pred, target, step=1000) # weight=1.0
+perceptual_term = perceptual_loss(predictions, targets)
+scheduled_perceptual = warmup_schedule(step) * perceptual_term
+total_loss = reconstruction_loss + 0.1 * scheduled_perceptual
 ```
 
 ---
@@ -658,80 +629,18 @@ Helper classes and functions for loss management.
 
 **Location**: `src/artifex/generative_models/core/losses/base.py`
 
-### LossCollection
+### `reduce_loss`
 
-Functional collection of multiple losses (non-NNX).
-
-```python
-from artifex.generative_models.core.losses.base import LossCollection
-from artifex.generative_models.core.losses.reconstruction import mse_loss, mae_loss
-
-# Create collection
-collection = LossCollection()
-collection.add(mse_loss, weight=1.0, name="mse")
-collection.add(mae_loss, weight=0.5, name="mae")
-
-# Compute total loss
-total_loss, loss_dict = collection(predictions, targets)
-```
-
----
-
-### LossScheduler
-
-Dynamically adjust loss weights during training.
+Shared reduction helper for loss tensors.
 
 ```python
-from artifex.generative_models.core.losses.base import LossScheduler
+from artifex.generative_models.core.losses.base import reduce_loss
 
-# Initialize with initial weights
-scheduler = LossScheduler({
-    "reconstruction": 1.0,
-    "kl_divergence": 0.1,
-    "perceptual": 0.5,
-})
+per_pixel_loss = jnp.square(predictions - targets)
 
-# Add linear warmup for KL divergence
-scheduler.add_schedule(
-    "kl_divergence",
-    LossScheduler.linear_warmup(warmup_steps=1000, max_weight=1.0)
-)
-
-# Add cosine annealing for perceptual loss
-scheduler.add_schedule(
-    "perceptual",
-    LossScheduler.cosine_annealing(period=5000, min_weight=0.1, max_weight=1.0)
-)
-
-# Update weights at each step
-weights = scheduler.update(step=500)
-print(weights)  # Updated weights based on schedules
-```
-
----
-
-### LossMetrics
-
-Track loss values during training with exponential moving average.
-
-```python
-from artifex.generative_models.core.losses.base import LossMetrics
-
-# Create metrics tracker
-metrics = LossMetrics(momentum=0.99)
-
-# Update with loss values
-for step in range(100):
-    loss_dict = {
-        "total": jnp.array(1.5),
-        "reconstruction": jnp.array(1.0),
-        "kl": jnp.array(0.5),
-    }
-    metrics.update(loss_dict)
-
-# Get smoothed metrics
-current_metrics = metrics.get_metrics()
-print(current_metrics)  # Smoothed loss values
+mean_loss = reduce_loss(per_pixel_loss, reduction="mean")
+sum_loss = reduce_loss(per_pixel_loss, reduction="sum")
+vae_loss = reduce_loss(per_pixel_loss, reduction="batch_sum")
 ```
 
 ---
@@ -742,27 +651,19 @@ print(current_metrics)  # Smoothed loss values
 
 ```python
 from artifex.generative_models.core.losses.reconstruction import mse_loss
-from artifex.generative_models.core.losses.divergence import kl_divergence
-import distrax
+from artifex.generative_models.core.losses.divergence import gaussian_kl_divergence
 
 def vae_loss(x, reconstruction, mean, logvar):
     """Complete VAE loss."""
-    # Reconstruction loss
-    recon_loss = mse_loss(reconstruction, x, reduction="mean")
-
-    # KL divergence
-    posterior = distrax.MultivariateNormalDiag(mean, jnp.exp(0.5 * logvar))
-    prior = distrax.MultivariateNormalDiag(
-        jnp.zeros_like(mean),
-        jnp.ones_like(logvar)
-    )
-    kl_loss = kl_divergence(posterior, prior, reduction="mean")
+    # Canonical ELBO terms use VAE-style batch_sum reduction.
+    recon_loss = mse_loss(reconstruction, x, reduction="batch_sum")
+    kl_loss = gaussian_kl_divergence(mean, logvar, reduction="batch_sum")
 
     # Total loss
     total_loss = recon_loss + 0.5 * kl_loss
 
     return {
-        "loss": total_loss,
+        "total_loss": total_loss,
         "reconstruction_loss": recon_loss,
         "kl_loss": kl_loss,
     }
@@ -796,40 +697,23 @@ def generator_loss(fake_images, real_images, fake_scores):
     total = adv_loss + 0.1 * perc_loss
 
     return {
-        "loss": total,
+        "total_loss": total,
         "adversarial": adv_loss,
         "perceptual": perc_loss,
     }
 ```
 
-### Pattern 3: Composable Multi-Loss System
+### Pattern 3: Explicit Multi-Loss System
 
 ```python
-from artifex.generative_models.core.losses.composable import (
-    CompositeLoss,
-    WeightedLoss,
-    ScheduledLoss
-)
+recon_loss = mse_loss(predictions, targets)
+perc_loss = perceptual_fn(predictions, targets)
+total_loss = recon_loss + 0.1 * perc_loss
 
-# Create individual weighted losses
-recon_loss = WeightedLoss(mse_loss, weight=1.0, name="reconstruction")
-perc_loss = WeightedLoss(perceptual_fn, weight=0.1, name="perceptual")
-
-# Scheduled KL loss with warmup
-kl_loss = ScheduledLoss(
-    loss_fn=kl_divergence_fn,
-    schedule_fn=lambda step: min(1.0, step / 5000),
-    name="kl"
-)
-
-# Combine all losses
-composite = CompositeLoss(
-    losses=[recon_loss, perc_loss, kl_loss],
-    return_components=True
-)
-
-# Use in training
-total_loss, components = composite(batch, outputs, step=current_step)
+components = {
+    "reconstruction_loss": recon_loss,
+    "perceptual_loss": perc_loss,
+}
 ```
 
 ---
@@ -838,11 +722,12 @@ total_loss, components = composite(batch, outputs, step=current_step)
 
 ### DO
 
-- ✅ Use `reduction="mean"` for stable gradients
+- ✅ Use `reduction="batch_sum"` for VAE ELBO terms
+- ✅ Use `reduction="mean"` for ordinary regression-style losses
 - ✅ Scale losses to similar magnitudes when combining
 - ✅ Use perceptual losses for visual quality
 - ✅ Monitor individual loss components during training
-- ✅ Use numerically stable variants (safe_log, safe_divide)
+- ✅ Prefer the numerically stable Artifex and CalibraX primitives directly
 - ✅ Normalize inputs when using distance-based losses
 - ✅ Use gradient clipping with adversarial losses
 
@@ -901,18 +786,9 @@ def loss_with_accumulation(params, batch):
 
 - Use epsilon parameters for numerical stability
 - Check input normalization
-- Use `safe_log` and `safe_divide` utilities
+- Prefer the numerically stable divergence and reduction helpers already built
+  into the loss primitives
 - Clip gradients
-
-```python
-from artifex.generative_models.core.losses.base import safe_log, safe_divide
-
-# Instead of jnp.log(x)
-log_x = safe_log(x, eps=1e-8)
-
-# Instead of x / y
-ratio = safe_divide(x, y, eps=1e-8)
-```
 
 ### Issue: "Loss values differ greatly in magnitude"
 

@@ -1,17 +1,18 @@
 """Protein-specific point cloud model implementation."""
 
+import logging
 from typing import Any
 
 import jax
-import jax.numpy as jnp
 from flax import nnx
 
+
+logger = logging.getLogger(__name__)
+
 from artifex.generative_models.core.configuration import (
-    ProteinConstraintConfig,
-    ProteinDihedralConfig,
-    ProteinExtensionConfig,
     ProteinPointCloudConfig,
 )
+from artifex.generative_models.extensions.protein import create_protein_extensions
 from artifex.generative_models.extensions.protein.constraints import (
     ProteinBackboneConstraint,
     ProteinDihedralConstraint,
@@ -49,43 +50,13 @@ class ProteinPointCloudModel(PointCloudModel):
         self.num_atoms = config.num_atoms_per_residue
         self.backbone_indices = list(config.backbone_indices)
 
-        # Get constraint config (use default if not provided)
-        constraint_config = config.constraint_config or ProteinConstraintConfig()
-
-        # Create protein-specific extensions if enabled
-        extensions: dict[str, Any] = {}
-        if config.use_constraints:
-            # Create backbone constraint config using ProteinExtensionConfig
-            # Use default backbone atoms (N, CA, C, O) - config has indices not atom names
-            backbone_config = ProteinExtensionConfig(
-                name="backbone_constraint",
-                weight=constraint_config.backbone_weight,
-                enabled=True,
-                bond_length_weight=constraint_config.bond_weight,
-                bond_angle_weight=constraint_config.angle_weight,
-            )
-            # Add backbone constraint
-            extensions["backbone"] = ProteinBackboneConstraint(
-                backbone_config,
-                rngs=rngs,
-            )
-
-            # Create dihedral constraint config using ProteinDihedralConfig
-            dihedral_config = ProteinDihedralConfig(
-                name="dihedral_constraint",
-                weight=constraint_config.dihedral_weight,
-                enabled=True,
-                phi_weight=constraint_config.phi_weight,
-                psi_weight=constraint_config.psi_weight,
-            )
-            # Add dihedral constraint
-            extensions["dihedral"] = ProteinDihedralConstraint(
-                dihedral_config,
-                rngs=rngs,
-            )
+        extensions_dict = None
+        if config.extensions is not None:
+            built_extensions = create_protein_extensions(config.extensions, rngs=rngs)
+            if len(built_extensions):
+                extensions_dict = built_extensions
 
         # Initialize base PointCloudModel with extensions (wrap in nnx.Dict for Flax 0.12.0+)
-        extensions_dict = nnx.Dict(extensions) if extensions else None
         super().__init__(config, extensions=extensions_dict, rngs=rngs)
 
         # Store references to specific extension types for easier access
@@ -171,6 +142,9 @@ class ProteinPointCloudModel(PointCloudModel):
                     positions = positions.reshape(batch_size, self.num_residues, self.num_atoms, 3)
                     outputs["positions"] = positions
 
+            if len(positions.shape) == 4:
+                outputs["atom_positions"] = positions
+
         # Return outputs
         return outputs
 
@@ -244,97 +218,40 @@ class ProteinPointCloudModel(PointCloudModel):
         return aa_embeddings
 
     def get_loss_fn(self, auxiliary: dict[str, Any] | None = None) -> Any:
-        """Get the loss function for the protein model.
+        """Get the canonical point-cloud loss function for protein batches."""
 
-        Args:
-            auxiliary: Optional auxiliary outputs to use in the loss.
+        def protein_loss_fn(
+            batch: dict[str, Any], outputs: dict[str, Any], **kwargs: Any
+        ) -> dict[str, Any]:
+            return self.loss_fn(batch, outputs, **kwargs)
 
-        Returns:
-            Loss function.
-        """
-        # Return our direct loss_fn method instead of creating a new function
-        # This ensures we use our error handling approach
-        return self.loss_fn
+        return protein_loss_fn
 
     def loss_fn(
         self, batch: dict[str, Any], outputs: dict[str, Any], **kwargs: Any
     ) -> dict[str, Any]:
-        """Calculate the loss for protein model.
+        """Calculate the canonical point-cloud loss for protein batches."""
 
-        Args:
-            batch: Batch data
-            outputs: Model outputs
+        def flatten_protein_positions(value: Any) -> Any:
+            if value is None or value.ndim != 4:
+                return value
 
-        Returns:
-            Dictionary of loss values
-        """
-        # Base MSE loss
-        # Get target coordinates from batch, trying different possible keys
-        # For protein models, prioritize atom_positions over positions
-        if "coordinates" in batch:
-            target = batch["coordinates"]
-        elif "atom_positions" in batch:
-            target = batch["atom_positions"]
-        elif "positions" in batch:
-            target = batch["positions"]
-        else:
-            # If no coordinates found, use a fallback approach for integration tests
-            target = outputs["coordinates"] * 0.0  # Create a zero tensor with the right shape
+            batch_size, num_residues, num_atoms, coord_dim = value.shape
+            return value.reshape(batch_size, num_residues * num_atoms, coord_dim)
 
-        # Get predicted coordinates from outputs
-        if "coordinates" in outputs:
-            pred = outputs["coordinates"]
-        elif "positions" in outputs:
-            pred = outputs["positions"]
-        elif "atom_positions" in outputs:
-            pred = outputs["atom_positions"]
-        else:
-            raise ValueError("No coordinates found in model outputs")
+        normalized_batch = dict(batch)
+        normalized_outputs = dict(outputs)
 
-        # Ensure both pred and target have the same shape for broadcasting
-        if pred.shape != target.shape:
-            # If pred has shape [batch, residues*atoms, 3] and
-            # target has shape [batch, residues, atoms, 3]
-            # or vice versa, reshape to match
-            if len(pred.shape) == 3 and len(target.shape) == 4:
-                # Reshape pred to match target's 4D shape
-                batch_size, num_points, coords_dim = pred.shape
-                pred = pred.reshape(batch_size, self.num_residues, self.num_atoms, coords_dim)
-            elif len(pred.shape) == 4 and len(target.shape) == 3:
-                # Reshape target to match pred's 3D shape
-                batch_size, num_residues, num_atoms, coords_dim = pred.shape
-                total_points = num_residues * num_atoms
-                target = target.reshape(batch_size, total_points, coords_dim)
+        batch_coords = normalized_batch.get("positions", normalized_batch.get("atom_positions"))
+        if batch_coords is not None:
+            normalized_batch["positions"] = flatten_protein_positions(batch_coords)
 
-        mse = jnp.mean((target - pred) ** 2)
+        output_coords = normalized_outputs.get(
+            "atom_positions",
+            normalized_outputs.get("positions"),
+        )
+        if output_coords is not None:
+            normalized_outputs["atom_positions"] = output_coords
+            normalized_outputs["positions"] = flatten_protein_positions(output_coords)
 
-        loss_dict = {"mse_loss": mse, "total_loss": mse}
-
-        # Add extension losses if available
-        extensions: list[Any] = []
-        if hasattr(self, "extension_modules") and self.extension_modules:
-            extensions = list(self.extension_modules.values())
-
-        # Process each extension
-        for extension in extensions:
-            try:
-                if hasattr(extension, "loss_fn"):
-                    extension_name = getattr(
-                        extension, "extension_type", extension.__class__.__name__.lower()
-                    )
-                    extension_loss = extension.loss_fn(batch, outputs)
-                    loss_dict[extension_name] = extension_loss
-                    # Also add to total loss
-                    loss_dict["total_loss"] = loss_dict["total_loss"] + extension_loss
-            except Exception as e:
-                # Log the error but continue
-                # This ensures extensions are always in the loss_dict even if fails
-                print(f"Error calculating {extension.__class__.__name__.lower()} loss: {e}")
-                # Use a compatible field name
-                extension_name = getattr(
-                    extension, "extension_type", extension.__class__.__name__.lower()
-                )
-                # Add a zero loss instead so tests expecting this field pass
-                loss_dict[extension_name] = jnp.array(0.0)
-
-        return loss_dict
+        return super().get_loss_fn()(normalized_batch, normalized_outputs, **kwargs)

@@ -4,12 +4,13 @@ This module provides specialized trainers for various generative model types:
 - VAE: Variational Autoencoders with KL annealing and beta-VAE support
 - GAN: Generative Adversarial Networks with multiple loss types
 - Diffusion: Diffusion models with SOTA training techniques
-- Flow: Flow matching models with CFM and OT-CFM support
-- Energy: Energy-based models with Contrastive Divergence and MCMC
+- Flow: Flow matching models with configurable time sampling
+- Energy: Energy-based models with Contrastive Divergence and Langevin MCMC
 - Autoregressive: Sequence models with teacher forcing and scheduled sampling
 
-Each trainer provides a `create_loss_fn()` method for DRY integration with
-the base Trainer, enabling callbacks, checkpointing, and logging support.
+Trainer-owned objective closures provide the integration boundary to the shared
+training infrastructure when that boundary is useful for callbacks,
+checkpointing, and logging.
 
 Example:
     ```python
@@ -18,15 +19,26 @@ Example:
         DiffusionTrainingConfig,
     )
     from artifex.generative_models.training import Trainer
+    from artifex.generative_models.training.callbacks import (
+        CallbackList,
+        CheckpointConfig,
+        ModelCheckpoint,
+    )
 
     # Create diffusion-specific trainer
-    diff_trainer = DiffusionTrainer(model, optimizer, noise_schedule, config)
+    diff_trainer = DiffusionTrainer(
+        noise_schedule,
+        DiffusionTrainingConfig(prediction_type="v_prediction"),
+    )
 
-    # Integrate with base Trainer
+    # Integrate the explicit trainer-owned objective with the shared Trainer
     base_trainer = Trainer(
         model=model,
         training_config=training_config,
         loss_fn=diff_trainer.create_loss_fn(),
+        callbacks=CallbackList(
+            [ModelCheckpoint(CheckpointConfig(dirpath="checkpoints", monitor="val_loss"))]
+        ),
     )
     ```
 """

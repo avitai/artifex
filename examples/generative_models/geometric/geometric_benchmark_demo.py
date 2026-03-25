@@ -11,7 +11,7 @@
 
 # %% [markdown]
 """
-# Comprehensive Geometric Benchmark Demo
+# Complete Geometric Benchmark Demo
 
 **Level:** Advanced | **Runtime:** ~10-15 minutes (with training)
 **Format:** Python + Jupyter
@@ -19,7 +19,7 @@
 ## Overview
 
 This example demonstrates a complete end-to-end geometric benchmark pipeline with
-PyTorch3D-style ShapeNet dataset integration, real model training, and comprehensive
+PyTorch3D-style ShapeNet dataset integration, real model training, and complete
 evaluation metrics.
 
 ## Source Code Dependencies
@@ -45,7 +45,7 @@ This example depends on the following Artifex source files:
 2. **Point Cloud Generation** - Training geometric generative models
 3. **Chamfer Distance Loss** - Geometric loss functions
 4. **Complete Training Pipeline** - Real optimization with schedulers
-5. **Comprehensive Metrics** - Diversity, coverage, quality scores
+5. **Complete Metrics** - Diversity, coverage, quality scores
 6. **Production Checkpointing** - Model saving and resumption
 
 ## Key Features Demonstrated
@@ -53,7 +53,7 @@ This example depends on the following Artifex source files:
 - PyTorch3D-inspired ShapeNet data loading with synthetic fallback
 - Complete training loop with Adam optimizer and cosine scheduler
 - Geometric loss functions (Chamfer distance)
-- Comprehensive evaluation metrics
+- Complete evaluation metrics
 - Production-ready checkpointing and logging
 - Training visualization and analysis
 - Performance benchmarking
@@ -82,7 +82,7 @@ The demo will:
 2. Create point cloud model with transformer architecture
 3. Train for 50 epochs with real optimization
 4. Generate visualizations every 25 epochs
-5. Run comprehensive evaluation
+5. Run complete evaluation
 6. Compare with benchmark suite
 7. Generate training report and analysis
 
@@ -132,7 +132,7 @@ Artifex Team
 """
 ## Section 1: Imports and Setup
 
-We import comprehensive components for geometric model training:
+We import complete components for geometric model training:
 - JAX/Flax NNX for neural networks
 - Optax for optimization
 - Matplotlib for visualization
@@ -187,7 +187,7 @@ from artifex.generative_models.training.trainer import Trainer
 """
 ## Section 2: Geometric Demo Trainer Class
 
-This comprehensive trainer class orchestrates the complete training pipeline:
+This complete trainer class orchestrates the complete training pipeline:
 - Dataset setup with PyTorch3D-style loading
 - Model initialization with transformer architecture
 - Training configuration with optimizers and schedulers
@@ -358,7 +358,7 @@ class GeometricDemoTrainer:
 
     def train(self):
         """Run complete training pipeline."""
-        print("\n🚀 Starting Comprehensive Training Pipeline")
+        print("\n🚀 Starting Complete Training Pipeline")
         print("=" * 60)
 
         # Setup trainer with custom loss function
@@ -397,7 +397,7 @@ class GeometricDemoTrainer:
         # Final evaluation
         final_metrics = self._final_evaluation(trainer)
 
-        # Generate comprehensive report
+        # Generate complete report
         self._generate_training_report(training_time, final_metrics)
 
         return trainer, final_metrics
@@ -722,8 +722,8 @@ class GeometricDemoTrainer:
         plt.close()
 
     def _final_evaluation(self, trainer):
-        """Comprehensive final evaluation."""
-        print("\n🧪 Running Final Comprehensive Evaluation")
+        """Complete final evaluation."""
+        print("\n🧪 Running Final Complete Evaluation")
         print("=" * 50)
 
         # Initialize metrics
@@ -750,7 +750,7 @@ class GeometricDemoTrainer:
         test_batch = self.dataset.get_batch(batch_size=n_eval_samples, split="test")
         real_samples = test_batch["point_clouds"]
 
-        # Compute comprehensive metrics
+        # Compute complete metrics
         print("   🔢 Computing metrics...")
         evaluation_metrics = point_cloud_metrics.compute(
             real_data=real_samples, generated_data=generated_samples
@@ -826,8 +826,8 @@ class GeometricDemoTrainer:
         return float(np.mean(scores))
 
     def _generate_training_report(self, training_time, final_metrics):
-        """Generate comprehensive training report."""
-        print("\n📋 Generating Comprehensive Training Report")
+        """Generate complete training report."""
+        print("\n📋 Generating Complete Training Report")
         print("=" * 50)
 
         # Create report
@@ -892,7 +892,7 @@ class GeometricDemoTrainer:
             return obj
 
     def _create_final_visualizations(self, final_metrics):
-        """Create final comprehensive visualizations."""
+        """Create final complete visualizations."""
         # Training curves
         fig, axes = plt.subplots(2, 3, figsize=(18, 12))
 
@@ -990,8 +990,8 @@ demonstrating all key features.
 
 # %%
 def main():
-    """Run the comprehensive geometric benchmark demonstration."""
-    print("🎉  Comprehensive Geometric Benchmark Demo (Real Training)")
+    """Run the complete geometric benchmark demonstration."""
+    print("🎉  Complete Geometric Benchmark Demo (Real Training)")
     print("=" * 70)
 
     # Initialize RNGs for reproducible results
@@ -1000,7 +1000,7 @@ def main():
     # ====================================================================
     # 1. Configuration Setup
     # ====================================================================
-    print("\n⚙️  1. Setting Up Comprehensive Configuration")
+    print("\n⚙️  1. Setting Up Complete Configuration")
     print("-" * 50)
 
     # Complete configuration for real training
@@ -1012,6 +1012,7 @@ def main():
             "synsets": ["02691156"],  # Just airplanes for focused demo
             "normalize": True,
             "data_source": "synthetic",  # Use synthetic for reliable demo
+            "demo_mode": True,
             # Note: Change to "auto" to try downloading real ShapeNet data
             # "data_source": "auto",  # Try real data: ShapeNet -> ModelNet -> synthetic
             "models_per_synset": 30,  # Enough for meaningful training
@@ -1061,7 +1062,7 @@ def main():
     # ====================================================================
     # 2. Initialize Demo Trainer
     # ====================================================================
-    print("\n🏗️  2. Initializing Comprehensive Demo Trainer")
+    print("\n🏗️  2. Initializing Complete Demo Trainer")
     print("-" * 50)
 
     demo_trainer = GeometricDemoTrainer(demo_config, rngs)
@@ -1081,16 +1082,33 @@ def main():
     print("-" * 50)
 
     # Run benchmark for comparison
+    from artifex.generative_models.core.configuration import DataConfig, EvaluationConfig
+
     benchmark_config = {
         "dataset_path": demo_config["dataset"]["data_path"],
-        "dataset_config": demo_config["dataset"],
+        "dataset_config": DataConfig(
+            name="geometric_benchmark_demo_dataset",
+            dataset_name="shapenet",
+            metadata=demo_config["dataset"],
+        ),
         "model_config": demo_config["model"],
+        "eval_config": EvaluationConfig(
+            name="geometric_benchmark_demo_eval",
+            metrics=[
+                "1nn_accuracy",
+                "coverage",
+                "chamfer_distance",
+                "geometric_fidelity",
+                "earth_movers_distance",
+            ],
+            metric_params={"point_cloud": {"higher_is_better": True}},
+            eval_batch_size=8,
+        ),
         "training_config": {
             "num_epochs": 5,  # Quick benchmark
             "batch_size": demo_config["training"]["batch_size"],
             "learning_rate": demo_config["training"]["optimizer"]["learning_rate"],
         },
-        "eval_batch_size": 8,
         "performance_targets": {
             "1nn_accuracy": 0.8,
             "coverage": 0.6,
@@ -1157,11 +1175,11 @@ def main():
     print("\n🎯 6. Summary and Recommendations")
     print("-" * 50)
 
-    print("✅ COMPREHENSIVE DEMO COMPLETED SUCCESSFULLY!")
+    print("✅ COMPLETE DEMO COMPLETED SUCCESSFULLY!")
     print("\n🏆 Key Achievements:")
     print("   ✅ PyTorch3D-style dataset loading with fallbacks")
     print("   ✅ Complete training pipeline with real optimization")
-    print("   ✅ Comprehensive evaluation metrics")
+    print("   ✅ Complete evaluation metrics")
     print("   ✅ Production-ready logging and checkpointing")
     print("   ✅ Advanced visualization and analysis")
     print("   ✅ Benchmark comparison and validation")
@@ -1195,7 +1213,7 @@ if __name__ == "__main__":
 - ✅ **Point Cloud Generation**: Training transformer-based geometric models
 - ✅ **Chamfer Distance Loss**: Core geometric loss for point clouds
 - ✅ **Complete Training Pipeline**: Real optimization with Adam and cosine schedule
-- ✅ **Comprehensive Evaluation**: Diversity, coverage, and quality metrics
+- ✅ **Complete Evaluation**: Diversity, coverage, and quality metrics
 - ✅ **Production Infrastructure**: Checkpointing, logging, and visualization
 
 ### Key Performance Insights
@@ -1257,6 +1275,6 @@ The demo trains a point cloud generation model that:
 
 ---
 
-**Congratulations!** You've completed a comprehensive geometric model training
+**Congratulations!** You've completed a complete geometric model training
 demonstration with production-ready infrastructure and evaluation.
 """

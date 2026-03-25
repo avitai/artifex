@@ -1,29 +1,18 @@
 # File Utils
 
-**Module:** `utils.file_utils`
+**Status:** `Supported runtime utility`
+**Module:** `artifex.utils.file_utils`
+**Source:** `src/artifex/utils/file_utils.py`
 
-**Source:** `utils/file_utils.py`
+This page documents the narrow top-level file-output helpers that remain in the
+`artifex.utils` namespace.
 
-## Overview
+## Public Helpers
 
-Utilities for file operations.
+- `ensure_valid_output_path(...)`
+- `get_valid_output_dir(...)`
 
-## Functions
+## Current Scope
 
-### ensure_valid_output_path
-
-```python
-def ensure_valid_output_path()
-```
-
-### get_valid_output_dir
-
-```python
-def get_valid_output_dir()
-```
-
-## Module Statistics
-
-- **Classes:** 0
-- **Functions:** 2
-- **Imports:** 2
+Use these helpers when tools need a writable project-relative output location.
+They do not imply a broader top-level utility framework.

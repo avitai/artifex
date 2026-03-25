@@ -20,8 +20,8 @@ This tutorial demonstrates how to train a GAN using Artifex's high-level `GANTra
 ## Quick Start
 
 ```bash
-# Activate Artifex environment
-source activate.sh
+# Install Artifex if needed
+pip install artifex
 
 # Run the Python script
 python examples/generative_models/image/gan/simple_gan.py
@@ -126,10 +126,10 @@ Before diving into the code, let's understand why we use specific techniques:
 
 ```bash
 # Install Artifex
-uv sync
+pip install artifex
 
 # Or with CUDA support
-uv sync --extra cuda-dev
+pip install "artifex[cuda12]"
 ```
 
 ---

@@ -282,7 +282,7 @@ class WSSummaryGenerator:
 
         # Calculate execution time statistics
         execution_times = [r.execution_time for r in self.results]
-        avg_execution_time = sum(execution_times) / total if total > 0 else 0
+        avg_execution_time = round(sum(execution_times) / total, 4) if total > 0 else 0
         max_execution_time = max(execution_times) if execution_times else 0
         min_execution_time = min(execution_times) if execution_times else 0
 

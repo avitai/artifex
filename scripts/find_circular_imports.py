@@ -1,98 +1,95 @@
 #!/usr/bin/env python3
-"""Detect circular imports in Python modules."""
+"""Report repo-local circular import groups from the full Python import graph."""
 
-import ast
-import logging
-import os
+from __future__ import annotations
 
+import argparse
+import sys
+from collections.abc import Sequence
+from pathlib import Path
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("circular_import_finder")
-
-
-def find_imports(file_path: str) -> set[str]:
-    """Find all imports in a Python file."""
-    with open(file_path, "r") as f:
-        try:
-            tree = ast.parse(f.read())
-        except SyntaxError:
-            logger.warning(f"Syntax error in {file_path}")
-            return set()
-
-    imports: set[str] = set()
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Import):
-            for name in node.names:
-                imports.add(name.name)
-        elif isinstance(node, ast.ImportFrom):
-            if node.module:
-                imports.add(node.module)
-    return imports
+from artifex.generative_models.utils.code_analysis.dependency_analyzer import ModuleDependency
 
 
-def main():
-    """Find circular imports in the artifex package."""
-    # Find all Python files in the artifex package
-    artifex_dir = os.path.abspath(
-        os.path.join(os.path.dirname(os.path.dirname(__file__)), "src", "artifex")
+DEFAULT_SOURCE_DIR = Path("src") / "artifex"
+DEFAULT_OUTPUT_FILE = Path("test_artifacts") / "code_analysis" / "circular_imports.txt"
+
+
+def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
+    """Parse command-line arguments."""
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--source-dir",
+        default=str(DEFAULT_SOURCE_DIR),
+        help="Directory containing the Python modules to analyze",
+    )
+    parser.add_argument(
+        "--output-file",
+        default=str(DEFAULT_OUTPUT_FILE),
+        help="Ignored repo-local path for the circular-import report",
+    )
+    parser.add_argument(
+        "--fail-on-cycles",
+        action="store_true",
+        help="Exit non-zero when one or more circular dependency groups are detected",
+    )
+    return parser.parse_args(argv)
+
+
+def _render_report(source_dir: Path, cycles: Sequence[Sequence[ModuleDependency]]) -> str:
+    """Render the circular import report."""
+    lines = [
+        "# Circular Import Analysis",
+        "",
+        f"Source directory: {source_dir.resolve()}",
+        f"Detected {len(cycles)} circular dependency group(s).",
+        "",
+    ]
+
+    if not cycles:
+        lines.append("No circular dependency groups detected.")
+        lines.append("")
+        return "\n".join(lines)
+
+    for index, cycle in enumerate(cycles, start=1):
+        lines.append(f"## Group {index}")
+        lines.append("")
+        for dep in sorted(
+            cycle,
+            key=lambda item: ((item.source_module or item.source), item.target),
+        ):
+            source_module = dep.source_module or dep.source
+            lines.append(f"- {source_module} -> {dep.target}")
+        lines.append("")
+
+    return "\n".join(lines)
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    """Run the circular-import analysis CLI."""
+    args = parse_args(argv)
+
+    from artifex.generative_models.utils.code_analysis.dependency_analyzer import (
+        DependencyAnalyzer,
+        detect_circular_dependencies,
     )
 
-    # Get all Python files
-    python_files: list[str] = []
-    for root, _, files in os.walk(artifex_dir):
-        for file in files:
-            if file.endswith(".py"):
-                python_files.append(os.path.join(root, file))
+    source_dir = Path(args.source_dir)
+    output_file = Path(args.output_file)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
 
-    logger.info(f"Found {len(python_files)} Python files in the artifex package")
+    analyzer = DependencyAnalyzer(str(source_dir))
+    cycles = detect_circular_dependencies(analyzer.get_all_dependencies())
+    output_file.write_text(_render_report(source_dir, cycles), encoding="utf-8")
 
-    # Map each module to its imports
-    module_imports: dict[str, set[str]] = {}
-    file_to_module: dict[str, str] = {}
+    sys.stdout.write(f"Analyzed {len(analyzer.modules)} Python modules in {source_dir.resolve()}\n")
+    sys.stdout.write(f"Detected {len(cycles)} circular dependency group(s)\n")
+    sys.stdout.write(f"Wrote circular import report to {output_file}\n")
 
-    for file_path in python_files:
-        relative_path = os.path.relpath(file_path, os.path.dirname(artifex_dir))
-        module_name = os.path.splitext(relative_path)[0].replace(os.path.sep, ".")
-        if module_name.startswith("src."):
-            module_name = module_name[4:]  # Remove "src." prefix
-        file_to_module[file_path] = module_name
-        module_imports[module_name] = find_imports(file_path)
-
-    # Find circular imports
-    circular_imports: list[tuple[str, str]] = []
-
-    for module, imports in module_imports.items():
-        for imported_module in imports:
-            if (
-                imported_module in module_imports
-                and module in module_imports[imported_module]
-                and module != imported_module
-            ):
-                circular_imports.append((module, imported_module))
-
-    # Remove duplicates
-    unique_circular_imports = set()
-    for a, b in circular_imports:
-        if (b, a) not in unique_circular_imports:
-            unique_circular_imports.add((a, b))
-
-    # Write results to file
-    output_dir = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-        "docs",
-    )
-    output_path = os.path.join(output_dir, "circular_imports.txt")
-    with open(output_path, "w") as f:
-        f.write("# Circular Import Analysis\n\n")
-        if circular_imports:
-            f.write("## Circular Imports Detected\n\n")
-            for module_a, module_b in sorted(unique_circular_imports):
-                f.write(f"- `{module_a}` imports `{module_b}` and vice versa\n")
-        else:
-            f.write("No circular imports detected in the artifex package.\n")
-
-    logger.info(f"Results written to {output_path}")
+    if args.fail_on_cycles and cycles:
+        return 1
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

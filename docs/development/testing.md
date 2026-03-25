@@ -1,220 +1,95 @@
 # Testing Guide
 
-Artifex follows test-driven development practices with comprehensive test coverage.
+Artifex uses the standard `uv run pytest` surface. Treat the root `TESTING.md` file as the canonical command and policy reference, and keep contributor-facing docs aligned with that contract.
 
 ## Running Tests
 
-### Basic Test Commands
+### Standard Commands
 
 ```bash
-# Run all tests
-uv run pytest tests/ -v
+# Run the standard suite
+uv run pytest
 
-# Run specific test file
+# Run a focused file
 uv run pytest tests/path/to/test_file.py -xvs
 
-# Run single test
+# Run a single test
 uv run pytest tests/path/to/test_file.py::TestClass::test_method -xvs
 
-# Run with coverage
-uv run pytest --cov=src/artifex --cov-report=html
-
-# Run all tests with JSON report
-uv run pytest -vv --json-report --json-report-file=temp/test-results.json \
-    --json-report-indent=2 --json-report-verbosity=2 \
-    --cov=src/ --cov-report=json:temp/coverage.json --cov-report=term-missing
-```
-
-### GPU-Aware Testing
-
-```bash
-# Use smart test runner for automatic GPU/CPU routing
-./scripts/smart_test_runner.sh tests/ -v
-
-# Run GPU-specific tests only (requires CUDA)
+# Run GPU-only tests
 uv run pytest -m gpu
 
-# Run expensive BlackJAX tests (optional)
+# Run BlackJAX tests
 uv run pytest -m blackjax
 ```
 
-## Test Organization
+### Coverage Commands
 
-### Directory Structure
+```bash
+# HTML coverage report
+uv run pytest --cov=src/artifex --cov-report=html
 
-Tests mirror the source structure:
-
-```
-tests/
-├── standalone/          # Isolated component tests
-│   └── artifex/
-│       └── generative_models/
-│           ├── models/
-│           │   ├── vae/
-│           │   ├── gan/
-│           │   └── ...
-│           └── core/
-└── artifex/            # Integrated system tests
-    └── generative_models/
-        └── ...
+# JSON coverage report
+uv run pytest \
+  --cov=src/ \
+  --cov-report=json:temp/coverage.json \
+  --cov-report=term-missing
 ```
 
-### Test Categories
+The repo-wide pytest fail-under is `70%`, and new code is still expected to meet the `80%` target recorded in `tool.artifex.repo_standards.coverage`.
 
-- **Unit tests**: Test individual functions and classes
-- **Integration tests**: Test component interactions
-- **GPU tests**: Marked with `@pytest.mark.gpu`, automatically skipped on CPU-only systems
-- **BlackJAX tests**: Marked with `@pytest.mark.blackjax`, expensive MCMC tests
+## Current Test Layout
+
+Tests should import live Artifex owners instead of recreating local shadow configs or models. The maintained suite currently lives under `tests/` as:
+
+- `tests/artifex/` for package, integration, visualization, benchmark, and repo-contract coverage
+- `tests/artifex/repo_contracts/` for docs and public-surface contract checks
+- `tests/unit/` for narrower low-level unit coverage where that layout already exists
+
+Do not add local replica suites; shadow tests disconnected from live imports are not part of the supported workflow.
+
+## Markers And Fixtures
+
+### Markers
+
+- `@pytest.mark.gpu`: requires a GPU backend and should skip otherwise
+- `@pytest.mark.requires_gpu`: synonym for GPU-required tests
+- `@pytest.mark.blackjax`: exercises BlackJAX integration
+- `@pytest.mark.integration`, `@pytest.mark.e2e`, `@pytest.mark.contract`, `@pytest.mark.benchmark`, `@pytest.mark.slow`: standard suite categorization markers
+
+### Shared Fixtures
+
+- `test_device`: provides a preferred live device for device-aware tests
+- `gpu_test_fixture`: skips explicitly GPU-only tests when no GPU backend is available
+- `base_rngs`, `standard_shapes`, and related shared fixtures live under `tests/artifex/fixtures/base.py`
+
+Example GPU-aware test:
+
+```python
+import pytest
+
+
+@pytest.mark.gpu
+def test_gpu_training_path(test_device, gpu_test_fixture):
+    """Exercise a GPU-only path on the active runtime device."""
+    assert test_device.platform in {"gpu", "cuda"}
+```
 
 ## Writing Tests
 
-### Basic Test Structure
+- Import live Artifex owners or helpers instead of recreating local config or model replicas.
+- Use explicit pytest markers for expensive or backend-specific coverage.
+- Keep focused file or test-node commands in docs and review notes so failures are easy to reproduce.
+- Prefer shared fixtures over ad hoc setup duplication when the fixture reflects a real supported runtime contract.
 
-```python
-import pytest
-import jax
-import jax.numpy as jnp
-from flax import nnx
-
-from artifex.generative_models.core.configuration import VAEConfig, EncoderConfig
-from artifex.generative_models.factory import create_model
-
-
-class TestVAE:
-    """Test suite for VAE model."""
-
-    def test_forward_pass(self):
-        """Test basic forward pass."""
-        rngs = nnx.Rngs(params=42, dropout=42, sample=42)
-
-        encoder_config = EncoderConfig(
-            name="encoder",
-            input_shape=(28, 28, 1),
-            latent_dim=32,
-            hidden_dims=(64, 32),
-            activation="relu",
-        )
-
-        config = VAEConfig(
-            name="test_vae",
-            encoder=encoder_config,
-            decoder=decoder_config,
-            kl_weight=1.0,
-        )
-
-        model = create_model(config, rngs=rngs)
-        x = jax.random.normal(jax.random.key(0), (4, 28, 28, 1))
-
-        outputs = model(x, rngs=rngs)
-
-        assert outputs.reconstruction.shape == x.shape
-        assert outputs.z.shape == (4, 32)
-```
-
-### GPU Test Marking
-
-```python
-import pytest
-
-@pytest.mark.gpu
-def test_gpu_operation():
-    """Test that requires GPU."""
-    # This test is skipped on CPU-only systems
-    ...
-```
-
-### Using Device Fixtures
-
-```python
-def test_with_device(device):
-    """Test with automatic GPU/CPU selection."""
-    # 'device' fixture automatically selects GPU if available
-    ...
-```
-
-## Test Best Practices
-
-### Do's
-
-1. **Test behavior, not implementation**: Focus on what the code does, not how
-2. **Use specific assertions**: Compare specific properties, not entire objects
-3. **Provide meaningful test names**: Describe what's being tested
-4. **Clean up GPU memory**: Use `device_manager.cleanup()` when needed
-5. **Use fixtures for common setup**: Avoid duplicating initialization code
-
-### Don'ts
-
-1. **Don't compare complex objects with `==`**: Use specific property comparisons
-2. **Don't modify tests to accommodate bugs**: Fix the implementation instead
-3. **Don't skip tests without documentation**: Mark with reason
-4. **Don't use random seeds without purpose**: Be explicit about reproducibility
-
-### Assertion Patterns
-
-```python
-# CORRECT: Compare specific properties
-assert model.config.name == "expected_name"
-assert outputs.reconstruction.shape == expected_shape
-assert jnp.allclose(outputs.loss, expected_loss, rtol=1e-5)
-
-# WRONG: Compare entire objects
-assert model.config == expected_config  # May fail unexpectedly
-assert outputs == expected_outputs      # Too broad
-```
-
-## Code Coverage
-
-### Running Coverage Reports
+## Pre-Commit Check
 
 ```bash
-# Generate HTML coverage report
-uv run pytest --cov=src/artifex --cov-report=html
-
-# View report
-open htmlcov/index.html
-```
-
-### Coverage Requirements
-
-- Minimum 80% coverage for new code
-- Critical paths should have 100% coverage
-- Document any intentionally uncovered code
-
-## Pre-Commit Testing
-
-Before committing, ensure tests pass:
-
-```bash
-# Run all quality checks
 uv run pre-commit run --all-files
-
-# Quick test run
-uv run pytest tests/ -x  # Stop on first failure
-```
-
-## Debugging Tests
-
-### Verbose Output
-
-```bash
-# Maximum verbosity
-uv run pytest tests/path/to/test.py -xvs --tb=long
-
-# Show local variables on failure
-uv run pytest --tb=long --showlocals
-```
-
-### Running Single Tests
-
-```bash
-# Run specific test method
-uv run pytest tests/path/to/test.py::TestClass::test_method -xvs
-
-# Run tests matching pattern
-uv run pytest -k "vae and forward" -xvs
+uv run pytest -x
 ```
 
 ## See Also
 
-- [Core Concepts](../getting-started/core-concepts.md) - Architecture overview
-- [Design Philosophy](philosophy.md) - Testing philosophy
+- the root `TESTING.md` file
+- [Design Philosophy](philosophy.md)

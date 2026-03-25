@@ -274,7 +274,9 @@ This enables modeling 256×256 images by avoiding the prohibitive cost of applyi
 
 ### 3. Glow: Learnable Permutations
 
-**Glow** extends RealNVP with three key innovations that pushed flows to state-of-the-art density estimation:
+The original **Glow** paper extends RealNVP with three key block-level
+innovations. Artifex retains these Glow blocks as a single-scale image flow
+baseline rather than the paper's squeeze/split multi-scale hierarchy.
 
 **Glow Block Architecture:**
 
@@ -323,15 +325,17 @@ $$
 
 Similar to RealNVP but with the above improvements.
 
-**When to Use Glow:**
+**When to Use Glow in Artifex:**
 
-- High-resolution image generation (256×256 and above)
-- Need state-of-the-art sample quality
-- Have sufficient computational resources
-- Want to leverage multi-scale processing
+- Need a fixed-size image flow with learnable channel mixing
+- Want exact likelihood with image-shaped forward and inverse transforms
+- Need ActNorm plus invertible 1×1 convolutions as a stronger image baseline
+- Want a deeper single-scale alternative to RealNVP on image tensors
 
-!!!tip "Implementation Detail"
-    Glow achieves 3.35 bits/dimension on CIFAR-10 with 3 scales of 32 steps each (96 total transformations) and coupling networks using 512-channel 3-layer ResNets.
+!!!tip "Artifex Runtime Note"
+    The retained implementation is configured through `image_shape` and
+    `blocks_per_scale`. If you need the original paper's multi-scale
+    squeeze/split hierarchy, you will need a different runtime.
 
 ### 4. MAF: Masked Autoregressive Flow
 
@@ -940,7 +944,7 @@ $$
 
     ---
 
-  - **normflows** (1000+ stars): Comprehensive architectures (RealNVP, Glow, NSF, MAF)
+  - **normflows** (1000+ stars): Complete architectures (RealNVP, Glow, NSF, MAF)
   - **nflows**: State-of-the-art methods from Edinburgh group (creators of spline flows)
   - **Zuko**: Modern PyTorch implementation with clean API
 
@@ -957,7 +961,7 @@ $$
     ---
 
   - **Distrax**: High-performance flows with JAX transformations
-  - **Artifex**: This repository—comprehensive flows with Flax/NNX
+  - **Artifex**: This repository—complete flows with Flax/NNX
   - Optimal for scientific computing and research
 
 </div>
@@ -999,14 +1003,23 @@ graph TD
 
 ### Recommended Hyperparameters by Task
 
-**Image Generation (Glow/RealNVP):**
+**Image Flows (Artifex Glow / RealNVP):**
 
 ```python
-config = {
-    "num_scales": 3,
-    "num_steps_per_scale": 8-12,
-    "hidden_channels": 512,
-    "num_layers_per_block": 3,
+glow_config = {
+    "image_shape": (32, 32, 3),
+    "blocks_per_scale": 6-8,
+    "coupling_hidden_dims": [512, 512],
+    "batch_size": 32-64,
+    "learning_rate": 1e-3,
+    "lr_decay": "polynomial",  # decay to 1e-4
+    "preprocessing": ["dequantize", "logit_transform"],
+}
+
+realnvp_config = {
+    "input_dim": 32 * 32 * 3,
+    "num_coupling_layers": 8-12,
+    "coupling_hidden_dims": [512, 512],
     "batch_size": 64-128,
     "learning_rate": 1e-3,
     "lr_decay": "polynomial",  # decay to 1e-4
@@ -1149,7 +1162,7 @@ Normalizing flows provide a unique combination of exact likelihood computation, 
 | Architecture | Density Estimation | Fast Sampling | Best For |
 |--------------|-------------------|---------------|----------|
 | **RealNVP** | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | Balanced use, images |
-| **Glow** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | High-res images, quality |
+| **Glow** | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | Fixed-size image flows with learned channel mixing |
 | **MAF** | ⭐⭐⭐⭐⭐ | ⭐⭐ | Density on tabular data |
 | **IAF** | ⭐⭐ | ⭐⭐⭐⭐⭐ | Fast sampling, VI |
 | **Neural Spline** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | Maximum expressiveness |
@@ -1213,11 +1226,11 @@ Normalizing flows provide a unique combination of exact likelihood computation, 
 
     Step-by-step hands-on tutorial: train a flow model on MNIST from scratch
 
-- :material-flask:{ .lg .middle } **[Advanced Examples](../../examples/advanced/advanced-flow.md)**
+- :material-map-outline:{ .lg .middle } **[Planned Example Topics](../../roadmap/planned-examples.md#advanced-diffusion-and-flow)**
 
     ---
 
-    Explore continuous flows, flow matching, and state-of-the-art architectures
+    Track still-unshipped advanced flow and diffusion example work
 
 </div>
 
@@ -1283,11 +1296,11 @@ Normalizing flows provide a unique combination of exact likelihood computation, 
 &nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2302.03660](https://arxiv.org/abs/2302.03660)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Flows on manifolds for geometric data
 
-### Comprehensive Surveys
+### Survey References
 
 :material-file-document: **Papamakarios, G., Nalisnick, E., Rezende, D. J., Mohamed, S., & Lakshminarayanan, B. (2021).** "Normalizing Flows for Probabilistic Modeling and Inference"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:1912.02762](https://arxiv.org/abs/1912.02762) | JMLR 22(57):1-64, 2021<br>
-&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Comprehensive tutorial covering theory and methods
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Complete tutorial covering theory and methods
 
 :material-file-document: **Kobyzev, I., Prince, S. J., & Brubaker, M. A. (2020).** "Normalizing Flows: An Introduction and Review of Current Methods"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:1908.09257](https://arxiv.org/abs/1908.09257) | IEEE TPAMI 2020<br>
@@ -1297,7 +1310,7 @@ Normalizing flows provide a unique combination of exact likelihood computation, 
 
 :material-web: **Lilian Weng's Blog: "Flow-based Deep Generative Models"**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;:material-link: [lilianweng.github.io/posts/2018-10-13-flow-models](https://lilianweng.github.io/posts/2018-10-13-flow-models/)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Comprehensive blog post with clear explanations and visualizations
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Complete blog post with clear explanations and visualizations
 
 :material-web: **Eric Jang's Tutorial**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;:material-link: [blog.evjang.com/2018/01/nf1.html](https://blog.evjang.com/2018/01/nf1.html)<br>

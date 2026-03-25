@@ -5,11 +5,13 @@ These tests verify that EBMBuilder follows Principle #4:
 
 The builder should:
 - Accept dataclass configs (EBMConfig, DeepEBMConfig)
-- NOT accept Pydantic ModelConfig
+- NOT accept generic model_class-driven configs
 - Determine model class from config type, not model_class string
 
 Following TDD - these tests define the expected behavior.
 """
+
+import dataclasses
 
 import pytest
 from flax import nnx
@@ -21,6 +23,14 @@ from artifex.generative_models.core.configuration.energy_config import (
     MCMCConfig,
     SampleBufferConfig,
 )
+
+
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
+class LegacyModelConfig:
+    """Minimal legacy catch-all config used for rejection tests."""
+
+    name: str
+    model_class: str
 
 
 # =============================================================================
@@ -203,16 +213,12 @@ class TestEBMBuilderErrorHandling:
     """Test error handling in EBMBuilder."""
 
     def test_reject_model_configuration(self, rngs):
-        """Test that Pydantic ModelConfig is rejected."""
-        from artifex.generative_models.core.configuration import ModelConfig
+        """Test that generic model_class-driven configs are rejected."""
         from artifex.generative_models.factory.builders.ebm import EBMBuilder
 
-        old_config = ModelConfig(
+        old_config = LegacyModelConfig(
             name="test",
             model_class="EBM",
-            input_dim=10,
-            hidden_dims=[32, 64],
-            output_dim=1,
         )
 
         builder = EBMBuilder()

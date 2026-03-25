@@ -13,27 +13,22 @@ import pytest
 from flax import nnx
 
 from artifex.generative_models.core.configuration import (
-    ExtensionConfig,
+    PointCloudConfig,
+    PointCloudNetworkConfig,
+    ProteinDihedralConfig,
+    ProteinExtensionConfig,
+    ProteinExtensionsConfig,
     ProteinMixinConfig,
 )
-
-
-try:
-    # Try the new import path first
-    from artifex.generative_models.extensions.protein import (
-        BondAngleExtension,
-        BondLengthExtension,
-        create_protein_extensions,
-        ProteinMixinExtension,
-    )
-except ImportError:
-    # Fall back to the old import path
-    from artifex.generative_models.models.geometric.extensions import (
-        BondAngleExtension,
-        BondLengthExtension,
-        create_protein_extensions,
-        ProteinMixinExtension,
-    )
+from artifex.generative_models.extensions.protein import (
+    BondAngleExtension,
+    BondLengthExtension,
+    create_protein_extensions,
+    ProteinBackboneConstraint,
+    ProteinDihedralConstraint,
+    ProteinMixinExtension,
+)
+from artifex.generative_models.models.geometric import PointCloudModel
 
 
 @pytest.fixture
@@ -53,20 +48,22 @@ def rngs():
 @pytest.fixture
 def bond_length_config():
     """Create a basic configuration for BondLengthExtension."""
-    return ExtensionConfig(
+    return ProteinExtensionConfig(
         name="bond_length",
         weight=2.0,
         enabled=True,
+        bond_length_weight=2.0,
     )
 
 
 @pytest.fixture
 def bond_angle_config():
     """Create a basic configuration for BondAngleExtension."""
-    return ExtensionConfig(
+    return ProteinExtensionConfig(
         name="bond_angle",
         weight=1.5,
         enabled=True,
+        bond_angle_weight=1.5,
     )
 
 
@@ -80,6 +77,18 @@ def protein_mixin_config():
     )
 
 
+@pytest.fixture
+def protein_atom_positions():
+    """Create explicit protein-shaped coordinates for extension tests."""
+    return jnp.linspace(0.0, 1.0, num=2 * 5 * 4 * 3, dtype=jnp.float32).reshape(2, 5, 4, 3)
+
+
+@pytest.fixture
+def protein_atom_mask(protein_atom_positions):
+    """Create an all-valid atom mask matching the protein coordinate fixture."""
+    return jnp.ones(protein_atom_positions.shape[:-1], dtype=jnp.float32)
+
+
 def test_bond_length_extension_init(bond_length_config, mock_rngs):
     """Test initializing a BondLengthExtension."""
     extension = BondLengthExtension(bond_length_config, rngs=mock_rngs)
@@ -89,7 +98,7 @@ def test_bond_length_extension_init(bond_length_config, mock_rngs):
 
     # Check for presence of expected attributes based on implementation
     assert hasattr(extension, "config")
-    assert isinstance(extension.config, ExtensionConfig)
+    assert isinstance(extension.config, ProteinExtensionConfig)
 
 
 def test_bond_angle_extension_init(bond_angle_config, mock_rngs):
@@ -101,7 +110,7 @@ def test_bond_angle_extension_init(bond_angle_config, mock_rngs):
 
     # Check for presence of expected attributes based on implementation
     assert hasattr(extension, "config")
-    assert isinstance(extension.config, ExtensionConfig)
+    assert isinstance(extension.config, ProteinExtensionConfig)
 
 
 def test_protein_mixin_extension_init(protein_mixin_config, mock_rngs):
@@ -113,37 +122,45 @@ def test_protein_mixin_extension_init(protein_mixin_config, mock_rngs):
 
     # Check for presence of expected attributes based on implementation
     assert hasattr(extension, "config")
-    assert isinstance(extension.config, ExtensionConfig)
+    assert isinstance(extension.config, ProteinMixinConfig)
     assert hasattr(extension, "embedding_dim")
     assert extension.embedding_dim == 16
 
 
-def test_bond_length_extension_call(bond_length_config, mock_rngs):
-    """Test calling a BondLengthExtension."""
+def test_bond_length_extension_call(
+    bond_length_config,
+    mock_rngs,
+    protein_atom_positions,
+    protein_atom_mask,
+):
+    """Test calling a BondLengthExtension with explicit protein coordinates."""
     extension = BondLengthExtension(bond_length_config, rngs=mock_rngs)
 
-    # Create minimal inputs and outputs for testing
-    inputs = {"coordinates": jnp.zeros((10, 3))}
-    model_outputs = {"predicted_coordinates": jnp.ones((10, 3))}
+    inputs = {"atom_mask": protein_atom_mask}
+    model_outputs = {"atom_positions": protein_atom_positions}
 
     result = extension(inputs, model_outputs)
 
-    # The result should be a dictionary with extension outputs
     assert isinstance(result, dict)
+    assert result["extension_type"] == "bond_length"
 
 
-def test_bond_angle_extension_call(bond_angle_config, mock_rngs):
-    """Test calling a BondAngleExtension."""
+def test_bond_angle_extension_call(
+    bond_angle_config,
+    mock_rngs,
+    protein_atom_positions,
+    protein_atom_mask,
+):
+    """Test calling a BondAngleExtension with explicit protein coordinates."""
     extension = BondAngleExtension(bond_angle_config, rngs=mock_rngs)
 
-    # Create minimal inputs and outputs for testing
-    inputs = {"coordinates": jnp.zeros((10, 3))}
-    model_outputs = {"predicted_coordinates": jnp.ones((10, 3))}
+    inputs = {"atom_mask": protein_atom_mask}
+    model_outputs = {"atom_positions": protein_atom_positions}
 
     result = extension(inputs, model_outputs)
 
-    # The result should be a dictionary with extension outputs
     assert isinstance(result, dict)
+    assert result["extension_type"] == "bond_angle"
 
 
 def test_protein_mixin_extension_call(protein_mixin_config, mock_rngs):
@@ -160,39 +177,45 @@ def test_protein_mixin_extension_call(protein_mixin_config, mock_rngs):
     assert isinstance(result, dict)
 
 
-def test_bond_length_extension_loss(bond_length_config, mock_rngs):
+def test_bond_length_extension_loss(
+    bond_length_config,
+    mock_rngs,
+    protein_atom_positions,
+    protein_atom_mask,
+):
     """Test calculating loss with a BondLengthExtension."""
     extension = BondLengthExtension(bond_length_config, rngs=mock_rngs)
 
-    # Create minimal batch and outputs for testing
-    batch = {"coordinates": jnp.zeros((10, 3))}
-    model_outputs = {"predicted_coordinates": jnp.ones((10, 3))}
+    batch = {"atom_mask": protein_atom_mask}
+    model_outputs = {"atom_positions": protein_atom_positions}
 
     loss = extension.loss_fn(batch, model_outputs)
 
-    # The loss should be a scalar JAX array
     assert isinstance(loss, jax.Array)
-    assert loss.ndim == 0  # Scalar
+    assert loss.ndim == 0
 
 
-def test_bond_angle_extension_loss(bond_angle_config, mock_rngs):
+def test_bond_angle_extension_loss(
+    bond_angle_config,
+    mock_rngs,
+    protein_atom_positions,
+    protein_atom_mask,
+):
     """Test calculating loss with a BondAngleExtension."""
     extension = BondAngleExtension(bond_angle_config, rngs=mock_rngs)
 
-    # Create minimal batch and outputs for testing
-    batch = {"coordinates": jnp.zeros((10, 3))}
-    model_outputs = {"predicted_coordinates": jnp.ones((10, 3))}
+    batch = {"atom_mask": protein_atom_mask}
+    model_outputs = {"atom_positions": protein_atom_positions}
 
     loss = extension.loss_fn(batch, model_outputs)
 
-    # The loss should be a scalar JAX array
     assert isinstance(loss, jax.Array)
-    assert loss.ndim == 0  # Scalar
+    assert loss.ndim == 0
 
 
 def test_create_protein_extensions_empty(mock_rngs):
     """Test creating protein extensions with empty config."""
-    extensions = create_protein_extensions({}, rngs=mock_rngs)
+    extensions = create_protein_extensions(ProteinExtensionsConfig(name="empty"), rngs=mock_rngs)
 
     # The result should be an nnx.Dict (compatible with dict interface)
     assert isinstance(extensions, (dict, nnx.Dict))
@@ -205,10 +228,11 @@ def test_create_protein_extensions_contains_nonexistent_key(mock_rngs):
     This tests for a bug where nnx.Dict's __contains__ raises AttributeError
     when checking for missing keys instead of returning False.
     """
-    config = {
-        "use_backbone_constraints": True,
-        "bond_length_weight": 1.0,
-    }
+    config = ProteinExtensionsConfig(
+        name="protein_extensions",
+        bond_length=ProteinExtensionConfig(name="bond_length"),
+        bond_angle=ProteinExtensionConfig(name="bond_angle"),
+    )
     extensions = create_protein_extensions(config, rngs=mock_rngs)
 
     # These should work without raising AttributeError
@@ -220,11 +244,19 @@ def test_create_protein_extensions_contains_nonexistent_key(mock_rngs):
 
 def test_create_protein_extensions_backbone(mock_rngs):
     """Test creating protein extensions with backbone constraints."""
-    config = {
-        "use_backbone_constraints": True,
-        "bond_length_weight": 2.0,
-        "bond_angle_weight": 1.5,
-    }
+    config = ProteinExtensionsConfig(
+        name="protein_extensions",
+        bond_length=ProteinExtensionConfig(
+            name="bond_length",
+            weight=2.0,
+            bond_length_weight=2.0,
+        ),
+        bond_angle=ProteinExtensionConfig(
+            name="bond_angle",
+            weight=1.5,
+            bond_angle_weight=1.5,
+        ),
+    )
 
     extensions = create_protein_extensions(config, rngs=mock_rngs)
 
@@ -244,12 +276,15 @@ def test_create_protein_extensions_backbone(mock_rngs):
 
 def test_create_protein_extensions_mixin(mock_rngs):
     """Test creating protein extensions with protein mixin."""
-    config = {
-        "use_protein_mixin": True,
-        "aa_embedding_dim": 32,
-        "aa_one_hot": False,
-        "num_aa_types": 22,
-    }
+    config = ProteinExtensionsConfig(
+        name="protein_extensions",
+        mixin=ProteinMixinConfig(
+            name="protein_mixin",
+            embedding_dim=32,
+            use_one_hot=False,
+            num_aa_types=22,
+        ),
+    )
 
     extensions = create_protein_extensions(config, rngs=mock_rngs)
 
@@ -260,7 +295,7 @@ def test_create_protein_extensions_mixin(mock_rngs):
     # Check extension type
     assert isinstance(extensions["protein_mixin"], ProteinMixinExtension)
 
-    # Check configuration values from dict were applied
+    # Check configuration values from typed config were applied
     assert extensions["protein_mixin"].embedding_dim == 32
     assert extensions["protein_mixin"].use_one_hot is False
     assert extensions["protein_mixin"].num_aa_types == 22
@@ -268,13 +303,14 @@ def test_create_protein_extensions_mixin(mock_rngs):
 
 def test_create_protein_extensions_all(mock_rngs):
     """Test creating all protein extensions."""
-    config = {
-        "use_backbone_constraints": True,
-        "bond_length_weight": 2.0,
-        "bond_angle_weight": 1.5,
-        "use_protein_mixin": True,
-        "aa_embedding_dim": 32,
-    }
+    config = ProteinExtensionsConfig(
+        name="protein_extensions",
+        bond_length=ProteinExtensionConfig(name="bond_length", weight=2.0, bond_length_weight=2.0),
+        bond_angle=ProteinExtensionConfig(name="bond_angle", weight=1.5, bond_angle_weight=1.5),
+        backbone=ProteinExtensionConfig(name="backbone_constraint", weight=1.0),
+        dihedral=ProteinDihedralConfig(name="dihedral_constraint", weight=0.7),
+        mixin=ProteinMixinConfig(name="protein_mixin", embedding_dim=32),
+    )
 
     extensions = create_protein_extensions(config, rngs=mock_rngs)
 
@@ -282,7 +318,107 @@ def test_create_protein_extensions_all(mock_rngs):
     assert isinstance(extensions, (dict, nnx.Dict))
     assert "bond_length" in extensions
     assert "bond_angle" in extensions
+    assert "backbone" in extensions
+    assert "dihedral" in extensions
     assert "protein_mixin" in extensions
+    assert isinstance(extensions["backbone"], ProteinBackboneConstraint)
+    assert isinstance(extensions["dihedral"], ProteinDihedralConstraint)
+
+
+def test_bond_length_extension_rejects_ambiguous_flattened_dict_payload(
+    bond_length_config,
+    mock_rngs,
+    protein_atom_positions,
+):
+    """Bond-length helpers should not silently coerce flat dict payloads."""
+    extension = BondLengthExtension(bond_length_config, rngs=mock_rngs)
+    flattened_positions = protein_atom_positions.reshape(protein_atom_positions.shape[0], -1, 3)
+
+    with pytest.raises(ValueError, match="atom_positions"):
+        extension({}, {"positions": flattened_positions})
+
+    with pytest.raises(ValueError, match="atom_positions"):
+        extension({}, {"predicted_coordinates": flattened_positions})
+
+
+def test_bond_angle_extension_rejects_ambiguous_flattened_dict_payload(
+    bond_angle_config,
+    mock_rngs,
+    protein_atom_positions,
+):
+    """Bond-angle helpers should not silently coerce flat dict payloads."""
+    extension = BondAngleExtension(bond_angle_config, rngs=mock_rngs)
+    flattened_positions = protein_atom_positions.reshape(protein_atom_positions.shape[0], -1, 3)
+
+    with pytest.raises(ValueError, match="atom_positions"):
+        extension({}, {"positions": flattened_positions})
+
+    with pytest.raises(ValueError, match="atom_positions"):
+        extension({}, {"predicted_coordinates": flattened_positions})
+
+
+def test_create_protein_extensions_coordinate_contract_is_consistent(
+    mock_rngs,
+    protein_atom_positions,
+    protein_atom_mask,
+):
+    """Coordinate-consuming protein extensions should agree on one payload contract."""
+    config = ProteinExtensionsConfig(
+        name="protein_extensions",
+        bond_length=ProteinExtensionConfig(name="bond_length"),
+        bond_angle=ProteinExtensionConfig(name="bond_angle"),
+        backbone=ProteinExtensionConfig(name="backbone_constraint"),
+        dihedral=ProteinDihedralConfig(name="dihedral_constraint"),
+    )
+    extensions = create_protein_extensions(config, rngs=mock_rngs)
+
+    explicit_inputs = {"atom_mask": protein_atom_mask}
+    explicit_outputs = {"atom_positions": protein_atom_positions}
+    for extension_name in ("bond_length", "bond_angle", "backbone", "dihedral"):
+        result = extensions[extension_name](explicit_inputs, explicit_outputs)
+        assert isinstance(result, dict)
+
+    flattened_outputs = {
+        "positions": protein_atom_positions.reshape(protein_atom_positions.shape[0], -1, 3)
+    }
+    for extension_name in ("bond_length", "bond_angle", "backbone", "dihedral"):
+        with pytest.raises(ValueError, match="atom_positions"):
+            extensions[extension_name](explicit_inputs, flattened_outputs)
+
+
+def test_point_cloud_model_preserves_explicit_atom_positions_for_protein_extensions(mock_rngs):
+    """Generic point-cloud models should keep explicit protein coordinates available to extensions."""
+    extension_bundle = ProteinExtensionsConfig(
+        name="protein_extensions",
+        bond_length=ProteinExtensionConfig(name="bond_length"),
+        bond_angle=ProteinExtensionConfig(name="bond_angle"),
+    )
+    extensions = create_protein_extensions(extension_bundle, rngs=mock_rngs)
+    model_config = PointCloudConfig(
+        name="protein_point_cloud_with_extensions",
+        network=PointCloudNetworkConfig(
+            name="protein_network",
+            hidden_dims=(16, 16),
+            embed_dim=16,
+            num_heads=2,
+            num_layers=1,
+            dropout_rate=0.0,
+            activation="gelu",
+        ),
+        num_points=8,
+        dropout_rate=0.0,
+    )
+    model = PointCloudModel(model_config, extensions=extensions, rngs=mock_rngs)
+
+    batch = {
+        "atom_positions": jnp.ones((1, 2, 4, 3), dtype=jnp.float32),
+        "atom_mask": jnp.ones((1, 2, 4), dtype=jnp.float32),
+    }
+    outputs = model(batch)
+
+    assert outputs["positions"].shape == (1, 8, 3)
+    assert outputs["atom_positions"].shape == (1, 2, 4, 3)
+    assert set(outputs["extension_outputs"]) == {"bond_length", "bond_angle"}
 
 
 # ========================================================================
@@ -338,10 +474,11 @@ def test_batch(model_config):
 def test_create_extensions_alternative_config(rngs):
     """Test creating individual protein extensions with alternative config format."""
     # Test bond length extension
-    bond_length_config = ExtensionConfig(
+    bond_length_config = ProteinExtensionConfig(
         name="bond_length",
         weight=1.0,
         enabled=True,
+        bond_length_weight=1.0,
     )
     bond_length_ext = BondLengthExtension(
         bond_length_config,
@@ -350,10 +487,11 @@ def test_create_extensions_alternative_config(rngs):
     assert isinstance(bond_length_ext, BondLengthExtension)
 
     # Test bond angle extension
-    bond_angle_config = ExtensionConfig(
+    bond_angle_config = ProteinExtensionConfig(
         name="bond_angle",
         weight=0.5,
         enabled=True,
+        bond_angle_weight=0.5,
     )
     bond_angle_ext = BondAngleExtension(
         bond_angle_config,
@@ -374,47 +512,20 @@ def test_create_extensions_alternative_config(rngs):
     assert isinstance(protein_mixin_ext, ProteinMixinExtension)
 
 
-def test_create_protein_extensions_with_aa_features(rngs):
-    """Test creating protein extensions using the helper function with AA features."""
-    protein_config = {
-        "use_backbone_constraints": True,
-        "bond_length_weight": 1.0,
-        "bond_angle_weight": 0.5,
-        "use_aa_features": True,
-        "model_dim": 64,
-    }
+def test_create_protein_extensions_with_backbone_and_mixin_bundle(rngs):
+    """Test the canonical typed protein bundle can express the common helper case."""
+    protein_config = ProteinExtensionsConfig(
+        name="protein_extensions",
+        bond_length=ProteinExtensionConfig(name="bond_length"),
+        bond_angle=ProteinExtensionConfig(name="bond_angle"),
+        mixin=ProteinMixinConfig(name="protein_mixin", embedding_dim=64),
+    )
 
     extensions = create_protein_extensions(protein_config, rngs=rngs)
 
     assert "bond_length" in extensions
     assert "bond_angle" in extensions
-    # Note: use_aa_features might map to protein_mixin in some implementations
-
+    assert "protein_mixin" in extensions
     assert isinstance(extensions["bond_length"], BondLengthExtension)
     assert isinstance(extensions["bond_angle"], BondAngleExtension)
-
-
-def test_geometric_model_with_extensions(rngs, model_config, test_batch):
-    """Test using protein extensions with a geometric model.
-
-    This test is skipped due to segmentation fault issues in the original test.
-    It would test the protein extensions with a geometric model.
-    """
-    print("This test would test the protein extensions with a geometric model.")
-    print("Input shapes for reference:")
-    print(f"  - model_config: {model_config}")
-    print(f"  - test_batch positions shape: {test_batch['positions'].shape}")
-    assert True
-
-
-def test_extension_projection(rngs, model_config, test_batch):
-    """Test that extensions can project outputs.
-
-    This test is skipped due to segmentation fault issues in the original test.
-    It would test that extensions can project outputs correctly.
-    """
-    print("This test would test that extensions can project outputs correctly.")
-    print("Input shapes for reference:")
-    print(f"  - model_config: {model_config}")
-    print(f"  - test_batch positions shape: {test_batch['positions'].shape}")
-    assert True
+    assert isinstance(extensions["protein_mixin"], ProteinMixinExtension)

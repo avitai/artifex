@@ -1,149 +1,126 @@
-#!/usr/bin/env python
-"""
-Modern GPU utilities for Artifex - Foundation-first approach.
+#!/usr/bin/env python3
+"""Repo-local GPU diagnostics that reflect the current runtime device surface."""
 
-This script provides a clean interface to our comprehensive device management system,
-completely replacing the old scattered GPU utilities with a unified architecture.
-"""
+from __future__ import annotations
 
+import argparse
+import logging
 import sys
-from pathlib import Path
+from collections.abc import Sequence
 
 
-# Add src to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
-
-from artifex.generative_models.core.device_manager import (
-    configure_for_generative_models,
-    get_device_manager,
-    MemoryStrategy,
-    print_device_info,
-)
-from artifex.generative_models.core.device_testing import (
-    print_test_results,
-    run_device_tests,
-)
-
-
-def main():
-    """Main entry point for GPU utilities."""
-    if len(sys.argv) > 1:
-        command = sys.argv[1]
-
-        if command == "--detailed":
-            print_comprehensive_info()
-        elif command == "--test":
-            run_tests()
-        elif command == "--test-critical":
-            run_critical_tests()
-        elif command == "--configure-generative":
-            configure_generative()
-        elif command == "--help":
-            print_help()
-        else:
-            print(f"Unknown command: {command}")
-            print_help()
-    else:
-        print_quick_status()
+def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
+    """Parse command-line arguments."""
+    parser = argparse.ArgumentParser(description=__doc__)
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument(
+        "--detailed",
+        action="store_true",
+        help="Show a detailed summary of the active runtime devices",
+    )
+    group.add_argument(
+        "--test",
+        action="store_true",
+        help="Run the full runtime device diagnostic suite",
+    )
+    group.add_argument(
+        "--test-critical",
+        action="store_true",
+        help="Run only the critical runtime device diagnostics",
+    )
+    return parser.parse_args(argv)
 
 
-def print_quick_status():
-    """Print quick device status."""
+def _format_quick_status() -> str:
+    """Render the quick status view."""
+    from artifex.generative_models.core.device_manager import get_device_manager
+
     manager = get_device_manager()
+    capabilities = manager.capabilities
+    lines = [
+        "Artifex GPU Status",
+        "==================",
+        f"Backend: {capabilities.default_backend or 'unavailable'}",
+        f"Device type: {capabilities.device_type.value}",
+        f"Visible devices: {manager.device_count}",
+        f"Visible GPUs: {manager.gpu_count}",
+    ]
 
-    print("🔍 Artifex GPU Status")
-    print("=" * 30)
-    print(f"GPU Available: {manager.has_gpu}")
-    print(f"Device Count: {manager.device_count}")
-    print(f"GPU Count: {manager.gpu_count}")
-    print(f"Memory Strategy: {manager.config.memory_strategy.value}")
-    print(f"Memory Fraction: {manager.config.memory_fraction}")
+    if capabilities.error:
+        lines.append(f"Runtime error: {capabilities.error}")
+    elif capabilities.visible_devices:
+        lines.append("Devices:")
+        for device in capabilities.visible_devices:
+            lines.append(f"  - {device}")
 
-    if manager.capabilities.cuda_version:
-        print(f"CUDA Version: {manager.capabilities.cuda_version}")
-
-    print("\nRun with --detailed for detailed information")
-    print("Run with --test for comprehensive testing")
+    return "\n".join(lines)
 
 
-def print_comprehensive_info():
-    """Print comprehensive device information."""
-    print_device_info()
+def _format_detailed_status() -> str:
+    """Render the detailed status view."""
+    from artifex.generative_models.core.device_manager import get_device_manager
 
-    # Additional configuration details
     manager = get_device_manager()
+    capabilities = manager.capabilities
     info = manager.get_device_info()
 
-    print("\n📋 Configuration Details:")
-    print(f"Platform Priority: {manager.config.platform_priority}")
-    print(f"Enable X64: {manager.config.enable_x64}")
-    print(f"Enable JIT: {manager.config.enable_jit}")
+    lines = [
+        "Artifex GPU Status",
+        "==================",
+        f"Backend: {capabilities.default_backend or 'unavailable'}",
+        f"Device type: {capabilities.device_type.value}",
+        f"Visible devices: {manager.device_count}",
+        f"Visible GPUs: {manager.gpu_count}",
+        f"Supports mixed precision: {capabilities.supports_mixed_precision}",
+        f"Supports distributed execution: {capabilities.supports_distributed}",
+        f"Default device: {info['default_device'] or 'none'}",
+    ]
 
-    print("\n🎯 Available Devices:")
-    for device in info["jax_devices"]:
-        print(f"  • {device}")
+    if capabilities.total_memory_mb is not None:
+        lines.append(f"GPU memory (MB): {capabilities.total_memory_mb}")
+    if capabilities.cuda_version:
+        lines.append(f"CUDA version: {capabilities.cuda_version}")
+    if capabilities.compute_capability:
+        lines.append(f"Compute capability: {capabilities.compute_capability}")
+    if capabilities.driver_version:
+        lines.append(f"Driver version: {capabilities.driver_version}")
 
-    if manager.capabilities.supports_distributed:
-        print(f"\n🔗 Distributed Training: Supported ({manager.gpu_count} GPUs)")
-    else:
-        print("\n🔗 Distributed Training: Not available")
+    if capabilities.error:
+        lines.append(f"Runtime error: {capabilities.error}")
+    elif capabilities.visible_devices:
+        lines.append("Devices:")
+        for device in capabilities.visible_devices:
+            lines.append(f"  - {device}")
 
-
-def run_tests():
-    """Run comprehensive device tests."""
-    print("🧪 Running comprehensive device tests...")
-    suite = run_device_tests()
-    print_test_results(suite)
-
-    # Exit with appropriate code
-    sys.exit(0 if suite.is_healthy else 1)
-
-
-def run_critical_tests():
-    """Run only critical device tests."""
-    print("🔴 Running critical device tests only...")
-    suite = run_device_tests(critical_only=True)
-    print_test_results(suite)
-
-    # Exit with appropriate code
-    sys.exit(0 if suite.is_healthy else 1)
+    return "\n".join(lines)
 
 
-def configure_generative():
-    """Configure device manager for generative models."""
-    print("🎨 Configuring for generative models...")
-
-    configure_for_generative_models(
-        memory_strategy=MemoryStrategy.BALANCED, enable_mixed_precision=True
+def _run_diagnostics(*, critical_only: bool) -> int:
+    """Run the runtime diagnostics and return a process exit code."""
+    from artifex.generative_models.core.device_testing import (
+        print_test_results,
+        run_device_tests,
     )
 
-    print("✅ Configuration complete!")
-    print_device_info()
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
+    suite = run_device_tests(critical_only=critical_only)
+    print_test_results(suite)
+    return 0 if suite.is_healthy else 1
 
 
-def print_help():
-    """Print help information."""
-    print("Artifex GPU Utilities - Foundation-first Device Management")
-    print("=" * 60)
-    print()
-    print("Usage: python scripts/gpu_utils.py [command]")
-    print()
-    print("Commands:")
-    print("  (no args)              Quick device status")
-    print("  --detailed             Detailed device information")
-    print("  --test                 Run comprehensive device tests")
-    print("  --test-critical        Run critical tests only")
-    print("  --configure-generative Configure for generative models")
-    print("  --help                 Show this help message")
-    print()
-    print("Examples:")
-    print("  python scripts/gpu_utils.py")
-    print("  python scripts/gpu_utils.py --detailed")
-    print("  python scripts/gpu_utils.py --test")
-    print()
-    print("For advanced configuration, use the device manager directly:")
-    print("  from artifex.generative_models.core.device_manager import *")
+def main(argv: Sequence[str] | None = None) -> int:
+    """Run the GPU diagnostics CLI."""
+    args = parse_args(argv)
+
+    if args.test:
+        return _run_diagnostics(critical_only=False)
+    if args.test_critical:
+        return _run_diagnostics(critical_only=True)
+
+    output = _format_detailed_status() if args.detailed else _format_quick_status()
+    sys.stdout.write(f"{output}\n")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

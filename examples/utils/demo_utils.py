@@ -9,7 +9,7 @@ Usage:
     # Quick demo (fast, minimal resources)
     python demo_utils.py --preset quick
 
-    # Full demo (comprehensive, longer training)
+    # Full demo (complete, longer training)
     python demo_utils.py --preset full
 
     # Custom configuration
@@ -76,7 +76,7 @@ def get_preset_configs():
             },
         },
         "full": {
-            "description": "Full demo - comprehensive training with real data",
+            "description": "Full demo - complete training with real data",
             "workdir": "./examples_output/geometric_demo_full",
             "dataset": {
                 "data_path": "./data/shapenet",

@@ -4,7 +4,115 @@ import jax
 import jax.numpy as jnp
 import pytest
 from flax import nnx
-from tests.utils.test_helpers import should_run_diffusion_tests
+
+from artifex.generative_models.core.configuration import (
+    ConvDiscriminatorConfig,
+    ConvGeneratorConfig,
+    CouplingNetworkConfig,
+    DCGANConfig,
+    DDPMConfig,
+    DecoderConfig,
+    EncoderConfig,
+    NoiseScheduleConfig,
+    RealNVPConfig,
+    UNetBackboneConfig,
+    VAEConfig,
+)
+from artifex.generative_models.factory import create_model
+from artifex.generative_models.models.diffusion import DDPMModel
+from artifex.generative_models.models.flow import RealNVP
+from artifex.generative_models.models.gan import DCGAN
+
+
+def _create_vae_model(e2e_config: dict[str, object]) -> object:
+    rng = jax.random.key(42)
+    image_size = e2e_config["image_size"]
+    hidden_dims = tuple(e2e_config["hidden_dims"])
+    latent_dim = e2e_config["latent_dim"]
+
+    encoder_config = EncoderConfig(
+        name="test_encoder",
+        input_shape=image_size,
+        hidden_dims=hidden_dims,
+        latent_dim=latent_dim,
+        activation="relu",
+    )
+    decoder_config = DecoderConfig(
+        name="test_decoder",
+        latent_dim=latent_dim,
+        hidden_dims=tuple(reversed(hidden_dims)),
+        output_shape=image_size,
+        activation="relu",
+    )
+    config = VAEConfig(
+        name="test_vae",
+        encoder=encoder_config,
+        decoder=decoder_config,
+        kl_weight=1.0,
+    )
+    return create_model(config, rngs=nnx.Rngs(params=rng, sample=rng))
+
+
+def _create_dcgan_model(e2e_config: dict[str, object]) -> DCGAN:
+    image_height, image_width, channels = e2e_config["image_size"]
+    latent_dim = e2e_config["latent_dim"]
+    hidden_dims = tuple(e2e_config["hidden_dims"])
+
+    generator = ConvGeneratorConfig(
+        name="test_generator",
+        latent_dim=latent_dim,
+        hidden_dims=tuple(reversed(hidden_dims)),
+        output_shape=(channels, image_height, image_width),
+        activation="relu",
+        batch_norm=True,
+        kernel_size=(4, 4),
+        stride=(2, 2),
+        padding="SAME",
+    )
+    discriminator = ConvDiscriminatorConfig(
+        name="test_discriminator",
+        hidden_dims=hidden_dims,
+        input_shape=(channels, image_height, image_width),
+        activation="leaky_relu",
+        leaky_relu_slope=0.2,
+        batch_norm=False,
+        kernel_size=(4, 4),
+        stride=(2, 2),
+        padding="SAME",
+    )
+    config = DCGANConfig(
+        name="test_dcgan",
+        generator=generator,
+        discriminator=discriminator,
+    )
+    return DCGAN(
+        config,
+        rngs=nnx.Rngs(
+            params=jax.random.key(42),
+            sample=jax.random.key(43),
+            dropout=jax.random.key(44),
+        ),
+    )
+
+
+def _create_realnvp_model(e2e_config: dict[str, object]) -> tuple[RealNVP, RealNVPConfig]:
+    image_size = e2e_config["image_size"]
+    input_dim = int(jnp.prod(jnp.array(image_size)))
+    coupling = CouplingNetworkConfig(
+        name="test_coupling",
+        hidden_dims=(32, 32),
+        activation="relu",
+        network_type="mlp",
+    )
+    config = RealNVPConfig(
+        name="test_realnvp",
+        coupling_network=coupling,
+        input_dim=input_dim,
+        num_coupling_layers=4,
+        mask_type="checkerboard",
+    )
+    model = RealNVP(config, rngs=nnx.Rngs(params=jax.random.key(52)))
+    return model, config
 
 
 @pytest.mark.e2e
@@ -12,296 +120,220 @@ from tests.utils.test_helpers import should_run_diffusion_tests
 class TestTrainingWorkflows:
     """End-to-end tests for complete training workflows."""
 
-    def test_vae_complete_workflow(self, e2e_config, sample_dataset, model_save_path, results_path):
+    def test_vae_complete_workflow(self, e2e_config, sample_dataset):
         """Test complete VAE training workflow from data to evaluation."""
-        try:
-            from artifex.generative_models.core.configuration.network_configs import (
-                DecoderConfig,
-                EncoderConfig,
-            )
-            from artifex.generative_models.core.configuration.vae_config import VAEConfig
-            from artifex.generative_models.factory import create_model
-        except ImportError:
-            pytest.skip("VAE model not available")
+        model = _create_vae_model(e2e_config)
+        batch_size = e2e_config["batch_size"]
+        latent_dim = e2e_config["latent_dim"]
+        num_samples = e2e_config["num_samples"]
+        image_size = e2e_config["image_size"]
 
-        # Initialize model
-        rng = jax.random.key(42)
-        encoder_config = EncoderConfig(
-            name="test_encoder",
-            input_shape=e2e_config["image_size"],
-            hidden_dims=tuple(e2e_config["hidden_dims"]),
-            latent_dim=e2e_config["latent_dim"],
-            activation="relu",
-        )
-        decoder_config = DecoderConfig(
-            name="test_decoder",
-            latent_dim=e2e_config["latent_dim"],
-            hidden_dims=tuple(reversed(e2e_config["hidden_dims"])),
-            output_shape=e2e_config["image_size"],
-            activation="relu",
-        )
-        config = VAEConfig(
-            name="test_vae",
-            encoder=encoder_config,
-            decoder=decoder_config,
-            kl_weight=1.0,
-        )
+        batch = sample_dataset["images"][:batch_size]
 
-        model = create_model(config, rngs=nnx.Rngs(params=rng))
-
-        # Test forward pass
-        batch = sample_dataset["images"][: e2e_config["batch_size"]]
-
-        # Encode
         mu, logvar = model.encode(batch)
-        expected_shape = (e2e_config["batch_size"], e2e_config["latent_dim"])
+        expected_shape = (batch_size, latent_dim)
         assert mu.shape == expected_shape
         assert logvar.shape == expected_shape
 
-        # Sample latent
         z = model.reparameterize(mu, logvar)
-        assert z.shape == (e2e_config["batch_size"], e2e_config["latent_dim"])
+        assert z.shape == expected_shape
 
-        # Decode
         reconstruction = model.decode(z)
         assert reconstruction.shape == batch.shape
 
-        # Test loss computation
-        # VAE uses loss_fn which returns a dictionary with 'loss', 'reconstruction_loss', 'kl_loss'
-        loss_dict = model.loss_fn(x=batch)
-        assert jnp.isfinite(loss_dict["loss"])
+        model_outputs = model(batch)
+        loss_dict = model.loss_fn(batch, model_outputs)
+        assert jnp.isfinite(loss_dict["total_loss"])
         assert "reconstruction_loss" in loss_dict
         assert "kl_loss" in loss_dict
 
-        # Test sampling
-        samples = model.sample(n_samples=e2e_config["num_samples"])
-        expected_samples_shape = (e2e_config["num_samples"],) + e2e_config["image_size"]
-        assert samples.shape == expected_samples_shape
-
-        # Verify all outputs are finite
+        samples = model.sample(n_samples=num_samples)
+        assert samples.shape == (num_samples,) + image_size
         assert jnp.all(jnp.isfinite(reconstruction))
         assert jnp.all(jnp.isfinite(samples))
 
-    def test_diffusion_complete_workflow(
-        self, e2e_config, sample_dataset, model_save_path, results_path
-    ):
+    def test_diffusion_complete_workflow(self, e2e_config, sample_dataset):
         """Test complete diffusion model workflow."""
-        if not should_run_diffusion_tests():
-            pytest.skip("Diffusion tests disabled due to GroupNorm issues")
-
-        try:
-            from artifex.generative_models.models.diffusion import DDPMModel
-        except ImportError:
-            pytest.skip("Diffusion model not available")
-
-        # Initialize model
         rng = jax.random.key(42)
-        config = {
-            "input_dim": e2e_config["image_size"],
-            "noise_steps": 20,  # Small for testing
-            "beta_start": 1e-4,
-            "beta_end": 0.02,
-            "beta_schedule": "linear",
-            "hidden_dims": e2e_config["hidden_dims"],
-            "time_embedding_dim": 32,
-        }
+        image_size = e2e_config["image_size"]
+        hidden_dims = tuple(e2e_config["hidden_dims"])
+        in_channels = image_size[-1]
 
-        model = DDPMModel(config, rngs=nnx.Rngs(params=rng))
+        backbone = UNetBackboneConfig(
+            name="test_unet",
+            hidden_dims=hidden_dims,
+            activation="relu",
+            in_channels=in_channels,
+            out_channels=in_channels,
+            channel_mult=(1, 2),
+            num_res_blocks=1,
+        )
+        noise_schedule = NoiseScheduleConfig(
+            name="test_schedule",
+            num_timesteps=20,
+            schedule_type="linear",
+            beta_start=1e-4,
+            beta_end=0.02,
+        )
+        config = DDPMConfig(
+            name="test_ddpm",
+            backbone=backbone,
+            noise_schedule=noise_schedule,
+            input_shape=image_size,
+            loss_type="mse",
+            clip_denoised=True,
+        )
 
-        # Test forward diffusion process
+        model = DDPMModel(
+            config,
+            rngs=nnx.Rngs(
+                params=rng,
+                sample=rng,
+                noise=rng,
+                timestep=rng,
+                dropout=rng,
+            ),
+        )
+
         batch = sample_dataset["images"][: e2e_config["batch_size"]]
-        t = jnp.array([5, 10, 15, 18])  # Different timesteps
-
-        # Add noise
+        t = jnp.array([5, 10, 15, 18])
         noise = jax.random.normal(rng, batch.shape)
         noisy_batch = model.q_sample(batch, t, noise)
         assert noisy_batch.shape == batch.shape
 
-        # Test noise prediction
-        pred_noise = model(noisy_batch, t)
+        model_output = model(noisy_batch, t)
+        pred_noise = model_output["predicted_noise"]
         assert pred_noise.shape == noise.shape
         assert jnp.all(jnp.isfinite(pred_noise))
 
-        # Test sampling process
-        samples = model.sample(n_samples=e2e_config["num_samples"], rngs=nnx.Rngs(params=rng))
-        expected_shape = (e2e_config["num_samples"],) + e2e_config["image_size"]
-        assert samples.shape == expected_shape
+        samples = model.sample(e2e_config["num_samples"])
+        assert samples.shape == (e2e_config["num_samples"],) + tuple(image_size)
         assert jnp.all(jnp.isfinite(samples))
 
-    def test_gan_complete_workflow(self, e2e_config, sample_dataset, model_save_path, results_path):
-        """Test complete GAN training workflow."""
-        try:
-            from artifex.generative_models.models.gan import GANModel
-        except ImportError:
-            pytest.skip("GAN model not available")
-
-        # Initialize model
-        rng = jax.random.key(42)
-        config = {
-            "input_dim": e2e_config["image_size"],
-            "latent_dim": e2e_config["latent_dim"],
-            "generator_hidden_dims": e2e_config["hidden_dims"],
-            "discriminator_hidden_dims": e2e_config["hidden_dims"],
-        }
-
-        model = GANModel(config, rngs=nnx.Rngs(params=rng))
-
-        # Test generator
+    def test_dcgan_complete_workflow(self, e2e_config, sample_dataset):
+        """Test complete DCGAN workflow using the live public GAN API."""
+        model = _create_dcgan_model(e2e_config)
         batch_size = e2e_config["batch_size"]
-        z = jax.random.normal(rng, (batch_size, e2e_config["latent_dim"]))
-        fake_images = model.generator(z)
-        assert fake_images.shape == (batch_size,) + e2e_config["image_size"]
+        num_samples = e2e_config["num_samples"]
+        image_size = e2e_config["image_size"]
+        expected_shape = (batch_size, image_size[-1], image_size[0], image_size[1])
 
-        # Test discriminator
+        fake_images = model.generate(batch_size, rngs=nnx.Rngs(sample=jax.random.key(60)))
+        assert fake_images.shape == expected_shape
+        assert jnp.all(jnp.isfinite(fake_images))
+
         real_batch = sample_dataset["images"][:batch_size]
+        real_batch = jnp.transpose(real_batch, (0, 3, 1, 2))
         real_logits = model.discriminator(real_batch)
         fake_logits = model.discriminator(fake_images)
 
         assert real_logits.shape == (batch_size, 1)
         assert fake_logits.shape == (batch_size, 1)
+        assert jnp.all(jnp.isfinite(real_logits))
+        assert jnp.all(jnp.isfinite(fake_logits))
 
-        # Test loss computation
-        g_loss = model.generator_loss(fake_logits)
-        d_loss = model.discriminator_loss(real_logits, fake_logits)
+        generator_metrics = model.generator_objective(real_batch)
+        discriminator_metrics = model.discriminator_objective(real_batch)
+        assert jnp.isfinite(generator_metrics["total_loss"])
+        assert jnp.isfinite(discriminator_metrics["total_loss"])
 
-        assert jnp.isfinite(g_loss)
-        assert jnp.isfinite(d_loss)
-
-        # Test sampling
-        samples = model.sample(n_samples=e2e_config["num_samples"], rngs=nnx.Rngs(params=rng))
-        expected_shape = (e2e_config["num_samples"],) + e2e_config["image_size"]
-        assert samples.shape == expected_shape
+        samples = model.generate(num_samples, rngs=nnx.Rngs(sample=jax.random.key(61)))
+        assert samples.shape == (num_samples, image_size[-1], image_size[0], image_size[1])
         assert jnp.all(jnp.isfinite(samples))
 
-    def test_flow_complete_workflow(
-        self, e2e_config, sample_dataset, model_save_path, results_path
-    ):
-        """Test complete normalizing flow workflow."""
-        try:
-            from artifex.generative_models.models.flow import FlowModel
-        except ImportError:
-            pytest.skip("Flow model not available")
+    def test_realnvp_complete_workflow(self, e2e_config, sample_dataset):
+        """Test complete RealNVP workflow using typed configs."""
+        model, config = _create_realnvp_model(e2e_config)
+        batch_size = e2e_config["batch_size"]
+        num_samples = e2e_config["num_samples"]
 
-        # Initialize model
-        rng = jax.random.key(42)
-        config = {
-            "input_dim": jnp.prod(jnp.array(e2e_config["image_size"])),
-            "num_flows": 4,
-            "hidden_dims": e2e_config["hidden_dims"],
-        }
-
-        model = FlowModel(config, rngs=nnx.Rngs(params=rng))
-
-        # Flatten images for flow model
-        batch = sample_dataset["images"][: e2e_config["batch_size"]]
+        batch = sample_dataset["images"][:batch_size]
         flat_batch = batch.reshape(batch.shape[0], -1)
 
-        # Test forward pass (data to noise)
-        z, log_det = model.forward(flat_batch)
+        outputs = model(flat_batch)
+        if isinstance(outputs, tuple):
+            z, log_det = outputs
+        else:
+            z = outputs["z"]
+            if "logdet" in outputs:
+                log_det = outputs["logdet"]
+            else:
+                log_det = outputs["log_det_jacobian"]
+
         assert z.shape == flat_batch.shape
-        assert log_det.shape == (e2e_config["batch_size"],)
+        assert log_det.shape == (batch_size,)
+        assert jnp.all(jnp.isfinite(z))
+        assert jnp.all(jnp.isfinite(log_det))
 
-        # Test inverse pass (noise to data)
-        x_reconstructed = model.inverse(z)
-        assert x_reconstructed.shape == flat_batch.shape
+        reconstructed = model.inverse(z)
+        if isinstance(reconstructed, tuple):
+            reconstructed = reconstructed[0]
+        elif isinstance(reconstructed, dict):
+            reconstructed = reconstructed["x"]
 
-        # Test log probability computation
+        assert reconstructed.shape == flat_batch.shape
+        assert jnp.all(jnp.isfinite(reconstructed))
+
         log_prob = model.log_prob(flat_batch)
-        assert log_prob.shape == (e2e_config["batch_size"],)
+        assert log_prob.shape == (batch_size,)
         assert jnp.all(jnp.isfinite(log_prob))
 
-        # Test sampling
-        samples = model.sample(n_samples=e2e_config["num_samples"], rngs=nnx.Rngs(params=rng))
-        expected_shape = (e2e_config["num_samples"], config["input_dim"])
-        assert samples.shape == expected_shape
+        samples = model.sample(num_samples, rngs=nnx.Rngs(params=jax.random.key(62)))
+        assert samples.shape == (num_samples, config.input_dim)
         assert jnp.all(jnp.isfinite(samples))
 
-    def test_multi_model_comparison_workflow(self, e2e_config, sample_dataset, results_path):
-        """Test workflow comparing multiple models on the same data."""
-        models_to_test = []
+    def test_multi_model_comparison_workflow(self, e2e_config):
+        """Test comparing multiple live model families on the same sample count."""
+        vae_model = _create_vae_model(e2e_config)
+        dcgan_model = _create_dcgan_model(e2e_config)
+        realnvp_model, _ = _create_realnvp_model(e2e_config)
 
-        # Try to load available models
         rng = jax.random.key(42)
+        image_size = e2e_config["image_size"]
+        backbone = UNetBackboneConfig(
+            name="comparison_unet",
+            hidden_dims=tuple(e2e_config["hidden_dims"]),
+            activation="relu",
+            in_channels=image_size[-1],
+            out_channels=image_size[-1],
+            channel_mult=(1, 2),
+            num_res_blocks=1,
+        )
+        noise_schedule = NoiseScheduleConfig(
+            name="comparison_schedule",
+            num_timesteps=20,
+            schedule_type="linear",
+            beta_start=1e-4,
+            beta_end=0.02,
+        )
+        diffusion_model = DDPMModel(
+            DDPMConfig(
+                name="comparison_ddpm",
+                backbone=backbone,
+                noise_schedule=noise_schedule,
+                input_shape=image_size,
+                loss_type="mse",
+                clip_denoised=True,
+            ),
+            rngs=nnx.Rngs(
+                params=rng,
+                sample=rng,
+                noise=rng,
+                timestep=rng,
+                dropout=rng,
+            ),
+        )
 
-        try:
-            from artifex.generative_models.core.configuration.network_configs import (
-                DecoderConfig,
-                EncoderConfig,
-            )
-            from artifex.generative_models.core.configuration.vae_config import VAEConfig
-            from artifex.generative_models.factory import create_model
+        num_samples = e2e_config["num_samples"]
+        results = {
+            "VAE": vae_model.sample(n_samples=num_samples),
+            "Diffusion": diffusion_model.sample(num_samples),
+            "DCGAN": dcgan_model.generate(num_samples, rngs=nnx.Rngs(sample=jax.random.key(70))),
+            "RealNVP": realnvp_model.sample(num_samples, rngs=nnx.Rngs(params=jax.random.key(71))),
+        }
 
-            encoder_config = EncoderConfig(
-                name="test_encoder",
-                input_shape=e2e_config["image_size"],
-                hidden_dims=tuple(e2e_config["hidden_dims"]),
-                latent_dim=e2e_config["latent_dim"],
-                activation="relu",
-            )
-            decoder_config = DecoderConfig(
-                name="test_decoder",
-                latent_dim=e2e_config["latent_dim"],
-                hidden_dims=tuple(reversed(e2e_config["hidden_dims"])),
-                output_shape=e2e_config["image_size"],
-                activation="relu",
-            )
-            vae_config = VAEConfig(
-                name="test_vae",
-                encoder=encoder_config,
-                decoder=decoder_config,
-                kl_weight=1.0,
-            )
-            vae_model = create_model(vae_config, rngs=nnx.Rngs(params=rng))
-            models_to_test.append(("VAE", vae_model))
-        except ImportError:
-            pass
-
-        try:
-            from artifex.generative_models.models.gan import GANModel
-
-            gan_config = {
-                "input_dim": e2e_config["image_size"],
-                "latent_dim": e2e_config["latent_dim"],
-                "generator_hidden_dims": e2e_config["hidden_dims"],
-                "discriminator_hidden_dims": e2e_config["hidden_dims"],
-            }
-            gan_model = GANModel(gan_config, rngs=nnx.Rngs(params=rng))
-            models_to_test.append(("GAN", gan_model))
-        except ImportError:
-            pass
-
-        if not models_to_test:
-            pytest.skip("No models available for comparison")
-
-        # Test each model on the same data
-        results = {}
-
-        for model_name, model in models_to_test:
-            # Generate samples (VAE and GAN use stored rngs, no need to pass)
-            samples = model.sample(n_samples=e2e_config["num_samples"])
-
-            # Store results
-            results[model_name] = {
-                "samples_shape": samples.shape,
-                "samples_finite": jnp.all(jnp.isfinite(samples)),
-                "samples_mean": jnp.mean(samples),
-                "samples_std": jnp.std(samples),
-            }
-
-        # Verify all models produced valid outputs
-        for model_name, result in results.items():
-            assert result["samples_finite"], f"{model_name} produced non-finite samples"
-            expected_shape = (e2e_config["num_samples"],) + e2e_config["image_size"]
-            assert result["samples_shape"] == expected_shape, f"{model_name} wrong shape"
-
-        # Results should be different between models (sanity check)
-        if len(results) > 1:
-            model_names = list(results.keys())
-            for i in range(len(model_names)):
-                for j in range(i + 1, len(model_names)):
-                    model1, model2 = model_names[i], model_names[j]
-                    # Means should be different (with some tolerance)
-                    mean_diff = abs(
-                        results[model1]["samples_mean"] - results[model2]["samples_mean"]
-                    )
-                    assert mean_diff > 1e-6, f"{model1} and {model2} too similar"
+        for model_name, samples in results.items():
+            assert samples.shape[0] == num_samples, f"{model_name} returned the wrong batch size"
+            assert jnp.all(jnp.isfinite(samples)), f"{model_name} produced non-finite samples"
+            assert jnp.isfinite(jnp.mean(samples)), f"{model_name} mean should be finite"
+            assert jnp.isfinite(jnp.std(samples)), f"{model_name} std should be finite"

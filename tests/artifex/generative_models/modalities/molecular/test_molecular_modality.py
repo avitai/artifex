@@ -5,6 +5,7 @@ extension creation with the updated API (extensions instead of extension_configs
 """
 
 import jax
+import jax.numpy as jnp
 import pytest
 from flax import nnx
 
@@ -13,6 +14,8 @@ from artifex.generative_models.core.configuration import (
     ExtensionConfig,
     ModalityConfig,
 )
+from artifex.generative_models.extensions.chemical.constraints import ChemicalConstraints
+from artifex.generative_models.extensions.registry import ExtensionsRegistry
 from artifex.generative_models.modalities.molecular import MolecularModality
 
 
@@ -75,6 +78,7 @@ def test_get_extensions_with_chemical_constraints(molecular_modality, rngs):
     assert "chemical" in extensions
     # Verify the extension was created
     assert extensions["chemical"] is not None
+    assert isinstance(extensions["chemical"], ChemicalConstraints)
 
 
 def test_get_extensions_with_pharmacophore(molecular_modality, rngs):
@@ -163,9 +167,18 @@ def test_get_adapter_default(molecular_modality):
     assert adapter is not None
     # Adapter should have the required ModelAdapter interface methods
     assert hasattr(adapter, "create")
+    assert hasattr(adapter, "adapt")
     assert hasattr(adapter, "adapt_input")
     assert hasattr(adapter, "adapt_output")
     assert hasattr(adapter, "adapt_loss")
+
+
+def test_get_adapter_accepts_model_family_keys(molecular_modality):
+    """The molecular modality should accept the same model-family keys as the factory."""
+    adapter = molecular_modality.get_adapter("vae")
+    model = object()
+
+    assert adapter.adapt(model, object()) is model
 
 
 def test_get_adapter_diffusion(molecular_modality):
@@ -175,6 +188,7 @@ def test_get_adapter_diffusion(molecular_modality):
     assert adapter is not None
     # Should be a subclass of MolecularAdapter with adapter methods
     assert hasattr(adapter, "create")
+    assert hasattr(adapter, "adapt")
     assert hasattr(adapter, "adapt_input")
     assert hasattr(adapter, "adapt_output")
     assert hasattr(adapter, "adapt_loss")
@@ -187,9 +201,100 @@ def test_get_adapter_geometric(molecular_modality):
     assert adapter is not None
     # Should be a subclass of MolecularAdapter with adapter methods
     assert hasattr(adapter, "create")
+    assert hasattr(adapter, "adapt")
     assert hasattr(adapter, "adapt_input")
     assert hasattr(adapter, "adapt_output")
     assert hasattr(adapter, "adapt_loss")
+
+
+def test_extensions_registry_creates_typed_chemical_constraint_config(rngs):
+    """The registry default config for chemical constraints should be typed and live."""
+    extension = ExtensionsRegistry().create_extension("chemical_constraints", rngs=rngs)
+
+    assert isinstance(extension, ChemicalConstraints)
+    assert isinstance(extension.config, ChemicalConstraintConfig)
+    assert extension.enforce_valence is True
+    assert extension.enforce_bond_lengths is True
+
+
+def test_chemical_constraints_follow_typed_config_flags(rngs):
+    """Chemical validity checks should follow the typed chemical constraint config."""
+    config = ChemicalConstraintConfig(
+        name="chemical",
+        enforce_valence=False,
+        enforce_bond_lengths=True,
+        enforce_ring_closure=False,
+    )
+    extension = ChemicalConstraints(config, rngs=rngs)
+    coordinates = jnp.zeros((4, 3))
+    atom_types = jnp.zeros((4,), dtype=jnp.int32)
+    bonds = jnp.eye(4)
+
+    results = extension.validate_molecular_structure(coordinates, atom_types, bonds)
+
+    assert "bond_length_validity" in results
+    assert "valence_validity" not in results
+    assert "ring_strain_validity" not in results
+
+
+def test_diffusion_adapter_adapt_loss_preserves_canonical_loss_dict(molecular_modality):
+    """Diffusion adapter should add physics penalties without breaking the loss contract."""
+    adapter = molecular_modality.get_adapter("diffusion")
+    adapter._compute_physics_penalty = lambda batch, outputs: jnp.array(2.0)
+
+    def base_loss_fn(batch, outputs, **kwargs):
+        return {
+            "total_loss": jnp.array(1.0),
+            "reconstruction_loss": jnp.array(1.0),
+        }
+
+    adapted_loss_fn = adapter.adapt_loss(base_loss_fn)
+    result = adapted_loss_fn(
+        {"coordinates": jnp.zeros((1, 4, 3))},
+        {"coordinates": jnp.zeros((1, 4, 3))},
+    )
+
+    assert jnp.isclose(result["reconstruction_loss"], 1.0)
+    assert jnp.isclose(result["physics_penalty"], 2.0)
+    assert jnp.isclose(result["total_loss"], 1.2)
+
+
+def test_geometric_adapter_adapt_loss_preserves_canonical_loss_dict(molecular_modality):
+    """Geometric adapter should add geometry penalties into total_loss explicitly."""
+    adapter = molecular_modality.get_adapter("geometric")
+    adapter._compute_geometry_penalty = lambda batch, outputs: jnp.array(3.0)
+
+    def base_loss_fn(batch, outputs, **kwargs):
+        return {
+            "total_loss": jnp.array(0.5),
+            "coord_loss": jnp.array(0.5),
+        }
+
+    adapted_loss_fn = adapter.adapt_loss(base_loss_fn)
+    result = adapted_loss_fn(
+        {"coordinates": jnp.zeros((1, 4, 3))},
+        {"coordinates": jnp.zeros((1, 4, 3))},
+    )
+
+    assert jnp.isclose(result["coord_loss"], 0.5)
+    assert jnp.isclose(result["geometry_penalty"], 3.0)
+    assert jnp.isclose(result["total_loss"], 0.8)
+
+
+def test_adapters_require_total_loss_in_base_loss_dict(molecular_modality):
+    """Adapters should reject ambiguous loss dicts without a canonical total_loss."""
+    diffusion_adapter = molecular_modality.get_adapter("diffusion")
+
+    def invalid_base_loss_fn(batch, outputs, **kwargs):
+        return {"reconstruction_loss": jnp.array(1.0)}
+
+    adapted_loss_fn = diffusion_adapter.adapt_loss(invalid_base_loss_fn)
+
+    with pytest.raises(ValueError, match="total_loss"):
+        adapted_loss_fn(
+            {"coordinates": jnp.zeros((1, 4, 3))},
+            {"coordinates": jnp.zeros((1, 4, 3))},
+        )
 
 
 def test_config_validation_wrong_type(molecular_modality, rngs):

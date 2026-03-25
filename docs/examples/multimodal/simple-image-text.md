@@ -6,6 +6,12 @@
 <span class="badge badge-format-dual">📓 Dual Format</span>
 </div>
 
+**Status:** `Standalone pedagogy`
+**Device:** CPU-compatible
+
+This walkthrough is a standalone JAX/Flax NNX concept demo.
+It does not instantiate shipped Artifex runtime owners.
+
 ## Files
 
 - **Python Script**: [`simple_image_text.py`](https://github.com/avitai/artifex/blob/main/examples/generative_models/multimodal/simple_image_text.py)
@@ -14,8 +20,7 @@
 ## Quick Start
 
 ```bash
-# Run the Python script
-uv run python examples/generative_models/multimodal/simple_image_text.py
+python examples/generative_models/multimodal/simple_image_text.py
 
 # Or open the Jupyter notebook
 jupyter lab examples/generative_models/multimodal/simple_image_text.ipynb
@@ -23,7 +28,7 @@ jupyter lab examples/generative_models/multimodal/simple_image_text.ipynb
 
 ## Overview
 
-This example demonstrates multimodal learning by combining image and text modalities in a unified model. Learn how to build separate encoders for different modalities, create shared embedding spaces, and perform cross-modal retrieval tasks.
+This standalone walkthrough demonstrates multimodal learning by combining image and text encoders in a unified model. Learn how to build separate encoders for different modalities, create shared embedding spaces, and perform cross-modal retrieval tasks without claiming shipped Artifex multimodal owners.
 
 ### Learning Objectives
 
@@ -171,37 +176,37 @@ def compute_similarity(self, images, text_ids):
 
 <div class="grid cards" markdown>
 
-- :material-robot: **CLIP Models**
+- :material-view-grid: **Multimodal Guide**
 
     ---
 
-    Explore large-scale contrastive image-text models
+    Compare this standalone walkthrough with the retained modality abstractions
 
-    [:octicons-arrow-right-24: CLIP Examples](../advanced/clip-models.md)
+    [:octicons-arrow-right-24: Multimodal guide](../../user-guide/modalities/multimodal.md)
 
-- :material-comment-question: **Visual QA**
-
-    ---
-
-    Build models for visual question answering
-
-    [:octicons-arrow-right-24: VQA Examples](../advanced/visual-qa.md)
-
-- :material-image-text: **Image Captioning**
+- :material-image: **Image Modality**
 
     ---
 
-    Generate text descriptions from images
+    Understand the retained image-processing path used by Artifex models
 
-    [:octicons-arrow-right-24: Captioning Examples](../advanced/image-captioning.md)
+    [:octicons-arrow-right-24: Image guide](../../user-guide/modalities/image.md)
 
-- :material-brain: **Cross-Modal Retrieval**
+- :material-format-text: **Text Modality**
 
     ---
 
-    Advanced retrieval across modalities
+    Review the retained token and text-preparation surfaces
 
-    [:octicons-arrow-right-24: Retrieval Examples](../advanced/cross-modal-retrieval.md)
+    [:octicons-arrow-right-24: Text guide](../../user-guide/modalities/text.md)
+
+- :material-map-outline: **Planned Topics**
+
+    ---
+
+    Track the still-unshipped CLIP, VQA, captioning, and retrieval examples
+
+    [:octicons-arrow-right-24: Planned examples](../../roadmap/planned-examples.md#text-and-multimodal)
 
 </div>
 

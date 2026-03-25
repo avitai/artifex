@@ -1,5 +1,7 @@
 # Data Parallel Training
 
+**Status:** `Supported runtime training surface`
+
 **Module:** `artifex.generative_models.training.distributed.data_parallel`
 
 **Source:** `src/artifex/generative_models/training/distributed/data_parallel.py`

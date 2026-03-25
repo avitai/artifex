@@ -128,7 +128,9 @@ class TestVQVAE:
         # Check auxiliary data
         assert "commitment_loss" in aux
         assert "codebook_loss" in aux
+        assert "perplexity" in aux
         assert "encoding_indices" in aux
+        assert "perplexity" in aux
 
         # Check encoding indices shape
         # Flattened batch dimension * 1 (single vector per sample)
@@ -137,6 +139,9 @@ class TestVQVAE:
         # Check loss values are reasonable
         assert not jnp.isnan(aux["commitment_loss"])
         assert not jnp.isnan(aux["codebook_loss"])
+        assert jnp.isfinite(aux["perplexity"])
+        assert aux["perplexity"] > 0
+        assert aux["perplexity"] <= config.num_embeddings
 
     def test_encode(self, rngs, vqvae_components):
         """Test VQ-VAE encode method."""
@@ -193,15 +198,18 @@ class TestVQVAE:
 
         # Check outputs
         assert "reconstructed" in outputs
-        assert "z" in outputs  # Quantized encoding
-        assert "z_e" in outputs  # Pre-quantization encoding
+        assert "quantized" in outputs
+        assert "encoding" in outputs
         assert "commitment_loss" in outputs
         assert "codebook_loss" in outputs
+        assert "perplexity" in outputs
+        assert "z" not in outputs
+        assert "z_e" not in outputs
 
         # Check shapes
         assert outputs["reconstructed"].shape == x.shape
-        assert outputs["z"].shape == (x.shape[0], embedding_dim)
-        assert outputs["z_e"].shape == (x.shape[0], embedding_dim)
+        assert outputs["quantized"].shape == (x.shape[0], embedding_dim)
+        assert outputs["encoding"].shape == (x.shape[0], embedding_dim)
 
     def test_loss_function(self, rngs, vqvae_components):
         """Test VQ-VAE loss function."""
@@ -221,13 +229,18 @@ class TestVQVAE:
         assert "reconstruction_loss" in losses
         assert "commitment_loss" in losses
         assert "codebook_loss" in losses
-        assert "loss" in losses
+        assert "total_loss" in losses
+        assert "perplexity" in losses
+        assert "loss" not in losses
 
         # Check values are reasonable
         assert not jnp.isnan(losses["reconstruction_loss"])
         assert not jnp.isnan(losses["commitment_loss"])
         assert not jnp.isnan(losses["codebook_loss"])
-        assert not jnp.isnan(losses["loss"])
+        assert not jnp.isnan(losses["total_loss"])
+        assert jnp.isfinite(losses["perplexity"])
+        assert losses["perplexity"] > 0
+        assert losses["perplexity"] <= config.num_embeddings
 
         # Verify commitment loss weight is applied
         commitment_cost = config.commitment_cost
@@ -235,7 +248,7 @@ class TestVQVAE:
         expected_total = (
             losses["reconstruction_loss"] + expected_commitment_term + losses["codebook_loss"]
         )
-        assert jnp.isclose(losses["loss"], expected_total)
+        assert jnp.isclose(losses["total_loss"], expected_total)
 
     def test_sample_and_generate(self, rngs, vqvae_components):
         """Test VQ-VAE sample and generate methods."""
@@ -272,7 +285,7 @@ class TestVQVAE:
 
 
 class TestVQVAEJITCompatibility:
-    """Comprehensive JIT compatibility tests for VQ-VAE."""
+    """Complete JIT compatibility tests for VQ-VAE."""
 
     def test_vqvae_jit_forward_pass(self, rngs, vqvae_components):
         """Test that VQ-VAE forward pass can be JIT compiled."""
@@ -379,7 +392,7 @@ class TestVQVAEJITCompatibility:
 
         @jax.jit
         def compute_loss(model, x, outputs):
-            return model.loss_fn(x=x, outputs=outputs)
+            return model.loss_fn(x, outputs)
 
         losses = compute_loss(vqvae, x, outputs)
 
@@ -387,8 +400,10 @@ class TestVQVAEJITCompatibility:
         assert "reconstruction_loss" in losses
         assert "vq_loss" in losses
         assert "commitment_loss" in losses
-        assert "loss" in losses
-        assert jnp.isfinite(losses["loss"])
+        assert "total_loss" in losses
+        assert "perplexity" in losses
+        assert "loss" not in losses
+        assert jnp.isfinite(losses["total_loss"])
 
     def test_vqvae_jit_with_different_batch_sizes(self, rngs, vqvae_components):
         """Test VQ-VAE JIT compilation with different batch sizes."""
@@ -421,8 +436,8 @@ class TestVQVAEJITCompatibility:
         @jax.jit
         def loss_fn(model, x):
             outputs = model(x)
-            losses = model.loss_fn(x=x, outputs=outputs)
-            return losses["loss"]
+            losses = model.loss_fn(x, outputs)
+            return losses["total_loss"]
 
         # Compute gradients using nnx.grad
         grad_fn = nnx.grad(loss_fn)
@@ -462,8 +477,8 @@ class TestVQVAEJITCompatibility:
             # Forward pass
             outputs = model(x)
             # Compute loss
-            losses = model.loss_fn(x=x, outputs=outputs)
-            return losses["loss"], outputs
+            losses = model.loss_fn(x, outputs)
+            return losses["total_loss"], outputs
 
         # Run training step
         loss, outputs = train_step(vqvae, x)

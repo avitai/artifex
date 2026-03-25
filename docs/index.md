@@ -55,80 +55,29 @@ A research-focused modular generative modeling library built on JAX/Flax NNX, pr
 pip install artifex
 
 # With GPU support (CUDA 12.0+)
-pip install artifex[cuda]
+pip install "artifex[cuda12]"
 ```
 
 See the [Installation Guide](getting-started/installation.md) for detailed setup instructions including Docker and source installation.
 
-### Train a Diffusion Model on Fashion-MNIST
+### Start with the VAE Quickstart
+
+The primary onboarding path is the checked-in VAE quickstart. It uses
+`TFDSEagerSource`, `VAEConfig`, `VAETrainer`, and `train_epoch_staged` to train on
+MNIST while keeping the hot path in JAX.
 
 ```python
-import jax
-import jax.numpy as jnp
-import optax
-from datarax import from_source
-from datarax.core.config import ElementOperatorConfig
-from datarax.dag.nodes import OperatorNode
-from datarax.operators import ElementOperator
-from datarax.sources import TfdsDataSourceConfig, TFDSSource
-from flax import nnx
-
-from artifex.generative_models.core.configuration import (
-    DDPMConfig, NoiseScheduleConfig, UNetBackboneConfig,
-)
-from artifex.generative_models.models.diffusion import DDPMModel
-from artifex.generative_models.training.trainers import (
-    DiffusionTrainer, DiffusionTrainingConfig,
-)
-
-# 1. Load Fashion-MNIST with datarax
-def normalize(element, _key):
-    image = element.data["image"].astype(jnp.float32) / 127.5 - 1.0
-    return element.replace(data={**element.data, "image": image})
-
-source = TFDSSource(
-    TfdsDataSourceConfig(name="fashion_mnist", split="train", shuffle=True),
-    rngs=nnx.Rngs(0),
-)
-normalize_op = ElementOperator(ElementOperatorConfig(stochastic=False), fn=normalize, rngs=nnx.Rngs(1))
-pipeline = from_source(source, batch_size=64) >> OperatorNode(normalize_op)
-
-# 2. Create DDPM model
-config = DDPMConfig(
-    name="fashion_ddpm",
-    input_shape=(28, 28, 1),
-    backbone=UNetBackboneConfig(
-        name="unet", in_channels=1, out_channels=1,
-        hidden_dims=(32, 64, 128), channel_mult=(1, 2, 4), activation="silu",
-    ),
-    noise_schedule=NoiseScheduleConfig(
-        name="cosine", schedule_type="cosine", num_timesteps=1000,
-    ),
-)
-model = DDPMModel(config, rngs=nnx.Rngs(42))
-optimizer = nnx.Optimizer(model, optax.adamw(1e-4), wrt=nnx.Param)
-
-# 3. Configure trainer with SOTA techniques
-trainer = DiffusionTrainer(
-    noise_schedule=model.noise_schedule,
-    config=DiffusionTrainingConfig(
-        loss_weighting="min_snr", snr_gamma=5.0, ema_decay=0.9999,
-    ),
-)
-jit_train_step = nnx.jit(trainer.train_step)
-
-# 4. Training loop
-rng = jax.random.PRNGKey(0)
-for batch in pipeline:
-    rng, step_rng = jax.random.split(rng)
-    _, metrics = jit_train_step(model, optimizer, {"image": batch["image"]}, step_rng)
-    trainer.update_ema(model)
-
-# 5. Generate samples
-samples = model.sample(n_samples_or_shape=16, steps=100)
+from datarax.sources import TFDSEagerSource
+from datarax.sources.tfds_source import TFDSEagerConfig
+from artifex.generative_models.core.configuration import DecoderConfig, EncoderConfig, VAEConfig
+from artifex.generative_models.models.vae import VAE
+from artifex.generative_models.training import train_epoch_staged
+from artifex.generative_models.training.trainers import VAETrainer, VAETrainingConfig
 ```
 
-See the [Quickstart Guide](getting-started/quickstart.md) for complete examples including VAE training, visualization, and more.
+See the [Quickstart Guide](getting-started/quickstart.md) for the full walkthrough and
+refer to the checked-in executable pair under `docs/getting-started/quickstart.py` and
+`docs/getting-started/quickstart.ipynb` in the repository.
 
 ### Next Steps
 

@@ -25,8 +25,8 @@ This example demonstrates the ProteinPointCloudModel, a specialized geometric mo
 ### Run the Python Script
 
 ```bash
-# Activate environment
-source activate.sh
+# Install Artifex if needed
+pip install artifex
 
 # Run the example
 python examples/generative_models/protein/protein_point_cloud_example.py
@@ -35,8 +35,8 @@ python examples/generative_models/protein/protein_point_cloud_example.py
 ### Run the Jupyter Notebook
 
 ```bash
-# Activate environment
-source activate.sh
+# Install Artifex if needed
+pip install artifex
 
 # Launch Jupyter
 jupyter lab examples/generative_models/protein/protein_point_cloud_example.ipynb
@@ -112,7 +112,9 @@ The example demonstrates eight major sections:
 ```python
 from artifex.generative_models.core.configuration import (
     PointCloudNetworkConfig,
-    ProteinConstraintConfig,
+    ProteinDihedralConfig,
+    ProteinExtensionConfig,
+    ProteinExtensionsConfig,
     ProteinPointCloudConfig,
 )
 
@@ -127,10 +129,19 @@ network_config = PointCloudNetworkConfig(
     dropout_rate=0.1,   # Dropout rate for regularization
 )
 
-# Create constraint config for structural constraints
-constraint_config = ProteinConstraintConfig(
-    bond_weight=1.0,    # Weight for bond length constraints
-    angle_weight=0.5,   # Weight for bond angle constraints
+# Create the canonical protein extension bundle
+extensions = ProteinExtensionsConfig(
+    name="protein_extensions",
+    backbone=ProteinExtensionConfig(
+        name="backbone",
+        weight=1.0,
+        bond_length_weight=1.0,
+        bond_angle_weight=0.5,
+    ),
+    dihedral=ProteinDihedralConfig(
+        name="dihedral",
+        weight=0.3,
+    ),
 )
 
 # Create protein point cloud config with nested configs
@@ -142,8 +153,7 @@ config = ProteinPointCloudConfig(
     num_residues=128,    # Maximum number of residues
     num_atoms_per_residue=4,  # Only backbone atoms (N, CA, C, O)
     backbone_indices=(0, 1, 2, 3),  # Sequential indices for backbone-only view
-    use_constraints=True,
-    constraint_config=constraint_config,
+    extensions=extensions,
 )
 ```
 
@@ -195,10 +205,15 @@ for i in range(seq_length):
 ### Model Forward Pass
 
 ```python
-from artifex.data.protein.dataset import ProteinDataset
+from artifex.data.protein import ProteinDataset, ProteinDatasetConfig
 
 # Load dataset
-dataset = ProteinDataset("data/synthetic_proteins.pkl", backbone_only=True)
+dataset_config = ProteinDatasetConfig(
+    max_seq_length=128,
+    center_positions=False,
+    normalize_positions=False,
+)
+dataset = ProteinDataset(dataset_config, "data/synthetic_proteins.pkl")
 batch = dataset.get_batch([0, 1, 2, 3])
 
 # Forward pass
@@ -246,10 +261,19 @@ for key, value in loss_dict.items():
 1. **Modify Constraint Weights**: Adjust the balance between bond and angle constraints
 
    ```python
-   config.parameters["constraint_config"] = {
-       "bond_weight": 2.0,  # Stricter bond constraints
-       "angle_weight": 1.0,  # Stricter angle constraints
-   }
+   import dataclasses
+
+   stronger_extensions = ProteinExtensionsConfig(
+       name="protein_extensions",
+       backbone=ProteinExtensionConfig(
+           name="backbone",
+           weight=2.0,
+           bond_length_weight=2.0,
+           bond_angle_weight=1.0,
+       ),
+       dihedral=config.extensions.dihedral if config.extensions else None,
+   )
+   config = dataclasses.replace(config, extensions=stronger_extensions)
    ```
 
    **Expected Effect**: Stronger enforcement of ideal geometry, potentially slower convergence
@@ -257,11 +281,16 @@ for key, value in loss_dict.items():
 2. **Change Architecture Size**: Increase model capacity for larger proteins
 
    ```python
-   config.parameters.update({
-       "embed_dim": 256,     # Increased from 128
-       "num_layers": 8,      # Increased from 4
-       "num_heads": 8,       # Increased from 4
-   })
+   import dataclasses
+
+   larger_network = dataclasses.replace(
+       config.network,
+       hidden_dims=(256,) * 8,
+       embed_dim=256,
+       num_layers=8,
+       num_heads=8,
+   )
+   config = dataclasses.replace(config, network=larger_network)
    ```
 
    **Expected Effect**: Better capacity for complex structures, more parameters to train
@@ -282,8 +311,14 @@ for key, value in loss_dict.items():
 4. **Increase Protein Length**: Scale to longer sequences
 
    ```python
-   config.parameters["num_residues"] = 256  # Increased from 128
+   import dataclasses
+
    max_seq_length = 256
+   config = dataclasses.replace(
+       config,
+       num_residues=max_seq_length,
+       num_points=max_seq_length * config.num_atoms_per_residue,
+   )
    ```
 
    **Expected Effect**: Test scaling behavior and memory requirements
@@ -307,12 +342,16 @@ Mismatch between `num_residues × num_atoms` in config and actual data shape.
 
 ```python
 # Ensure consistency
+import dataclasses
+
 num_residues = 128
 num_atoms = 4
-config.parameters["num_residues"] = num_residues
-config.parameters["num_atoms"] = num_atoms
-config.input_dim = num_residues * num_atoms
-config.output_dim = num_residues * num_atoms
+config = dataclasses.replace(
+    config,
+    num_residues=num_residues,
+    num_atoms_per_residue=num_atoms,
+    num_points=num_residues * num_atoms,
+)
 ```
 
 #### OOM (Out of Memory) error
@@ -331,24 +370,31 @@ Model or sequence length too large for available GPU memory.
 1. **Reduce sequence length**:
 
    ```python
-   config.parameters["num_residues"] = 64  # Reduced from 128
+   import dataclasses
+
+   config = dataclasses.replace(
+       config,
+       num_residues=64,
+       num_points=64 * config.num_atoms_per_residue,
+   )
    ```
 
 2. **Reduce model size**:
 
    ```python
-   config.parameters.update({
-       "embed_dim": 64,      # Reduced from 128
-       "num_layers": 2,      # Reduced from 4
-   })
+   import dataclasses
+
+   smaller_network = dataclasses.replace(
+       config.network,
+       hidden_dims=(64,) * 2,
+       embed_dim=64,
+       num_layers=2,
+   )
+   config = dataclasses.replace(config, network=smaller_network)
    ```
 
-3. **Use CPU instead of GPU**:
-
-   ```python
-   import os
-   os.environ["CUDA_VISIBLE_DEVICES"] = ""  # Force CPU
-   ```
+3. **Run on CPU if needed**: The example is CPU-compatible, so rerun it on a
+   CPU-only machine if GPU memory is still insufficient after reducing model size.
 
 #### Constraint loss is NaN
 

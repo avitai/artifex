@@ -5,6 +5,7 @@ import jax.numpy as jnp
 import pytest
 from flax import nnx
 
+import artifex.generative_models.models.audio as audio_models
 from artifex.generative_models.modalities.audio import (
     AudioModalityConfig,
     AudioRepresentation,
@@ -14,6 +15,7 @@ from artifex.generative_models.models.audio import (
     AudioModelConfig,
     BaseAudioModel,
     create_audio_diffusion_config,
+    diffusion as audio_diffusion_module,
     WaveNetAudioModel,
     WaveNetConfig,
 )
@@ -117,6 +119,60 @@ class TestBaseAudioModel:
         assert generated.shape == (2, 800)
         assert jnp.isfinite(generated).all()
         assert jnp.abs(generated).max() <= 1.0  # Should be clipped
+
+    def test_loss_fn_returns_total_loss_dict(self, audio_model_config, rngs):
+        """Base audio model loss must follow the canonical loss contract."""
+        model = BaseAudioModel(audio_model_config, rngs=rngs)
+        batch = {"audio": jax.random.normal(rngs.sample(), (2, 800))}
+        model_outputs = {"audio": jax.random.normal(rngs.sample(), (2, 800))}
+
+        losses = model.loss_fn(batch, model_outputs)
+
+        assert "total_loss" in losses
+        assert "mse_loss" in losses
+        assert jnp.isfinite(losses["total_loss"])
+        assert jnp.isfinite(losses["mse_loss"])
+
+    def test_loss_fn_is_jittable(self, audio_model_config, rngs):
+        """Base audio model loss must remain JIT-compatible."""
+        model = BaseAudioModel(audio_model_config, rngs=rngs)
+        batch = {"audio": jax.random.normal(rngs.sample(), (2, 800))}
+        model_outputs = {"audio": jax.random.normal(rngs.sample(), (2, 800))}
+
+        @nnx.jit
+        def jit_loss(mod, loss_batch, outputs):
+            return mod.loss_fn(loss_batch, outputs)["total_loss"]
+
+        loss = jit_loss(model, batch, model_outputs)
+        assert jnp.isfinite(loss)
+
+    def test_loss_fn_returns_jax_array_scalars(self, audio_model_config, rngs):
+        """Base audio loss outputs must stay on the JAX side of the boundary."""
+        model = BaseAudioModel(audio_model_config, rngs=rngs)
+        batch = {"audio": jax.random.normal(rngs.sample(), (2, 800))}
+        model_outputs = {"audio": jax.random.normal(rngs.sample(), (2, 800))}
+
+        losses = model.loss_fn(batch, model_outputs)
+
+        assert isinstance(losses["total_loss"], jax.Array)
+        assert isinstance(losses["mse_loss"], jax.Array)
+        assert losses["total_loss"].shape == ()
+        assert losses["mse_loss"].shape == ()
+
+    def test_loss_fn_supports_jax_grad_over_predictions(self, audio_model_config, rngs):
+        """Base audio loss must stay differentiable as a pure JAX objective."""
+        model = BaseAudioModel(audio_model_config, rngs=rngs)
+        batch = {"audio": jax.random.normal(rngs.sample(), (2, 800))}
+        predictions = jax.random.normal(rngs.sample(), (2, 800))
+
+        def total_loss(predicted_audio: jax.Array) -> jax.Array:
+            losses = model.loss_fn(batch, {"audio": predicted_audio})
+            return losses["total_loss"]
+
+        grads = jax.grad(total_loss)(predictions)
+
+        assert grads.shape == predictions.shape
+        assert jnp.isfinite(grads).all()
 
 
 class TestWaveNetAudioModel:
@@ -249,6 +305,101 @@ class TestWaveNetAudioModel:
 
         # Results should be identical
         assert jnp.allclose(generated1, generated2)
+
+    def test_loss_fn_supports_nnx_grad(self, audio_modality_config_fast, rngs):
+        """WaveNet loss must remain differentiable at the NNX transform boundary."""
+        config = WaveNetConfig(
+            modality_config=audio_modality_config_fast,
+            n_dilated_blocks=1,
+            n_residual_channels=8,
+            quantization_levels=8,
+        )
+        model = WaveNetAudioModel(config, rngs=rngs)
+        sequence_length = int(
+            audio_modality_config_fast.sample_rate * audio_modality_config_fast.duration
+        )
+        batch = {
+            "audio": jax.random.uniform(
+                rngs.sample(),
+                (1, sequence_length),
+                minval=-1.0,
+                maxval=1.0,
+            )
+        }
+
+        def total_loss(mod, loss_batch):
+            outputs = mod(loss_batch["audio"], training=False)
+            losses = mod.loss_fn(loss_batch, outputs)
+            return losses["total_loss"]
+
+        grads = nnx.grad(total_loss)(model, batch)
+        grad_leaves = jax.tree_util.tree_leaves(grads)
+        assert any(jnp.any(jnp.isfinite(leaf)) for leaf in grad_leaves if hasattr(leaf, "shape"))
+
+    def test_loss_fn_supports_nnx_value_and_grad(self, audio_modality_config_fast, rngs):
+        """WaveNet loss must remain compatible with lifted value-and-grad transforms."""
+        config = WaveNetConfig(
+            modality_config=audio_modality_config_fast,
+            n_dilated_blocks=1,
+            n_residual_channels=8,
+            quantization_levels=8,
+        )
+        model = WaveNetAudioModel(config, rngs=rngs)
+        sequence_length = int(
+            audio_modality_config_fast.sample_rate * audio_modality_config_fast.duration
+        )
+        batch = {
+            "audio": jax.random.uniform(
+                rngs.sample(),
+                (1, sequence_length),
+                minval=-1.0,
+                maxval=1.0,
+            )
+        }
+
+        def total_loss(mod, loss_batch):
+            outputs = mod(loss_batch["audio"], training=False)
+            losses = mod.loss_fn(loss_batch, outputs)
+            return losses["total_loss"]
+
+        loss, grads = nnx.value_and_grad(total_loss)(model, batch)
+
+        assert isinstance(loss, jax.Array)
+        assert loss.shape == ()
+        grad_leaves = jax.tree_util.tree_leaves(grads)
+        assert any(jnp.any(jnp.isfinite(leaf)) for leaf in grad_leaves if hasattr(leaf, "shape"))
+
+
+class TestAudioDiffusionPublicSurface:
+    """Public-surface guards for the audio diffusion module."""
+
+    def test_audio_diffusion_exports_match_the_documented_surface(self):
+        """Audio diffusion docs should only publish the retained exported symbols."""
+        documented_diffusion_exports = {
+            "AudioDiffusionConfig",
+            "AudioDiffusionModel",
+            "create_audio_diffusion_config",
+        }
+        phantom_symbols = (
+            "AudioUNet1D",
+            "ConvBlock1D",
+            "DownBlock1D",
+            "TimeEmbedding1D",
+            "UpBlock1D",
+            "create_audio_unet_backbone",
+            "get_num_groups",
+            "setup_noise_schedule",
+        )
+
+        assert documented_diffusion_exports <= set(audio_models.__all__)
+
+        for name in documented_diffusion_exports:
+            assert hasattr(audio_models, name)
+            assert hasattr(audio_diffusion_module, name)
+
+        for name in phantom_symbols:
+            assert name not in audio_models.__all__
+            assert not hasattr(audio_diffusion_module, name)
 
 
 class TestAudioDiffusionModel:
@@ -386,7 +537,3 @@ class TestModelIntegration:
         assert wavenet_audio.shape == (1, expected_samples)
         assert jnp.isfinite(wavenet_audio).all()
         assert jnp.abs(wavenet_audio).max() <= 1.0
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

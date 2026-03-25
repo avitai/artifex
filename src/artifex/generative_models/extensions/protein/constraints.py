@@ -48,6 +48,52 @@ DIHEDRAL_ANGLES = {
 }
 
 
+def _extract_protein_coordinates(
+    outputs: dict[str, Any] | jax.Array,
+    *,
+    error_label: str,
+) -> jax.Array:
+    """Extract protein coordinates from model outputs.
+
+    Protein-specific dict outputs must expose `atom_positions` when the tensor has
+    a batch dimension. Generic `positions`/`coordinates` keys are accepted only
+    when they already carry an explicit residue axis, which avoids silently
+    treating flattened point clouds as protein structures.
+    """
+    source = "direct"
+    if isinstance(outputs, dict):
+        if "atom_positions" in outputs:
+            coords = outputs["atom_positions"]
+            source = "atom_positions"
+        elif "positions" in outputs:
+            coords = outputs["positions"]
+            source = "positions"
+        elif "coordinates" in outputs:
+            coords = outputs["coordinates"]
+            source = "coordinates"
+        elif "predicted_coordinates" in outputs:
+            coords = outputs["predicted_coordinates"]
+            source = "predicted_coordinates"
+        else:
+            raise ValueError("No coordinates found in model outputs")
+    else:
+        coords = outputs
+
+    if coords.ndim < 3 or coords.shape[-1] != 3 or coords.shape[-2] < 4:
+        raise ValueError(
+            f"{error_label} must have shape [..., num_residues, num_atoms, 3] "
+            "with at least 4 atoms per residue"
+        )
+
+    if isinstance(outputs, dict) and source != "atom_positions" and coords.ndim == 3:
+        raise ValueError(
+            f"{error_label} require explicit 'atom_positions' for dict-based protein outputs; "
+            "generic flattened point-cloud positions are ambiguous"
+        )
+
+    return coords
+
+
 class ProteinBackboneConstraint(ConstraintExtension):
     """Enforces backbone constraints for protein models."""
 
@@ -120,65 +166,32 @@ class ProteinBackboneConstraint(ConstraintExtension):
         coords = self._extract_coordinates(model_outputs)
         mask = self._extract_mask(inputs)
 
-        try:
-            # Calculate bond metrics
-            bond_metrics = self._calculate_bond_metrics(coords, mask)
+        bond_metrics = self._calculate_bond_metrics(coords, mask)
+        angle_metrics = self._calculate_angle_metrics(coords, mask)
 
-            # Calculate angle metrics
-            angle_metrics = self._calculate_angle_metrics(coords, mask)
+        n_ca_length_mean = jnp.mean(bond_metrics["distances"]["N-CA"])
+        ca_c_length_mean = jnp.mean(bond_metrics["distances"]["CA-C"])
+        c_n_length_mean = jnp.mean(bond_metrics["distances"]["C-N"])
+        n_ca_c_angle_mean = jnp.mean(angle_metrics["bond_angles"]["N-CA-C"])
+        ca_c_n_angle_mean = jnp.mean(angle_metrics["bond_angles"]["CA-C-N"])
 
-            # Calculate means for backward compatibility
-            n_ca_length_mean = jnp.mean(bond_metrics["distances"]["N-CA"])
-            ca_c_length_mean = jnp.mean(bond_metrics["distances"]["CA-C"])
-            c_n_length_mean = jnp.mean(bond_metrics["distances"]["C-N"])
-            n_ca_c_angle_mean = jnp.mean(angle_metrics["bond_angles"]["N-CA-C"])
-            ca_c_n_angle_mean = jnp.mean(angle_metrics["bond_angles"]["CA-C-N"])
-
-            # Combine metrics
-            metrics = {
-                "extension_type": "protein_backbone",
-                # New format
-                "distances": bond_metrics["distances"],
-                "ideal_lengths": bond_metrics["ideal_lengths"],
-                "deviations": bond_metrics["deviations"],
-                "mean_deviations": bond_metrics["mean_deviations"],
-                "deviation_sum": bond_metrics["deviation_sum"],
-                "bond_angles": angle_metrics["bond_angles"],
-                "angle_violations": angle_metrics["angle_violations"],
-                # For backward compatibility with tests
-                "n_ca_length_mean": n_ca_length_mean,
-                "ca_c_length_mean": ca_c_length_mean,
-                "c_n_length_mean": c_n_length_mean,
-                "n_ca_c_angle_mean": n_ca_c_angle_mean,
-                "ca_c_n_angle_mean": ca_c_n_angle_mean,
-                # For compatibility with existing tests
-                "bond_lengths": bond_metrics["distances"],  # Alias to match old name
-                "bond_violations": bond_metrics["deviations"],  # Alias to match old name
-            }
-
-            return metrics
-        except Exception as e:
-            # In case of errors (shape mismatches, etc.), return minimal metrics
-            return {
-                "extension_type": "protein_backbone",
-                "error": str(e),
-                # Add minimum fields needed for test compatibility
-                "n_ca_length_mean": jnp.array(0.0),
-                "ca_c_length_mean": jnp.array(0.0),
-                "c_n_length_mean": jnp.array(0.0),
-                "n_ca_c_angle_mean": jnp.array(0.0),
-                "ca_c_n_angle_mean": jnp.array(0.0),
-                "bond_lengths": {
-                    "N-CA": jnp.array([0.0]),
-                    "CA-C": jnp.array([0.0]),
-                    "C-N": jnp.array([0.0]),
-                },
-                "bond_violations": {
-                    "N-CA": jnp.array([0.0]),
-                    "CA-C": jnp.array([0.0]),
-                    "C-N": jnp.array([0.0]),
-                },
-            }
+        return {
+            "extension_type": "protein_backbone",
+            "distances": bond_metrics["distances"],
+            "ideal_lengths": bond_metrics["ideal_lengths"],
+            "deviations": bond_metrics["deviations"],
+            "mean_deviations": bond_metrics["mean_deviations"],
+            "deviation_sum": bond_metrics["deviation_sum"],
+            "bond_angles": angle_metrics["bond_angles"],
+            "angle_violations": angle_metrics["angle_violations"],
+            "n_ca_length_mean": n_ca_length_mean,
+            "ca_c_length_mean": ca_c_length_mean,
+            "c_n_length_mean": c_n_length_mean,
+            "n_ca_c_angle_mean": n_ca_c_angle_mean,
+            "ca_c_n_angle_mean": ca_c_n_angle_mean,
+            "bond_lengths": bond_metrics["distances"],
+            "bond_violations": bond_metrics["deviations"],
+        }
 
     def loss_fn(self, batch: dict[str, Any], model_outputs: dict[str, Any], **kwargs) -> jax.Array:
         """Calculate constraint loss.
@@ -215,20 +228,7 @@ class ProteinBackboneConstraint(ConstraintExtension):
         Returns:
             Coordinates array with shape [..., num_residues, num_atoms, 3].
         """
-        if isinstance(outputs, dict):
-            if "atom_positions" in outputs:
-                coords = outputs["atom_positions"]
-            elif "positions" in outputs:
-                coords = outputs["positions"]
-            elif "coordinates" in outputs:
-                coords = outputs["coordinates"]
-            else:
-                raise ValueError("No coordinates found in model outputs")
-        else:
-            # Assume outputs is directly the coordinates
-            coords = outputs
-
-        return coords
+        return _extract_protein_coordinates(outputs, error_label="Protein backbone coordinates")
 
     def _extract_mask(self, inputs: dict[str, Any]) -> jax.Array | None:
         """Extract mask from inputs.
@@ -847,48 +847,37 @@ class ProteinDihedralConstraint(ConstraintExtension):
         Returns:
             dictionary with dihedral angle metrics.
         """
-        try:
-            # Extract coordinates
-            coords = self._extract_coordinates(model_outputs)
-            mask = self._extract_mask(inputs)
+        coords = self._extract_coordinates(model_outputs)
+        mask = self._extract_mask(inputs)
 
-            # Calculate dihedral angles
-            dihedrals = calculate_dihedral_angles(coords, mask)
-            omega_angles = self._calculate_omega_angles(coords)
+        dihedrals = calculate_dihedral_angles(coords, mask)
+        omega_angles = self._calculate_omega_angles(coords)
 
-            # Calculate violations
-            violations = {
-                "phi": jnp.abs(dihedrals["phi"] - self.target_phi),
-                "psi": jnp.abs(dihedrals["psi"] - self.target_psi),
-                "omega": jnp.abs(omega_angles - self.target_omega),
-            }
+        violations = {
+            "phi": jnp.abs(dihedrals["phi"] - self.target_phi),
+            "psi": jnp.abs(dihedrals["psi"] - self.target_psi),
+            "omega": jnp.abs(omega_angles - self.target_omega),
+        }
 
-            # Calculate statistics
-            phi_mean = jnp.mean(dihedrals["phi"])
-            phi_std = jnp.std(dihedrals["phi"])
-            psi_mean = jnp.mean(dihedrals["psi"])
-            psi_std = jnp.std(dihedrals["psi"])
-            omega_mean = jnp.mean(omega_angles)
-            omega_std = jnp.std(omega_angles)
+        phi_mean = jnp.mean(dihedrals["phi"])
+        phi_std = jnp.std(dihedrals["phi"])
+        psi_mean = jnp.mean(dihedrals["psi"])
+        psi_std = jnp.std(dihedrals["psi"])
+        omega_mean = jnp.mean(omega_angles)
+        omega_std = jnp.std(omega_angles)
 
-            return {
-                "extension_type": "protein_dihedral",
-                "dihedrals": dihedrals,
-                "omega_angles": omega_angles,
-                "dihedral_violations": violations,
-                "phi_mean": phi_mean,
-                "phi_std": phi_std,
-                "psi_mean": psi_mean,
-                "psi_std": psi_std,
-                "omega_mean": omega_mean,
-                "omega_std": omega_std,
-            }
-        except Exception as e:
-            # In case of errors (shape mismatches, etc.), return minimal metrics
-            return {
-                "extension_type": "protein_dihedral",
-                "error": str(e),
-            }
+        return {
+            "extension_type": "protein_dihedral",
+            "dihedrals": dihedrals,
+            "omega_angles": omega_angles,
+            "dihedral_violations": violations,
+            "phi_mean": phi_mean,
+            "phi_std": phi_std,
+            "psi_mean": psi_mean,
+            "psi_std": psi_std,
+            "omega_mean": omega_mean,
+            "omega_std": omega_std,
+        }
 
     def _extract_coordinates(self, outputs: dict[str, Any]) -> jax.Array:
         """Extract coordinates from model outputs.
@@ -899,20 +888,7 @@ class ProteinDihedralConstraint(ConstraintExtension):
         Returns:
             Coordinates array with shape [..., num_residues, num_atoms, 3].
         """
-        if isinstance(outputs, dict):
-            if "atom_positions" in outputs:
-                coords = outputs["atom_positions"]
-            elif "positions" in outputs:
-                coords = outputs["positions"]
-            elif "coordinates" in outputs:
-                coords = outputs["coordinates"]
-            else:
-                raise ValueError("No coordinates found in model outputs")
-        else:
-            # Assume outputs is directly the coordinates
-            coords = outputs
-
-        return coords
+        return _extract_protein_coordinates(outputs, error_label="Protein dihedral coordinates")
 
     def _extract_mask(self, inputs: dict[str, Any]) -> jax.Array | None:
         """Extract mask from inputs.

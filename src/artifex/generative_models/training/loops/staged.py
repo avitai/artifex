@@ -1,6 +1,5 @@
 """Staged training loop using nnx.fori_loop for maximum performance.
 
-Works with ANY trainer via the create_loss_fn() pattern.
 This provides significant speedup by JIT-compiling the ENTIRE epoch
 using nnx.fori_loop, eliminating Python loop overhead.
 
@@ -14,15 +13,14 @@ Key optimizations (matching pure JAX performance):
 
 Requirements:
     - Data must fit in GPU memory (~10% of VRAM recommended)
-    - Loss function signature: (model, batch, rng, step) -> (loss, metrics)
-    - All existing trainers implement create_loss_fn() with this signature
+    - Objective signature: (model, batch, rng, step) -> (loss, metrics)
+    - Metrics must be a stable mapping of JAX arrays across steps
 
 Example:
     ```python
     from artifex.generative_models.training.loops import train_epoch_staged
     from artifex.generative_models.training.trainers import VAETrainer
 
-    # Works with ANY existing trainer
     vae_trainer = VAETrainer(config)
     loss_fn = vae_trainer.create_loss_fn(loss_type="bce")
 
@@ -170,8 +168,6 @@ def train_epoch_staged(
 ) -> tuple[int, dict[str, float]]:
     """Train one epoch with nnx.fori_loop - entire epoch JIT-compiled.
 
-    Compatible with all existing trainers via create_loss_fn().
-
     This function uses nnx.jit + nnx.fori_loop to JIT-compile the ENTIRE epoch,
     eliminating Python loop overhead for maximum performance (100-500x speedup).
 
@@ -184,7 +180,7 @@ def train_epoch_staged(
         data: Pre-staged data array, shape (N, ...)
         batch_size: Batch size
         rng: Epoch RNG key
-        loss_fn: From trainer.create_loss_fn() - signature:
+        loss_fn: Step-aware objective closure. Signature:
             (model, batch, rng, step) -> (loss, metrics)
         base_step: Starting step number (for scheduling)
         data_key: Key to use in batch dict (default: "image")
@@ -193,7 +189,6 @@ def train_epoch_staged(
         (final_step, averaged_metrics)
 
     Example:
-        # Works with ANY existing trainer
         vae_trainer = VAETrainer(config)
         loss_fn = vae_trainer.create_loss_fn(loss_type="bce")
         step, metrics = train_epoch_staged(model, opt, data, 128, rng, loss_fn)

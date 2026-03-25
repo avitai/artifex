@@ -263,11 +263,11 @@ class AdvancedTokenization(ModelExtension):
     ) -> tuple[jax.Array, jax.Array]:
         """Apply masking to a single sequence."""
         mask_id = self.token_to_id[self.special_tokens["mask"]]
-        pad_id = self.token_to_id[self.special_tokens["pad"]]
 
-        # Don't mask special tokens
-        maskable = tokens != pad_id
-        for special_id in self.token_to_id.values():
+        # Only exclude the true special-token ids, not the entire vocabulary.
+        maskable = jnp.ones(tokens.shape, dtype=jnp.bool_)
+        for special_token in self.special_tokens.values():
+            special_id = self.token_to_id[special_token]
             maskable = maskable & (tokens != special_id)
 
         # Random masking
@@ -277,9 +277,10 @@ class AdvancedTokenization(ModelExtension):
         final_mask = maskable & random_mask
 
         # Apply masking
-        masked_tokens = jnp.where(final_mask, mask_id, tokens)
+        masked_tokens = jnp.asarray(jnp.where(final_mask, mask_id, tokens))
+        mask_positions = jnp.asarray(final_mask.astype(jnp.int32))
 
-        return masked_tokens, final_mask.astype(jnp.int32)
+        return masked_tokens, mask_positions
 
     def create_position_ids(self, tokens: jax.Array) -> jax.Array:
         """Create position IDs for token sequences.
@@ -313,23 +314,24 @@ class AdvancedTokenization(ModelExtension):
         Returns:
             Tuple of truncated sequences
         """
-        if max_total_length is None:
-            max_total_length = self.max_length
+        resolved_max_total_length = (
+            self.max_length if max_total_length is None else max_total_length
+        )
 
         if tokens_b is None:
             # Single sequence truncation
-            if len(tokens_a) > max_total_length:
-                tokens_a = tokens_a[:max_total_length]
+            if len(tokens_a) > resolved_max_total_length:
+                tokens_a = tokens_a[:resolved_max_total_length]
             return tokens_a, None
         else:
             # Dual sequence truncation
             total_length = len(tokens_a) + len(tokens_b)
 
-            if total_length <= max_total_length:
+            if total_length <= resolved_max_total_length:
                 return tokens_a, tokens_b
 
             # Truncate the longer sequence first
-            excess = total_length - max_total_length
+            excess = total_length - resolved_max_total_length
 
             if len(tokens_a) > len(tokens_b):
                 tokens_a = tokens_a[: len(tokens_a) - excess]
@@ -338,7 +340,7 @@ class AdvancedTokenization(ModelExtension):
 
             return tokens_a, tokens_b
 
-    def get_vocabulary_info(self) -> dict[str, int | dict]:
+    def get_vocabulary_info(self) -> dict[str, Any]:
         """Get vocabulary information.
 
         Returns:
@@ -367,7 +369,7 @@ class AdvancedTokenization(ModelExtension):
         if not self.enabled:
             return {"extension_type": "advanced_tokenization"}
 
-        results = {"extension_type": "advanced_tokenization"}
+        results: dict[str, Any] = {"extension_type": "advanced_tokenization"}
 
         # Process text inputs if available
         if isinstance(inputs, dict) and "text" in inputs:

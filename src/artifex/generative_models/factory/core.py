@@ -5,7 +5,8 @@ Model type is determined by config type, not a model_class string field.
 """
 
 import dataclasses
-from typing import Any, TypeVar, Union
+from functools import lru_cache
+from typing import Any, cast, TypeVar
 
 from flax import nnx
 
@@ -41,6 +42,7 @@ from artifex.generative_models.core.configuration.geometric_config import (
     PointCloudConfig,
     VoxelConfig,
 )
+from artifex.generative_models.core.configuration.model_creation import ModelCreationConfig
 from artifex.generative_models.core.configuration.vae_config import (
     BetaVAEConfig,
     ConditionalVAEConfig,
@@ -54,26 +56,16 @@ from artifex.generative_models.factory.registry import BuilderNotFoundError, Mod
 T = TypeVar("T")
 
 # Type aliases for all supported dataclass configs
-VAEConfigs = Union[VAEConfig, BetaVAEConfig, ConditionalVAEConfig, VQVAEConfig]
-GANConfigs = Union[GANConfig, DCGANConfig, WGANConfig, LSGANConfig]
-DiffusionConfigs = Union[DiffusionConfig, DDPMConfig, ScoreDiffusionConfig]
-EBMConfigs = Union[EBMConfig, DeepEBMConfig]
+VAEConfigs = VAEConfig | BetaVAEConfig | ConditionalVAEConfig | VQVAEConfig
+GANConfigs = GANConfig | DCGANConfig | WGANConfig | LSGANConfig
+DiffusionConfigs = DiffusionConfig | DDPMConfig | ScoreDiffusionConfig
+EBMConfigs = EBMConfig | DeepEBMConfig
 FlowConfigs = FlowConfig
-AutoregressiveConfigs = Union[
-    AutoregressiveConfig, TransformerConfig, PixelCNNConfig, WaveNetConfig
-]
-GeometricConfigs = Union[GeometricConfig, PointCloudConfig, MeshConfig, VoxelConfig, GraphConfig]
+AutoregressiveConfigs = AutoregressiveConfig | TransformerConfig | PixelCNNConfig | WaveNetConfig
+GeometricConfigs = GeometricConfig | PointCloudConfig | MeshConfig | VoxelConfig | GraphConfig
 
 # Union of all supported dataclass configs
-DataclassConfig = Union[
-    VAEConfigs,
-    GANConfigs,
-    DiffusionConfigs,
-    EBMConfigs,
-    FlowConfigs,
-    AutoregressiveConfigs,
-    GeometricConfigs,
-]
+DataclassConfig = ModelCreationConfig
 
 
 class ModelFactory:
@@ -138,7 +130,8 @@ class ModelFactory:
 
         Args:
             config: Dataclass model configuration (DDPMConfig, VAEConfig, etc.)
-            modality: Optional modality for adaptation
+            modality: Optional post-build modality adaptation.
+                The typed config still selects the base model family.
             rngs: Random number generators
             **kwargs: Additional arguments
 
@@ -164,7 +157,8 @@ class ModelFactory:
         # Build the model
         model = builder.build(config, rngs=rngs, **kwargs)
 
-        # Apply modality if specified
+        # Apply modality as a post-build adapter step; the config type still
+        # owns the base model family.
         if modality:
             from artifex.generative_models.modalities.registry import get_modality
 
@@ -262,8 +256,10 @@ class ModelFactory:
         )
 
 
-# Global factory instance
-_factory = ModelFactory()
+@lru_cache(maxsize=1)
+def _get_default_factory() -> ModelFactory:
+    """Build the canonical default factory on first use."""
+    return ModelFactory()
 
 
 def create_model(
@@ -285,7 +281,7 @@ def create_model(
     Raises:
         TypeError: If config is not a supported dataclass config
     """
-    return _factory.create(config, modality=modality, rngs=rngs, **kwargs)
+    return _get_default_factory().create(config, modality=modality, rngs=rngs, **kwargs)
 
 
 def create_model_with_extensions(
@@ -329,7 +325,7 @@ def create_model_with_extensions(
         >>> trainer = VAETrainer(config=train_config, model=model, extensions=extensions)
     """
     # Create the model
-    model = _factory.create(config, modality=modality, rngs=rngs, **kwargs)
+    model = _get_default_factory().create(config, modality=modality, rngs=rngs, **kwargs)
 
     # Create extensions
     extensions: dict[str, ModelExtension] = {}
@@ -340,6 +336,6 @@ def create_model_with_extensions(
 
         for ext_name, ext_config in extensions_config.items():
             extension = registry.create_extension(ext_name, ext_config, rngs=rngs)
-            extensions[ext_name] = extension
+            extensions[ext_name] = cast(ModelExtension, extension)
 
     return model, extensions

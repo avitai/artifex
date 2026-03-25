@@ -1,4 +1,4 @@
-"""Glow normalizing flow implementation."""
+"""Glow normalizing flow baseline with a retained single image scale."""
 
 import jax
 import jax.numpy as jnp
@@ -76,24 +76,27 @@ class ActNormLayer(FlowLayer):
         if not self.initialized:
             self._initialize_from_data(x)
 
+        bias = self.bias[...]
+        logs = self.logs[...]
+
         # Apply normalization: y = (x + bias) * exp(logs)
         if len(x.shape) == 4:  # (batch, height, width, channels)
-            y = (x + self.bias) * jnp.exp(self.logs)
+            y = (x + bias) * jnp.exp(logs)
 
             # Log determinant: height * width * sum(logs)
             batch_size, height, width = x.shape[:3]
-            log_det = height * width * jnp.sum(self.logs)
+            log_det = height * width * jnp.sum(logs)
             log_det = jnp.full((batch_size,), log_det)
 
         elif len(x.shape) == 2:  # (batch, features)
             # Reshape parameters for 2D input
-            bias_2d = jnp.reshape(self.bias, (1, -1))
-            logs_2d = jnp.reshape(self.logs, (1, -1))
+            bias_2d = jnp.reshape(bias, (1, -1))
+            logs_2d = jnp.reshape(logs, (1, -1))
 
             y = (x + bias_2d) * jnp.exp(logs_2d)
 
             # Log determinant
-            log_det = jnp.sum(self.logs) * jnp.ones(x.shape[0])
+            log_det = jnp.sum(logs) * jnp.ones(x.shape[0])
         else:
             raise ValueError(f"Unsupported input shape: {x.shape}")
 
@@ -109,24 +112,27 @@ class ActNormLayer(FlowLayer):
         Returns:
             Tuple of (transformed_y, log_det_jacobian)
         """
+        bias = self.bias[...]
+        logs = self.logs[...]
+
         # Apply inverse normalization: x = y * exp(-logs) - bias
         if len(y.shape) == 4:  # (batch, height, width, channels)
-            x = y * jnp.exp(-self.logs) - self.bias
+            x = y * jnp.exp(-logs) - bias
 
             # Log determinant: -height * width * sum(logs)
             batch_size, height, width = y.shape[:3]
-            log_det = -height * width * jnp.sum(self.logs)
+            log_det = -height * width * jnp.sum(logs)
             log_det = jnp.full((batch_size,), log_det)
 
         elif len(y.shape) == 2:  # (batch, features)
             # Reshape parameters for 2D input
-            bias_2d = jnp.reshape(self.bias, (1, -1))
-            logs_2d = jnp.reshape(self.logs, (1, -1))
+            bias_2d = jnp.reshape(bias, (1, -1))
+            logs_2d = jnp.reshape(logs, (1, -1))
 
             x = y * jnp.exp(-logs_2d) - bias_2d
 
             # Log determinant
-            log_det = -jnp.sum(self.logs) * jnp.ones(y.shape[0])
+            log_det = -jnp.sum(logs) * jnp.ones(y.shape[0])
         else:
             raise ValueError(f"Unsupported input shape: {y.shape}")
 
@@ -176,8 +182,7 @@ class InvertibleConv1x1(FlowLayer):
 
             # Check channel compatibility
             if channels != self.num_channels:
-                # For test compatibility, return identity transformation
-                return x, jnp.zeros(batch_size)
+                raise ValueError(f"Input has {channels} channels, expected {self.num_channels}")
 
             # Reshape for matrix multiplication
             x_reshaped = jnp.reshape(x, (batch_size * height * width, channels))
@@ -198,8 +203,7 @@ class InvertibleConv1x1(FlowLayer):
 
             # Check feature compatibility
             if features != self.num_channels:
-                # For test compatibility, return identity transformation
-                return x, jnp.zeros(batch_size)
+                raise ValueError(f"Input has {features} features, expected {self.num_channels}")
 
             # Apply transformation: y = x @ W
             y = x @ self.weight
@@ -529,7 +533,7 @@ class AffineCouplingLayer(FlowLayer):
 
 
 class GlowBlock(FlowLayer):
-    """Glow building block consisting of ActNorm, Invertible 1x1 Conv, and Coupling."""
+    """Glow building block consisting of ActNorm, 1x1 Conv, and Coupling."""
 
     def __init__(
         self,
@@ -569,10 +573,8 @@ class GlowBlock(FlowLayer):
         Returns:
             Tuple of (transformed_x, log_det_jacobian)
         """
-        # Check for dimension mismatches
-        if len(x.shape) == 4 and x.shape[-1] != self.num_channels:
-            # Return identity for incompatible dimensions
-            return x, jnp.zeros(x.shape[0])
+        if x.shape[-1] != self.num_channels:
+            raise ValueError(f"Input has {x.shape[-1]} channels, expected {self.num_channels}")
 
         # Apply transformations in sequence
         y, log_det1 = self.actnorm.forward(x, rngs=rngs)
@@ -594,10 +596,8 @@ class GlowBlock(FlowLayer):
         Returns:
             Tuple of (transformed_y, log_det_jacobian)
         """
-        # Check for dimension mismatches
-        if len(y.shape) == 4 and y.shape[-1] != self.num_channels:
-            # Return identity for incompatible dimensions
-            return y, jnp.zeros(y.shape[0])
+        if y.shape[-1] != self.num_channels:
+            raise ValueError(f"Input has {y.shape[-1]} channels, expected {self.num_channels}")
 
         # Apply inverse transformations in reverse order
         x, log_det3 = self.coupling.inverse(y, rngs=rngs)
@@ -611,10 +611,7 @@ class GlowBlock(FlowLayer):
 
 
 class Glow(NormalizingFlow):
-    """Glow normalizing flow model.
-
-    A multi-scale architecture as described in the Glow paper.
-    """
+    """Single-scale Glow image flow baseline."""
 
     def __init__(self, config: GlowConfig, *, rngs: nnx.Rngs | None = None):
         """Initialize Glow model.
@@ -636,8 +633,9 @@ class Glow(NormalizingFlow):
         super().__init__(config, rngs=rngs)
 
         # Extract configuration from GlowConfig
+        assert config.image_shape is not None
+        assert config.coupling_network is not None
         self.image_shape = config.image_shape
-        self.num_scales = config.num_scales
         self.blocks_per_scale = config.blocks_per_scale
         self.hidden_dims = list(config.coupling_network.hidden_dims)
 
@@ -648,34 +646,23 @@ class Glow(NormalizingFlow):
         self._init_flow_layers(rngs=rngs)
 
     def _init_flow_layers(self, *, rngs: nnx.Rngs | None = None):
-        """Initialize flow layers.
+        """Initialize the retained single-scale Glow block stack.
 
         Args:
             rngs: Optional random number generators
         """
         self.flow_layers = nnx.List([])
-        current_channels = self.channels
 
-        for scale in range(self.num_scales):
-            # Create blocks for this scale
-            for block_idx in range(self.blocks_per_scale):
-                # Create layer-specific RNG
-                layer_rngs = None
-                if rngs is not None:
-                    layer_key = jax.random.fold_in(
-                        rngs.params(), scale * self.blocks_per_scale + block_idx
-                    )
-                    layer_rngs = nnx.Rngs(params=layer_key)
+        for block_idx in range(self.blocks_per_scale):
+            layer_rngs = None
+            if rngs is not None:
+                layer_key = jax.random.fold_in(rngs.params(), block_idx)
+                layer_rngs = nnx.Rngs(params=layer_key)
 
-                # Create Glow block
-                block = GlowBlock(
-                    num_channels=current_channels, hidden_dims=self.hidden_dims, rngs=layer_rngs
-                )
-                self.flow_layers.append(block)
-
-            # Simulate channel increase after squeezing (except for last scale)
-            if scale < self.num_scales - 1:
-                current_channels *= 4
+            block = GlowBlock(
+                num_channels=self.channels, hidden_dims=self.hidden_dims, rngs=layer_rngs
+            )
+            self.flow_layers.append(block)
 
     def generate(self, n_samples: int = 1, *, rngs: nnx.Rngs | None = None, **kwargs) -> jax.Array:
         """Generate samples from the Glow model.
@@ -689,7 +676,7 @@ class Glow(NormalizingFlow):
             Generated samples
         """
         # Get sampling key
-        sample_key = (rngs or self.rngs).sample()
+        sample_key = self._get_sampling_key(rngs)
 
         # Sample from base distribution
         if hasattr(self, "image_shape"):
@@ -715,15 +702,3 @@ class Glow(NormalizingFlow):
             Generated samples
         """
         return self.generate(n_samples, rngs=rngs, **kwargs)
-
-    def log_likelihood(self, x: jax.Array, *, rngs: nnx.Rngs | None = None) -> jax.Array:
-        """Calculate log likelihood of data points.
-
-        Args:
-            x: Input data points
-            rngs: Optional random number generators
-
-        Returns:
-            Log likelihood of each data point
-        """
-        return self.log_prob(x, rngs=rngs)

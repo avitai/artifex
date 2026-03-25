@@ -7,6 +7,13 @@ probability distributions, commonly used in generative models like VAEs and GANs
 
 import jax
 import jax.numpy as jnp
+from calibrax.metrics.functional.divergence import (
+    js_divergence as _calibrax_js_divergence,
+    kl_divergence as _calibrax_kl_divergence,
+    mmd as _calibrax_mmd,
+    reverse_kl_divergence as _calibrax_reverse_kl_divergence,
+    wasserstein_1d as _calibrax_wasserstein_1d,
+)
 from distrax import Distribution
 
 from artifex.generative_models.core.losses.base import reduce_loss
@@ -52,6 +59,9 @@ def kl_divergence(
         return reduce_loss(kl, reduction, weights, axis)
 
     # Handle array inputs
+    if reduction == "mean" and weights is None and axis is None:
+        return _calibrax_kl_divergence(predictions, targets)
+
     if log_predictions is None:
         predictions = jnp.clip(predictions, eps, 1.0)
         log_predictions = jnp.log(predictions)
@@ -60,8 +70,10 @@ def kl_divergence(
         targets = jnp.clip(targets, eps, 1.0)
         log_targets = jnp.log(targets)
 
-    kl = predictions * (log_predictions - log_targets)
-    return reduce_loss(kl, reduction, weights, axis)
+    kl_terms = predictions * (log_predictions - log_targets)
+    divergence_axis = axis if axis is not None else -1
+    kl = jnp.sum(kl_terms, axis=divergence_axis)
+    return reduce_loss(kl, reduction, weights, axis=None)
 
 
 def reverse_kl_divergence(
@@ -104,6 +116,9 @@ def reverse_kl_divergence(
         return reduce_loss(kl, reduction, weights, axis)
 
     # Handle array inputs
+    if reduction == "mean" and weights is None and axis is None:
+        return _calibrax_reverse_kl_divergence(predictions, targets)
+
     if log_predictions is None:
         predictions = jnp.clip(predictions, eps, 1.0)
         log_predictions = jnp.log(predictions)
@@ -112,8 +127,10 @@ def reverse_kl_divergence(
         targets = jnp.clip(targets, eps, 1.0)
         log_targets = jnp.log(targets)
 
-    kl = targets * (log_targets - log_predictions)
-    return reduce_loss(kl, reduction, weights, axis)
+    kl_terms = targets * (log_targets - log_predictions)
+    divergence_axis = axis if axis is not None else -1
+    kl = jnp.sum(kl_terms, axis=divergence_axis)
+    return reduce_loss(kl, reduction, weights, axis=None)
 
 
 def js_divergence(
@@ -148,6 +165,9 @@ def js_divergence(
     # Handle distrax Distribution objects
     if isinstance(predictions, Distribution) and isinstance(targets, Distribution):
         raise NotImplementedError("JS divergence not implemented for Distribution objects")
+
+    if reduction == "mean" and weights is None and axis is None:
+        return _calibrax_js_divergence(predictions, targets)
 
     # Clip inputs for numerical stability
     predictions = jnp.clip(predictions, eps, 1.0)
@@ -213,6 +233,9 @@ def wasserstein_distance(
     if isinstance(predictions, Distribution) or isinstance(targets, Distribution):
         raise NotImplementedError("Wasserstein distance not implemented for Distribution objects")
 
+    if p == 1 and reduction == "mean" and weights is None and axis is None:
+        return _calibrax_wasserstein_1d(predictions, targets)
+
     # Default to last axis if none specified
     if axis is None:
         axis = -1
@@ -250,10 +273,11 @@ def maximum_mean_discrepancy(
     reduction: str = "mean",
     weights: jax.Array | None = None,
 ) -> jax.Array:
-    """
-    Maximum Mean Discrepancy (MMD) between two distributions.
+    """Maximum Mean Discrepancy (MMD) between two distributions.
 
     MMD measures the distance between distributions using kernel methods.
+    For the RBF kernel, delegates to calibrax's unbiased MMD estimator.
+    Linear and polynomial kernels use a local biased estimator.
 
     Args:
         predictions: Predicted samples [batch, num_samples, features]
@@ -271,42 +295,31 @@ def maximum_mean_discrepancy(
         >>> target = jax.random.normal(jax.random.key(1), (2, 100, 5))
         >>> maximum_mean_discrepancy(pred, target)
     """
+    if kernel_type == "rbf":
+        # Delegate RBF kernel to calibrax's unbiased MMD estimator
+        mmd_batch = jax.vmap(
+            lambda p, t: _calibrax_mmd(p, t, kernel="rbf", bandwidth=kernel_bandwidth)
+        )(predictions, targets)
+        return reduce_loss(mmd_batch, reduction, weights)
 
-    def compute_kernel_matrix(x, y, kernel_type, bandwidth):
-        """Compute kernel matrix between two sets of points."""
-        if kernel_type == "rbf":
-            # RBF (Gaussian) kernel
-            pairwise_dists = jnp.sum((x[:, None, :] - y[None, :, :]) ** 2, axis=-1)
-            return jnp.exp(-pairwise_dists / (2 * bandwidth**2))
-        elif kernel_type == "linear":
-            # Linear kernel
-            return jnp.matmul(x, y.T)
+    # Linear and polynomial kernels: local biased estimator
+    def _compute_mmd_single(pred_b: jax.Array, target_b: jax.Array) -> jax.Array:
+        """Compute biased MMD for a single batch element."""
+        if kernel_type == "linear":
+            k_pp = jnp.matmul(pred_b, pred_b.T)
+            k_tt = jnp.matmul(target_b, target_b.T)
+            k_pt = jnp.matmul(pred_b, target_b.T)
         elif kernel_type == "polynomial":
-            # Polynomial kernel (degree 2)
-            return (jnp.matmul(x, y.T) + 1) ** 2
+            k_pp = (jnp.matmul(pred_b, pred_b.T) + 1) ** 2
+            k_tt = (jnp.matmul(target_b, target_b.T) + 1) ** 2
+            k_pt = (jnp.matmul(pred_b, target_b.T) + 1) ** 2
         else:
             raise ValueError(f"Unknown kernel type: {kernel_type}")
 
-    batch_size = predictions.shape[0]
-    mmd_batch = []
-
-    for b in range(batch_size):
-        pred_b = predictions[b]  # [num_samples, features]
-        target_b = targets[b]  # [num_samples, features]
-
-        # Compute kernel matrices
-        k_pp = compute_kernel_matrix(pred_b, pred_b, kernel_type, kernel_bandwidth)
-        k_tt = compute_kernel_matrix(target_b, target_b, kernel_type, kernel_bandwidth)
-        k_pt = compute_kernel_matrix(pred_b, target_b, kernel_type, kernel_bandwidth)
-
-        # Compute MMD^2 = E[k(x,x')] + E[k(y,y')] - 2*E[k(x,y)]
         mmd_squared = jnp.mean(k_pp) + jnp.mean(k_tt) - 2 * jnp.mean(k_pt)
+        return jnp.sqrt(jnp.maximum(mmd_squared, 0.0))
 
-        # Take square root to get MMD (ensuring non-negative)
-        mmd = jnp.sqrt(jnp.maximum(mmd_squared, 0.0))
-        mmd_batch.append(mmd)
-
-    mmd_batch = jnp.stack(mmd_batch)
+    mmd_batch = jax.vmap(_compute_mmd_single)(predictions, targets)
     return reduce_loss(mmd_batch, reduction, weights)
 
 

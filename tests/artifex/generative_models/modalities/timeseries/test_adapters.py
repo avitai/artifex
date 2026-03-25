@@ -1,6 +1,6 @@
 """Tests for timeseries model adapters.
 
-This module provides comprehensive tests for the timeseries adapters, covering
+This module provides complete tests for the timeseries adapters, covering
 config validation, adapter initialization, and adapter functionality.
 """
 

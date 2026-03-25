@@ -189,7 +189,6 @@ def example_univariate_normal_nuts():
             n_samples=n_samples,
             n_burnin=n_burnin,
             step_size=0.1,
-            max_depth=5,  # Limit tree depth for memory
         )
 
         # Plot results

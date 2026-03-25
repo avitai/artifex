@@ -1,0 +1,17 @@
+name: protein_point_cloud_default
+description: Default typed config for protein point-cloud generation models.
+network:
+  name: protein_point_cloud_network
+  hidden_dims: [128, 128, 128, 128]
+  activation: gelu
+  embed_dim: 128
+  num_heads: 4
+  num_layers: 4
+  dropout_rate: 0.1
+  use_positional_encoding: true
+num_points: 512
+point_dim: 3
+dropout_rate: 0.1
+num_residues: 128
+num_atoms_per_residue: 4
+backbone_indices: [0, 1, 2, 3]

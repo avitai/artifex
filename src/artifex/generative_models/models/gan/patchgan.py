@@ -9,6 +9,7 @@ import jax
 import jax.numpy as jnp
 from flax import nnx
 
+from artifex.generative_models.core.base import get_activation_function
 from artifex.generative_models.core.configuration.network_configs import (
     MultiScalePatchGANConfig,
     PatchGANDiscriminatorConfig,
@@ -71,13 +72,12 @@ class PatchGANDiscriminator(Discriminator):
         self.patchgan_stride = stride
         self.patchgan_last_kernel_size = last_kernel_size
 
-        # Store activation function for forward pass
+        # Store activation function — use custom slope for leaky_relu, canonical resolver otherwise
         if config.activation == "leaky_relu":
-            self.patchgan_activation_fn = lambda x: jax.nn.leaky_relu(
-                x, negative_slope=config.leaky_relu_slope
-            )
+            slope = config.leaky_relu_slope
+            self.patchgan_activation_fn = lambda x: nnx.leaky_relu(x, negative_slope=slope)
         else:
-            self.patchgan_activation_fn = getattr(jax.nn, config.activation)
+            self.patchgan_activation_fn = get_activation_function(config.activation)
 
         # Build the convolutional layers
         self.patchgan_conv_layers = nnx.List([])
@@ -317,7 +317,6 @@ class MultiScalePatchGANDiscriminator(nnx.Module):
                 leaky_relu_slope=base_disc_config.leaky_relu_slope,
                 batch_norm=base_disc_config.batch_norm,
                 dropout_rate=base_disc_config.dropout_rate,
-                use_spectral_norm=base_disc_config.use_spectral_norm,
                 num_filters=base_disc_config.num_filters,
                 num_layers=self.num_layers_per_disc[i],
                 use_bias=base_disc_config.use_bias,

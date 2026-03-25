@@ -1,17 +1,43 @@
 #!/usr/bin/env python
-"""Simple audio generation example using the Artifex framework.
+# ---
+# jupyter:
+#   jupytext:
+#     formats: py:percent,ipynb
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+# ---
 
-This example demonstrates basic audio waveform generation using
-neural networks with JAX/Flax.
+# %%
+"""Standalone JAX/Flax NNX concept walkthrough.
+
+This file does not instantiate shipped Artifex runtime owners.
+It demonstrates basic audio waveform generation with neural networks.
 """
+
+# %%
+import logging
+from typing import cast
 
 import jax
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
 from flax import nnx
+from matplotlib.axes import Axes
 
 
+logging.basicConfig(level=logging.INFO, format="%(message)s")
+LOGGER = logging.getLogger(__name__)
+
+
+def echo(message: object = "") -> None:
+    """Emit example progress without raw print calls."""
+    LOGGER.info("%s", message)
+
+
+# %%
 class SimpleAudioGenerator(nnx.Module):
     """Simple audio waveform generator using neural networks."""
 
@@ -94,6 +120,7 @@ class SimpleAudioGenerator(nnx.Module):
         return jnp.stack(variations)
 
 
+# %%
 def visualize_waveforms(waveforms, sample_rate, title="Generated Audio Waveforms"):
     """Visualize audio waveforms.
 
@@ -107,10 +134,13 @@ def visualize_waveforms(waveforms, sample_rate, title="Generated Audio Waveforms
     time = np.linspace(0, num_samples / sample_rate, num_samples)
 
     fig, axes = plt.subplots(batch_size, 1, figsize=(12, 3 * batch_size))
-    if batch_size == 1:
-        axes = [axes]
+    axes_list: list[Axes]
+    if isinstance(axes, np.ndarray):
+        axes_list = cast(list[Axes], axes.flatten().tolist())
+    else:
+        axes_list = [axes]
 
-    for i, ax in enumerate(axes):
+    for i, ax in enumerate(axes_list):
         ax.plot(time, waveforms[i], linewidth=0.5)
         ax.set_xlabel("Time (s)")
         ax.set_ylabel("Amplitude")
@@ -123,6 +153,7 @@ def visualize_waveforms(waveforms, sample_rate, title="Generated Audio Waveforms
     return fig
 
 
+# %%
 def generate_spectrogram(waveform, sample_rate):
     """Generate a simple spectrogram visualization.
 
@@ -161,11 +192,17 @@ def generate_spectrogram(waveform, sample_rate):
     time_axis = np.linspace(0, len(waveform) / sample_rate, spectrogram.shape[1])
     freq_axis = np.linspace(0, sample_rate / 2, spectrogram.shape[0])
 
+    extent = (
+        float(time_axis[0]),
+        float(time_axis[-1]),
+        float(freq_axis[0]),
+        float(freq_axis[-1]),
+    )
     im = ax.imshow(
         20 * jnp.log10(spectrogram + 1e-10),  # Convert to dB
         aspect="auto",
         origin="lower",
-        extent=[time_axis[0], time_axis[-1], freq_axis[0], freq_axis[-1]],
+        extent=extent,
         cmap="viridis",
     )
 
@@ -177,11 +214,12 @@ def generate_spectrogram(waveform, sample_rate):
     return fig
 
 
+# %%
 def main():
     """Run the simple audio generation example."""
-    print("=" * 60)
-    print("Simple Audio Generation Example")
-    print("=" * 60)
+    echo("=" * 60)
+    echo("Simple Audio Generation Example")
+    echo("=" * 60)
 
     # Set random seed
     seed = 42
@@ -189,7 +227,7 @@ def main():
     rngs = nnx.Rngs(params=key, sample=key)
 
     # Create audio generator
-    print("\nCreating audio generator...")
+    echo("\nCreating audio generator...")
     sample_rate = 16000  # 16 kHz
     duration = 0.5  # 0.5 seconds
 
@@ -197,21 +235,21 @@ def main():
         sample_rate=sample_rate, duration=duration, latent_dim=32, rngs=rngs
     )
 
-    print(f"Sample rate: {sample_rate} Hz")
-    print(f"Duration: {duration} seconds")
-    print(f"Samples per waveform: {generator.num_samples}")
+    echo(f"Sample rate: {sample_rate} Hz")
+    echo(f"Duration: {duration} seconds")
+    echo(f"Samples per waveform: {generator.num_samples}")
 
     # Generate random audio
-    print("\nGenerating random audio waveforms...")
+    echo("\nGenerating random audio waveforms...")
     waveforms = generator.generate(batch_size=3, rngs=rngs)
-    print(f"Generated waveforms shape: {waveforms.shape}")
+    echo(f"Generated waveforms shape: {waveforms.shape}")
 
     # Visualize waveforms
-    print("\nVisualizing waveforms...")
+    echo("\nVisualizing waveforms...")
     fig1 = visualize_waveforms(waveforms, sample_rate, "Random Generated Audio")
 
     # Generate variations of a sound
-    print("\nGenerating variations of a base sound...")
+    echo("\nGenerating variations of a base sound...")
     base_key = jax.random.key(123)
     base_rngs = nnx.Rngs(sample=base_key)
     base_latent = jax.random.normal(base_rngs.sample(), (32,))
@@ -219,13 +257,13 @@ def main():
     variations = generator.generate_with_variation(
         base_latent, variation_scale=0.2, num_variations=4, rngs=base_rngs
     )
-    print(f"Variations shape: {variations.shape}")
+    echo(f"Variations shape: {variations.shape}")
 
     # Visualize variations
     fig2 = visualize_waveforms(variations, sample_rate, "Audio Variations")
 
     # Generate spectrogram for one waveform
-    print("\nGenerating spectrogram...")
+    echo("\nGenerating spectrogram...")
     fig3 = generate_spectrogram(waveforms[0], sample_rate)
 
     # Save figures
@@ -238,9 +276,10 @@ def main():
     fig2.savefig(os.path.join(output_dir, "audio_variations.png"))
     fig3.savefig(os.path.join(output_dir, "audio_spectrogram.png"))
 
-    print(f"\nResults saved to {output_dir}/")
-    print("Simple audio generation example completed successfully!")
+    echo(f"\nResults saved to {output_dir}/")
+    echo("Simple audio generation example completed successfully!")
 
 
+# %%
 if __name__ == "__main__":
     main()

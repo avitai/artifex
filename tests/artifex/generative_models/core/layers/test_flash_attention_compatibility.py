@@ -1,5 +1,5 @@
 """
-Comprehensive compatibility tests comparing Flash Attention with Flax NNX MultiHeadAttention.
+Complete compatibility tests comparing Flash Attention with Flax NNX MultiHeadAttention.
 
 This test suite verifies:
 1. Correctness - outputs match within tolerance
@@ -7,6 +7,8 @@ This test suite verifies:
 3. Drop-in replacement - can swap implementations seamlessly
 4. Performance characteristics - Flash Attention provides expected benefits
 """
+
+import inspect
 
 import jax
 import jax.numpy as jnp
@@ -16,7 +18,6 @@ from flax import nnx
 from flax.nnx.nn.attention import MultiHeadAttention as FlaxMultiHeadAttention
 
 from artifex.generative_models.core.layers.flash_attention import (
-    AttentionBackend,
     FlashAttentionConfig,
     FlashMultiHeadAttention,
     PADDING_SEGMENT_ID,
@@ -90,31 +91,31 @@ def copy_weights(source_module, target_module):
     """Copy weights from source to target module for fair comparison."""
     # Copy query, key, value projections
     if hasattr(source_module.query, "kernel"):
-        target_module.query.kernel.value = source_module.query.kernel.value
+        target_module.query.kernel[...] = source_module.query.kernel[...]
     if hasattr(source_module.query, "bias") and hasattr(target_module.query, "bias"):
-        target_module.query.bias.value = source_module.query.bias.value
+        target_module.query.bias[...] = source_module.query.bias[...]
 
     if hasattr(source_module.key, "kernel"):
-        target_module.key.kernel.value = source_module.key.kernel.value
+        target_module.key.kernel[...] = source_module.key.kernel[...]
     if hasattr(source_module.key, "bias") and hasattr(target_module.key, "bias"):
-        target_module.key.bias.value = source_module.key.bias.value
+        target_module.key.bias[...] = source_module.key.bias[...]
 
     if hasattr(source_module.value, "kernel"):
-        target_module.value.kernel.value = source_module.value.kernel.value
+        target_module.value.kernel[...] = source_module.value.kernel[...]
     if hasattr(source_module.value, "bias") and hasattr(target_module.value, "bias"):
-        target_module.value.bias.value = source_module.value.bias.value
+        target_module.value.bias[...] = source_module.value.bias[...]
 
     # Copy output projection
     if hasattr(source_module.out, "kernel"):
-        target_module.out.kernel.value = source_module.out.kernel.value
+        target_module.out.kernel[...] = source_module.out.kernel[...]
     if hasattr(source_module.out, "bias") and hasattr(target_module.out, "bias"):
-        target_module.out.bias.value = source_module.out.bias.value
+        target_module.out.bias[...] = source_module.out.bias[...]
 
     # Copy layer norms if they exist
     if source_module.query_ln is not None and target_module.query_ln is not None:
-        target_module.query_ln.scale.value = source_module.query_ln.scale.value
+        target_module.query_ln.scale[...] = source_module.query_ln.scale[...]
     if source_module.key_ln is not None and target_module.key_ln is not None:
-        target_module.key_ln.scale.value = source_module.key_ln.scale.value
+        target_module.key_ln.scale[...] = source_module.key_ln.scale[...]
 
 
 # ============================================================================
@@ -409,10 +410,10 @@ class TestDropInReplacement:
         copy_weights(flax_block.attention, flash_block.attention)
 
         # Copy layer norm weights
-        flash_block.norm1.scale.value = flax_block.norm1.scale.value
-        flash_block.norm1.bias.value = flax_block.norm1.bias.value
-        flash_block.norm2.scale.value = flax_block.norm2.scale.value
-        flash_block.norm2.bias.value = flax_block.norm2.bias.value
+        flash_block.norm1.scale[...] = flax_block.norm1.scale[...]
+        flash_block.norm1.bias[...] = flax_block.norm1.bias[...]
+        flash_block.norm2.scale[...] = flax_block.norm2.scale[...]
+        flash_block.norm2.bias[...] = flax_block.norm2.bias[...]
 
         # Copy FFN weights
         # Access Sequential layers properly
@@ -421,9 +422,9 @@ class TestDropInReplacement:
                 # Find corresponding layer in flax_block
                 for j, flax_layer in enumerate(flax_block.ffn.layers):
                     if isinstance(flax_layer, nnx.Linear) and i == j:
-                        layer.kernel.value = flax_layer.kernel.value
+                        layer.kernel[...] = flax_layer.kernel[...]
                         if hasattr(layer, "bias") and layer.bias is not None:
-                            layer.bias.value = flax_layer.bias.value
+                            layer.bias[...] = flax_layer.bias[...]
                         break
 
         # Test with same input
@@ -661,20 +662,9 @@ class TestFlashSpecificFeatures:
 
             assert output.shape == (1, 512, 256)
 
-    def test_backend_selection(self, rngs):
-        """Test different attention backends available in Flash Attention."""
-        x = jax.random.normal(rngs(), (2, 64, 256))
-
-        for backend in [AttentionBackend.FLASH_TRITON, AttentionBackend.FALLBACK]:
-            flash_module = FlashMultiHeadAttention(
-                num_heads=4,
-                in_features=256,
-                backend=backend,
-                rngs=rngs,
-            )
-
-            output = flash_module(x, deterministic=True)
-            assert output.shape == (2, 64, 256)
+    def test_constructor_does_not_expose_backend_switch(self):
+        """Flash Attention should expose one honest implementation path only."""
+        assert "backend" not in inspect.signature(FlashMultiHeadAttention.__init__).parameters
 
 
 # ============================================================================
@@ -816,12 +806,3 @@ class TestIntegration:
         # Should handle vectorization
         output = vmap_forward(x)
         assert output.shape == (8, 64, 256)
-
-
-# ============================================================================
-# Main Test Runner
-# ============================================================================
-
-if __name__ == "__main__":
-    # Run all tests
-    pytest.main([__file__, "-v", "--tb=short"])

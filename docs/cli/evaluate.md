@@ -1,11 +1,6 @@
 # Evaluate
 
-**Module:** `cli.commands.evaluate`
+The top-level `evaluate` command is not currently shipped in the runtime CLI.
 
-**Source:** `cli/commands/evaluate.py`
-
-## Module Statistics
-
-- **Classes:** 0
-- **Functions:** 0
-- **Imports:** 0
+Evaluation workflows should run through the Python evaluation APIs or
+project-specific tooling until a supported evaluation command surface returns.

@@ -10,6 +10,7 @@ import flax.nnx as nnx
 import jax
 import jax.numpy as jnp
 
+from artifex.generative_models.core.base import get_activation_function
 from artifex.generative_models.core.configuration.gan_config import ConditionalGANConfig
 from artifex.generative_models.core.configuration.network_configs import (
     ConditionalDiscriminatorConfig,
@@ -68,8 +69,8 @@ class ConditionalGenerator(Generator):
 
         self.num_classes = num_classes
         self.embedding_dim = embedding_dim
-        # Get activation function from string using parent class method
-        self.activation_fn = self._get_activation_fn(config.activation)
+        # Get activation function using canonical resolver
+        self.activation_fn = get_activation_function(config.activation)
 
         channels, height, width = config.output_shape
 
@@ -381,7 +382,7 @@ class ConditionalDiscriminator(Discriminator):
         # Pass through convolutional layers
         for i, conv_layer in enumerate(self.conv_layers):
             x = conv_layer(x)
-            x = jax.nn.leaky_relu(x, negative_slope=self.leaky_relu_slope)
+            x = nnx.leaky_relu(x, negative_slope=self.leaky_relu_slope)
             # Use inherited dropout from base class (only if dropout was created)
             if hasattr(self, "dropout") and self.dropout is not None:
                 x = self.dropout(x)  # Auto mode from model.train()/eval()

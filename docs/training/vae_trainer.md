@@ -1,6 +1,10 @@
 # VAE Trainer
 
+**Status:** `Supported runtime training surface`
+
 **Module:** `artifex.generative_models.training.trainers.vae_trainer`
+
+**Source:** `src/artifex/generative_models/training/trainers/vae_trainer.py`
 
 The VAE Trainer provides specialized training utilities for Variational Autoencoders, including KL divergence annealing schedules, beta-VAE weighting for disentanglement, and free bits constraints to prevent posterior collapse.
 
@@ -34,14 +38,14 @@ config = VAETrainingConfig(
     free_bits=0.5,
 )
 
-trainer = VAETrainer(model, optimizer, config)
+trainer = VAETrainer(config)
 
 # Training loop
 for step, batch in enumerate(train_loader):
-    loss, metrics = trainer.train_step(batch, step=step)
+    loss, metrics = trainer.train_step(model, optimizer, batch, step=step, loss_type="bce")
     if step % 100 == 0:
         print(f"Step {step}: loss={metrics['loss']:.4f}, "
-              f"recon={metrics['recon_loss']:.4f}, kl={metrics['kl_loss']:.4f}")
+              f"recon={metrics['reconstruction_loss']:.4f}, kl={metrics['kl_loss']:.4f}")
 ```
 
 ## Configuration
@@ -149,10 +153,12 @@ The free bits constraint ensures each latent dimension carries at least the spec
 
 ## Integration with Base Trainer
 
-The VAE Trainer provides a `create_loss_fn()` method for seamless integration with the base Trainer's callbacks, checkpointing, and logging infrastructure:
+The VAE Trainer provides a step-aware `create_loss_fn()` closure for integration with the base
+Trainer's callbacks, checkpointing, and logging infrastructure:
 
 ```python
 from artifex.generative_models.training import Trainer
+from artifex.generative_models.training.callbacks import CallbackList
 from artifex.generative_models.training.trainers import VAETrainer, VAETrainingConfig
 from artifex.generative_models.training.callbacks import (
     EarlyStopping,
@@ -163,18 +169,23 @@ from artifex.generative_models.training.callbacks import (
 
 # Create VAE-specific trainer
 vae_config = VAETrainingConfig(kl_annealing="cyclical", beta=4.0)
-vae_trainer = VAETrainer(model, optimizer, vae_config)
+vae_trainer = VAETrainer(vae_config)
 
-# Create loss function for a specific training step
-# Note: step is required for KL annealing
-def make_loss_fn(step: int):
-    return vae_trainer.create_loss_fn(step=step)
+# Create an explicit step-aware objective closure
+loss_fn = vae_trainer.create_loss_fn()
 
 # Use with base Trainer for callbacks
-callbacks = [
+callbacks = CallbackList([
     EarlyStopping(EarlyStoppingConfig(monitor="val_loss", patience=10)),
     ModelCheckpoint(CheckpointConfig(dirpath="checkpoints", monitor="val_loss")),
-]
+])
+
+trainer = Trainer(
+    model=model,
+    training_config=training_config,
+    loss_fn=loss_fn,
+    callbacks=callbacks,
+)
 ```
 
 ## Model Requirements
@@ -204,10 +215,10 @@ The trainer supports MSE and BCE reconstruction losses:
 
 ```python
 # Mean Squared Error (default, for continuous data)
-loss, metrics = trainer.train_step(batch, step=100, loss_type="mse")
+loss, metrics = trainer.train_step(model, optimizer, batch, step=100, loss_type="mse")
 
 # Binary Cross-Entropy (for images normalized to [0, 1])
-loss, metrics = trainer.train_step(batch, step=100, loss_type="bce")
+loss, metrics = trainer.train_step(model, optimizer, batch, step=100, loss_type="bce")
 ```
 
 ## Training Metrics
@@ -217,7 +228,7 @@ The trainer returns detailed metrics for monitoring:
 | Metric | Description |
 |--------|-------------|
 | `loss` | Total ELBO loss |
-| `recon_loss` | Reconstruction loss |
+| `reconstruction_loss` | Reconstruction loss |
 | `kl_loss` | KL divergence (unweighted) |
 | `kl_weight` | Current KL weight from annealing |
 

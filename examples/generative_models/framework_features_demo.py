@@ -17,7 +17,7 @@ This example demonstrates the core features of the Artifex framework for generat
 
 - **Unified Configuration System**: Type-safe configuration using frozen dataclasses
 - **Factory Pattern**: Consistent model creation across all model types
-- **Composable Loss Functions**: Flexible loss composition with weighted components
+- **Explicit Loss Composition**: JAX-native multi-term objectives without wrapper APIs
 - **Sampling Methods**: MCMC and SDE sampling for generation
 - **Modality System**: Domain-specific adapters for images, text, audio, and more
 
@@ -34,30 +34,41 @@ This example demonstrates the core features of the Artifex framework for generat
 
 We'll import the core framework components:
 - Configuration classes for models, training, data, and optimizers
-- Loss functions and composition utilities
+- Loss functions and explicit composition patterns
 - Sampling methods for generation
 - Factory functions for model creation
 """
 
 # %%
+import logging
+
 import jax
 import jax.numpy as jnp
 from flax import nnx
 
 from artifex.generative_models.core.configuration import (
     DataConfig,
-    ModelConfig,
+    DecoderConfig,
+    EncoderConfig,
     OptimizerConfig,
     TrainingConfig,
+    VAEConfig,
 )
 from artifex.generative_models.core.losses import (
-    CompositeLoss,
     mae_loss,
     mse_loss,
-    WeightedLoss,
 )
 from artifex.generative_models.core.sampling import mcmc_sampling, sde_sampling
 from artifex.generative_models.factory import create_model
+
+
+logging.basicConfig(level=logging.INFO, format="%(message)s")
+LOGGER = logging.getLogger(__name__)
+
+
+def echo(message: object = "") -> None:
+    """Emit example output through the standard example logger."""
+    LOGGER.info("%s", message)
 
 
 # %% [markdown]
@@ -84,33 +95,38 @@ Artifex uses a unified configuration system based on frozen dataclasses. This pr
 # %%
 def demonstrate_configuration_system():
     """Demonstrate the unified configuration system."""
-    print("=" * 60)
-    print("1. UNIFIED CONFIGURATION SYSTEM")
-    print("=" * 60)
+    echo("=" * 60)
+    echo("1. UNIFIED CONFIGURATION SYSTEM")
+    echo("=" * 60)
 
     # Model configuration
-    model_config = ModelConfig(
-        name="demo_vae",
-        model_class="artifex.generative_models.models.vae.VAE",
-        input_dim=(28, 28, 1),
-        hidden_dims=(256, 128),  # Tuple for frozen dataclass
-        output_dim=32,  # Latent dimension
+    encoder_config = EncoderConfig(
+        name="demo_encoder",
+        input_shape=(28, 28, 1),
+        latent_dim=32,
+        hidden_dims=(256, 128),
         activation="relu",
-        dropout_rate=0.1,
-        parameters={
-            "latent_dim": 32,
-            "beta": 1.0,
-            "kl_weight": 0.5,
-            "reconstruction_loss": "mse",
-        },
+    )
+    decoder_config = DecoderConfig(
+        name="demo_decoder",
+        latent_dim=32,
+        output_shape=(28, 28, 1),
+        hidden_dims=(128, 256),
+        activation="relu",
+    )
+    model_config = VAEConfig(
+        name="demo_vae",
+        encoder=encoder_config,
+        decoder=decoder_config,
+        kl_weight=0.5,
     )
 
-    print("\nModel Configuration:")
-    print(f"  Name: {model_config.name}")
-    print(f"  Model class: {model_config.model_class}")
-    print(f"  Input dim: {model_config.input_dim}")
-    print(f"  Hidden dims: {model_config.hidden_dims}")
-    print(f"  Parameters: {model_config.parameters}")
+    echo("\nModel Configuration:")
+    echo(f"  Name: {model_config.name}")
+    echo(f"  Encoder latent dim: {model_config.encoder.latent_dim}")
+    echo(f"  Input shape: {model_config.encoder.input_shape}")
+    echo(f"  Encoder hidden dims: {model_config.encoder.hidden_dims}")
+    echo(f"  KL weight: {model_config.kl_weight}")
 
     # Optimizer configuration
     optimizer_config = OptimizerConfig(
@@ -131,11 +147,11 @@ def demonstrate_configuration_system():
         gradient_clip_norm=1.0,
     )
 
-    print("\nTraining Configuration:")
-    print(f"  Batch size: {training_config.batch_size}")
-    print(f"  Num epochs: {training_config.num_epochs}")
-    print(f"  Optimizer: {training_config.optimizer.optimizer_type}")
-    print(f"  Learning rate: {training_config.optimizer.learning_rate}")
+    echo("\nTraining Configuration:")
+    echo(f"  Batch size: {training_config.batch_size}")
+    echo(f"  Num epochs: {training_config.num_epochs}")
+    echo(f"  Optimizer: {training_config.optimizer.optimizer_type}")
+    echo(f"  Learning rate: {training_config.optimizer.learning_rate}")
 
     # Data configuration
     data_config = DataConfig(
@@ -146,10 +162,10 @@ def demonstrate_configuration_system():
         augmentation_params={"normalize": True, "random_flip": True},
     )
 
-    print("\nData Configuration:")
-    print(f"  Dataset: {data_config.dataset_name}")
-    print(f"  Augmentation: {data_config.augmentation}")
-    print(f"  Augmentation params: {data_config.augmentation_params}")
+    echo("\nData Configuration:")
+    echo(f"  Dataset: {data_config.dataset_name}")
+    echo(f"  Augmentation: {data_config.augmentation}")
+    echo(f"  Augmentation params: {data_config.augmentation_params}")
 
     return model_config
 
@@ -179,9 +195,9 @@ The factory pattern provides a unified interface for creating all model types. B
 # %%
 def demonstrate_factory_pattern(model_config):
     """Demonstrate the factory pattern for model creation."""
-    print("\n" + "=" * 60)
-    print("2. FACTORY PATTERN")
-    print("=" * 60)
+    echo("\n" + "=" * 60)
+    echo("2. FACTORY PATTERN")
+    echo("=" * 60)
 
     # Set up RNGs
     key = jax.random.key(42)
@@ -190,28 +206,28 @@ def demonstrate_factory_pattern(model_config):
     model = None  # Initialize model variable
     try:
         # Create model using factory
-        print("\nCreating model using factory...")
+        echo("\nCreating model using factory...")
         model = create_model(model_config, rngs=rngs)
-        print(f"✓ Model created: {type(model).__name__}")
+        echo(f"✓ Model created: {type(model).__name__}")
 
         # Test the model
         batch_size = 4
-        test_input = jax.random.normal(key, (batch_size, *model_config.input_dim))
+        test_input = jax.random.normal(key, (batch_size, *model_config.encoder.input_shape))
 
         # VAE forward pass
         outputs = model(test_input, rngs=rngs)
-        print("✓ Forward pass successful")
-        print(f"  Output keys: {list(outputs.keys())}")
+        echo("✓ Forward pass successful")
+        echo(f"  Output keys: {list(outputs.keys())}")
 
         # Generate samples
         if hasattr(model, "generate"):
             samples = model.generate(num_samples=2, rngs=rngs)
-            print("✓ Generation successful")
-            print(f"  Generated shape: {samples.shape}")
+            echo("✓ Generation successful")
+            echo(f"  Generated shape: {samples.shape}")
 
-    except Exception as e:
-        print(f"Note: Factory creation encountered: {e}")
-        print("This is expected for some model types in the example")
+    except (AttributeError, RuntimeError, TypeError, ValueError) as e:
+        echo(f"Note: Factory creation encountered: {e}")
+        echo("This is expected for some model types in the example")
 
     return model
 
@@ -221,32 +237,31 @@ model = demonstrate_factory_pattern(model_config)
 
 # %% [markdown]
 r"""
-## 3. Composable Loss System
+## 3. Explicit Loss Composition
 
-Artifex provides a flexible loss composition system that allows:
+Artifex keeps multi-term objectives explicit:
 
 - **Single losses**: Standard loss functions (MSE, MAE, cross-entropy)
-- **Weighted losses**: Apply weights to individual loss components
-- **Composite losses**: Combine multiple losses with different weights
-- **Component tracking**: Monitor individual loss components during training
+- **Weighted terms**: Apply scalar weights directly in the objective
+- **Named components**: Track individual terms in plain dictionaries
+- **JAX-native math**: No extra wrapper API between the loss primitive and the model
 
 ### Mathematical Formulation:
 
-For a composite loss with components L_1, L_2, ..., L_n and weights w_1, w_2, ..., w_n:
+For loss components L_1, L_2, ..., L_n and weights w_1, w_2, ..., w_n:
 
 $$L_{total} = \\sum_{i=1}^{n} w_i \\cdot L_i(predictions, targets)$$
 
-This is essential for multi-objective training in generative models (e.g., VAE with
-reconstruction + KL loss).
+This keeps multi-objective training in generative models explicit and easy to audit.
 """
 
 
 # %%
 def demonstrate_loss_system():
-    """Demonstrate the composable loss system."""
-    print("\n" + "=" * 60)
-    print("3. COMPOSABLE LOSS SYSTEM")
-    print("=" * 60)
+    """Demonstrate explicit loss composition."""
+    echo("\n" + "=" * 60)
+    echo("3. EXPLICIT LOSS COMPOSITION")
+    echo("=" * 60)
 
     # Create dummy data
     key = jax.random.key(42)
@@ -254,29 +269,26 @@ def demonstrate_loss_system():
     targets = jax.random.normal(key, (8, 32))
 
     # Single loss
-    print("\nSingle loss function:")
+    echo("\nSingle loss function:")
     loss_value = mse_loss(predictions, targets)
-    print(f"  MSE loss: {loss_value:.4f}")
+    echo(f"  MSE loss: {loss_value:.4f}")
 
     # Weighted loss
-    print("\nWeighted loss:")
-    weighted_mse = WeightedLoss(mse_loss, weight=2.0, name="weighted_mse")
-    weighted_value = weighted_mse(predictions, targets)
-    print(f"  Weighted MSE (2x): {weighted_value:.4f}")
+    echo("\nWeighted loss:")
+    weighted_value = 2.0 * mse_loss(predictions, targets)
+    echo(f"  Weighted MSE (2x): {weighted_value:.4f}")
 
-    # Composite loss
-    print("\nComposite loss:")
-    composite = CompositeLoss(
-        [
-            WeightedLoss(mse_loss, weight=1.0, name="reconstruction"),
-            WeightedLoss(mae_loss, weight=0.5, name="l1_penalty"),
-        ],
-        return_components=True,
-    )
-
-    total_loss, components = composite(predictions, targets)
-    print(f"  Total loss: {total_loss:.4f}")
-    print(f"  Components: {components}")
+    # Explicit multi-term objective
+    echo("\nExplicit multi-term objective:")
+    reconstruction_loss = mse_loss(predictions, targets)
+    l1_penalty = mae_loss(predictions, targets)
+    total_loss = reconstruction_loss + 0.5 * l1_penalty
+    components = {
+        "reconstruction": reconstruction_loss,
+        "l1_penalty": l1_penalty,
+    }
+    echo(f"  Total loss: {total_loss:.4f}")
+    echo(f"  Components: {components}")
 
 
 # Run loss system demonstration
@@ -309,9 +321,9 @@ Both methods are JIT-compiled for performance.
 # %%
 def demonstrate_sampling_methods():
     """Demonstrate sampling methods."""
-    print("\n" + "=" * 60)
-    print("4. SAMPLING METHODS")
-    print("=" * 60)
+    echo("\n" + "=" * 60)
+    echo("4. SAMPLING METHODS")
+    echo("=" * 60)
 
     # Define a simple log probability function
     def log_prob_fn(x):
@@ -322,7 +334,7 @@ def demonstrate_sampling_methods():
     init_state = jnp.zeros(5)
 
     # MCMC sampling
-    print("\nMCMC Sampling:")
+    echo("\nMCMC Sampling:")
     mcmc_samples = mcmc_sampling(
         log_prob_fn=log_prob_fn,
         init_state=init_state,
@@ -331,12 +343,12 @@ def demonstrate_sampling_methods():
         n_burnin=50,
         step_size=0.1,
     )
-    print(f"  Samples shape: {mcmc_samples.shape}")
-    print(f"  Mean: {jnp.mean(mcmc_samples, axis=0)}")
-    print(f"  Std: {jnp.std(mcmc_samples, axis=0)}")
+    echo(f"  Samples shape: {mcmc_samples.shape}")
+    echo(f"  Mean: {jnp.mean(mcmc_samples, axis=0)}")
+    echo(f"  Std: {jnp.std(mcmc_samples, axis=0)}")
 
     # SDE sampling (for diffusion models)
-    print("\nSDE Sampling:")
+    echo("\nSDE Sampling:")
 
     def drift_fn(x, _t):
         return -x  # Simple mean-reverting drift
@@ -352,7 +364,7 @@ def demonstrate_sampling_methods():
         key=key,
         n_steps=100,
     )
-    print(f"  Final sample: {sde_samples}")
+    echo(f"  Final sample: {sde_samples}")
 
 
 # Run sampling demonstration
@@ -389,21 +401,21 @@ Each modality provides:
 # %%
 def demonstrate_modality_system():
     """Demonstrate the modality system."""
-    print("\n" + "=" * 60)
-    print("5. MODALITY SYSTEM")
-    print("=" * 60)
+    echo("\n" + "=" * 60)
+    echo("5. MODALITY SYSTEM")
+    echo("=" * 60)
 
     # Note: The modality system requires specific setup
-    print("\nAvailable modalities in Artifex:")
-    print("  - image: Image generation and processing")
-    print("  - text: Text generation")
-    print("  - audio: Audio synthesis")
-    print("  - protein: Protein structure modeling")
-    print("  - geometric: Point clouds and 3D data")
+    echo("\nAvailable modalities in Artifex:")
+    echo("  - image: Image generation and processing")
+    echo("  - text: Text generation")
+    echo("  - audio: Audio synthesis")
+    echo("  - protein: Protein structure modeling")
+    echo("  - geometric: Point clouds and 3D data")
 
     # Example of how modalities work
-    print("\nModality usage pattern:")
-    print("""
+    echo("\nModality usage pattern:")
+    echo("""
     # Get a modality
     image_modality = get_modality('image', rngs=rngs)
 
@@ -428,13 +440,13 @@ demonstrate_modality_system()
 
 1. **Type-safe configurations**: Catch errors before training starts
 2. **Unified interfaces**: Same patterns across all model types
-3. **Composable components**: Mix and match losses, samplers, modalities
+3. **Composable components**: Mix and match models, samplers, modalities
 4. **Extensible design**: Easy to add new models and features
 5. **Production-ready**: Built on JAX for performance and scalability
 
 ### Best Practices:
 
-- Always use `ModelConfig` instead of direct instantiation
+- Use the family-specific typed config that matches the model you are creating
 - Leverage the factory pattern for consistency
 - Compose losses for multi-objective training
 - Use appropriate samplers for your model type
@@ -452,16 +464,16 @@ demonstrate_modality_system()
 # %%
 def main():
     """Run all demonstrations."""
-    print("\n" + "🚀 " * 20)
-    print("ARTIFEX FRAMEWORK FEATURES DEMONSTRATION")
-    print("🚀 " * 20 + "\n")
+    echo("\n" + "🚀 " * 20)
+    echo("ARTIFEX FRAMEWORK FEATURES DEMONSTRATION")
+    echo("🚀 " * 20 + "\n")
 
-    print("This example demonstrates proper usage of Artifex framework features:")
-    print("- Unified configuration system")
-    print("- Factory pattern for model creation")
-    print("- Composable loss functions")
-    print("- Sampling methods")
-    print("- Modality system")
+    echo("This example demonstrates proper usage of Artifex framework features:")
+    echo("- Unified configuration system")
+    echo("- Factory pattern for model creation")
+    echo("- Explicit loss composition")
+    echo("- Sampling methods")
+    echo("- Modality system")
 
     # Run demonstrations
     model_config = demonstrate_configuration_system()
@@ -470,16 +482,16 @@ def main():
     demonstrate_sampling_methods()
     demonstrate_modality_system()
 
-    print("\n" + "=" * 60)
-    print("✅ Framework features demonstration completed!")
-    print("=" * 60)
+    echo("\n" + "=" * 60)
+    echo("✅ Framework features demonstration completed!")
+    echo("=" * 60)
 
-    print("\nKey takeaways:")
-    print("1. Use ModelConfig for all model definitions")
-    print("2. Use the factory system (create_model) instead of direct instantiation")
-    print("3. Leverage the composable loss system for complex objectives")
-    print("4. Use provided sampling methods for generation")
-    print("5. Apply modality adapters for domain-specific features")
+    echo("\nKey takeaways:")
+    echo("1. Use family-specific typed configs for model definitions")
+    echo("2. Use the factory system (create_model) instead of direct instantiation")
+    echo("3. Keep multi-term objectives explicit and JAX-native")
+    echo("4. Use provided sampling methods for generation")
+    echo("5. Apply modality adapters for domain-specific features")
 
 
 if __name__ == "__main__":

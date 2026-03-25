@@ -8,7 +8,7 @@ This document provides detailed API reference for all flow-based model classes, 
 
 - **Base Classes**: `NormalizingFlow`, `FlowLayer`
 - **RealNVP**: Coupling-based flows with affine transformations
-- **Glow**: Multi-scale flow with ActNorm and invertible convolutions
+- **Glow**: Single-scale image flow with ActNorm and invertible convolutions
 - **MAF**: Masked Autoregressive Flow for fast density estimation
 - **IAF**: Inverse Autoregressive Flow for fast sampling
 - **Neural Spline Flows**: Spline-based transformations for higher expressiveness
@@ -27,7 +27,7 @@ from artifex.generative_models.models.flow.base import NormalizingFlow
 
 ```python
 model = NormalizingFlow(
-    config: ModelConfig,
+    config: FlowConfig,
     *,
     rngs: nnx.Rngs,
     precision: jax.lax.Precision | None = None
@@ -38,11 +38,11 @@ model = NormalizingFlow(
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `config` | `ModelConfig` | Model configuration object |
+| `config` | `FlowConfig` | Typed flow configuration object |
 | `rngs` | `nnx.Rngs` | Random number generators (required) |
 | `precision` | `jax.lax.Precision \| None` | JAX operation precision (optional) |
 
-**Configuration Parameters** (in `config.parameters`):
+**Configuration Parameters**:
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
@@ -310,13 +310,13 @@ from artifex.generative_models.models.flow import RealNVP
 
 ```python
 model = RealNVP(
-    config: ModelConfig,
+    config: RealNVPConfig,
     *,
     rngs: nnx.Rngs
 )
 ```
 
-**Configuration Parameters** (in `config.parameters`):
+**Configuration Parameters**:
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
@@ -328,21 +328,25 @@ model = RealNVP(
 **Example:**
 
 ```python
-from artifex.generative_models.core.configuration import ModelConfig
+from artifex.generative_models.core.configuration import (
+    CouplingNetworkConfig,
+    RealNVPConfig,
+)
 from artifex.generative_models.models.flow import RealNVP
 from flax import nnx
 
-# Configure RealNVP
-config = ModelConfig(
+coupling_network = CouplingNetworkConfig(
+    name="realnvp_coupling",
+    hidden_dims=(512, 512),
+    network_type="mlp",
+)
+config = RealNVPConfig(
     name="realnvp",
-    model_class="artifex.generative_models.models.flow.RealNVP",
+    coupling_network=coupling_network,
     input_dim=784,
-    output_dim=784,
-    hidden_dims=[512, 512],
-    parameters={
-        "num_coupling_layers": 8,
-        "mask_type": "checkerboard",
-    }
+    latent_dim=784,
+    num_coupling_layers=8,
+    mask_type="checkerboard",
 )
 
 # Create model
@@ -430,7 +434,11 @@ print(f"Reconstruction error: {error:.6f}")
 
 ### `Glow`
 
-Multi-scale flow with ActNorm, invertible 1×1 convolutions, and coupling.
+Single-scale image flow with ActNorm, invertible 1×1 convolutions, and
+coupling.
+
+The current Artifex runtime keeps one image-scale block stack. It does not
+implement the squeeze/split multi-scale stages from the original Glow paper.
 
 ```python
 from artifex.generative_models.models.flow import Glow
@@ -440,37 +448,40 @@ from artifex.generative_models.models.flow import Glow
 
 ```python
 model = Glow(
-    config: ModelConfig,
+    config: GlowConfig,
     *,
     rngs: nnx.Rngs
 )
 ```
 
-**Configuration Parameters** (in `config.parameters`):
+**Configuration Parameters**:
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
 | `image_shape` | `tuple[int, int, int]` | `(32, 32, 3)` | Input image shape (H, W, C) |
-| `num_scales` | `int` | `3` | Number of multi-scale levels |
-| `blocks_per_scale` | `int` | `6` | Number of flow blocks per scale |
-| `hidden_dims` | `list[int]` | `[512, 512]` | Hidden dimensions for coupling |
+| `blocks_per_scale` | `int` | `6` | Number of Glow blocks in the retained stack |
+| `coupling_network` | `CouplingNetworkConfig` | required | Coupling-network definition used by each block |
 
 **Example:**
 
 ```python
+from artifex.generative_models.core.configuration import (
+    CouplingNetworkConfig,
+    GlowConfig,
+)
 from artifex.generative_models.models.flow import Glow
 
-# Configure Glow for 32x32 RGB images
-config = ModelConfig(
+coupling_network = CouplingNetworkConfig(
+    name="glow_coupling",
+    hidden_dims=(512, 512),
+    network_type="cnn",
+)
+config = GlowConfig(
     name="glow",
-    model_class="artifex.generative_models.models.flow.Glow",
-    input_dim=(32, 32, 3),
-    hidden_dims=[512, 512],
-    parameters={
-        "image_shape": (32, 32, 3),
-        "num_scales": 3,
-        "blocks_per_scale": 6,
-    }
+    coupling_network=coupling_network,
+    input_dim=32 * 32 * 3,
+    image_shape=(32, 32, 3),
+    blocks_per_scale=6,
 )
 
 # Create Glow model
@@ -494,7 +505,7 @@ Inherits from `NormalizingFlow` with image-specific generation.
 
 ### `GlowBlock`
 
-Single Glow block: ActNorm → 1×1 Conv → Coupling.
+Single retained Glow block: ActNorm → 1×1 Conv → Coupling.
 
 ```python
 from artifex.generative_models.models.flow.glow import GlowBlock
@@ -696,13 +707,13 @@ from artifex.generative_models.models.flow import MAF
 
 ```python
 model = MAF(
-    config: ModelConfig,
+    config: MAFConfig,
     *,
     rngs: nnx.Rngs
 )
 ```
 
-**Configuration Parameters** (in `config.parameters`):
+**Configuration Parameters**:
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
@@ -712,19 +723,24 @@ model = MAF(
 **Example:**
 
 ```python
+from artifex.generative_models.core.configuration import (
+    CouplingNetworkConfig,
+    MAFConfig,
+)
 from artifex.generative_models.models.flow import MAF
 
-# Configure MAF
-config = ModelConfig(
+coupling_network = CouplingNetworkConfig(
+    name="maf_coupling",
+    hidden_dims=(512,),
+    network_type="mlp",
+)
+config = MAFConfig(
     name="maf",
-    model_class="artifex.generative_models.models.flow.MAF",
+    coupling_network=coupling_network,
     input_dim=64,
-    output_dim=64,
-    hidden_dims=[512],
-    parameters={
-        "num_layers": 5,
-        "reverse_ordering": True,
-    }
+    latent_dim=64,
+    num_layers=5,
+    reverse_ordering=True,
 )
 
 # Create MAF
@@ -842,13 +858,13 @@ from artifex.generative_models.models.flow import IAF
 
 ```python
 model = IAF(
-    config: ModelConfig,
+    config: IAFConfig,
     *,
     rngs: nnx.Rngs
 )
 ```
 
-**Configuration Parameters** (in `config.parameters`):
+**Configuration Parameters**:
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
@@ -858,19 +874,24 @@ model = IAF(
 **Example:**
 
 ```python
+from artifex.generative_models.core.configuration import (
+    CouplingNetworkConfig,
+    IAFConfig,
+)
 from artifex.generative_models.models.flow import IAF
 
-# Configure IAF
-config = ModelConfig(
+coupling_network = CouplingNetworkConfig(
+    name="iaf_coupling",
+    hidden_dims=(512,),
+    network_type="mlp",
+)
+config = IAFConfig(
     name="iaf",
-    model_class="artifex.generative_models.models.flow.IAF",
+    coupling_network=coupling_network,
     input_dim=64,
-    output_dim=64,
-    hidden_dims=[512],
-    parameters={
-        "num_layers": 5,
-        "reverse_ordering": True,
-    }
+    latent_dim=64,
+    num_layers=5,
+    reverse_ordering=True,
 )
 
 # Create IAF
@@ -935,13 +956,13 @@ from artifex.generative_models.models.flow import NeuralSplineFlow
 
 ```python
 model = NeuralSplineFlow(
-    config: ModelConfig,
+    config: NeuralSplineConfig,
     *,
     rngs: nnx.Rngs
 )
 ```
 
-**Configuration Parameters** (in `config.metadata["flow_params"]`):
+**Configuration Parameters**:
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
@@ -953,21 +974,24 @@ model = NeuralSplineFlow(
 **Example:**
 
 ```python
+from artifex.generative_models.core.configuration import (
+    CouplingNetworkConfig,
+    NeuralSplineConfig,
+)
 from artifex.generative_models.models.flow import NeuralSplineFlow
 
-# Configure Neural Spline Flow
-config = ModelConfig(
+coupling_network = CouplingNetworkConfig(
+    name="spline_coupling",
+    hidden_dims=(128, 128),
+    network_type="mlp",
+)
+config = NeuralSplineConfig(
     name="spline_flow",
-    model_class="artifex.generative_models.models.flow.NeuralSplineFlow",
+    coupling_network=coupling_network,
     input_dim=64,
-    hidden_dims=[128, 128],
-    metadata={
-        "flow_params": {
-            "num_layers": 8,
-            "num_bins": 8,
-            "tail_bound": 3.0,
-        }
-    }
+    num_layers=8,
+    num_bins=8,
+    tail_bound=3.0,
 )
 
 # Create model
@@ -1146,7 +1170,7 @@ from artifex.generative_models.models.flow.conditional import ConditionalNormali
 
 ```python
 model = ConditionalNormalizingFlow(
-    config: ModelConfig,
+    config: ConditionalFlowConfig,
     *,
     rngs: nnx.Rngs
 )
@@ -1177,19 +1201,26 @@ from artifex.generative_models.models.flow.conditional import ConditionalRealNVP
 
 **Configuration:**
 
-Add `condition_dim` to parameters:
+Use a conditional flow config:
 
 ```python
-config = ModelConfig(
+from artifex.generative_models.core.configuration import (
+    ConditionalFlowConfig,
+    CouplingNetworkConfig,
+)
+
+coupling_network = CouplingNetworkConfig(
+    name="conditional_realnvp_coupling",
+    hidden_dims=(512, 512),
+    network_type="mlp",
+)
+config = ConditionalFlowConfig(
     name="conditional_realnvp",
-    model_class="artifex.generative_models.models.flow.ConditionalRealNVP",
+    coupling_network=coupling_network,
     input_dim=784,
-    output_dim=784,
-    hidden_dims=[512, 512],
-    parameters={
-        "num_coupling_layers": 8,
-        "condition_dim": 10,  # e.g., one-hot class labels
-    }
+    latent_dim=784,
+    condition_dim=10,  # e.g., one-hot class labels
+    num_coupling_layers=8,
 )
 ```
 
@@ -1226,104 +1257,89 @@ samples = model.generate(
 
 ### Model Configuration
 
-All flow models use `ModelConfig` for configuration:
+All flow models use typed flow config families with a nested
+`CouplingNetworkConfig`:
 
 ```python
-from artifex.generative_models.core.configuration import ModelConfig
+from artifex.generative_models.core.configuration import (
+    CouplingNetworkConfig,
+    FlowConfig,
+)
 
-config = ModelConfig(
-    name: str,                    # Model name
-    model_class: str,             # Full class path
-    input_dim: int | tuple,       # Input dimensions
-    output_dim: int | tuple,      # Output dimensions (often same as input)
-    hidden_dims: list[int],       # Hidden layer dimensions
-    parameters: dict,             # Model-specific parameters
-    metadata: dict = {},          # Additional metadata
+coupling_network = CouplingNetworkConfig(
+    name="flow_coupling",
+    hidden_dims=(512, 512),
+    network_type="mlp",
+)
+config = FlowConfig(
+    name="flow",
+    coupling_network=coupling_network,
+    input_dim=784,
+    latent_dim=784,
 )
 ```
 
 ### RealNVP Configuration
 
 ```python
-config = ModelConfig(
+config = RealNVPConfig(
     name="realnvp",
-    model_class="artifex.generative_models.models.flow.RealNVP",
+    coupling_network=coupling_network,
     input_dim=784,
-    output_dim=784,
-    hidden_dims=[512, 512],
-    parameters={
-        "num_coupling_layers": 8,
-        "mask_type": "checkerboard",  # or "channel-wise"
-        "base_distribution": "normal",
-        "base_distribution_params": {"loc": 0.0, "scale": 1.0},
-    }
+    latent_dim=784,
+    num_coupling_layers=8,
+    mask_type="checkerboard",  # or "channel-wise"
 )
 ```
 
 ### Glow Configuration
 
 ```python
-config = ModelConfig(
+config = GlowConfig(
     name="glow",
-    model_class="artifex.generative_models.models.flow.Glow",
-    input_dim=(32, 32, 3),
-    hidden_dims=[512, 512],
-    parameters={
-        "image_shape": (32, 32, 3),
-        "num_scales": 3,
-        "blocks_per_scale": 6,
-    }
+    coupling_network=coupling_network,
+    input_dim=32 * 32 * 3,
+    image_shape=(32, 32, 3),
+    blocks_per_scale=6,
 )
 ```
 
 ### MAF Configuration
 
 ```python
-config = ModelConfig(
+config = MAFConfig(
     name="maf",
-    model_class="artifex.generative_models.models.flow.MAF",
+    coupling_network=coupling_network,
     input_dim=64,
-    output_dim=64,
-    hidden_dims=[512],
-    parameters={
-        "num_layers": 5,
-        "reverse_ordering": True,
-    }
+    latent_dim=64,
+    num_layers=5,
+    reverse_ordering=True,
 )
 ```
 
 ### IAF Configuration
 
 ```python
-config = ModelConfig(
+config = IAFConfig(
     name="iaf",
-    model_class="artifex.generative_models.models.flow.IAF",
+    coupling_network=coupling_network,
     input_dim=64,
-    output_dim=64,
-    hidden_dims=[512],
-    parameters={
-        "num_layers": 5,
-        "reverse_ordering": True,
-    }
+    latent_dim=64,
+    num_layers=5,
+    reverse_ordering=True,
 )
 ```
 
 ### Neural Spline Flow Configuration
 
 ```python
-config = ModelConfig(
+config = NeuralSplineConfig(
     name="spline_flow",
-    model_class="artifex.generative_models.models.flow.NeuralSplineFlow",
+    coupling_network=coupling_network,
     input_dim=64,
-    hidden_dims=[128, 128],
-    metadata={
-        "flow_params": {
-            "num_layers": 8,
-            "num_bins": 8,
-            "tail_bound": 3.0,
-            "base_distribution": "normal",
-        }
-    }
+    num_layers=8,
+    num_bins=8,
+    tail_bound=3.0,
 )
 ```
 
@@ -1415,7 +1431,7 @@ print(f"Detected {jnp.sum(is_anomaly)} anomalies")
 | Model | Forward | Inverse | Use Case |
 |-------|---------|---------|----------|
 | **RealNVP** | Fast | Fast | Balanced, general purpose |
-| **Glow** | Fast | Fast | High-quality images |
+| **Glow** | Fast | Fast | Single-scale image flow baseline |
 | **MAF** | Fast | Slow | Density estimation |
 | **IAF** | Slow | Fast | Fast sampling, VI |
 | **Spline** | Fast | Fast | High expressiveness |

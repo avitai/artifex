@@ -1,11 +1,8 @@
 # Protein-Ligand Benchmark Guide
 
-!!! info "Coming Soon"
-    This page is under development. Check back for protein-ligand benchmark documentation.
-
 ## Overview
 
-Guide for benchmarking protein-ligand binding models.
+Guide for benchmarking protein-ligand binding models. See the [development roadmap](../../development/roadmap.md) for current status of benchmark implementations.
 
 ## Benchmarks
 

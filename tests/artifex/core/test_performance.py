@@ -10,18 +10,12 @@ import jax
 import jax.numpy as jnp
 import pytest
 
-
-# Import the components we'll implement
-try:
-    from artifex.generative_models.core.performance import (
-        HardwareDetector,
-        HardwareSpecs,
-        PerformanceEstimator,
-        RooflineMetrics,
-    )
-except ImportError:
-    # These will be implemented after tests are written
-    pytest.skip("Performance infrastructure not yet implemented", allow_module_level=True)
+from artifex.generative_models.core.performance import (
+    HardwareDetector,
+    HardwareSpecs,
+    PerformanceEstimator,
+    RooflineMetrics,
+)
 
 
 class TestHardwareSpecs:
@@ -141,6 +135,21 @@ class TestHardwareDetector:
         assert specs.platform == "cpu"
         assert specs.device_count == 1
 
+    @patch("jax.devices")
+    def test_detect_hardware_marks_estimated_fields_explicitly(self, mock_devices):
+        """Detected hardware should label heuristic fields as estimates."""
+        mock_device = Mock()
+        mock_device.platform = "gpu"
+        mock_device.device_kind = "NVIDIA A100-SXM4-40GB"
+        mock_devices.return_value = [mock_device]
+
+        specs = HardwareDetector().detect_hardware()
+
+        assert specs.memory_source == "estimated"
+        assert specs.compute_capability_source == "estimated"
+        assert specs.peak_flops_source == "estimated"
+        assert specs.memory_bandwidth_source == "estimated"
+
     def test_get_optimal_batch_size(self):
         """Test optimal batch size calculation."""
         detector = HardwareDetector()
@@ -179,13 +188,15 @@ class TestHardwareDetector:
     def test_is_batch_size_optimal(self):
         """Test batch size optimality check."""
         detector = HardwareDetector()
+        critical = detector.get_critical_batch_size()
 
-        # Suboptimal sizes
-        assert not detector.is_batch_size_optimal(32)
-        assert not detector.is_batch_size_optimal(64)
+        # Suboptimal sizes should stay below the platform-specific optimality threshold.
+        threshold_minus_one = max(1, int(critical * 0.8) - 1)
+        clearly_small_batch = max(1, critical // 2)
+        assert not detector.is_batch_size_optimal(threshold_minus_one)
+        assert not detector.is_batch_size_optimal(clearly_small_batch)
 
         # Optimal size (depends on hardware)
-        critical = detector.get_critical_batch_size()
         assert detector.is_batch_size_optimal(critical)
 
 
@@ -252,6 +263,19 @@ class TestPerformanceEstimator:
         assert isinstance(metrics, RooflineMetrics)
         assert metrics.arithmetic_intensity > 100  # High intensity
         assert metrics.bottleneck == "compute"
+
+    def test_analyze_roofline_requires_explicit_peak_specs(self):
+        """Roofline analysis should reject missing peak-performance estimates."""
+        estimator = PerformanceEstimator()
+        hardware_specs = HardwareSpecs(platform="cpu", device_count=1, memory_gb=32.0)
+
+        with pytest.raises(ValueError, match="peak_flops_per_second"):
+            estimator.analyze_roofline(
+                operation_flops=1000000,
+                memory_bytes=1000,
+                hardware_specs=hardware_specs,
+                execution_time_seconds=0.001,
+            )
 
     def test_analyze_roofline_memory_bound(self):
         """Test roofline analysis for memory-bound operations."""

@@ -1,11 +1,11 @@
 # Tracking
 
-**Module:** `generative_models.training.tracking`
+**Status:** `Coming soon`
 
-**Source:** `generative_models/training/tracking.py`
+**Planned module:** `artifex.generative_models.training.tracking`
 
-## Module Statistics
+**Current owner:** `artifex.generative_models.training.callbacks.logging`
 
-- **Classes:** 0
-- **Functions:** 0
-- **Imports:** 0
+`artifex.generative_models.training.tracking` is not shipped as a standalone runtime module today. Use the current owner above for the supported runtime surface until a dedicated module exists.
+
+See [Training Systems](index.md) for the current shared training docs.

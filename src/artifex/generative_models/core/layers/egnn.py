@@ -131,7 +131,6 @@ class EGNNLayer(nnx.Module):
 
     def __init__(
         self,
-        node_dim: int,
         edge_dim: int,
         hidden_dim: int,
         num_mlp_layers: int = 2,
@@ -144,9 +143,8 @@ class EGNNLayer(nnx.Module):
         """Initialize the EGNN layer.
 
         Args:
-            node_dim: Dimension of node features.
             edge_dim: Dimension of edge features.
-            hidden_dim: Dimension of hidden layers.
+            hidden_dim: Dimension of node features and hidden layers.
             num_mlp_layers: Number of layers in each MLP block.
             dropout_rate: Dropout rate for MLP blocks.
             use_attention: Whether to use attention for message passing.
@@ -155,7 +153,6 @@ class EGNNLayer(nnx.Module):
         """
         super().__init__()
 
-        self.node_dim = node_dim
         self.edge_dim = edge_dim
         self.hidden_dim = hidden_dim
         self.use_attention = use_attention
@@ -225,6 +222,13 @@ class EGNNLayer(nnx.Module):
             Tuple of (node_features, coordinates, edge_features) with
             updated values.
         """
+        if node_features.shape[-1] != self.hidden_dim:
+            message = (
+                "EGNNLayer expects node_features last dimension to match "
+                f"hidden_dim={self.hidden_dim}, got {node_features.shape[-1]}."
+            )
+            raise ValueError(message)
+
         num_nodes = node_features.shape[1]
 
         # Step 1: Compute relative positions and squared distances
@@ -249,7 +253,7 @@ class EGNNLayer(nnx.Module):
 
         # Step 4: Apply attention if enabled
         if self.use_attention:
-            attention_weights = jax.nn.sigmoid(self.attention(edge_inputs))
+            attention_weights = nnx.sigmoid(self.attention(edge_inputs))
             edge_messages = edge_messages * attention_weights
 
         # Mask by adjacency

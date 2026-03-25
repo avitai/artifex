@@ -12,16 +12,13 @@ import numpy as np
 from flax import nnx
 from matplotlib.figure import Figure
 
-from artifex.benchmarks.base import (
-    Benchmark,
-    BenchmarkConfig,
-    BenchmarkResult,
-)
+from artifex.benchmarks.core import Benchmark, BenchmarkConfig, BenchmarkResult
 from artifex.benchmarks.metrics.precision_recall import PrecisionRecallBenchmark
 from artifex.benchmarks.model_adapters import adapt_model
+from artifex.benchmarks.runtime_guards import require_demo_mode
 from artifex.generative_models.core.protocols.evaluation import (
+    BenchmarkModelProtocol,
     DatasetProtocol,
-    ModelProtocol,
 )
 from artifex.utils.file_utils import ensure_valid_output_path
 
@@ -33,7 +30,12 @@ class ProteinStructureBenchmark(Benchmark):
     properties and structural quality metrics.
     """
 
-    def __init__(self, num_samples: int = 100, random_seed: int | None = 42) -> None:
+    def __init__(
+        self,
+        num_samples: int = 100,
+        random_seed: int | None = 42,
+        demo_mode: bool = False,
+    ) -> None:
         """Initialize the protein structure benchmark.
 
         Args:
@@ -54,6 +56,14 @@ class ProteinStructureBenchmark(Benchmark):
         )
         super().__init__(config=config)
 
+        require_demo_mode(
+            enabled=demo_mode,
+            component="ProteinStructureBenchmark",
+            detail=(
+                "This retained protein benchmark still relies on simplified placeholder structure "
+                "heuristics and is demo-only."
+            ),
+        )
         self.num_samples = num_samples
         self.random_seed = random_seed
 
@@ -62,7 +72,11 @@ class ProteinStructureBenchmark(Benchmark):
             num_clusters=10, num_samples=num_samples, random_seed=random_seed
         )
 
-    def run(self, model: ModelProtocol, dataset: DatasetProtocol | None = None) -> BenchmarkResult:
+    def run(
+        self,
+        model: BenchmarkModelProtocol,
+        dataset: DatasetProtocol | None = None,
+    ) -> BenchmarkResult:
         """Run the protein structure benchmark.
 
         Args:
@@ -118,7 +132,7 @@ class ProteinStructureBenchmark(Benchmark):
         return result
 
     def _calculate_structure_metrics(
-        self, model: ModelProtocol, dataset: DatasetProtocol, key: jax.Array
+        self, model: BenchmarkModelProtocol, dataset: DatasetProtocol, key: jax.Array
     ) -> tuple[float, float, float]:
         """Calculate protein structure quality metrics.
 
@@ -233,19 +247,36 @@ class ProteinBenchmarkSuite:
     visualization utilities.
     """
 
-    def __init__(self, num_samples: int = 100, random_seed: int | None = 42) -> None:
+    def __init__(
+        self,
+        num_samples: int = 100,
+        random_seed: int | None = 42,
+        demo_mode: bool = False,
+    ) -> None:
         """Initialize the protein benchmark suite.
 
         Args:
             num_samples: Number of samples to generate for evaluation.
             random_seed: Random seed for deterministic evaluation.
         """
+        require_demo_mode(
+            enabled=demo_mode,
+            component="ProteinBenchmarkSuite",
+            detail=(
+                "This retained protein benchmark suite still uses placeholder structure metrics "
+                "and is demo-only."
+            ),
+        )
         self.num_samples = num_samples
         self.random_seed = random_seed
 
         # Create benchmarks
         self.benchmarks = [
-            ProteinStructureBenchmark(num_samples=num_samples, random_seed=random_seed),
+            ProteinStructureBenchmark(
+                num_samples=num_samples,
+                random_seed=random_seed,
+                demo_mode=demo_mode,
+            ),
             PrecisionRecallBenchmark(
                 num_clusters=10, num_samples=num_samples, random_seed=random_seed
             ),
@@ -265,7 +296,7 @@ class ProteinBenchmarkSuite:
             dictionary of benchmark results.
         """
         # Adapt model if necessary
-        if not isinstance(model, ModelProtocol):
+        if not isinstance(model, BenchmarkModelProtocol):
             model = adapt_model(model)
 
         results: dict[str, BenchmarkResult | None] = {}

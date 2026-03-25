@@ -10,44 +10,43 @@
 #     name: python
 # ---
 
+# %%
+# ruff: noqa: T201
+# ---
+# jupyter:
+#   jupytext:
+#     formats: py:percent,ipynb
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+#   language_info:
+#     name: python
+# ---
+
 # %% [markdown]
 """
 # Protein Diffusion Technical Validation
 
-A minimal validation script to verify the technology stack for protein diffusion models.
+**Status:** Validation utility
 
-## Learning Objectives
+This validation utility checks whether JAX, Flax NNX, and optional BioPython
+support are available for local protein experiments. It does not instantiate
+shipped Artifex protein model, modality, or data owners, so it should be read
+as an environment sanity check rather than as a canonical modeling tutorial.
 
-- ✅ Validate JAX and Flax NNX installation
-- ✅ Understand basic protein point cloud representation
-- ✅ Implement a simple protein structure model
-- ✅ Test forward pass and loss computation
-- ✅ Handle optional dependencies gracefully
+## What This Script Validates
 
-## Prerequisites
-
-- JAX and Flax NNX installed
-- Basic understanding of protein structure
-- Familiarity with point cloud representation
-
-## What This Example Validates
-
-This script verifies that your environment is correctly set up for protein modeling:
-
-1. **JAX functionality**: Random number generation, array operations
-2. **Flax NNX**: Module creation, linear layers, activation functions
-3. **Protein representation**: Point clouds of C-alpha atoms
-4. **Optional BioPython**: Graceful degradation if not installed
-
-## Estimated Runtime
-
-~5 seconds on CPU or GPU
+1. **JAX functionality**: random number generation and array operations
+2. **Flax NNX**: module creation, linear layers, and activations
+3. **Protein representation**: a minimal raw-NNX point-cloud transform
+4. **Optional BioPython**: graceful degradation if local PDB parsing is unavailable
 
 ## Usage
 
 ```bash
-source activate.sh
-python examples/generative_models/protein/protein_diffusion_tech_validation.py
+source ./activate.sh
+uv run python examples/generative_models/protein/protein_diffusion_tech_validation.py
 ```
 """
 

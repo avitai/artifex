@@ -1,141 +1,101 @@
 # Configuration System
 
-A type-safe configuration system for generative models, providing Pydantic-based schemas for model architectures, training, and inference.
+`artifex.configs` is the public convenience surface over the typed configuration
+runtime in `artifex.generative_models.core.configuration`.
 
-## Key Features
+The configuration system uses frozen dataclass configs and typed helper
+utilities.
 
-- **Type Safety**: Pydantic-based schema validation with type hints
-- **Hierarchical Configurations**: Base configs with model-specific extensions
-- **Default Values**: Sensible defaults for all configuration options
-- **Schema Validation**: Automatic validation of configuration values
-- **Configuration Versioning**: Track and reproduce configurations
-- **Command-Line Interface**: Manage configurations via CLI
+## What This Package Exposes
 
-## Directory Structure
+- typed config classes such as `TrainingConfig`, `DistributedConfig`,
+  `DataConfig`, and `InferenceConfig`
+- config loading helpers such as `get_training_config`, `get_data_config`,
+  and `load_experiment_config`
+- versioning helpers such as `ConfigVersionRegistry` and
+  `compute_config_hash`
+- the supported built-in template surface via `template_manager`,
+  `SIMPLE_TRAINING_TEMPLATE`, and `DISTRIBUTED_TEMPLATE`
 
-```
-configs/
-├── defaults/            # Default configuration values
-│   ├── data/            # Dataset configurations
-│   ├── distributed/     # Distributed training configs
-│   ├── env/             # Environment-specific configs
-│   ├── inference/       # Inference configurations
-│   ├── models/          # Model architecture configs
-│   └── training/        # Training configurations
-├── experiments/         # Full experiment configurations
-├── schema/              # Configuration schema definitions
-└── utils/               # Configuration utilities
-```
-
-## Usage Examples
-
-### Loading a Configuration
+## Typed Config Example
 
 ```python
-from artifex.generative_models.core.configuration import ModelConfiguration
-from artifex.generative_models.factory import create_model
+from artifex.configs import OptimizerConfig, SchedulerConfig, TrainingConfig
 
-# Create a model configuration
-config = ModelConfiguration(
-    name="protein_diffusion",
-    model_class="artifex.generative_models.models.diffusion.DDPMModel",
-    input_dim=(1024, 3),
-    hidden_dims=[256, 512, 256],
-    output_dim=(1024, 3),
-    parameters={
-        "noise_steps": 1000,
-        "beta_schedule": "cosine",
-    }
-)
-
-# Create model from configuration
-model = create_model(config, rngs=rngs)
-```
-
-### Creating a Configuration
-
-```python
-from artifex.configs import (
-    PointCloudDiffusionConfig,
-    TrainingConfig,
-)
-
-# Model configuration
-model_config = PointCloudDiffusionConfig(
-    name="custom_diffusion",
-    model_dim=256,
-    num_layers=8,
-    num_heads=8,
-    dropout=0.1,
-    timesteps=1000,
-    beta_schedule="linear",
-)
-
-# Training configuration
 training_config = TrainingConfig(
     name="custom_training",
     batch_size=64,
     num_epochs=100,
+    optimizer=OptimizerConfig(
+        name="adamw",
+        optimizer_type="adamw",
+        learning_rate=2e-4,
+    ),
+    scheduler=SchedulerConfig(
+        name="cosine",
+        scheduler_type="cosine",
+        warmup_steps=500,
+    ),
 )
 ```
 
-### Using the CLI
-
-```bash
-# Create configuration from template
-python -m artifex.generative_models.configs.cli create \
-    templates/protein_diffusion.yaml \
-    my_experiment.yaml \
-    --override "model.model_dim=256"
-
-# Validate configuration
-python -m artifex.generative_models.configs.cli validate my_experiment.yaml
-
-# Show configuration
-python -m artifex.generative_models.configs.cli show my_experiment.yaml
-
-# Version configuration
-python -m artifex.generative_models.configs.cli version my_experiment.yaml \
-    --registry ./config_registry \
-    --description "My experiment"
-```
-
-### Configuration Versioning
+## Loading YAML
 
 ```python
-from artifex.generative_models.configs import ConfigVersionRegistry
+from artifex.configs import TrainingConfig, get_training_config
 
-# Create registry
-registry = ConfigVersionRegistry("./config_registry")
-
-# Register configuration
-config = load_yaml_config("my_experiment.yaml")
-version = registry.register(config, description="My experiment")
-
-# Get configuration by version
-config = registry.get_by_version("20230215-a1b2c3d4")
+training_from_file = TrainingConfig.from_yaml(
+    "src/artifex/configs/defaults/training/protein_diffusion_training.yaml"
+)
+training_config = get_training_config("protein_diffusion_training")
 ```
 
-## Adding New Configuration Types
+`load_experiment_config()` returns a typed `ExperimentTemplateConfig`. The
+retained shipped experiment templates still reference other config assets and
+use explicit placeholder roots such as `{ARTIFEX_OUTPUT_ROOT}`,
+`{ARTIFEX_DATA_ROOT}`, and `{ARTIFEX_CACHE_ROOT}` for machine-specific paths.
+Those retained template documents keep their own `experiment_name` schema
+instead of being forced into the named runtime `BaseConfig` contract.
 
-To add a new configuration type:
+## Using Templates
 
-1. Create a new schema class in `schema/`
-2. Add default configurations in `defaults/`
-3. Update the imports in `__init__.py`
-4. Add model registration if needed
+```python
+from artifex.configs import template_manager
 
-## Testing
+training_template = template_manager.generate_config(
+    "simple_training",
+    batch_size=64,
+    learning_rate=2e-4,
+    scheduler_type="linear",
+    total_steps=5000,
+)
+```
+
+The supported built-ins are `simple_training` and `distributed_training`, and
+they materialize typed frozen configs.
+
+## Versioning
+
+```python
+from artifex.configs import (
+    ConfigVersionRegistry,
+    compute_config_hash,
+    load_experiment_config,
+)
+
+registry = ConfigVersionRegistry("./temp/config_registry")
+experiment_template = load_experiment_config("protein_diffusion_experiment")
+version = registry.register(experiment_template, description="Protein diffusion baseline")
+config_hash = compute_config_hash(experiment_template)
+```
+
+## Tests
 
 ```bash
-# Run configuration tests
-./test.py standalone
-
-# Run with coverage
-./test.py standalone -c
-
-# Run specific test
-./test.py specific -f tests/standalone/test_distributed_config.py
+uv run pytest tests/artifex/configs -q
+uv run pytest tests/artifex/repo_contracts/test_config_surface_contracts.py -q
 ```
 
-For more details, see the [main documentation](../../docs/).
+Package-local docs should stay aligned with the public `artifex.configs` export
+surface and describe the symbols that are re-exported there as the supported
+API.

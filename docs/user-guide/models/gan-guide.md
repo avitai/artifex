@@ -1123,14 +1123,12 @@ def feature_matching_loss(real_features, fake_features):
 
 **Solutions:**
 
-1. **Use spectral normalization:**
+1. **Reduce discriminator capacity and regularize it:**
 
 ```python
-discriminator = Discriminator(
-    hidden_dims=[512, 256, 128],
-    use_spectral_norm=True,  # Enable spectral norm
-    rngs=rngs,
-)
+# Start with a smaller discriminator before widening it
+disc_hidden_dims = (256, 128)
+disc_dropout_rate = 0.3
 ```
 
 2. **Two-timescale update rule:**

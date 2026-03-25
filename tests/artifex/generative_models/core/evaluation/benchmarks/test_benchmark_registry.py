@@ -2,7 +2,7 @@
 
 import pytest
 
-from artifex.benchmarks.base import (
+from artifex.benchmarks import (
     Benchmark,
     BenchmarkConfig,
     BenchmarkResult,
@@ -55,9 +55,8 @@ class TestBenchmarkRegistry:
         register_benchmark("test_benchmark", benchmark)
 
         # Check that it's in the registry
-        registry = BenchmarkRegistry()
-        assert "test_benchmark" in registry.benchmarks
-        assert registry.benchmarks["test_benchmark"] is benchmark
+        assert "test_benchmark" in list_benchmarks()
+        assert get_benchmark("test_benchmark") is benchmark
 
     def test_register_decorator(self):
         """Test registering a benchmark using the register_benchmark decorator."""
@@ -85,9 +84,8 @@ class TestBenchmarkRegistry:
                 )
 
         # Check that it's in the registry
-        registry = BenchmarkRegistry()
-        assert "decorated_benchmark" in registry.benchmarks
-        assert isinstance(registry.benchmarks["decorated_benchmark"], DecoratedBenchmark)
+        assert "decorated_benchmark" in list_benchmarks()
+        assert isinstance(get_benchmark("decorated_benchmark"), DecoratedBenchmark)
 
     def test_get_benchmark(self):
         """Test getting a benchmark from the registry."""

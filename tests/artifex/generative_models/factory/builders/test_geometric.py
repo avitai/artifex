@@ -105,7 +105,6 @@ class TestGeometricBuilder:
             name="test_mesh",
             network=mesh_network_config,
             num_vertices=2048,
-            num_faces=4096,
             vertex_dim=3,
         )
 
@@ -227,10 +226,9 @@ class TestGeometricBuilder:
             name="valid_mesh",
             network=mesh_network,
             num_vertices=2048,
-            num_faces=4096,
         )
         assert valid.num_vertices == 2048
-        assert valid.num_faces == 4096
+        assert valid.vertex_dim == 3
 
     def test_voxel_config_validation(self):
         """Test VoxelConfig validation."""

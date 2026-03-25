@@ -8,132 +8,75 @@ import jax
 import jax.numpy as jnp
 from flax import nnx
 
-from artifex.generative_models.core.configuration import ExtensionConfig, ModalityConfig
-from artifex.generative_models.extensions.base import ModelExtension
+from artifex.generative_models.core.configuration import ImageAugmentationConfig
+from artifex.generative_models.extensions.base import AugmentationExtension
 
 
-class AdvancedImageAugmentation(ModelExtension):
+class AdvancedImageAugmentation(AugmentationExtension):
     """Advanced image augmentation for generative models.
 
-    This extension can accept either ExtensionConfig with augmentation parameters
-    in the extensions field, or a ModalityConfig with augmentation settings.
+    This extension only accepts the canonical typed image augmentation config.
     """
 
     def __init__(
         self,
-        config: ExtensionConfig | ModalityConfig,
+        config: ImageAugmentationConfig,
         *,
         rngs: nnx.Rngs,
     ):
         """Initialize image augmentation module.
 
         Args:
-            config: Extension or modality configuration with augmentation parameters
+            config: Typed image augmentation configuration
             rngs: Random number generator keys
 
         Raises:
             TypeError: If config is not a supported type
         """
-        # Handle different config types
-        if isinstance(config, ExtensionConfig):
-            # Standard extension config
-            super().__init__(config, rngs=rngs)
-            # Get augmentation params from either augmentation_params or extensions.augmentation
-            augmentation_params = getattr(config, "augmentation_params", {})
-            if not augmentation_params and hasattr(config, "extensions"):
-                augmentation_params = config.extensions.get("augmentation", {})
-        elif isinstance(config, ModalityConfig):
-            # Modality config with augmentation in extensions
-            base_config = ExtensionConfig()
-            super().__init__(base_config, rngs=rngs)
-            augmentation_params = config.extensions.get("augmentation", {})
-        else:
-            raise TypeError(
-                f"config must be ExtensionConfig or ModalityConfig, got {type(config).__name__}"
-            )
+        if not isinstance(config, ImageAugmentationConfig):
+            raise TypeError(f"config must be ImageAugmentationConfig, got {type(config).__name__}")
+        super().__init__(config, rngs=rngs)
 
         self.rngs = rngs
 
-        # Default augmentation configuration
-        default_config: dict[str, float | tuple[float, float]] = {
-            "rotation_range": 15.0,  # degrees
-            "translation_range": 0.1,  # fraction of image size
-            "scale_range": (0.8, 1.2),  # scale factors
-            "brightness_range": 0.2,  # brightness variation
-            "contrast_range": 0.2,  # contrast variation
-            "saturation_range": 0.1,  # saturation variation
-            "noise_level": 0.02,  # noise standard deviation
-            "blur_probability": 0.1,  # probability of blur
-            "flip_probability": 0.5,  # probability of horizontal flip
-        }
-
-        self.augmentation_config: dict[str, float | tuple[float, float]] = {
-            **default_config,
-            **augmentation_params,
-        }
-
-    def __call__(self, images: jax.Array, *, deterministic: bool = False) -> jax.Array:
-        """Apply augmentation pipeline.
-
-        Args:
-            images: Input images [batch, height, width, channels]
-            deterministic: If True, skip stochastic augmentations
-
-        Returns:
-            Augmented images [batch, height, width, channels]
-        """
-        if deterministic:
+    def augment(
+        self,
+        images: jax.Array,
+        *,
+        key: jax.Array | None = None,
+        deterministic: bool = False,
+    ) -> jax.Array:
+        """Apply the typed image augmentation pipeline."""
+        if deterministic or self.config.deterministic or self.config.probability == 0.0:
             return images
 
-        # Apply augmentations sequentially
-        augmented = self._apply_geometric_transforms(images)
-        augmented = self._apply_color_transforms(augmented)
-        augmented = self._apply_noise_injection(augmented)
-        augmented = self._apply_blur(augmented)
+        augmented = images
+        if self.config.random_flip_horizontal:
+            augmented = self.apply_horizontal_flip(augmented)
+        if self.config.random_flip_vertical:
+            augmented = self.apply_vertical_flip(augmented)
+        if self.config.random_rotation > 0:
+            augmented = self._apply_random_rotations(
+                augmented,
+                max_rotation=self.config.random_rotation,
+            )
+        if self.config.color_jitter:
+            augmented = self._apply_color_jitter(augmented)
+        return jnp.clip(augmented, 0.0, 1.0)
 
-        return augmented
-
-    def _apply_geometric_transforms(self, images: jax.Array) -> jax.Array:
-        """Apply geometric transformations (rotation, translation, scaling)."""
+    def _apply_random_rotations(self, images: jax.Array, *, max_rotation: float) -> jax.Array:
+        """Apply random in-plane rotations."""
         batch_size, height, width, _ = images.shape
 
-        # Generate random transformation parameters
         angles = jax.random.uniform(
             self.rngs.augment(),
             (batch_size,),
-            minval=-self.augmentation_config["rotation_range"],
-            maxval=self.augmentation_config["rotation_range"],
+            minval=-max_rotation,
+            maxval=max_rotation,
         )
-
-        # Translation (fraction of image size)
-        tx = (
-            jax.random.uniform(
-                self.rngs.augment(),
-                (batch_size,),
-                minval=-self.augmentation_config["translation_range"],
-                maxval=self.augmentation_config["translation_range"],
-            )
-            * width
-        )
-
-        ty = (
-            jax.random.uniform(
-                self.rngs.augment(),
-                (batch_size,),
-                minval=-self.augmentation_config["translation_range"],
-                maxval=self.augmentation_config["translation_range"],
-            )
-            * height
-        )
-
-        # Scale
-        scale_min, scale_max = self.augmentation_config["scale_range"]
-        scales = jax.random.uniform(
-            self.rngs.augment(), (batch_size,), minval=scale_min, maxval=scale_max
-        )
-
-        # Vectorized batch transformation using vmap
-        return jax.vmap(self._transform_single_image)(images, angles, tx, ty, scales)
+        zeros = jnp.zeros((batch_size,))
+        ones = jnp.ones((batch_size,))
+        return jax.vmap(self._transform_single_image)(images, angles, zeros, zeros, ones)
 
     def _transform_single_image(
         self, image: jax.Array, angle: jax.Array, tx: jax.Array, ty: jax.Array, scale: jax.Array
@@ -228,23 +171,22 @@ class AdvancedImageAugmentation(ModelExtension):
 
         return interpolated
 
-    def _apply_color_transforms(self, images: jax.Array) -> jax.Array:
-        """Apply color transformations (brightness, contrast, saturation)."""
+    def _apply_color_jitter(self, images: jax.Array) -> jax.Array:
+        """Apply typed brightness and contrast jitter."""
         batch_size = images.shape[0]
 
-        # Generate random color adjustment parameters
         brightness_factors = jax.random.uniform(
             self.rngs.augment(),
             (batch_size, 1, 1, 1),
-            minval=1 - self.augmentation_config["brightness_range"],
-            maxval=1 + self.augmentation_config["brightness_range"],
+            minval=self.config.brightness_range[0],
+            maxval=self.config.brightness_range[1],
         )
 
         contrast_factors = jax.random.uniform(
             self.rngs.augment(),
             (batch_size, 1, 1, 1),
-            minval=1 - self.augmentation_config["contrast_range"],
-            maxval=1 + self.augmentation_config["contrast_range"],
+            minval=self.config.contrast_range[0],
+            maxval=self.config.contrast_range[1],
         )
 
         # Apply brightness
@@ -253,10 +195,6 @@ class AdvancedImageAugmentation(ModelExtension):
         # Apply contrast (around mean)
         mean_values = jnp.mean(adjusted, axis=(1, 2, 3), keepdims=True)
         adjusted = mean_values + contrast_factors * (adjusted - mean_values)
-
-        # Apply saturation (for color images)
-        if images.shape[-1] == 3:
-            adjusted = self._apply_saturation(adjusted)
 
         # Clamp to valid range
         adjusted = jnp.clip(adjusted, 0.0, 1.0)
@@ -358,13 +296,18 @@ class AdvancedImageAugmentation(ModelExtension):
         batch_size = images.shape[0]
 
         # Random decision for each image
-        flip_mask = (
-            jax.random.uniform(self.rngs.augment(), (batch_size,))
-            < self.augmentation_config["flip_probability"]
-        )
+        flip_mask = jax.random.uniform(self.rngs.augment(), (batch_size,)) < self.config.probability
 
         # Apply flip to all, then select with mask (JIT-compatible)
         flipped_all = jnp.flip(images, axis=2)  # Flip along width axis (NHWC)
+        mask = flip_mask.reshape(batch_size, *((1,) * (images.ndim - 1)))
+        return jnp.where(mask, flipped_all, images)
+
+    def apply_vertical_flip(self, images: jax.Array) -> jax.Array:
+        """Apply vertical flip with the configured probability."""
+        batch_size = images.shape[0]
+        flip_mask = jax.random.uniform(self.rngs.augment(), (batch_size,)) < self.config.probability
+        flipped_all = jnp.flip(images, axis=1)
         mask = flip_mask.reshape(batch_size, *((1,) * (images.ndim - 1)))
         return jnp.where(mask, flipped_all, images)
 

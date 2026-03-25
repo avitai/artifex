@@ -1005,7 +1005,7 @@ VAEs are powerful generative models that combine deep learning with variational 
 
 :material-web: **Lil'Log: From Autoencoder to Beta-VAE**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;:material-link: [lilianweng.github.io/posts/2018-08-12-vae](https://lilianweng.github.io/posts/2018-08-12-vae/)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Comprehensive blog post with excellent visualizations
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Complete blog post with excellent visualizations
 
 :material-web: **Jaan Altosaar's VAE Tutorial**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;:material-link: [jaan.io/what-is-variational-autoencoder-vae-tutorial](https://jaan.io/what-is-variational-autoencoder-vae-tutorial/)<br>
@@ -1027,7 +1027,7 @@ VAEs are powerful generative models that combine deep learning with variational 
 
 :material-book: **Murphy, K. P. (2022).** "Probabilistic Machine Learning: Advanced Topics"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;:material-link: Chapter on variational inference and deep generative models<br>
-&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Comprehensive treatment connecting theory and practice
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Complete treatment connecting theory and practice
 
 :material-book: **Foster, D. (2019).** "Generative Deep Learning"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;:material-link: O'Reilly book with practical VAE implementations<br>

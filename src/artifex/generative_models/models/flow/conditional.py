@@ -1,11 +1,12 @@
 """Conditional normalizing flow implementations."""
 
-from typing import Any, Callable
+from typing import Any
 
 import jax
 import jax.numpy as jnp
 from flax import nnx
 
+from artifex.generative_models.core.base import get_activation_function
 from artifex.generative_models.models.flow.base import FlowLayer, NormalizingFlow
 
 
@@ -40,13 +41,8 @@ class ConditionalCouplingLayer(FlowLayer):
         self.mask = mask
         self.condition_dim = condition_dim
 
-        # Set activation function
-        activation_map: dict[str, Callable[[jax.Array], jax.Array]] = {
-            "tanh": jax.nn.tanh,
-            "sigmoid": jax.nn.sigmoid,
-            "identity": lambda x: x,
-        }
-        self.scale_activation = activation_map.get(scale_activation, jax.nn.tanh)
+        # Set activation function using canonical resolver
+        self.scale_activation = get_activation_function(scale_activation)
 
         # Pre-compute indices for JIT compatibility (masks are static)
         self._masked_indices = tuple(int(i) for i in jnp.where(mask > 0)[0])
@@ -241,7 +237,7 @@ class ConditionalNormalizingFlow(NormalizingFlow):
         """
         # Extract conditioning configuration
         self.condition_dim = getattr(config, "condition_dim", 10)
-        self.hidden_dims = getattr(config, "hidden_dims", [64, 64])
+        self.hidden_dims = list(config.coupling_network.hidden_dims)
         self.num_coupling_layers = getattr(config, "num_coupling_layers", 8)
         self.mask_type = getattr(config, "mask_type", "checkerboard")
 
@@ -436,7 +432,7 @@ class ConditionalNormalizingFlow(NormalizingFlow):
             Generated conditional samples
         """
         # Get sampling key
-        sample_key = (rngs or self.rngs).sample()
+        sample_key = self._get_sampling_key(rngs)
 
         # Sample from base distribution
         z = self.sample_fn(sample_key, n_samples)
@@ -510,7 +506,7 @@ class ConditionalNormalizingFlow(NormalizingFlow):
             **kwargs: Additional keyword arguments
 
         Returns:
-            Dictionary containing loss and metrics
+            Dictionary containing canonical loss terms.
         """
         # Extract data and conditioning from batch
         if isinstance(batch, dict):
@@ -533,7 +529,7 @@ class ConditionalNormalizingFlow(NormalizingFlow):
         loss = -jnp.mean(log_prob)
 
         return {
-            "loss": loss,
+            "total_loss": loss,
             "nll_loss": loss,
             "conditional_log_prob": jnp.mean(log_prob),
             "avg_log_prob": jnp.mean(log_prob),

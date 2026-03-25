@@ -62,13 +62,15 @@ os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true"  # Don't pre-allocate GPU memor
 os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"  # JAX: don't pre-allocate
 os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = "0.9"  # JAX: use 90% of GPU memory
 
+import logging
+
 import jax
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
 import optax
 from datarax import from_source
-from datarax.sources import TfdsDataSourceConfig, TFDSSource
+from datarax.sources import from_tfds
 from flax import nnx
 from tqdm import tqdm
 
@@ -80,10 +82,19 @@ from artifex.generative_models.core.configuration.flow_config import (
 from artifex.generative_models.models.flow.real_nvp import RealNVP
 
 
-print("=" * 70)
-print("Artifex RealNVP Training - MNIST")
-print("Using: RealNVP, RealNVPConfig, CouplingNetworkConfig, DataRax, nnx.jit")
-print("=" * 70)
+logging.basicConfig(level=logging.INFO, format="%(message)s")
+LOGGER = logging.getLogger(__name__)
+
+
+def echo(message: object = "") -> None:
+    """Emit example output through the standard example logger."""
+    LOGGER.info("%s", message)
+
+
+echo("=" * 70)
+echo("Artifex RealNVP Training - MNIST")
+echo("Using: RealNVP, RealNVPConfig, CouplingNetworkConfig, DataRax, nnx.jit")
+echo("=" * 70)
 
 # %% [markdown]
 r"""
@@ -100,10 +111,10 @@ BATCH_SIZE = 512  # Larger batch size for better GPU utilization
 BASE_LR = 1e-3  # Scale LR with batch size
 WARMUP_STEPS = 200  # Warmup steps
 
-print("\nConfiguration:")
-print(f"  Epochs: {NUM_EPOCHS}")
-print(f"  Batch size: {BATCH_SIZE}")
-print(f"  Learning rate: {BASE_LR} (with {WARMUP_STEPS} warmup steps)")
+echo("\nConfiguration:")
+echo(f"  Epochs: {NUM_EPOCHS}")
+echo(f"  Batch size: {BATCH_SIZE}")
+echo(f"  Learning rate: {BASE_LR} (with {WARMUP_STEPS} warmup steps)")
 
 # %% [markdown]
 r"""
@@ -115,29 +126,30 @@ dequantization. We use DataRax for efficient GPU-accelerated data loading.
 
 
 # %%
-print("\n📊 Loading MNIST data with DataRax...")
+echo("\n📊 Loading MNIST data with DataRax...")
 
 # Initialize data RNGs
 data_key = jax.random.key(SEED + 1)
 data_rngs = nnx.Rngs(default=data_key)
 
-# Configure MNIST data source using DataRax
-train_source_config = TfdsDataSourceConfig(
-    name="mnist",
-    split="train",
+# Create the MNIST training source with the live DataRax TFDS helper
+train_source = from_tfds(
+    "mnist",
+    "train",
+    eager=False,
     shuffle=True,
-    shuffle_buffer_size=10000,
+    seed=SEED + 1,
+    rngs=data_rngs,
 )
-train_source = TFDSSource(train_source_config, rngs=data_rngs)
 
-print(f"  ✅ MNIST train dataset loaded: {len(train_source)} samples")
+echo(f"  ✅ MNIST train dataset loaded: {len(train_source)} samples")
 
 # Create training pipeline with batching and JIT compilation
 train_pipeline = from_source(train_source, batch_size=BATCH_SIZE, jit_compile=True)
 
 # Calculate number of batches per epoch
 n_batches = len(train_source) // BATCH_SIZE
-print(f"  ✅ Training pipeline created: {n_batches} batches per epoch")
+echo(f"  ✅ Training pipeline created: {n_batches} batches per epoch")
 
 
 def preprocess_batch(batch, key):
@@ -206,9 +218,9 @@ flow_config = RealNVPConfig(
 )
 
 model = RealNVP(flow_config, rngs=rngs)
-print("\n✅ RealNVP created:")
-print(f"   Coupling layers: {flow_config.num_coupling_layers}")
-print(f"   Hidden dims: {coupling_config.hidden_dims}")
+echo("\n✅ RealNVP created:")
+echo(f"   Coupling layers: {flow_config.num_coupling_layers}")
+echo(f"   Hidden dims: {coupling_config.hidden_dims}")
 
 # %% [markdown]
 r"""
@@ -220,7 +232,7 @@ Use learning rate warmup with cosine decay for stable training.
 # %%
 # Calculate total training steps for learning rate schedule
 total_steps = NUM_EPOCHS * n_batches
-print(f"   Total training steps: {total_steps}")
+echo(f"   Total training steps: {total_steps}")
 
 # Learning rate schedule: warmup + cosine decay
 lr_schedule = optax.warmup_cosine_decay_schedule(
@@ -237,7 +249,7 @@ optimizer = nnx.Optimizer(
     optax.chain(optax.clip_by_global_norm(1.0), optax.adam(lr_schedule)),
     wrt=nnx.Param,
 )
-print(f"   Optimizer: Adam with warmup ({WARMUP_STEPS} steps) + cosine decay")
+echo(f"   Optimizer: Adam with warmup ({WARMUP_STEPS} steps) + cosine decay")
 
 # %% [markdown]
 r"""
@@ -264,7 +276,7 @@ def train_step(model, optimizer, batch):
 
 # JIT-compile training step for performance
 jit_train_step = nnx.jit(train_step)
-print("   Training step JIT-compiled")
+echo("   Training step JIT-compiled")
 
 
 # %% [markdown]
@@ -279,8 +291,8 @@ history = {"step": [], "loss": [], "log_prob": [], "epoch": [], "lr": []}
 train_key = jax.random.key(999)
 global_step = 0
 
-print(f"\nTraining for {NUM_EPOCHS} epochs...")
-print("-" * 60)
+echo(f"\nTraining for {NUM_EPOCHS} epochs...")
+echo("-" * 60)
 
 for epoch in range(NUM_EPOCHS):
     epoch_losses = []
@@ -313,10 +325,10 @@ for epoch in range(NUM_EPOCHS):
 
     avg_loss = np.mean(epoch_losses)
     avg_log_prob = np.mean(epoch_log_probs)
-    print(f"Epoch {epoch + 1}/{NUM_EPOCHS}: NLL={avg_loss:.2f}, Log-prob={avg_log_prob:.2f}")
+    echo(f"Epoch {epoch + 1}/{NUM_EPOCHS}: NLL={avg_loss:.2f}, Log-prob={avg_log_prob:.2f}")
 
-print("-" * 60)
-print("Training complete!")
+echo("-" * 60)
+echo("Training complete!")
 
 # %% [markdown]
 r"""
@@ -326,7 +338,7 @@ Generate new digits from the trained model.
 """
 
 # %%
-print("\nGenerating samples...")
+echo("\nGenerating samples...")
 n_samples = 16
 
 generated_samples = model.generate(n_samples=n_samples)
@@ -338,7 +350,7 @@ generated_samples = jnp.clip(generated_samples, 0, 1)
 # Reshape to images
 generated_images = generated_samples.reshape(n_samples, 28, 28)
 
-print(f"✅ Generated {n_samples} samples")
+echo(f"✅ Generated {n_samples} samples")
 
 # %% [markdown]
 r"""
@@ -358,7 +370,7 @@ for i, ax in enumerate(axes.flatten()):
 plt.suptitle("RealNVP Generated MNIST Digits", fontsize=14, fontweight="bold")
 plt.tight_layout()
 fig.savefig("examples_output/flow_samples.png", dpi=150, bbox_inches="tight")
-print("\nSaved: examples_output/flow_samples.png")
+echo("\nSaved: examples_output/flow_samples.png")
 plt.close()
 
 
@@ -422,7 +434,7 @@ axes[2].grid(True, alpha=0.3)
 
 plt.tight_layout()
 fig.savefig("examples_output/flow_training_curve.png", dpi=150, bbox_inches="tight")
-print("Saved: examples_output/flow_training_curve.png")
+echo("Saved: examples_output/flow_training_curve.png")
 plt.close()
 
-print("\n✅ Done!")
+echo("\n✅ Done!")

@@ -7,17 +7,18 @@ Uses dataclass-based configuration following Principle #4:
 Methods Take Configs, NOT Individual Parameters.
 """
 
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 import jax
 import jax.numpy as jnp
 from flax import nnx
 
 from artifex.generative_models.core.configuration.energy_config import (
-    create_energy_function,
     DeepEBMConfig,
     EBMConfig,
 )
+from artifex.generative_models.factory.builders.energy_builder import create_energy_function
 from artifex.generative_models.models.energy.base import (
     EnergyBasedModel,
     EnergyFunction,
@@ -68,6 +69,9 @@ class EBM(EnergyBasedModel):
 
         # Store config
         self.config = config
+        assert config.energy_network is not None
+        assert config.sample_buffer is not None
+        assert config.mcmc is not None
 
         # Create energy function from config using factory
         energy_fn = create_energy_function(
@@ -233,6 +237,10 @@ class DeepEBM(EBM):
 
         # Store config
         self.config = config
+        assert config.input_shape is not None
+        assert config.energy_network is not None
+        assert config.sample_buffer is not None
+        assert config.mcmc is not None
 
         # For DeepEBM, we use a special deep CNN energy function
         # Extract input channels from input_shape (H, W, C)
@@ -245,7 +253,6 @@ class DeepEBM(EBM):
                 hidden_dims=list(config.energy_network.hidden_dims),
                 input_channels=input_channels,
                 use_residual=config.energy_network.use_residual,
-                use_spectral_norm=config.energy_network.use_spectral_norm,
                 rngs=rngs,
             )
         else:
@@ -292,7 +299,6 @@ class DeepCNNEnergyFunction(EnergyFunction):
         *,
         input_channels: int = 1,
         use_residual: bool = True,
-        use_spectral_norm: bool = True,
         activation: Callable = nnx.silu,
         kernel_size: int = 3,
         rngs: nnx.Rngs,
@@ -303,7 +309,6 @@ class DeepCNNEnergyFunction(EnergyFunction):
             hidden_dims: Channel dimensions for conv layers
             input_channels: Number of input channels
             use_residual: Whether to use residual connections
-            use_spectral_norm: Whether to use spectral normalization
             activation: Activation function
             kernel_size: Convolution kernel size
             rngs: Random number generators
@@ -313,7 +318,6 @@ class DeepCNNEnergyFunction(EnergyFunction):
         self.hidden_dims = hidden_dims
         self.input_channels = input_channels
         self.use_residual = use_residual
-        self.use_spectral_norm = use_spectral_norm
         self.activation = activation
         self.kernel_size = kernel_size
 
@@ -470,6 +474,15 @@ class EnergyBlock(nnx.Module):
 # =============================================================================
 
 
+def _reject_removed_energy_kwargs(kwargs: dict[str, Any], factory_name: str) -> None:
+    """Reject removed energy factory kwargs that no longer map to real runtime behavior."""
+    if "use_spectral_norm" in kwargs:
+        raise TypeError(
+            f"{factory_name}() no longer supports use_spectral_norm because "
+            "DeepEBM does not implement spectral normalization."
+        )
+
+
 def create_mnist_ebm(*, rngs: nnx.Rngs, **kwargs: Any) -> EBM:
     """Create EBM configured for MNIST dataset.
 
@@ -480,6 +493,8 @@ def create_mnist_ebm(*, rngs: nnx.Rngs, **kwargs: Any) -> EBM:
     Returns:
         EBM configured for MNIST (28x28x1 images)
     """
+    _reject_removed_energy_kwargs(kwargs, "create_mnist_ebm")
+
     from artifex.generative_models.core.configuration.energy_config import (
         EnergyNetworkConfig,
         MCMCConfig,
@@ -535,6 +550,8 @@ def create_cifar_ebm(*, rngs: nnx.Rngs, **kwargs: Any) -> DeepEBM:
     Returns:
         DeepEBM configured for CIFAR (32x32x3 images)
     """
+    _reject_removed_energy_kwargs(kwargs, "create_cifar_ebm")
+
     from artifex.generative_models.core.configuration.energy_config import (
         EnergyNetworkConfig,
         MCMCConfig,
@@ -549,7 +566,6 @@ def create_cifar_ebm(*, rngs: nnx.Rngs, **kwargs: Any) -> DeepEBM:
         network_type="cnn",
         use_bias=True,
         use_residual=kwargs.pop("use_residual", True),
-        use_spectral_norm=kwargs.pop("use_spectral_norm", True),
     )
 
     mcmc = MCMCConfig(
@@ -590,6 +606,8 @@ def create_simple_ebm(input_dim: int, *, rngs: nnx.Rngs, **kwargs: Any) -> EBM:
     Returns:
         EBM with MLP energy function for tabular data
     """
+    _reject_removed_energy_kwargs(kwargs, "create_simple_ebm")
+
     from artifex.generative_models.core.configuration.energy_config import (
         EnergyNetworkConfig,
         MCMCConfig,

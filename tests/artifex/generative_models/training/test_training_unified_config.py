@@ -29,13 +29,16 @@ class MockModel(GenerativeModel):
         key = rngs.sample() if rngs is not None and "sample" in rngs else jax.random.key(0)
         return jax.random.normal(key, (n_samples, 5))
 
-    def loss_fn(self, batch, model_outputs, **kwargs):
-        """Compute loss."""
-        return jnp.mean((model_outputs - batch["target"]) ** 2)
-
 
 class TestTrainingUnifiedConfiguration:
     """Test that training system uses unified configuration properly."""
+
+    @staticmethod
+    def _explicit_loss_fn(model, batch, rng, step):
+        """Explicit objective for the generic Trainer contract."""
+        del model, batch, rng, step
+        loss = jnp.array(0.0)
+        return loss, {"loss": loss}
 
     def test_trainer_requires_training_configuration(self):
         """Test that Trainer requires TrainingConfig, not dict."""
@@ -51,7 +54,26 @@ class TestTrainingUnifiedConfiguration:
         }
 
         with pytest.raises(TypeError, match="training_config must be a TrainingConfig"):
-            Trainer(model=model, training_config=dict_config)
+            Trainer(model=model, training_config=dict_config, loss_fn=self._explicit_loss_fn)
+
+    def test_trainer_requires_explicit_loss_fn(self):
+        """Generic Trainer should require an explicit objective."""
+        rngs = nnx.Rngs(42)
+        model = MockModel(rngs=rngs)
+        optimizer_config = OptimizerConfig(
+            name="adam_optimizer",
+            optimizer_type="adam",
+            learning_rate=1e-3,
+        )
+        training_config = TrainingConfig(
+            name="vae_training",
+            batch_size=32,
+            num_epochs=100,
+            optimizer=optimizer_config,
+        )
+
+        with pytest.raises(TypeError, match="loss_fn"):
+            Trainer(model=model, training_config=training_config)
 
     def test_optimizer_configuration_structure(self):
         """Test that optimizer configuration is properly typed."""
@@ -151,7 +173,11 @@ class TestTrainingUnifiedConfiguration:
         )
 
         # Create trainer
-        trainer = Trainer(model=model, training_config=training_config)
+        trainer = Trainer(
+            model=model,
+            training_config=training_config,
+            loss_fn=self._explicit_loss_fn,
+        )
 
         # Verify optimizer was created
         assert trainer.optimizer is not None
@@ -224,4 +250,4 @@ class TestTrainingUnifiedConfiguration:
 
         # Should raise error when training_config is None
         with pytest.raises(TypeError, match="training_config is required"):
-            Trainer(model=model, training_config=None)
+            Trainer(model=model, training_config=None, loss_fn=self._explicit_loss_fn)

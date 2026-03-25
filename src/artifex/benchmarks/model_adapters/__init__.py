@@ -1,13 +1,12 @@
 """Model adapters for benchmarks.
 
-This module provides adapters for different model types to be used with the
-benchmark system.
+Provides NNXGenerativeModelAdapter extending calibrax NNXBenchmarkAdapter
+for adapting NNX generative models to the benchmark system.
 """
 
-from artifex.benchmarks.model_adapters.base import (
+from artifex.benchmarks.model_adapters.generative import (
     adapt_model,
-    BenchmarkModelAdapter,
-    NNXModelAdapter,
+    NNXGenerativeModelAdapter,
     register_adapter,
 )
 from artifex.benchmarks.model_adapters.protein_adapters import (
@@ -16,9 +15,8 @@ from artifex.benchmarks.model_adapters.protein_adapters import (
 
 
 __all__ = [
+    "NNXGenerativeModelAdapter",
     "adapt_model",
     "register_adapter",
-    "BenchmarkModelAdapter",
-    "NNXModelAdapter",
     "ProteinPointCloudAdapter",
 ]

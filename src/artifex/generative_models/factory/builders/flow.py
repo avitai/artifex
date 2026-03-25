@@ -7,7 +7,7 @@ The builder follows Principle #4: Methods Take Configs, NOT Individual Parameter
 Model class is determined by config type, not a model_class string field.
 """
 
-from typing import Any, Union
+from typing import Any
 
 from flax import nnx
 
@@ -22,9 +22,9 @@ from artifex.generative_models.core.configuration.flow_config import (
 
 
 # Type alias for all supported flow configs
-FlowConfigTypes = Union[
-    FlowConfig, RealNVPConfig, GlowConfig, MAFConfig, IAFConfig, NeuralSplineConfig
-]
+FlowConfigTypes = (
+    FlowConfig | RealNVPConfig | GlowConfig | MAFConfig | IAFConfig | NeuralSplineConfig
+)
 
 
 class FlowBuilder:
@@ -74,12 +74,11 @@ class FlowBuilder:
                 "not a dict. Use RealNVPConfig(...) or similar to create the config."
             )
 
-        # Check for old Pydantic ModelConfiguration
+        # Reject unsupported catch-all config objects
         if hasattr(config, "model_class"):
             raise TypeError(
                 "config must be a dataclass config (RealNVPConfig, GlowConfig, etc.), "
-                "not a Pydantic ModelConfiguration. "
-                "The builder no longer accepts ModelConfiguration."
+                "not an unsupported catch-all config object with a model_class field."
             )
 
         # Get model class based on config type

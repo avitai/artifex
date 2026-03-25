@@ -1,13 +1,12 @@
 """TDD tests for high-performance training loops.
 
-These tests define expected behavior for optimized training loops BEFORE implementation.
-The loops enable 50-500x speedups by eliminating Python loop overhead via:
-- nnx.fori_loop for staged data (fits in GPU memory)
-- JIT-compiled steps with prefetch for streaming data
+These tests define expected behavior for optimized training loops before implementation.
+The loops enable 5-500x speedups by:
+- using `nnx.fori_loop` when data fits in accelerator memory
+- using a JIT-compiled step for streaming iterators
 
-The key insight is that existing trainers already implement `create_loss_fn()` which
-returns a function with signature: (model, batch, rng) -> (loss, metrics).
-These loops reuse that pattern for DRY compliance.
+The supported loop contract is explicit and step-aware:
+`(model, batch, rng, step) -> (loss, metrics)`.
 
 References:
     - Flax NNX transforms: https://flax.readthedocs.io/en/latest/
@@ -41,13 +40,18 @@ class SimpleVAE(nnx.Module):
         self.logvar_layer = nnx.Linear(8, 4, rngs=rngs)
         self.decoder = nnx.Linear(4, 16, rngs=rngs)
 
-    def __call__(self, x: jax.Array) -> tuple[jax.Array, jax.Array, jax.Array]:
+    def __call__(self, x: jax.Array) -> dict[str, jax.Array]:
         h = nnx.relu(self.encoder(x))
         mean = self.mean_layer(h)
         logvar = self.logvar_layer(h)
         z = mean  # Simplified (no stochasticity for testing)
         recon = self.decoder(z)
-        return recon, mean, logvar
+        return {
+            "reconstructed": recon,
+            "mean": mean,
+            "log_var": logvar,
+            "z": z,
+        }
 
 
 class SimpleMLP(nnx.Module):
@@ -117,9 +121,8 @@ def create_simple_loss_fn():
         if x is None:
             raise ValueError("Batch must contain 'image', 'data', or 'x' key")
         pred = model(x)
-        # Handle VAE outputs (tuple) vs MLP outputs (array)
-        if isinstance(pred, tuple):
-            recon = pred[0]
+        if isinstance(pred, dict):
+            recon = pred["reconstructed"]
         else:
             recon = pred
         loss = jnp.mean((recon - x) ** 2)
@@ -178,7 +181,7 @@ class TestTrainEpochStagedBasicBehavior:
         from artifex.generative_models.training.loops import train_epoch_staged
 
         # Get initial encoder weight
-        initial_kernel = simple_vae.encoder.kernel.value.copy()
+        initial_kernel = simple_vae.encoder.kernel[...].copy()
 
         rng = jax.random.key(0)
         loss_fn = create_simple_loss_fn()
@@ -188,7 +191,7 @@ class TestTrainEpochStagedBasicBehavior:
         )
 
         # Parameters should have changed
-        updated_kernel = simple_vae.encoder.kernel.value
+        updated_kernel = simple_vae.encoder.kernel[...]
         assert not jnp.allclose(initial_kernel, updated_kernel)
 
     def test_respects_base_step(
@@ -214,12 +217,12 @@ class TestTrainEpochStagedBasicBehavior:
 
 
 class TestTrainEpochStagedWithVAETrainer:
-    """Tests for train_epoch_staged with VAETrainer.create_loss_fn()."""
+    """Tests for train_epoch_staged with a trainer-provided explicit objective."""
 
     def test_works_with_vae_trainer(
         self, simple_vae: SimpleVAE, simple_optimizer: nnx.Optimizer, staged_data: jax.Array
     ) -> None:
-        """Should work with VAETrainer.create_loss_fn() for DRY compliance."""
+        """Should work with a VAE trainer objective closure."""
         from artifex.generative_models.training.loops import train_epoch_staged
         from artifex.generative_models.training.trainers import VAETrainer
 
@@ -232,7 +235,7 @@ class TestTrainEpochStagedWithVAETrainer:
         )
 
         assert "loss" in metrics
-        assert "recon_loss" in metrics or "kl_loss" in metrics  # VAE-specific metrics
+        assert "reconstruction_loss" in metrics or "kl_loss" in metrics  # VAE-specific metrics
 
     def test_loss_decreases_over_epoch(self, simple_vae: SimpleVAE, staged_data: jax.Array) -> None:
         """Loss should generally decrease over training (with real data)."""
@@ -341,7 +344,7 @@ class TestTrainEpochStreamingBasicBehavior:
         """Model parameters should be updated after training."""
         from artifex.generative_models.training.loops import train_epoch_streaming
 
-        initial_kernel = simple_vae.encoder.kernel.value.copy()
+        initial_kernel = simple_vae.encoder.kernel[...].copy()
 
         batches = [{"image": jax.random.normal(jax.random.key(0), (32, 16))} for _ in range(4)]
         rng = jax.random.key(0)
@@ -349,7 +352,7 @@ class TestTrainEpochStreamingBasicBehavior:
 
         train_epoch_streaming(simple_vae, simple_optimizer, iter(batches), rng=rng, loss_fn=loss_fn)
 
-        updated_kernel = simple_vae.encoder.kernel.value
+        updated_kernel = simple_vae.encoder.kernel[...]
         assert not jnp.allclose(initial_kernel, updated_kernel)
 
     def test_respects_base_step(
@@ -384,14 +387,49 @@ class TestTrainEpochStreamingBasicBehavior:
         assert step == 0
         assert metrics == {}
 
+    def test_preserves_all_objective_metrics(
+        self, simple_vae: SimpleVAE, simple_optimizer: nnx.Optimizer
+    ) -> None:
+        """Streaming mode should preserve all returned metrics, not just loss."""
+        from artifex.generative_models.training.loops import train_epoch_streaming
+
+        batches = [{"image": jax.random.normal(jax.random.key(0), (32, 16))} for _ in range(4)]
+        rng = jax.random.key(0)
+
+        def loss_fn(
+            model: nnx.Module,
+            batch: dict[str, Any],
+            _rng: jax.Array,
+            step: jax.Array,
+        ) -> tuple[jax.Array, dict[str, jax.Array]]:
+            x = batch["image"]
+            outputs = model(x)
+            recon = outputs["reconstructed"] if isinstance(outputs, dict) else outputs
+            loss = jnp.mean((recon - x) ** 2)
+            step_value = step.astype(jnp.float32)
+            return loss, {
+                "loss": loss,
+                "reconstruction_loss": loss,
+                "step_metric": step_value,
+            }
+
+        step, metrics = train_epoch_streaming(
+            simple_vae, simple_optimizer, iter(batches), rng=rng, loss_fn=loss_fn
+        )
+
+        assert step == 4
+        assert set(metrics) >= {"loss", "reconstruction_loss", "step_metric"}
+        assert metrics["reconstruction_loss"] == pytest.approx(metrics["loss"], rel=1e-6)
+        assert metrics["step_metric"] == pytest.approx(1.5, rel=1e-6)
+
 
 class TestTrainEpochStreamingWithVAETrainer:
-    """Tests for train_epoch_streaming with VAETrainer.create_loss_fn()."""
+    """Tests for train_epoch_streaming with a trainer-provided explicit objective."""
 
     def test_works_with_vae_trainer(
         self, simple_vae: SimpleVAE, simple_optimizer: nnx.Optimizer
     ) -> None:
-        """Should work with VAETrainer.create_loss_fn() for DRY compliance."""
+        """Should work with a VAE trainer objective closure."""
         from artifex.generative_models.training.loops import train_epoch_streaming
         from artifex.generative_models.training.trainers import VAETrainer
 

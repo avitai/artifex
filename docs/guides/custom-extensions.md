@@ -1,8 +1,5 @@
 # Custom Extensions Guide
 
-!!! info "Coming Soon"
-    This guide is being developed. Check back for comprehensive custom extension documentation.
-
 ## Overview
 
 Learn how to create custom extensions:

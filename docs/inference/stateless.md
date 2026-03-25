@@ -1,11 +1,16 @@
 # Stateless
 
-**Module:** `generative_models.inference.serving.stateless`
+**Status:** `Coming soon`
 
-**Source:** `generative_models/inference/serving/stateless.py`
+`artifex.generative_models.inference.stateless` is not shipped yet.
 
-## Module Statistics
+The shared inference runtime stays intentionally narrow today:
 
-- **Classes:** 0
-- **Functions:** 0
-- **Imports:** 0
+- `artifex.generative_models.inference` exports no public helpers from `__all__`.
+- `artifex.generative_models.inference.optimization.production` is the only
+  retained shared inference owner.
+- loading and generation entrypoints remain family-owned; see
+  [Inference Overview](../user-guide/inference/overview.md) and
+  [Sampling Guide](../user-guide/inference/sampling.md).
+
+See [Inference Reference](index.md) for the current shared inference docs.

@@ -1,4 +1,10 @@
-"""Base timeseries modality implementation."""
+"""Base timeseries modality implementation.
+
+The retained timeseries modality surface is a typed-config processing helper.
+`TimeseriesModality` expects `TimeseriesModalityConfig` plus explicit `rngs`;
+legacy `TimeSeries*` aliases and direct keyword shortcuts like `seq_length=`
+are not part of the supported public surface.
+"""
 
 from dataclasses import dataclass, field
 from enum import Enum
@@ -7,9 +13,10 @@ from typing import Any
 import jax.numpy as jnp
 from flax import nnx
 
+from artifex.generative_models.core.configuration import BaseModalityConfig
 from artifex.generative_models.extensions.base import ModelExtension
 
-from ..base import BaseModalityConfig, BaseModalityImplementation
+from ..base import BaseModalityImplementation
 
 
 class TimeseriesRepresentation(Enum):
@@ -31,7 +38,7 @@ class DecompositionMethod(Enum):
     LOESS = "loess"
 
 
-@dataclass
+@dataclass(frozen=True, slots=True, kw_only=True)
 class TimeseriesModalityConfig(BaseModalityConfig):
     """Configuration for timeseries modality.
 
@@ -63,15 +70,17 @@ class TimeseriesModalityConfig(BaseModalityConfig):
     use_trend_decomposition: bool = False
     decomposition_method: DecompositionMethod = DecompositionMethod.SEASONAL
     decomposition_period: int = 24
-    multi_scale_factors: list[int] = field(default_factory=lambda: [1, 2, 4])
-    feature_names: list[str] = field(default_factory=list)
+    multi_scale_factors: tuple[int, ...] = (1, 2, 4)
+    feature_names: tuple[str, ...] = field(default_factory=tuple)
     univariate: bool = True
     stationary: bool = False
     seasonal_period: int | None = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate configuration parameters."""
-        super().__post_init__()
+        BaseModalityConfig.__post_init__(self)
+        object.__setattr__(self, "multi_scale_factors", tuple(self.multi_scale_factors))
+        object.__setattr__(self, "feature_names", tuple(self.feature_names))
 
         if self.sequence_length <= 0:
             raise ValueError("sequence_length must be positive")
@@ -105,9 +114,13 @@ class TimeseriesModalityConfig(BaseModalityConfig):
         # Set default feature names if not provided
         if not self.feature_names:
             if self.univariate:
-                self.feature_names = ["value"]
+                object.__setattr__(self, "feature_names", ("value",))
             else:
-                self.feature_names = [f"feature_{i}" for i in range(self.num_features)]
+                object.__setattr__(
+                    self,
+                    "feature_names",
+                    tuple(f"feature_{i}" for i in range(self.num_features)),
+                )
 
         if len(self.feature_names) != self.num_features:
             raise ValueError(
@@ -134,11 +147,11 @@ class TimeseriesModalityConfig(BaseModalityConfig):
 
 
 class TimeseriesModality(BaseModalityImplementation):
-    """Modality for temporal sequence generation and processing.
+    """Typed-config helper for temporal sequence processing.
 
-    This modality provides support for various types of time series data,
-    including univariate and multivariate sequences, with multiple
-    representation options and temporal-specific processing capabilities.
+    `TimeseriesModality` owns validation, preprocessing, and postprocessing for
+    time-series tensors. It is not a legacy `TimeSeries*` facade with a direct
+    keyword-constructor surface.
     """
 
     def __init__(

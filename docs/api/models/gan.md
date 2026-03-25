@@ -93,7 +93,6 @@ Basic discriminator network that classifies samples as real or fake.
 | `leaky_relu_slope` | `float` | `0.2` | Negative slope for LeakyReLU |
 | `batch_norm` | `bool` | `False` | Whether to use batch normalization |
 | `dropout_rate` | `float` | `0.3` | Dropout rate |
-| `use_spectral_norm` | `bool` | `False` | Whether to use spectral normalization |
 | `rngs` | `nnx.Rngs` | Required | Random number generators |
 
 **Methods**:
@@ -185,7 +184,6 @@ class GANConfig:
         leaky_relu_slope: float = 0.2
         batch_norm: bool = False
         dropout_rate: float = 0.3
-        use_spectral_norm: bool = False
 ```
 
 **Methods**:
@@ -221,24 +219,44 @@ Generate samples from the generator.
 
 - `jax.Array`: Generated samples
 
-#### `loss_fn(batch, model_outputs, rngs=None, **kwargs)`
+#### `generator_objective(batch)`
 
-Compute GAN loss for training.
+Compute the generator-side adversarial objective.
 
 **Parameters**:
 
-- `batch` (`dict` or `jax.Array`): Input batch (real data)
-- `model_outputs` (`dict`): Model outputs (unused for GAN)
-- `rngs` (`nnx.Rngs`, optional): Random number generators
+- `batch` (`dict` or `jax.Array`): Input batch containing real samples
 
 **Returns**:
 
-- `dict`: Dictionary with losses:
-  - `"loss"`: Total loss (generator + discriminator)
-  - `"generator_loss"`: Generator loss
-  - `"discriminator_loss"`: Discriminator loss
+- `dict`: Dictionary with generator metrics:
+  - `"total_loss"`: Primary generator optimization target
+  - `"generator_loss"`: Alias for the generator objective
+  - `"fake_scores_mean"`: Mean discriminator score for generated samples
+
+#### `discriminator_objective(batch)`
+
+Compute the discriminator-side adversarial objective.
+
+**Parameters**:
+
+- `batch` (`dict` or `jax.Array`): Input batch containing real samples
+
+**Returns**:
+
+- `dict`: Dictionary with discriminator metrics:
+  - `"total_loss"`: Primary discriminator optimization target
+  - `"discriminator_loss"`: Alias for the discriminator objective
   - `"real_scores_mean"`: Mean discriminator score for real samples
-  - `"fake_scores_mean"`: Mean discriminator score for fake samples
+  - `"fake_scores_mean"`: Mean discriminator score for generated samples
+
+**Training Note**:
+
+GAN training requires separate generator and discriminator objectives. The
+shared `loss_fn(...)` entrypoint is intentionally not supported and raises
+`NotImplementedError`. Use `generator_objective(...)`,
+`discriminator_objective(...)`, or [`GANTrainer`](../../training/gan_trainer.md) for
+training loops.
 
 **Example**:
 
@@ -264,7 +282,6 @@ class GANConfig:
         leaky_relu_slope = 0.2
         batch_norm = False
         dropout_rate = 0.3
-        use_spectral_norm = False
 
 # Create GAN
 gan = GAN(GANConfig(), rngs=nnx.Rngs(params=0, dropout=1, sample=2))
@@ -272,12 +289,13 @@ gan = GAN(GANConfig(), rngs=nnx.Rngs(params=0, dropout=1, sample=2))
 # Generate samples
 samples = gan.generate(n_samples=16, rngs=nnx.Rngs(sample=0))
 
-# Compute loss
+# Compute explicit generator/discriminator objectives
 import jax.numpy as jnp
 batch = jnp.ones((32, 1, 28, 28))
-losses = gan.loss_fn(batch, None, rngs=nnx.Rngs(sample=0))
-print(f"Generator Loss: {losses['generator_loss']:.4f}")
-print(f"Discriminator Loss: {losses['discriminator_loss']:.4f}")
+generator_losses = gan.generator_objective(batch)
+discriminator_losses = gan.discriminator_objective(batch)
+print(f"Generator Loss: {generator_losses['total_loss']:.4f}")
+print(f"Discriminator Loss: {discriminator_losses['total_loss']:.4f}")
 ```
 
 ---
@@ -362,7 +380,6 @@ Deep Convolutional GAN discriminator using strided convolutions.
 | `leaky_relu_slope` | `float` | `0.2` | Negative slope for LeakyReLU |
 | `batch_norm` | `bool` | `False` | Use batch normalization |
 | `dropout_rate` | `float` | `0.3` | Dropout rate |
-| `use_spectral_norm` | `bool` | `True` | Use spectral normalization |
 | `rngs` | `nnx.Rngs` | Required | Random number generators |
 
 **Methods**:
@@ -394,7 +411,6 @@ discriminator = DCGANDiscriminator(
     leaky_relu_slope=0.2,
     batch_norm=False,
     dropout_rate=0.3,
-    use_spectral_norm=True,
     rngs=nnx.Rngs(params=0, dropout=1),
 )
 
@@ -597,27 +613,36 @@ Complete Wasserstein GAN with Gradient Penalty (WGAN-GP).
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `config` | `ModelConfig` | Required | Model configuration |
+| `config` | `WGANConfig` | Required | Typed WGAN configuration |
 | `rngs` | `nnx.Rngs` | Required | Random number generators |
 | `precision` | `jax.lax.Precision` | `None` | Numerical precision |
 
 **Configuration**:
 
 ```python
-from artifex.generative_models.core.configuration import ModelConfig
+from artifex.generative_models.core.configuration import (
+    ConvDiscriminatorConfig,
+    ConvGeneratorConfig,
+    WGANConfig,
+)
 
-config = ModelConfig(
-    input_dim=100,                        # Latent dimension
-    output_dim=(3, 64, 64),               # Output image shape
-    hidden_dims=None,                     # Use defaults
-    metadata={
-        "gan_params": {
-            "gen_hidden_dims": (1024, 512, 256),
-            "disc_hidden_dims": (256, 512, 1024),
-            "gradient_penalty_weight": 10.0,     # Lambda for GP
-            "critic_iterations": 5,               # Critic updates per generator
-        }
-    }
+generator = ConvGeneratorConfig(
+    name="wgan_generator",
+    latent_dim=100,
+    output_shape=(3, 64, 64),
+    hidden_dims=(1024, 512, 256),
+)
+discriminator = ConvDiscriminatorConfig(
+    name="wgan_discriminator",
+    input_shape=(3, 64, 64),
+    hidden_dims=(256, 512, 1024),
+)
+config = WGANConfig(
+    name="wgan",
+    generator=generator,
+    discriminator=discriminator,
+    gradient_penalty_weight=10.0,
+    critic_iterations=5,
 )
 ```
 
@@ -677,20 +702,30 @@ $$
 
 ```python
 from artifex.generative_models.models.gan import WGAN
-from artifex.generative_models.core.configuration import ModelConfig
+from artifex.generative_models.core.configuration import (
+    ConvDiscriminatorConfig,
+    ConvGeneratorConfig,
+    WGANConfig,
+)
 from flax import nnx
 
-config = ModelConfig(
-    input_dim=100,
-    output_dim=(3, 64, 64),
-    metadata={
-        "gan_params": {
-            "gen_hidden_dims": (1024, 512, 256),
-            "disc_hidden_dims": (256, 512, 1024),
-            "gradient_penalty_weight": 10.0,
-            "critic_iterations": 5,
-        }
-    }
+generator = ConvGeneratorConfig(
+    name="wgan_generator",
+    latent_dim=100,
+    output_shape=(3, 64, 64),
+    hidden_dims=(1024, 512, 256),
+)
+discriminator = ConvDiscriminatorConfig(
+    name="wgan_discriminator",
+    input_shape=(3, 64, 64),
+    hidden_dims=(256, 512, 1024),
+)
+config = WGANConfig(
+    name="wgan",
+    generator=generator,
+    discriminator=discriminator,
+    gradient_penalty_weight=10.0,
+    critic_iterations=5,
 )
 
 wgan = WGAN(config, rngs=nnx.Rngs(params=0, sample=1))
@@ -883,13 +918,28 @@ where $b$ is the target for real samples (usually 1.0).
 
 ```python
 from artifex.generative_models.models.gan import LSGAN
-from artifex.generative_models.core.configuration import ModelConfig
+from artifex.generative_models.core.configuration import (
+    ConvDiscriminatorConfig,
+    ConvGeneratorConfig,
+    LSGANConfig,
+)
 from flax import nnx
 
-config = ModelConfig(
-    input_dim=100,
-    output_dim=(3, 64, 64),
-    hidden_dims=[512, 256, 128, 64],
+generator = ConvGeneratorConfig(
+    name="lsgan_generator",
+    latent_dim=100,
+    output_shape=(3, 64, 64),
+    hidden_dims=(512, 256, 128, 64),
+)
+discriminator = ConvDiscriminatorConfig(
+    name="lsgan_discriminator",
+    input_shape=(3, 64, 64),
+    hidden_dims=(64, 128, 256, 512),
+)
+config = LSGANConfig(
+    name="lsgan",
+    generator=generator,
+    discriminator=discriminator,
 )
 
 lsgan = LSGAN(config, rngs=nnx.Rngs(params=0, dropout=1, sample=2))
@@ -1049,25 +1099,38 @@ Complete Conditional GAN model.
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `config` | `ModelConfig` | Required | Model configuration |
+| `config` | `ConditionalGANConfig` | Required | Typed conditional GAN configuration |
 | `rngs` | `nnx.Rngs` | Required | Random number generators |
 | `precision` | `jax.lax.Precision` | `None` | Numerical precision |
 
 **Configuration**:
 
 ```python
-from artifex.generative_models.core.configuration import ModelConfig
+from artifex.generative_models.core.configuration import (
+    ConditionalDiscriminatorConfig,
+    ConditionalGANConfig,
+    ConditionalGeneratorConfig,
+    ConditionalParams,
+)
 
-config = ModelConfig(
-    input_dim=100,                        # Latent dimension
-    output_dim=(1, 28, 28),               # MNIST shape
-    metadata={
-        "gan_params": {
-            "num_classes": 10,                      # Number of classes
-            "gen_hidden_dims": (512, 256, 128, 64),
-            "discriminator_features": [64, 128, 256, 512],
-        }
-    }
+conditional = ConditionalParams(num_classes=10, embedding_dim=50)
+generator = ConditionalGeneratorConfig(
+    name="conditional_generator",
+    latent_dim=100,
+    output_shape=(1, 28, 28),
+    hidden_dims=(512, 256, 128, 64),
+    conditional=conditional,
+)
+discriminator = ConditionalDiscriminatorConfig(
+    name="conditional_discriminator",
+    input_shape=(1, 28, 28),
+    hidden_dims=(64, 128, 256, 512),
+    conditional=conditional,
+)
+config = ConditionalGANConfig(
+    name="conditional_gan",
+    generator=generator,
+    discriminator=discriminator,
 )
 ```
 
@@ -1092,21 +1155,34 @@ Generate conditional samples.
 
 ```python
 from artifex.generative_models.models.gan import ConditionalGAN
-from artifex.generative_models.core.configuration import ModelConfig
+from artifex.generative_models.core.configuration import (
+    ConditionalDiscriminatorConfig,
+    ConditionalGANConfig,
+    ConditionalGeneratorConfig,
+    ConditionalParams,
+)
 from flax import nnx
 import jax
 import jax.numpy as jnp
 
-config = ModelConfig(
-    input_dim=100,
-    output_dim=(1, 28, 28),
-    metadata={
-        "gan_params": {
-            "num_classes": 10,
-            "gen_hidden_dims": (512, 256, 128, 64),
-            "discriminator_features": [64, 128, 256, 512],
-        }
-    }
+conditional = ConditionalParams(num_classes=10, embedding_dim=50)
+generator = ConditionalGeneratorConfig(
+    name="conditional_generator",
+    latent_dim=100,
+    output_shape=(1, 28, 28),
+    hidden_dims=(512, 256, 128, 64),
+    conditional=conditional,
+)
+discriminator = ConditionalDiscriminatorConfig(
+    name="conditional_discriminator",
+    input_shape=(1, 28, 28),
+    hidden_dims=(64, 128, 256, 512),
+    conditional=conditional,
+)
+config = ConditionalGANConfig(
+    name="conditional_gan",
+    generator=generator,
+    discriminator=discriminator,
 )
 
 cgan = ConditionalGAN(config, rngs=nnx.Rngs(params=0, dropout=1, sample=2))

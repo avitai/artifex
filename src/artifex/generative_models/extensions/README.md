@@ -1,148 +1,132 @@
 # Extension Mechanism for Generative Models
 
-This package provides a flexible extension mechanism for adding domain-specific functionality to generative models without modifying core implementations.
+This package hosts the canonical Artifex extension surface. Extensions let the
+repo add domain-specific behavior to shared generative-model code without
+hard-wiring modality logic into every model implementation.
 
-## Directory Structure
+## Package Structure
 
-```
+```text
 extensions/
-├── __init__.py         # Main exports
-├── base/               # Base extension classes
+├── __init__.py
+├── base/
+│   └── extensions.py
+├── protein/
 │   ├── __init__.py
-│   └── extensions.py   # ModelExtension, ConstraintExtension, etc.
-├── protein/            # Protein-specific extensions
+│   ├── backbone.py
+│   ├── constraints.py
+│   ├── mixin.py
+│   └── utils.py
+├── chemical/
 │   ├── __init__.py
-│   ├── backbone.py     # Protein backbone constraints
-│   ├── mixin.py        # Protein-specific mixins
-│   └── utils.py        # Utility functions for creating extensions
-└── README.md           # This file
+│   ├── constraints.py
+│   └── features.py
+├── vision/
+│   ├── __init__.py
+│   └── augmentation.py
+├── audio_processing/
+│   ├── __init__.py
+│   ├── spectral.py
+│   └── temporal.py
+├── nlp/
+│   ├── __init__.py
+│   ├── embeddings.py
+│   └── tokenization.py
+└── registry.py
 ```
 
-## Key Features
+## Current Shared Surface
 
-- **Separation of Concerns**: Keep domain-agnostic model code separate from domain-specific extensions
-- **Composability**: Mix and match different extension components
-- **Type Safety**: Strong typing with JAX's typing system
-- **Configuration Integration**: Use the artifex configuration system to create and customize extensions
-- **Domain-Specific Extensions**: Ready-to-use protein-specific extensions
+The protein extensions are the reference implementation for the Artifex
+extension architecture. They exercise the intended system end to end:
 
-## Extension Types
+- typed config bundle composition
+- explicit runtime materialization
+- registry-based discovery
+- modality integration without polluting base model packages
 
-- **ModelExtension**: Base class for all model extensions
-- **ConstraintExtension**: Extensions that enforce domain-specific constraints
-- **Protein Extensions**: Extensions specific to protein modeling (bond lengths, angles, etc.)
+That curated protein flow is not the whole supported surface, though. The live
+registry also ships broader registry-backed family subpackages for:
 
-## Usage Examples
+- `chemical`
+- `vision`
+- `audio_processing`
+- `nlp`
 
-### Basic Usage
+The top-level `artifex.generative_models.extensions` package remains a curated convenience barrel: it lazily exports the shared registry/base types plus the protein helpers that anchor the canonical typed-bundle workflow. The broader registry-backed family subpackages stay importable through their own package paths and through `get_extensions_registry()`.
+
+## Curated Protein Surface
+
+The currently exported protein extension classes are:
+
+- `BondLengthExtension`
+- `BondAngleExtension`
+- `ProteinBackboneConstraint`
+- `ProteinDihedralConstraint`
+- `ProteinMixinExtension`
+
+## Canonical Composition Contract
+
+Use `ProteinExtensionsConfig` as the single supported bundle surface for the
+curated protein flow:
 
 ```python
-import jax
 from flax import nnx
 
-from artifex.generative_models.extensions import (
-    BondLengthExtension,
-    BondAngleExtension,
-    ProteinMixinExtension,
+from artifex.configs import (
+    ProteinExtensionConfig,
+    ProteinExtensionsConfig,
+    ProteinMixinConfig,
 )
-from artifex.generative_models.extensions.base import ExtensionConfig
-from artifex.generative_models.models.geometric import PointCloudModel
-
-# Initialize random number generator
-rng_key = jax.random.PRNGKey(42)
-rngs = nnx.Rngs(params=rng_key)
-
-# Create extension components individually
-extensions = {
-    "bond_length": BondLengthExtension(
-        ExtensionConfig(
-            name="bond_length",
-            weight=1.0,
-            extensions={"ideal_lengths": [1.45, 1.52, 1.33]}
-        ),
-        rngs=rngs,
-    ),
-    "bond_angle": BondAngleExtension(
-        ExtensionConfig(
-            name="bond_angle",
-            weight=0.5,
-            extensions={"ideal_angles": [1.94, 2.10]}
-        ),
-        rngs=rngs,
-    ),
-}
-
-# Create model with extensions using factory
-from artifex.generative_models.core.configuration import ModelConfiguration
-from artifex.generative_models.factory import create_model
-
-model_config = ModelConfiguration(
-    name="point_cloud_with_extensions",
-    model_class="artifex.generative_models.models.geometric.PointCloudModel",
-    input_dim=(128, 3),
-    hidden_dims=[64],
-    output_dim=(128, 3),
-    parameters={
-        "num_points": 128,
-        "embed_dim": 64,
-        "num_layers": 3,
-        "num_heads": 8,
-        "dropout": 0.1
-    }
-)
-
-model = create_model(model_config, extensions=extensions, rngs=rngs)
-```
-
-### Using the Helper Function
-
-```python
 from artifex.generative_models.extensions.protein import create_protein_extensions
 
-# Create protein extensions with a simple configuration
-protein_config = {
-    "use_backbone_constraints": True,
-    "bond_length_weight": 1.0,
-    "bond_angle_weight": 0.5,
-    "use_protein_mixin": True,
-}
+bundle = ProteinExtensionsConfig(
+    name="protein_extensions",
+    bond_length=ProteinExtensionConfig(
+        name="bond_length",
+        weight=1.0,
+        bond_length_weight=1.0,
+    ),
+    bond_angle=ProteinExtensionConfig(
+        name="bond_angle",
+        weight=0.5,
+        bond_angle_weight=0.5,
+    ),
+    mixin=ProteinMixinConfig(
+        name="protein_mixin",
+        embedding_dim=16,
+        num_aa_types=21,
+    ),
+)
 
-extensions = create_protein_extensions(protein_config, rngs=rngs)
+extensions = create_protein_extensions(bundle, rngs=nnx.Rngs(0))
 ```
 
-## How Extensions Work
+## Registry
 
-Extensions are attached to models during initialization and can:
-
-1. **Process Inputs/Outputs**: Extensions can process model inputs and outputs
-2. **Add Loss Terms**: Extensions can contribute additional loss terms
-3. **Project Outputs**: Constraint extensions can project outputs to satisfy constraints
-4. **Validate Results**: Extensions can validate model outputs against constraints
-
-## Creating Custom Extensions
-
-To create a custom extension:
-
-1. Subclass `ModelExtension` or `ConstraintExtension`
-2. Implement the required methods (`__call__`, `loss_fn`, etc.)
-3. Register your extension in the appropriate location
-
-## Migration Notes
-
-This extension mechanism was restructured from the previous location under `models/geometric/extensions` to improve separation of concerns. The restructuring:
-
-1. Moved base extension classes to `extensions/base/`
-2. Moved protein-specific extensions to `extensions/protein/`
-3. Ensured backward compatibility with existing code
-4. Added proper configuration integration
-
-If you're updating existing code, you'll need to change imports:
+Use `get_extensions_registry()` to inspect registered extension classes and
+their capabilities:
 
 ```python
-# Old imports
-from artifex.generative_models.models.geometric.extensions import ...
+from artifex.generative_models.extensions import get_extensions_registry
 
-# New imports
-from artifex.generative_models.extensions import ...
-from artifex.generative_models.extensions.protein import ...
+registry = get_extensions_registry()
+registry.get_extensions_for_modality("protein")
+registry.get_extensions_for_modality("molecular")
+registry.get_extensions_for_modality("image")
+registry.get_extensions_for_modality("audio")
+registry.get_extensions_for_modality("text")
 ```
+
+The registry is the authoritative discovery surface for the shipped shared
+extension families, even though the top-level barrel keeps curated convenience
+exports.
+
+## Design Rules
+
+- Base model packages should not provide shadow extension implementations.
+- Extension composition should stay typed and explicit.
+- Domain-specific defaults should live in config assets, not in ad hoc dict
+  shims.
+- New extension families should copy the protein pattern rather than invent a
+  parallel surface.

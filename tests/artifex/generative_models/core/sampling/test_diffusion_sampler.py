@@ -1,6 +1,6 @@
 """Tests for diffusion-based sampling algorithms.
 
-This module provides comprehensive tests for the DiffusionSampler class,
+This module provides complete tests for the DiffusionSampler class,
 covering initialization, beta scheduling, step computation, and sampling.
 """
 
@@ -297,7 +297,7 @@ class TestSampling:
 
     def test_sample_without_model_raises(self, base_sampler):
         """Test sampling without model raises NotImplementedError."""
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(NotImplementedError, match="wrapper-only"):
             base_sampler.sample(4)
 
 

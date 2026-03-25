@@ -4,15 +4,15 @@
 
 ## Overview
 
-This example demonstrates Artifex's modality architecture for creating protein-specific generative models. The modality system provides a unified interface for working with different data types (image, text, protein, etc.) while maintaining domain-specific capabilities. You'll learn how to use the factory system to create protein models with automatic modality-specific enhancements.
+This example demonstrates Artifex's modality architecture for protein-oriented geometric workflows. The modality system provides a unified interface for working with different data types while keeping the shared factory on the generic model family selected by the typed config. You will also see where the typed protein extension bundle fits when you need retained protein-specific runtime behavior.
 
 ## What You'll Learn
 
 - Understand Artifex's modality architecture and its benefits
-- Create protein models using the factory system with modalities
-- Work with different model types (PointCloudModel, GeometricModel) for proteins
-- Use full module paths when working with the factory system
-- Apply domain-specific extensions through modality configuration
+- Create protein-oriented models using the factory system with modalities
+- Work with different model types (PointCloudModel, GeometricModel) for protein data
+- Choose the correct typed config family for the model you want to build
+- Identify where the typed protein extension bundle fits in the runtime story
 
 ## Files
 
@@ -24,20 +24,12 @@ This example demonstrates Artifex's modality architecture for creating protein-s
 ### Run the Python Script
 
 ```bash
-# Activate environment
-source activate.sh
-
-# Run the example
 python examples/generative_models/protein/protein_model_with_modality.py
 ```
 
 ### Run the Jupyter Notebook
 
 ```bash
-# Activate environment
-source activate.sh
-
-# Launch Jupyter
 jupyter lab examples/generative_models/protein/protein_model_with_modality.ipynb
 ```
 
@@ -47,16 +39,16 @@ jupyter lab examples/generative_models/protein/protein_model_with_modality.ipynb
 
 Artifex uses a modality-based design where each data type has its own modality class that handles:
 
-- **Domain-specific preprocessing**: Convert protein data to appropriate representations
-- **Evaluation metrics**: Compute relevant metrics for the domain (RMSD, TM-score, etc.)
-- **Model adaptations**: Apply domain-specific enhancements and extensions
+- **Adapter lookup**: Choose the retained protein adapter for compatible model families
+- **Typed extension bundles**: Build protein-specific runtime extensions with `ProteinExtensionsConfig`
+- **Input conventions**: Keep protein-shaped batches aligned with generic geometric models
 
 **Benefits**:
 
 - Consistent interface across different data types
-- Automatic application of domain expertise
-- Easy switching between different model architectures
-- Built-in best practices for each domain
+- Explicit protein boundaries without changing the selected model family
+- Easy switching between different model architectures through config choice
+- Protein-specific runtime behavior stays on the typed protein extension bundle
 
 ### Factory System
 
@@ -67,15 +59,15 @@ from artifex.generative_models.factory import create_model
 
 model = create_model(
     config=model_config,
-    modality="protein",  # Automatically applies protein-specific enhancements
+    modality="protein",  # Keeps the generic model family selected by the typed config
     rngs=rngs
 )
 ```
 
-**Important**: When using the factory system, model classes **must be specified with full module paths**:
-
-- ✅ `"artifex.generative_models.models.geometric.point_cloud.PointCloudModel"`
-- ❌ `"PointCloudModel"` (will raise ValueError)
+**Important**: `modality="protein"` is an explicit adapter and typed extension boundary.
+It does not swap in `ProteinPointCloudModel` or `ProteinGraphModel` automatically.
+Use `PointCloudConfig` when you want a point-cloud model and `GeometricConfig`
+when you want the generic geometric base path.
 
 ### Protein Data Structure
 
@@ -94,7 +86,7 @@ protein_data = {
 The example demonstrates four major sections:
 
 1. **Available Modalities**: List all registered modalities in the system
-2. **Model Configuration**: Create configuration with full module paths
+2. **Model Configuration**: Create typed configuration objects
 3. **Factory with Modality**: Create protein models using the factory
 4. **Model Usage**: Perform inference with protein data
 
@@ -110,10 +102,9 @@ modalities = list_modalities()
 for name, cls in modalities.items():
     print(f"  - {name}: {cls.__name__}")
 # Output:
-#   - protein: MolecularModality
 #   - image: ImageModality
-#   - text: TextModality
-#   ...
+#   - molecular: MolecularModality
+#   - protein: ProteinModality
 ```
 
 ### Creating Model Configuration
@@ -156,7 +147,7 @@ rngs = nnx.Rngs(params=42)
 # Create model with protein modality
 model = create_model(
     config=model_config,
-    modality="protein",  # Applies protein-specific enhancements
+    modality="protein",  # Keeps the generic model family selected by the typed config
     rngs=rngs,
 )
 
@@ -168,15 +159,9 @@ print(f"Created model: {model.__class__.__name__}")
 
 ```python
 # Create configuration for GeometricModel instead
-geometric_config = ModelConfig(
+geometric_config = GeometricConfig(
     name="protein_geometric",
-    # Different model class, same modality system
-    model_class="artifex.generative_models.models.geometric.base.GeometricModel",
-    input_dim=128,
-    output_dim=128,
-    hidden_dims=[64, 64],
-    parameters=model_config.parameters,
-    metadata=model_config.metadata,
+    dropout_rate=0.1,
 )
 
 # Create with same modality
@@ -212,18 +197,17 @@ for key, value in outputs.items():
         print(f"{key}: {value.shape}")
 # Output might include:
 #   coordinates: (2, 40, 3)
-#   bond_length: {...}
-#   bond_angle: {...}
+#   features: (2, 40, ...)
 ```
 
 ## Features Demonstrated
 
-- **Modality Registration**: Automatic discovery of available modalities
+- **Modality Registration**: Discovery of the retained registry-backed modalities
 - **Factory Pattern**: Unified model creation interface
-- **Full Module Paths**: Required syntax for model class specification
-- **Domain Extensions**: Protein-specific constraints and mixins
-- **Model Flexibility**: Same modality works with different model architectures
-- **Type Safety**: Configuration validation through Pydantic models
+- **Typed Config Families**: Config type chooses the generic model family
+- **Typed Protein Extensions**: Protein-specific runtime behavior lives on `ProteinExtensionsConfig`
+- **Model Flexibility**: Same modality boundary works with different model architectures
+- **Type Safety**: Configuration validation through frozen dataclass configs
 
 ## Experiments to Try
 
@@ -237,15 +221,25 @@ for key, value in outputs.items():
    )
    ```
 
-2. **Modify Extension Weights**: Change `bond_length_weight` and `bond_angle_weight` to see their effect on the model's constraint enforcement
+2. **Modify Extension Weights**: Build a typed protein extension bundle to change constraint weights explicitly
 
    ```python
-   metadata = {
-       "extensions": {
-           "bond_length_weight": 2.0,  # Increased from 1.0
-           "bond_angle_weight": 1.0,   # Increased from 0.5
-       }
-   }
+   from artifex.generative_models.core.configuration import (
+       ProteinExtensionConfig,
+       ProteinExtensionsConfig,
+   )
+
+   extensions = ProteinExtensionsConfig(
+       name="protein_extensions",
+       bond_length=ProteinExtensionConfig(
+           name="bond_length",
+           bond_length_weight=2.0,
+       ),
+       bond_angle=ProteinExtensionConfig(
+           name="bond_angle",
+           bond_angle_weight=1.0,
+       ),
+   )
    ```
 
 3. **Scale to Larger Proteins**: Increase `num_residues` and `num_atoms` to work with larger protein structures
@@ -269,25 +263,30 @@ for key, value in outputs.items():
 
 ### Common Issues
 
-#### ValueError: Invalid model class
+#### ValueError: network is required and cannot be None
 
 **Symptom:**
 
 ```
-ValueError: model_class must be a fully qualified module path
+ValueError: network is required and cannot be None
 ```
 
 **Cause:**
-Using short names like `"PointCloudModel"` instead of full module paths.
+`PointCloudConfig` requires a `PointCloudNetworkConfig`. Use `GeometricConfig`
+only when you intentionally want the generic geometric base path.
 
 **Solution:**
 
 ```python
-# ❌ WRONG - Short name
-model_class="PointCloudModel"
+# ❌ WRONG - Generic geometric config when you need a point-cloud model
+config = GeometricConfig(name="protein_geometric")
 
-# ✅ CORRECT - Full module path
-model_class="artifex.generative_models.models.geometric.point_cloud.PointCloudModel"
+# ✅ CORRECT - Point-cloud model uses PointCloudConfig
+config = PointCloudConfig(
+    name="protein_point_cloud",
+    network=network_config,
+    num_points=128,
+)
 ```
 
 #### KeyError: 'sample'
@@ -333,17 +332,17 @@ parameters = {
 In this example, you learned:
 
 - ✅ Artifex's modality architecture provides a unified interface for different data types
-- ✅ The factory system with `create_model()` simplifies model creation
-- ✅ Full module paths are required when specifying model classes
-- ✅ The same modality can work with different model architectures
-- ✅ Domain-specific extensions are automatically applied through modality configuration
+- ✅ The factory system with `create_model()` keeps config choice and modality choice explicit
+- ✅ Typed config families choose the generic model family
+- ✅ The same modality boundary can work with different model architectures
+- ✅ Protein-specific runtime behavior lives on the typed protein extension bundle
 
 **Key Takeaways:**
 
 1. **Modality System**: Separates domain logic from model architecture
-2. **Factory Pattern**: Consistent API across all model types
-3. **Full Paths Required**: Always use complete module paths for `model_class`
-4. **Flexibility**: Easy to switch between different model types while maintaining domain capabilities
+2. **Factory Pattern**: Keeps model-family choice and modality choice explicit
+3. **Typed Config Families**: `PointCloudConfig` and `GeometricConfig` choose different generic model families
+4. **Protein Extensions**: The typed protein extension bundle owns retained protein-specific runtime behavior
 
 ## Next Steps
 
@@ -377,7 +376,7 @@ In this example, you learned:
 
     ---
 
-    Comprehensive guide to the model factory
+    Complete guide to the model factory
 
     [:octicons-arrow-right-24: Factory Guide](../../guides/factory.md)
 
@@ -388,7 +387,7 @@ In this example, you learned:
 - **Artifex Documentation**: [Modality System](../../guides/modalities.md)
 - **Artifex Documentation**: [Factory System](../../guides/factory.md)
 - **Artifex Documentation**: [Protein Extensions](../../guides/protein-extensions.md)
-- **API Reference**: [ModelConfig](../../api/configuration.md)
+- **API Reference**: [Configuration API](../../api/configuration.md)
 - **API Reference**: [create_model](../../api/factory.md)
 
 ## Related Examples

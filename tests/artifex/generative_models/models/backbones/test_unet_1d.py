@@ -5,9 +5,9 @@ import pytest
 from flax import nnx
 
 from artifex.generative_models.core.configuration.backbone_config import (
-    create_backbone,
     UNet1DBackboneConfig,
 )
+from artifex.generative_models.factory.builders.backbone_builder import create_backbone
 
 
 def create_unet1d_config(**kwargs) -> UNet1DBackboneConfig:

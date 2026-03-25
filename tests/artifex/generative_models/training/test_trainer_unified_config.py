@@ -1,8 +1,6 @@
-"""Tests for Trainer class with unified configuration system.
+"""Tests for Trainer class with unified configuration system."""
 
-Following TDD principles - these tests are written FIRST before implementation.
-"""
-
+import jax.numpy as jnp
 import optax
 import pytest
 from flax import nnx
@@ -90,10 +88,31 @@ def optimizer():
     return optax.adam(1e-3)
 
 
+@pytest.fixture
+def explicit_loss_fn():
+    """Explicit objective for the generic Trainer contract."""
+
+    def loss_fn(model, batch, rng, step):
+        del model, batch, rng, step
+        loss = jnp.array(0.0)
+        return loss, {"loss": loss}
+
+    return loss_fn
+
+
 class TestTrainerUnifiedConfig:
     """Test Trainer class with unified configuration requirements."""
 
-    def test_trainer_requires_training_configuration(self, model, optimizer):
+    def test_trainer_requires_explicit_loss_fn(self, model, optimizer, valid_training_config):
+        """Generic Trainer should require an explicit objective."""
+        with pytest.raises(TypeError, match="loss_fn"):
+            Trainer(
+                model=model,
+                optimizer=optimizer,
+                training_config=valid_training_config,
+            )
+
+    def test_trainer_requires_training_configuration(self, model, optimizer, explicit_loss_fn):
         """Test that Trainer raises TypeError for non-TrainingConfig."""
         # Dict config should raise TypeError
         with pytest.raises(TypeError, match="training_config must be a TrainingConfig"):
@@ -101,6 +120,7 @@ class TestTrainerUnifiedConfig:
                 model=model,
                 optimizer=optimizer,
                 training_config={"learning_rate": 1e-3, "batch_size": 32},
+                loss_fn=explicit_loss_fn,
             )
 
         # Any other type should raise TypeError
@@ -109,6 +129,7 @@ class TestTrainerUnifiedConfig:
                 model=model,
                 optimizer=optimizer,
                 training_config="invalid",
+                loss_fn=explicit_loss_fn,
             )
 
         # None should raise TypeError (required parameter)
@@ -117,14 +138,18 @@ class TestTrainerUnifiedConfig:
                 model=model,
                 optimizer=optimizer,
                 training_config=None,
+                loss_fn=explicit_loss_fn,
             )
 
-    def test_trainer_accepts_training_configuration(self, model, optimizer, valid_training_config):
+    def test_trainer_accepts_training_configuration(
+        self, model, optimizer, valid_training_config, explicit_loss_fn
+    ):
         """Test that Trainer works correctly with TrainingConfig."""
         trainer = Trainer(
             model=model,
             optimizer=optimizer,
             training_config=valid_training_config,
+            loss_fn=explicit_loss_fn,
         )
 
         # Trainer should be created successfully
@@ -134,13 +159,14 @@ class TestTrainerUnifiedConfig:
         assert trainer.optimizer is optimizer
 
     def test_trainer_training_config_attributes_accessible(
-        self, model, optimizer, valid_training_config
+        self, model, optimizer, valid_training_config, explicit_loss_fn
     ):
         """Test that TrainingConfig attributes are accessible in trainer."""
         trainer = Trainer(
             model=model,
             optimizer=optimizer,
             training_config=valid_training_config,
+            loss_fn=explicit_loss_fn,
         )
 
         # Should be able to access training config attributes
@@ -149,12 +175,15 @@ class TestTrainerUnifiedConfig:
         assert trainer.training_config.num_epochs == 10
         assert trainer.training_config.optimizer.optimizer_type == "adam"
 
-    def test_trainer_with_all_parameters(self, model, optimizer, valid_training_config):
+    def test_trainer_with_all_parameters(
+        self, model, optimizer, valid_training_config, explicit_loss_fn
+    ):
         """Test Trainer with all parameters including typed config."""
         trainer = Trainer(
             model=model,
             optimizer=optimizer,
             training_config=valid_training_config,
+            loss_fn=explicit_loss_fn,
             train_data_loader=lambda: None,  # Mock data loader
             val_data_loader=lambda: None,  # Mock data loader
             workdir="/tmp/test",
@@ -167,7 +196,7 @@ class TestTrainerUnifiedConfig:
         assert trainer.checkpoint_dir == "/tmp/test/checkpoints"
         assert trainer.save_interval == 500
 
-    def test_legacy_training_config_rejected(self, model, optimizer):
+    def test_legacy_training_config_rejected(self, model, optimizer, explicit_loss_fn):
         """Test that legacy training config classes are rejected."""
 
         # Mock a legacy training config class
@@ -184,9 +213,10 @@ class TestTrainerUnifiedConfig:
                 model=model,
                 optimizer=optimizer,
                 training_config=legacy_config,
+                loss_fn=explicit_loss_fn,
             )
 
-    def test_training_configuration_validation(self, model, optimizer):
+    def test_training_configuration_validation(self, model, optimizer, explicit_loss_fn):
         """Test that invalid TrainingConfig raises appropriate errors."""
         # Test with minimal valid config
         minimal_optimizer = OptimizerConfig(
@@ -206,15 +236,19 @@ class TestTrainerUnifiedConfig:
             model=model,
             optimizer=optimizer,
             training_config=minimal_config,
+            loss_fn=explicit_loss_fn,
         )
         assert trainer.training_config == minimal_config
 
-    def test_trainer_methods_with_typed_config(self, model, optimizer, valid_training_config):
+    def test_trainer_methods_with_typed_config(
+        self, model, optimizer, valid_training_config, explicit_loss_fn
+    ):
         """Test that trainer methods can access typed config properly."""
         trainer = Trainer(
             model=model,
             optimizer=optimizer,
             training_config=valid_training_config,
+            loss_fn=explicit_loss_fn,
         )
 
         # Test that we can access config in trainer methods

@@ -83,8 +83,3 @@ def test_general_mixture():
         print(f"Log prob values: {log_prob}")
     except Exception as e:
         print(f"Log prob failed: {e}")
-
-
-if __name__ == "__main__":
-    test_mixture_of_gaussians()
-    test_general_mixture()

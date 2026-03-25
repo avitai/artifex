@@ -7,7 +7,7 @@ import jax.numpy as jnp
 from flax import nnx
 
 from artifex.generative_models.core.configuration.vae_config import VQVAEConfig
-from artifex.generative_models.models.vae.base import VAE
+from artifex.generative_models.models.vae.base import _extract_vae_inputs, VAE
 
 
 class VQVAE(VAE):
@@ -42,6 +42,17 @@ class VQVAE(VAE):
 
         # Store last quantization auxiliary data for loss computation
         self._last_quantize_aux = nnx.Dict({})
+
+    def _compute_codebook_perplexity(self, encoding_indices: jax.Array) -> jax.Array:
+        """Compute codebook-usage perplexity from the selected embedding indices."""
+        assignments = jax.nn.one_hot(
+            encoding_indices,
+            self.num_embeddings,
+            dtype=self.embeddings.embedding.dtype,
+        )
+        average_probs = jnp.mean(assignments, axis=0)
+        entropy = -jnp.sum(average_probs * jnp.log(average_probs + 1e-10))
+        return jnp.exp(entropy)
 
     def quantize(self, encoding: jax.Array) -> tuple[jax.Array, dict[str, jax.Array]]:
         """Quantize the input using the codebook.
@@ -78,11 +89,14 @@ class VQVAE(VAE):
         commitment_loss = jnp.mean((jax.lax.stop_gradient(quantized) - encoding) ** 2)
         codebook_loss = jnp.mean((quantized - jax.lax.stop_gradient(encoding)) ** 2)
 
+        perplexity = self._compute_codebook_perplexity(encoding_indices)
+
         # Create auxiliary dict
         aux = {
             "commitment_loss": commitment_loss,
             "codebook_loss": codebook_loss,
             "encoding_indices": encoding_indices,
+            "perplexity": perplexity,
         }
 
         # Store auxiliary info for later use in __call__ and loss_fn
@@ -112,9 +126,13 @@ class VQVAE(VAE):
             encoding = encoder_output["mean"]
         elif isinstance(encoder_output, tuple) and len(encoder_output) > 0:
             encoding = encoder_output[0]
-        else:
-            # Direct output for simple encoders
+        elif isinstance(encoder_output, jax.Array):
             encoding = encoder_output
+        else:
+            raise ValueError("Unexpected encoder output format")
+
+        if not isinstance(encoding, jax.Array):
+            raise ValueError("Unexpected encoder output format")
 
         # Return (mean, log_var) for VAE interface compatibility
         # VQ-VAE has deterministic encoding, so log_var is zeros
@@ -134,10 +152,8 @@ class VQVAE(VAE):
         decoder_output = self.decoder(z)
 
         # Extract reconstruction from decoder output
-        if isinstance(decoder_output, dict) and "reconstructed" in decoder_output:
+        if isinstance(decoder_output, dict):
             return decoder_output["reconstructed"]
-        elif isinstance(decoder_output, dict) and "reconstruction" in decoder_output:
-            return decoder_output["reconstruction"]
         elif isinstance(decoder_output, jax.Array):
             return decoder_output
         else:
@@ -161,47 +177,51 @@ class VQVAE(VAE):
         # Decode quantized vector to get reconstruction
         reconstruction = self.decode(quantized)
 
-        # Return a dictionary with all outputs
-        # Include 'z' and 'z_e' for compatibility with tests
+        # Return one canonical VQ-VAE output structure.
         return {
             "reconstructed": reconstruction,
             "encoding": encoding,  # Pre-quantization encoding
-            # (also called z_e in the literature)
-            "z_e": encoding,  # Alternative name for pre-quantization encoding
             "quantized": quantized,  # Quantized encoding
-            "z": quantized,  # For compatibility with test expectations
             "mean": encoding,  # For VAE interface compatibility
             "log_var": log_var,  # Include for VAE base class compatibility
             "commitment_loss": aux["commitment_loss"],
             "codebook_loss": aux["codebook_loss"],
             "encoding_indices": aux["encoding_indices"],
+            "perplexity": aux["perplexity"],
             "quantization_aux": aux,
         }
 
     def loss_fn(
-        self, x: jax.Array, outputs: dict[str, jax.Array], **kwargs: Any
+        self, batch: Any, model_outputs: dict[str, jax.Array], **kwargs: Any
     ) -> dict[str, jax.Array]:
         """Compute the VQ-VAE loss.
 
         Args:
-            x: Input data
-            outputs: Dictionary of model outputs from forward pass
+            batch: Input batch as an array or dict containing the model inputs.
+            model_outputs: Dictionary of model outputs from forward pass
             **kwargs: Additional arguments
 
         Returns:
             Dictionary of loss components
         """
+        del kwargs
+        x = _extract_vae_inputs(batch)
+
         # Get reconstruction and auxiliary data
-        recon_x = outputs["reconstructed"]
+        recon_x = model_outputs["reconstructed"]
 
         # Get losses from outputs if available, otherwise from aux
-        if "commitment_loss" in outputs and "codebook_loss" in outputs:
-            commitment_loss = outputs["commitment_loss"]
-            codebook_loss = outputs["codebook_loss"]
+        if "commitment_loss" in model_outputs and "codebook_loss" in model_outputs:
+            commitment_loss = model_outputs["commitment_loss"]
+            codebook_loss = model_outputs["codebook_loss"]
         else:
-            aux = outputs["quantization_aux"]
+            aux = model_outputs["quantization_aux"]
             commitment_loss = aux["commitment_loss"]
             codebook_loss = aux["codebook_loss"]
+
+        perplexity = model_outputs.get("perplexity")
+        if perplexity is None:
+            perplexity = model_outputs["quantization_aux"]["perplexity"]
 
         # Compute reconstruction loss (binary cross entropy)
         if len(x.shape) > 2:  # Multi-dimensional input (like images)
@@ -223,11 +243,12 @@ class VQVAE(VAE):
 
         # Return dictionary of losses
         return {
-            "loss": total_loss,
+            "total_loss": total_loss,
             "reconstruction_loss": recon_loss,
             "commitment_loss": commitment_loss,
             "codebook_loss": codebook_loss,
             "vq_loss": vq_loss,
+            "perplexity": perplexity,
         }
 
     def sample(

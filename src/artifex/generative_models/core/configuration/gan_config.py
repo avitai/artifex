@@ -20,7 +20,7 @@ from artifex.generative_models.core.configuration.validation import (
 )
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class GANConfig(BaseConfig):
     """Base configuration for GAN models with nested network configs.
 
@@ -92,7 +92,7 @@ class GANConfig(BaseConfig):
             TypeError: If generator or discriminator are not provided or have wrong type
         """
         # Call parent validation first
-        super().__post_init__()
+        super(GANConfig, self).__post_init__()
 
         # Validate required nested configs
         if self.generator is None:
@@ -213,7 +213,7 @@ class GANConfig(BaseConfig):
         return super(GANConfig, cls).from_dict(data)
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class WGANConfig(GANConfig):
     """Configuration for Wasserstein GAN (WGAN).
 
@@ -278,7 +278,7 @@ class WGANConfig(GANConfig):
             TypeError: If generator or discriminator have wrong type
         """
         # Call parent validation first
-        super().__post_init__()
+        super(WGANConfig, self).__post_init__()
 
         # WGAN requires ConvGeneratorConfig and ConvDiscriminatorConfig
         if not isinstance(self.generator, ConvGeneratorConfig):
@@ -319,7 +319,7 @@ class WGANConfig(GANConfig):
         return super(WGANConfig, cls).from_dict(data)
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class LSGANConfig(GANConfig):
     """Configuration for Least Squares GAN (LSGAN).
 
@@ -388,7 +388,7 @@ class LSGANConfig(GANConfig):
             TypeError: If generator or discriminator have wrong type
         """
         # Call parent validation first
-        super().__post_init__()
+        super(LSGANConfig, self).__post_init__()
 
         # LSGAN requires ConvGeneratorConfig and ConvDiscriminatorConfig
         if not isinstance(self.generator, ConvGeneratorConfig):
@@ -426,7 +426,7 @@ class LSGANConfig(GANConfig):
         return super(LSGANConfig, cls).from_dict(data)
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class ConditionalGANConfig(GANConfig):
     """Configuration for Conditional GAN.
 
@@ -482,7 +482,7 @@ class ConditionalGANConfig(GANConfig):
             TypeError: If generator or discriminator have wrong type
         """
         # Call parent validation first
-        super().__post_init__()
+        super(ConditionalGANConfig, self).__post_init__()
 
         # Conditional GAN requires single generator and discriminator (not dict)
         if isinstance(self.generator, dict):
@@ -514,7 +514,7 @@ class ConditionalGANConfig(GANConfig):
             )
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class CycleGANConfig(GANConfig):
     """Configuration for CycleGAN (Cycle-Consistent Adversarial Networks).
 
@@ -598,7 +598,7 @@ class CycleGANConfig(GANConfig):
             ValueError: If any validation fails
         """
         # Call parent validation
-        super().__post_init__()
+        super(CycleGANConfig, self).__post_init__()
 
         # CycleGAN MUST have dict of generators and discriminators
         if not isinstance(self.generator, dict):
@@ -650,7 +650,7 @@ class CycleGANConfig(GANConfig):
         validate_non_negative_float(self.lambda_identity, "lambda_identity")
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class DCGANConfig(GANConfig):
     """Configuration for Deep Convolutional GAN (DCGAN).
 
@@ -714,7 +714,7 @@ class DCGANConfig(GANConfig):
             TypeError: If generator or discriminator have wrong type
         """
         # Call parent validation first
-        super().__post_init__()
+        super(DCGANConfig, self).__post_init__()
 
         # DCGAN requires single generator and discriminator (not dict)
         if isinstance(self.generator, dict):

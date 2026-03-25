@@ -4,6 +4,7 @@ Following TDD principles - these tests are written FIRST before implementation.
 Now updated to use specific dataclass configs instead of ModelConfig.
 """
 
+import dataclasses
 from typing import Any
 
 import pytest
@@ -12,12 +13,12 @@ from flax import nnx
 from artifex.generative_models.core.base import GenerativeModel
 from artifex.generative_models.core.configuration import (
     BaseConfig,
+    BaseModalityConfig,
     DecoderConfig,
     EncoderConfig,
     ModalityConfig,
     VAEConfig,
 )
-from artifex.generative_models.core.protocols.configuration import BaseModalityConfig
 from artifex.generative_models.modalities.base import (
     BaseModalityImplementation,
     ModelAdapter,
@@ -70,9 +71,8 @@ def valid_modality_config():
 @pytest.fixture
 def base_modality_config():
     """BaseModalityConfig for current implementation."""
-    from dataclasses import dataclass
 
-    @dataclass
+    @dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
     class TestModalityConfig(BaseModalityConfig):
         name: str = "test"
 
@@ -97,9 +97,8 @@ class MockModality(BaseModalityImplementation):
     def __init__(self, config, *, rngs: nnx.Rngs):
         """Initialize with either BaseModalityConfig or ModalityConfig."""
         if isinstance(config, ModalityConfig):
-            from dataclasses import dataclass
 
-            @dataclass
+            @dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
             class TempConfig(BaseModalityConfig):
                 name: str = config.name
 

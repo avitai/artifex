@@ -1,11 +1,6 @@
 # Benchmark
 
-**Module:** `cli.commands.benchmark`
+The top-level `benchmark` command is not currently shipped in the runtime CLI.
 
-**Source:** `cli/commands/benchmark.py`
-
-## Module Statistics
-
-- **Classes:** 0
-- **Functions:** 0
-- **Imports:** 0
+Benchmark orchestration should be handled by Python APIs or dedicated project
+scripts until a supported benchmark command surface exists.

@@ -108,3 +108,25 @@ class TestPointCloudModel:
 
         # Check shape
         assert outputs["positions"].shape == x.shape
+
+    def test_generate_rejects_dead_temperature_knob(self, point_cloud_model):
+        """The retained point-cloud surface should reject unsupported generation kwargs."""
+        with pytest.raises(TypeError):
+            point_cloud_model.generate(
+                n_samples=2,
+                rngs=nnx.Rngs(params=jax.random.key(3)),
+                temperature=0.8,
+            )
+
+    def test_get_loss_fn_uses_generic_total_loss_contract(self, point_cloud_model):
+        """Point-cloud runtime loss should stay on the generic reconstruction contract."""
+        batch_size = 2
+        target = jnp.zeros((batch_size, point_cloud_model.num_points, 3))
+        outputs = point_cloud_model(jnp.ones_like(target), deterministic=True)
+
+        losses = point_cloud_model.get_loss_fn()({"target": target}, outputs)
+
+        assert set(losses) == {"total_loss", "mse_loss"}
+        assert jnp.isfinite(losses["total_loss"])
+        assert jnp.isfinite(losses["mse_loss"])
+        assert jnp.allclose(losses["total_loss"], losses["mse_loss"])

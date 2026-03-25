@@ -1,57 +1,24 @@
-# Dit
+# DiT
 
-**Module:** `generative_models.models.diffusion.dit`
+Supported owner: `artifex.generative_models.models.diffusion.dit`
 
-**Source:** `generative_models/models/diffusion/dit.py`
+## Public Import
+
+```python
+from artifex.generative_models.models.diffusion import DiTModel
+```
 
 ## Overview
 
-DiT (Diffusion Transformer) Model implementation.
+`DiTModel` is the retained Diffusion Transformer owner in the supported
+`models.diffusion` package surface.
 
-Integrates the Diffusion Transformer backbone with the diffusion framework.
+The module keeps its backbone-construction and per-step sampling machinery as
+implementation details; the supported reference surface for this page is the
+`DiTModel` class itself.
 
-## Classes
+## Related Pages
 
-### DiTModel
-
-```python
-class DiTModel
-```
-
-## Functions
-
-### **call**
-
-```python
-def __call__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### create_dit_backbone
-
-```python
-def create_dit_backbone()
-```
-
-### generate
-
-```python
-def generate()
-```
-
-### sample_step
-
-```python
-def sample_step()
-```
-
-## Module Statistics
-
-- **Classes:** 1
-- **Functions:** 5
-- **Imports:** 7
+- [Model Implementations](index.md)
+- [Diffusion API Reference](../api/models/diffusion.md)
+- [Diffusion Guide](../user-guide/models/diffusion-guide.md)

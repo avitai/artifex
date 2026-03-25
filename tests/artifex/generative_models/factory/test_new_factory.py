@@ -10,6 +10,10 @@ from artifex.generative_models.core.configuration import (
     DCGANConfig,
     DecoderConfig,
     EncoderConfig,
+    GraphConfig,
+    GraphNetworkConfig,
+    PointCloudConfig,
+    PointCloudNetworkConfig,
     RealNVPConfig,
     VAEConfig,
 )
@@ -150,6 +154,53 @@ class TestModelFactory:
         except ValueError as e:
             if "Failed to apply modality" not in str(e):
                 raise
+
+    def test_protein_modality_keeps_generic_geometric_model_family(self):
+        """Protein modality should not swap geometric configs onto protein-specific classes."""
+        point_cloud_config = PointCloudConfig(
+            name="protein_point_cloud",
+            network=PointCloudNetworkConfig(
+                name="protein_point_cloud_network",
+                hidden_dims=(64,),
+                activation="relu",
+                embed_dim=64,
+                num_heads=4,
+                num_layers=2,
+            ),
+            num_points=32,
+            point_dim=3,
+        )
+        graph_config = GraphConfig(
+            name="protein_graph",
+            network=GraphNetworkConfig(
+                name="protein_graph_network",
+                hidden_dims=(64,),
+                activation="relu",
+                node_features_dim=64,
+                edge_features_dim=32,
+                num_layers=2,
+            ),
+            max_nodes=32,
+            max_edges=64,
+        )
+
+        plain_point_cloud = create_model(point_cloud_config, rngs=nnx.Rngs(params=0))
+        protein_point_cloud = create_model(
+            point_cloud_config,
+            modality="protein",
+            rngs=nnx.Rngs(params=1),
+        )
+        plain_graph = create_model(graph_config, rngs=nnx.Rngs(params=2))
+        protein_graph = create_model(
+            graph_config,
+            modality="protein",
+            rngs=nnx.Rngs(params=3),
+        )
+
+        assert protein_point_cloud.__class__ is plain_point_cloud.__class__
+        assert protein_point_cloud.__class__.__name__ == "PointCloudModel"
+        assert protein_graph.__class__ is plain_graph.__class__
+        assert protein_graph.__class__.__name__ == "GraphModel"
 
     def test_invalid_config_type(self, rngs):
         """Test error handling for invalid config types."""

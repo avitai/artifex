@@ -44,7 +44,7 @@ This example depends on the following Artifex source files:
 - `src/artifex/generative_models/models/diffusion/dit.py` - DiTModel implementation
 
 **Validation Status:**
-- ✅ All dependencies validated against `memory-bank/guides/flax-nnx-guide.md`
+- ✅ All dependencies validated against the internal Flax NNX compatibility guide
 - ✅ No anti-patterns detected (RNG handling, module init, activations)
 - ✅ All tests passing for dependency files
 
@@ -147,13 +147,13 @@ from artifex.generative_models.models.backbones.dit import DiffusionTransformer
 from artifex.generative_models.models.diffusion.dit import DiTModel
 
 
-print("=" * 80)
-print("DiT (Diffusion Transformer) Implementation Demo")
-print("=" * 80)
-print(f"✅ JAX version: {jax.__version__}")
-print(f"🖥️  Backend: {jax.default_backend()}")
-print(f"🔧 Devices: {jax.device_count()} device(s)")
-print("=" * 80)
+print("=" * 80)  # noqa: T201
+print("DiT (Diffusion Transformer) Implementation Demo")  # noqa: T201
+print("=" * 80)  # noqa: T201
+print(f"✅ JAX version: {jax.__version__}")  # noqa: T201
+print(f"🖥️  Backend: {jax.default_backend()}")  # noqa: T201
+print(f"🔧 Devices: {jax.device_count()} device(s)")  # noqa: T201
+print("=" * 80)  # noqa: T201
 
 # %% [markdown]
 """
@@ -179,14 +179,14 @@ The model:
 """
 
 # %%
-print("\n📊 Testing DiT Components")
-print("=" * 80)
+print("\n📊 Testing DiT Components")  # noqa: T201
+print("=" * 80)  # noqa: T201
 
 # Initialize random number generators
 rngs = nnx.Rngs(42)
 
 # Test 1: Create DiT backbone
-print("\n1. Testing DiffusionTransformer backbone...")
+print("\n1. Testing DiffusionTransformer backbone...")  # noqa: T201
 dit_backbone = DiffusionTransformer(
     img_size=32,  # Input image size
     patch_size=4,  # Each patch is 4x4 pixels
@@ -204,12 +204,12 @@ t = jnp.array([100, 500])  # Different timesteps
 output = dit_backbone(x, t, deterministic=True)
 
 assert output.shape == (2, 32, 32, 3), f"Unexpected output shape: {output.shape}"
-print("   ✓ DiffusionTransformer forward pass successful")
-print(f"   Input shape: {x.shape}, Output shape: {output.shape}")
-print(f"   Number of patches: {(32 // 4) ** 2} patches per image")
+print("   ✓ DiffusionTransformer forward pass successful")  # noqa: T201
+print(f"   Input shape: {x.shape}, Output shape: {output.shape}")  # noqa: T201
+print(f"   Number of patches: {(32 // 4) ** 2} patches per image")  # noqa: T201
 
 # Test 2: Create DiT model
-print("\n2. Testing DiTModel (full diffusion model)...")
+print("\n2. Testing DiTModel (full diffusion model)...")  # noqa: T201
 
 # Create noise schedule config (required for DiTConfig)
 noise_schedule_config = NoiseScheduleConfig(
@@ -235,10 +235,10 @@ model = DiTModel(config, rngs=rngs)
 output = model(x, t, deterministic=True)
 
 assert output.shape == (2, 32, 32, 3), f"Unexpected output shape: {output.shape}"
-print("   ✓ DiTModel forward pass successful")
-print("   Model processes images through transformer blocks")
+print("   ✓ DiTModel forward pass successful")  # noqa: T201
+print("   Model processes images through transformer blocks")  # noqa: T201
 
-print("\n✅ All component tests passed!")
+print("\n✅ All component tests passed!")  # noqa: T201
 
 # %% [markdown]
 """
@@ -260,8 +260,8 @@ Let's test S, B, and L to see the performance tradeoffs.
 """
 
 # %%
-print("\n📊 Testing DiT Model Sizes")
-print("=" * 80)
+print("\n📊 Testing DiT Model Sizes")  # noqa: T201
+print("=" * 80)  # noqa: T201
 
 # Define model size configurations (from DiT paper)
 sizes = {
@@ -283,7 +283,7 @@ size_test_schedule = NoiseScheduleConfig(
 )
 
 for size_name, size_params in sizes.items():
-    print(f"\n{size_name}. Testing DiT-{size_name}...")
+    print(f"\n{size_name}. Testing DiT-{size_name}...")  # noqa: T201
 
     # Create DiTConfig with nested noise_schedule
     config = DiTConfig(
@@ -310,17 +310,17 @@ for size_name, size_params in sizes.items():
 
     assert output.shape == (batch_size, img_size, img_size, 3)
 
-    print(
+    print(  # noqa: T201
         f"   Config: hidden_size={size_params['hidden_size']}, "
         f"depth={size_params['depth']}, "
         f"heads={size_params['num_heads']}"
     )
-    print(f"   ✓ Forward pass successful (time: {elapsed:.3f}s)")
+    print(f"   ✓ Forward pass successful (time: {elapsed:.3f}s)")  # noqa: T201
     capacity = size_params["hidden_size"] * size_params["depth"] // 1000
-    print(f"   Model capacity: ~{capacity}K params (approx)")
+    print(f"   Model capacity: ~{capacity}K params (approx)")  # noqa: T201
 
-print("\n✅ All model sizes tested successfully!")
-print("\n💡 Takeaway: Larger models are slower but produce better quality")
+print("\n✅ All model sizes tested successfully!")  # noqa: T201
+print("\n💡 Takeaway: Larger models are slower but produce better quality")  # noqa: T201
 
 # %% [markdown]
 r"""
@@ -352,8 +352,8 @@ The model runs inference twice:
 """
 
 # %%
-print("\n📊 Testing Conditional Generation")
-print("=" * 80)
+print("\n📊 Testing Conditional Generation")  # noqa: T201
+print("=" * 80)  # noqa: T201
 
 # Create noise schedule config for conditional model
 cond_schedule_config = NoiseScheduleConfig(
@@ -380,18 +380,18 @@ config = DiTConfig(
 rngs = nnx.Rngs(42)
 model = DiTModel(config, rngs=rngs)
 
-print("\n1. Testing conditional forward pass...")
+print("\n1. Testing conditional forward pass...")  # noqa: T201
 x = jnp.ones((2, 16, 16, 3))
 t = jnp.array([5, 8])
 y = jnp.array([2, 7])  # Class labels for conditioning
 
-output = model(x, t, y, deterministic=True, cfg_scale=3.0)
+output = model(x, t, y, deterministic=True)
 assert output.shape == (2, 16, 16, 3)
-print("   ✓ Conditional forward pass successful")
-print(f"   Conditioned on classes: {y}")
-print("   Guidance scale: 3.0 (moderate conditioning)")
+print("   ✓ Conditional forward pass successful")  # noqa: T201
+print(f"   Conditioned on classes: {y}")  # noqa: T201
+print("   Guidance is applied during sample generation")  # noqa: T201
 
-print("\n2. Testing sample generation...")
+print("\n2. Testing sample generation...")  # noqa: T201
 samples = model.generate(
     n_samples=4,
     rngs=rngs,
@@ -402,14 +402,14 @@ samples = model.generate(
 )
 
 assert samples.shape == (4, 16, 16, 3)
-print(f"   ✓ Generated {samples.shape[0]} conditional samples")
-print(
+print(f"   ✓ Generated {samples.shape[0]} conditional samples")  # noqa: T201
+print(  # noqa: T201
     f"   Sample statistics: min={samples.min():.3f}, "
     f"max={samples.max():.3f}, mean={samples.mean():.3f}"
 )
-print("\n💡 Each sample corresponds to a different class label")
+print("\n💡 Each sample corresponds to a different class label")  # noqa: T201
 
-print("\n✅ Conditional generation test passed!")
+print("\n✅ Conditional generation test passed!")  # noqa: T201
 
 # %% [markdown]
 """
@@ -423,8 +423,8 @@ actual class-specific images.
 """
 
 # %%
-print("\n📊 Visualizing Generated Samples")
-print("=" * 80)
+print("\n📊 Visualizing Generated Samples")  # noqa: T201
+print("=" * 80)  # noqa: T201
 
 # Convert JAX array to numpy for visualization
 samples_np = np.array(samples)
@@ -446,8 +446,8 @@ plt.tight_layout()
 # Save figure
 output_path = "dit_samples.png"
 plt.savefig(output_path, dpi=150, bbox_inches="tight")
-print(f"\n✓ Visualization saved to {output_path}")
-print("💡 With a trained model, you would see class-specific images")
+print(f"\n✓ Visualization saved to {output_path}")  # noqa: T201
+print("💡 With a trained model, you would see class-specific images")  # noqa: T201
 
 # %% [markdown]
 """
@@ -462,8 +462,8 @@ This helps you choose the right model size for your application:
 """
 
 # %%
-print("\n📊 Performance Benchmark")
-print("=" * 80)
+print("\n📊 Performance Benchmark")  # noqa: T201
+print("=" * 80)  # noqa: T201
 
 # Test configuration
 img_size = 64
@@ -498,12 +498,12 @@ x = jnp.ones((batch_size, img_size, img_size, 3))
 t = jnp.array([100] * batch_size)
 
 # Warm-up (JIT compilation)
-print("\n🔥 Warming up (JIT compilation)...")
+print("\n🔥 Warming up (JIT compilation)...")  # noqa: T201
 for _ in range(3):
     _ = model(x, t, deterministic=True)
 
 # Benchmark
-print(f"⏱️  Running {num_iterations} iterations...")
+print(f"⏱️  Running {num_iterations} iterations...")  # noqa: T201
 start = time.time()
 for _ in range(num_iterations):
     output = model(x, t, deterministic=True)
@@ -514,16 +514,16 @@ elapsed = time.time() - start
 time_per_iteration = elapsed / num_iterations
 throughput = batch_size / time_per_iteration
 
-print("\n📈 Results:")
-print("  Model: DiT-B")
-print(f"  Input shape: {x.shape}")
-print(f"  Batch size: {batch_size}")
-print(f"  Time per iteration: {time_per_iteration:.3f}s")
-print(f"  Throughput: {throughput:.1f} samples/s")
-print(f"  Total time: {elapsed:.2f}s")
+print("\n📈 Results:")  # noqa: T201
+print("  Model: DiT-B")  # noqa: T201
+print(f"  Input shape: {x.shape}")  # noqa: T201
+print(f"  Batch size: {batch_size}")  # noqa: T201
+print(f"  Time per iteration: {time_per_iteration:.3f}s")  # noqa: T201
+print(f"  Throughput: {throughput:.1f} samples/s")  # noqa: T201
+print(f"  Total time: {elapsed:.2f}s")  # noqa: T201
 
-print("\n✅ Benchmark completed!")
-print("\n💡 This is for a single denoising step. Full generation requires ~50-1000 steps")
+print("\n✅ Benchmark completed!")  # noqa: T201
+print("\n💡 This is for a single denoising step. Full generation requires ~50-1000 steps")  # noqa: T201
 
 # %% [markdown]
 """
@@ -622,20 +622,20 @@ Found a bug or have suggestions? Please open an issue on GitHub!
 """
 
 # %%
-print("\n" + "=" * 80)
-print("✨ DiT (Diffusion Transformer) Demo Complete! ✨")
-print("=" * 80)
-print("\n💡 Key Takeaways:")
-print("   1. DiT replaces U-Nets with transformers for diffusion models")
-print("   2. Patch-based processing enables long-range dependencies")
-print("   3. Classifier-free guidance provides conditional control")
-print("   4. Model size determines quality vs speed tradeoff")
-print("   5. DiT scales better than U-Nets for large models")
-print("\n🔗 Next Steps:")
-print("   - Train DiT on your dataset")
-print("   - Experiment with different model sizes")
-print("   - Try various guidance scales")
-print("   - Combine with VAE for latent diffusion")
-print("\n" + "=" * 80)
-print("🚀 DiT implementation is working correctly and ready to use!")
-print("=" * 80)
+print("\n" + "=" * 80)  # noqa: T201
+print("✨ DiT (Diffusion Transformer) Demo Complete! ✨")  # noqa: T201
+print("=" * 80)  # noqa: T201
+print("\n💡 Key Takeaways:")  # noqa: T201
+print("   1. DiT replaces U-Nets with transformers for diffusion models")  # noqa: T201
+print("   2. Patch-based processing enables long-range dependencies")  # noqa: T201
+print("   3. Classifier-free guidance provides conditional control")  # noqa: T201
+print("   4. Model size determines quality vs speed tradeoff")  # noqa: T201
+print("   5. DiT scales better than U-Nets for large models")  # noqa: T201
+print("\n🔗 Next Steps:")  # noqa: T201
+print("   - Train DiT on your dataset")  # noqa: T201
+print("   - Experiment with different model sizes")  # noqa: T201
+print("   - Try various guidance scales")  # noqa: T201
+print("   - Combine with VAE for latent diffusion")  # noqa: T201
+print("\n" + "=" * 80)  # noqa: T201
+print("🚀 DiT implementation is working correctly and ready to use!")  # noqa: T201
+print("=" * 80)  # noqa: T201

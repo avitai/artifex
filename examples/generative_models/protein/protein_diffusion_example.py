@@ -13,258 +13,83 @@
 r"""
 # Protein Diffusion Example
 
-**Author:** Artifex Team
-**Last Updated:** 2025-10-22
-**Difficulty:** Advanced
-**Runtime:** ~5 minutes
-**Format:** Dual (.py script | .ipynb notebook)
+**Status:** Exploratory workflow
 
-## Overview
+This walkthrough uses retained lower-level Artifex protein structure owners,
+synthetic data, and padded batches to inspect the current protein-model
+boundary. It does not demonstrate a shipped high-level Artifex protein
+diffusion API.
 
-This comprehensive example demonstrates how to build and use protein diffusion models
-for generating 3D protein structures. Learn two approaches: high-level API with extensions
-and direct model creation, along with quality assessment and visualization techniques.
+## What This Workflow Actually Uses
 
-## Learning Objectives
-
-After completing this example, you will understand:
-
-- [ ] How to create protein diffusion models with Artifex's high-level API
-- [ ] Direct model creation and manipulation for protein structures
-- [ ] Protein-specific loss functions and geometric constraints
-- [ ] Quality assessment metrics for generated proteins
-- [ ] Visualization techniques for 3D protein structures
-
-## Prerequisites
-
-- Understanding of diffusion models
-- Familiarity with protein structure representations
-- Knowledge of geometric constraints in proteins
-- Experience with JAX and Flax NNX
-
-## Key Concepts
-
-### Protein Structure Representation
-
-Proteins are represented as sequences of residues, each containing atoms with 3D coordinates:
-
-- **Backbone Atoms**: N, CA, C, O (4 atoms per residue)
-- **Point Cloud Representation**: Unordered set of 3D points
-- **Graph Representation**: Nodes (residues) connected by edges (bonds)
-
-### Geometric Constraints
-
-Valid protein structures must satisfy:
-
-1. **Bond Lengths**: Distance between bonded atoms (~1.5Å for C-C bonds)
-2. **Bond Angles**: Angles between consecutive bonds (~109.5° tetrahedral)
-3. **Dihedral Angles**: Rotation around bonds (phi, psi in Ramachandran plot)
-
-### Protein-Specific Losses
-
-**RMSD (Root Mean Square Deviation)**: Measures structural similarity
-
-$$
-\\text{RMSD} = \\sqrt{\\frac{1}{N}\\sum_{i=1}^N \\|x_i - y_i\\|^2}
-$$
-
-**Backbone Loss**: Enforces backbone atom connectivity and geometry
-
-## Installation
-
-Requires Artifex with protein modeling extras:
-
-```bash
-pip install artifex[protein]
-```
+- `ProteinPointCloudModel` and `ProteinGraphModel` for direct owner construction
+- `ProteinDataset`, `create_synthetic_protein_dataset`, and `protein_collate_fn`
+  for retained protein data and batching
+- `create_protein_structure_loss` for protein-specific loss evaluation
+- optional helpers from `artifex.visualization.protein_viz`
 
 ## Usage
 
-Run the Python script:
-
 ```bash
-python examples/generative_models/protein/protein_diffusion_example.py
+source ./activate.sh
+uv run python examples/generative_models/protein/protein_diffusion_example.py
 ```
-
-Or open the Jupyter notebook:
-
-```bash
-jupyter notebook examples/generative_models/protein/protein_diffusion_example.ipynb
-```
-"""
-
-# %% [markdown]
-"""
-## Imports and Setup
-
-Import required modules for protein diffusion modeling.
 """
 
 # %%
-from typing import Any
+import logging
 
 import jax
-import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
 from flax import nnx
 
-# High-level API imports
-from artifex.data.protein_dataset import (
+from artifex.data.protein import (
     create_synthetic_protein_dataset,
+    protein_collate_fn,
     ProteinDataset,
-)
-from artifex.generative_models.extensions import (
-    create_protein_extensions,
+    ProteinDatasetConfig,
 )
 from artifex.generative_models.modalities.protein.losses import (
-    CompositeLoss,
-    create_backbone_loss,
-    create_rmsd_loss,
+    create_protein_structure_loss,
 )
-from artifex.generative_models.models.geometric.protein_graph import (
-    ProteinGraphModel,
-)
+from artifex.generative_models.models.geometric.protein_graph import ProteinGraphModel
 from artifex.generative_models.models.geometric.protein_point_cloud import (
     ProteinPointCloudModel,
 )
 from artifex.visualization.protein_viz import ProteinVisualizer
 
 
-# %% [markdown]
-"""
-## Part 1: High-Level API with Extensions
-
-Create protein diffusion models using Artifex's high-level API and extension system.
-"""
-
-
-# %%
-def create_model_with_extensions(config: dict[str, Any], *, key: jax.Array) -> nnx.Module:
-    """Create a protein diffusion model with extensions.
-
-    Args:
-        config: Model configuration
-        key: PRNG key
-
-    Returns:
-        Initialized diffusion model
-    """
-    # Set up random keys
-    key, params_key, dropout_key = jax.random.split(key, 3)
-    rngs = nnx.Rngs(params=params_key, dropout=dropout_key)
-
-    # Create protein extension configuration programmatically
-    # Note: This is simplified for example purposes and may need adjustments
-    # based on the actual implementation details
-    try:
-        extension_config = {
-            "name": "protein_diffusion_extensions",
-            "description": "Extensions for protein diffusion model",
-            "enabled": True,
-            "use_backbone_constraints": True,
-            "use_protein_mixin": True,
-        }
-
-        # Create protein extensions
-        extensions = create_protein_extensions(extension_config, rngs=rngs)
-
-        # Create diffusion model - simplified for example
-        # In a real implementation, you'd need to use the proper config format
-        # and initialization parameters based on the actual implementation
-        model = nnx.Module()
-        model.extensions = extensions
-
-        print("Model structure:")
-        print(f"- Type: {type(model).__name__}")
-        print(f"- Extensions: {list(extensions.keys()) if extensions else 'None'}")
-
-        return model
-    except Exception as e:
-        print(f"Error creating model with extensions: {e}")
-        print("Creating simplified model for demonstration purposes")
-        return nnx.Module()
+logger = logging.getLogger(__name__)
+EXAMPLE_ERRORS = (
+    AttributeError,
+    ImportError,
+    LookupError,
+    NotImplementedError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+)
 
 
-# %%
-def generate_samples(
-    model: nnx.Module, config: dict[str, Any], *, key: jax.Array
-) -> dict[str, Any]:
-    """Generate protein samples from the diffusion model.
-
-    Args:
-        model: The diffusion model
-        config: Model configuration
-        key: PRNG key
-
-    Returns:
-        Generated protein samples
-    """
-    # Set up inference parameters
-    batch_size = 2
-    num_residues = config.get("num_residues", 64)
-
-    # Create dummy samples for demonstration
-    key, sample_key = jax.random.split(key)
-    positions = jax.random.normal(sample_key, (batch_size, num_residues, 4, 3))
-    atom_mask = jnp.ones((batch_size, num_residues, 4))
-
-    # Create sample dictionary
-    samples = {
-        "positions": positions,
-        "atom_mask": atom_mask,
-    }
-
-    print(f"Generated {batch_size} protein samples")
-    print(f"- Sample shape: {samples['positions'].shape}")
-    print(f"- Atom mask shape: {samples['atom_mask'].shape}")
-
-    return samples
-
-
-# %%
-def evaluate_sample_quality(
-    sample_positions: jax.Array, extensions: dict[str, Any]
-) -> dict[str, Any]:
-    """Evaluate the quality of generated protein samples.
-
-    Args:
-        sample_positions: Generated protein positions [batch, residues, atoms, 3]
-        extensions: Model extensions
-
-    Returns:
-        Quality metrics
-    """
-    # Check if we have the protein quality extension
-    if "protein_quality" not in extensions:
-        print("Protein quality extension not found, skipping evaluation")
-        return {}
-
-    # For demonstration purposes, return dummy metrics
-    quality_metrics = {
-        "rmsd": np.random.random() * 2.0,
-        "bond_violations": np.random.random() * 0.5,
-        "angle_violations": np.random.random() * 0.3,
-    }
-
-    # Print metrics
-    print("Quality metrics:")
-    for key, value in quality_metrics.items():
-        print(f"- {key}: {value:.4f}")
-
-    return quality_metrics
+def show(message: str) -> None:
+    """Emit example output through logging instead of raw print()."""
+    logger.info(message)
 
 
 # %% [markdown]
 """
-## Part 2: Direct Model Creation
+## Build Direct Protein Owners
 
-Create and manipulate protein diffusion models directly without extensions.
+The current retained path in this file is deliberately direct: create
+`ProteinPointCloudModel` or `ProteinGraphModel` from their live configuration
+owners and keep the batching path honest with `ProteinDataset` plus
+`protein_collate_fn`.
 """
 
 
 # %%
-def create_protein_diffusion_model(
+def create_protein_model(
     model_type: str = "point_cloud",
     num_residues: int = 64,
     num_atoms_per_residue: int = 4,
@@ -272,44 +97,36 @@ def create_protein_diffusion_model(
     num_layers: int = 4,
     rngs_seed: int = 42,
 ) -> ProteinPointCloudModel | ProteinGraphModel:
-    """Create a protein diffusion model.
-
-    Args:
-        model_type: Model type ("point_cloud" or "graph")
-        num_residues: Number of residues in the protein
-        num_atoms_per_residue: Number of atoms per residue (default: backbone atoms)
-        hidden_dim: Hidden dimension size
-        num_layers: Number of transformer or graph layers
-        rngs_seed: Random seed
-
-    Returns:
-        Protein model instance
-    """
-    # Create RNG keys
+    """Create a retained protein model owner for exploratory experiments."""
     key = jax.random.PRNGKey(rngs_seed)
     key, dropout_key = jax.random.split(key)
     rngs = nnx.Rngs(params=key, dropout=dropout_key, sample=key)
 
-    # Import frozen dataclass configs
     from artifex.generative_models.core.configuration import (
         GraphNetworkConfig,
         PointCloudNetworkConfig,
-        ProteinConstraintConfig,
+        ProteinDihedralConfig,
+        ProteinExtensionConfig,
+        ProteinExtensionsConfig,
         ProteinGraphConfig,
         ProteinPointCloudConfig,
     )
 
-    # Create constraint config (shared between model types)
-    constraint_config = ProteinConstraintConfig(
-        backbone_weight=1.0,
-        bond_weight=1.0,
-        angle_weight=0.5,
-        dihedral_weight=0.3,
+    extensions = ProteinExtensionsConfig(
+        name="protein_extensions",
+        backbone=ProteinExtensionConfig(
+            name="backbone",
+            weight=1.0,
+            bond_length_weight=1.0,
+            bond_angle_weight=0.5,
+        ),
+        dihedral=ProteinDihedralConfig(
+            name="dihedral",
+            weight=0.3,
+        ),
     )
 
-    # Create model config using frozen dataclass configs
     if model_type == "point_cloud":
-        # Create network config for point cloud model
         network_config = PointCloudNetworkConfig(
             name="protein_point_network",
             hidden_dims=(hidden_dim,) * num_layers,
@@ -321,20 +138,18 @@ def create_protein_diffusion_model(
         )
 
         config = ProteinPointCloudConfig(
-            name=f"protein_{model_type}_model",
+            name="protein_point_cloud_exploratory",
             network=network_config,
             num_points=num_residues * num_atoms_per_residue,
             num_residues=num_residues,
             num_atoms_per_residue=num_atoms_per_residue,
-            backbone_indices=(0, 1, 2, 3),  # N, CA, C, O
-            use_constraints=True,
-            constraint_config=constraint_config,
+            backbone_indices=(0, 1, 2, 3),
+            extensions=extensions,
             dropout_rate=0.1,
         )
         return ProteinPointCloudModel(config, rngs=rngs)
 
-    elif model_type == "graph":
-        # Create network config for graph model
+    if model_type == "graph":
         network_config = GraphNetworkConfig(
             name="protein_graph_network",
             hidden_dims=(hidden_dim,) * num_layers,
@@ -345,391 +160,192 @@ def create_protein_diffusion_model(
         )
 
         config = ProteinGraphConfig(
-            name=f"protein_{model_type}_model",
+            name="protein_graph_exploratory",
             network=network_config,
             num_residues=num_residues,
             num_atoms_per_residue=num_atoms_per_residue,
-            backbone_indices=(0, 1, 2, 3),  # N, CA, C, O
-            use_constraints=True,
-            constraint_config=constraint_config,
+            backbone_indices=(0, 1, 2, 3),
+            extensions=extensions,
         )
         return ProteinGraphModel(config, rngs=rngs)
 
-    else:
-        raise ValueError(f"Unknown model type: {model_type}")
+    raise ValueError(f"Unknown model type: {model_type}")
+
+
+# %% [markdown]
+"""
+## Load Retained Protein Data
+
+This example keeps the data contract on retained Artifex owners. It uses the
+current `ProteinDataset` surface and batches examples with `protein_collate_fn`
+instead of a local or placeholder batch helper.
+"""
 
 
 # %%
 def load_protein_dataset(
     data_dir: str | None = None,
-    num_proteins: int = 50,
+    num_proteins: int = 32,
     max_seq_length: int = 64,
     use_synthetic: bool = True,
     random_seed: int = 42,
 ) -> ProteinDataset:
-    """Load a protein dataset.
-
-    Args:
-        data_dir: Directory containing protein structure files
-        num_proteins: Number of proteins in the synthetic dataset
-        max_seq_length: Maximum sequence length
-        use_synthetic: Whether to use synthetic data
-        random_seed: Random seed
-
-    Returns:
-        Protein dataset
-    """
+    """Load retained synthetic or file-backed protein data."""
     if use_synthetic or data_dir is None:
-        # Create synthetic dataset
-        dataset = create_synthetic_protein_dataset(
+        return create_synthetic_protein_dataset(
             num_proteins=num_proteins,
             min_seq_length=max_seq_length // 2,
             max_seq_length=max_seq_length,
             random_seed=random_seed,
         )
-    else:
-        # Load real dataset
-        dataset = ProteinDataset(
-            data_dir=data_dir,
-            max_seq_length=max_seq_length,
-            random_seed=random_seed,
-        )
 
-    return dataset
+    dataset_config = ProteinDatasetConfig(max_seq_length=max_seq_length)
+    return ProteinDataset(dataset_config, data_dir=data_dir)
 
 
 # %%
 def prepare_batch(
-    dataset: ProteinDataset, batch_size: int = 8, random_seed: int = 42
+    dataset: ProteinDataset,
+    batch_size: int = 8,
+    random_seed: int = 42,
 ) -> dict[str, jax.Array]:
-    """Prepare a batch of protein structures.
-
-    Args:
-        dataset: Protein dataset
-        batch_size: Batch size
-        random_seed: Random seed
-
-    Returns:
-        Batch of protein structures
-    """
-    # Create RNG for shuffling
+    """Prepare a padded batch through the retained protein collate function."""
     rng = np.random.RandomState(random_seed)
-
-    # Get indices for batch
     indices = rng.choice(len(dataset), size=batch_size, replace=False)
-
-    # Get examples
-    examples = [dataset[idx] for idx in indices]
-
-    # Collate batch
-    batch = dataset.collate_batch(examples)
-
-    return batch
+    examples = [dataset[int(idx)] for idx in indices]
+    return protein_collate_fn(examples, max_seq_length=dataset.config.max_seq_length)
 
 
 # %%
 def add_noise_to_batch(
-    batch: dict[str, jax.Array], noise_level: float = 0.1, random_seed: int = 42
+    batch: dict[str, jax.Array],
+    noise_level: float = 0.1,
+    random_seed: int = 42,
 ) -> dict[str, jax.Array]:
-    """Add noise to a batch of protein structures.
-
-    Args:
-        batch: Batch of protein structures
-        noise_level: Noise level
-        random_seed: Random seed
-
-    Returns:
-        Batch with noisy protein structures
-    """
-    # Create RNG
+    """Add Gaussian noise to valid atom positions only."""
     key = jax.random.PRNGKey(random_seed)
-
-    # Get atom positions and mask
     atom_positions = batch["atom_positions"]
     atom_mask = batch["atom_mask"]
-
-    # Create noise
     noise = jax.random.normal(key, shape=atom_positions.shape) * noise_level
 
-    # Apply noise only to valid atoms
-    noisy_positions = atom_positions + noise * atom_mask[:, :, :, None]
-
-    # Create batch with noisy positions
     noisy_batch = dict(batch)
-    noisy_batch["atom_positions"] = noisy_positions
-
+    noisy_batch["atom_positions"] = atom_positions + noise * atom_mask[:, :, :, None]
     return noisy_batch
 
 
 # %% [markdown]
 """
-## Part 3: Visualization and Quality Assessment
+## Summarize Outputs
 
-Visualize generated protein structures and assess their quality.
+The example keeps visualization optional. The core retained contract is that the
+point-cloud owner runs on the padded batch, returns protein-shaped outputs, and
+pairs cleanly with `create_protein_structure_loss`.
 """
 
 
 # %%
-def display_results(
+def summarize_outputs(
     batch: dict[str, jax.Array],
     outputs: dict[str, jax.Array],
     losses: dict[str, jax.Array],
-    index: int = 0,
-):
-    """Display the results of protein generation.
-
-    Args:
-        batch: Batch of protein structures
-        outputs: Model outputs
-        losses: Loss values
-        index: Index of the protein to display
-    """
-    print("Losses:")
+) -> None:
+    """Log the current output and loss surface and show lightweight plots when possible."""
+    show("Losses:")
     for key, value in losses.items():
-        print(f"  {key}: {value}")
+        scalar = float(value) if np.ndim(value) == 0 else value
+        show(f"- {key}: {scalar}")
 
-    # Extract target and predicted structures
-    target_pos = batch["atom_positions"][index]
-    target_mask = batch["atom_mask"][index]
-    pred_pos = outputs["positions"][index]
+    show(f"Output keys: {sorted(outputs.keys())}")
+    positions = outputs["positions"]
+    show(f"Predicted positions shape: {positions.shape}")
 
-    # Check if sizes match
-    if target_pos.shape[0] != pred_pos.shape[0]:
-        target_size = target_pos.shape[0]
-        pred_size = pred_pos.shape[0]
-        print(f"Warning: Target size ({target_size}) doesn't match prediction size ({pred_size})")
-        # Use the smaller size
-        min_size = min(target_pos.shape[0], pred_pos.shape[0])
-        target_pos = target_pos[:min_size]
-        if target_mask.shape[0] > min_size:
-            target_mask = target_mask[:min_size]
-        pred_pos = pred_pos[:min_size]
+    target_pos = batch["atom_positions"][0]
+    target_mask = batch["atom_mask"][0]
+    pred_pos = positions[0]
 
-    # Calculate dihedral angles
-    target_phi, target_psi = ProteinVisualizer.calculate_dihedral_angles(target_pos, target_mask)
-    pred_phi, pred_psi = ProteinVisualizer.calculate_dihedral_angles(pred_pos, target_mask)
+    if pred_pos.ndim == 2:
+        pred_pos = pred_pos.reshape(target_pos.shape)
 
-    # Create plots
-    ProteinVisualizer.visualize_protein_structure(target_pos)
-    plt.title("Target Structure")
-    plt.tight_layout()
-    plt.show()
-
-    ProteinVisualizer.visualize_protein_structure(pred_pos)
-    plt.title("Predicted Structure")
-    plt.tight_layout()
-    plt.show()
-
-    ProteinVisualizer.plot_ramachandran(target_phi, target_psi, title="Target Ramachandran Plot")
-    plt.tight_layout()
-    plt.show()
-
-    ProteinVisualizer.plot_ramachandran(pred_phi, pred_psi, title="Predicted Ramachandran Plot")
-    plt.tight_layout()
-    plt.show()
-
-    # Try to use py3Dmol for 3D visualization if available
     try:
-        # Display target structure
-        print("Target Structure:")
-        target_viewer = ProteinVisualizer.visualize_structure(
-            target_pos, target_mask, show_sidechains=False, color_by="chain"
+        target_phi, target_psi = ProteinVisualizer.calculate_dihedral_angles(
+            target_pos, target_mask
         )
-        target_viewer.show()
+        pred_phi, pred_psi = ProteinVisualizer.calculate_dihedral_angles(pred_pos, target_mask)
 
-        # Display predicted structure
-        print("Predicted Structure:")
-        pred_viewer = ProteinVisualizer.visualize_structure(
-            pred_pos, target_mask, show_sidechains=False, color_by="chain"
-        )
-        pred_viewer.show()
-    except (ImportError, AttributeError):
-        print(
-            "py3Dmol visualization not available. "
-            "Install py3Dmol to see 3D structure visualization."
-        )
+        ProteinVisualizer.plot_ramachandran(target_phi, target_psi, title="Target")
+        plt.tight_layout()
+        plt.show()
+
+        ProteinVisualizer.plot_ramachandran(pred_phi, pred_psi, title="Predicted")
+        plt.tight_layout()
+        plt.show()
+    except EXAMPLE_ERRORS as error:
+        show(f"Skipping optional visualization: {error}")
 
 
 # %% [markdown]
 """
-## Example Execution Functions
-
-Run complete examples demonstrating both approaches.
+## Run The Exploratory Workflow
 """
 
 
 # %%
-def run_direct_model_example():
-    """Run the direct model creation and manipulation example."""
-    print("\n=== Running Direct Model Example ===\n")
+def main() -> None:
+    """Run the exploratory direct-owner protein workflow."""
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
+    show("=== Protein Diffusion Example ===")
+    show("Exploratory workflow: retained lower-level protein owners only")
+    show("This file does not demonstrate a shipped high-level Artifex protein diffusion API.")
 
-    # Set random seed
     random_seed = 42
     np.random.seed(random_seed)
-    jax.random.PRNGKey(random_seed)  # Initialize RNG but no need to store
 
-    # Create model
-    print("Creating model...")
-    model = create_protein_diffusion_model(
+    show("Creating point-cloud owner...")
+    point_cloud_model = create_protein_model(
         model_type="point_cloud",
         num_residues=64,
         hidden_dim=128,
         num_layers=4,
         rngs_seed=random_seed,
     )
+    show(f"- Point-cloud owner: {type(point_cloud_model).__name__}")
 
-    # Load dataset
-    print("Loading dataset...")
+    show("Creating graph owner preview...")
+    graph_model = create_protein_model(
+        model_type="graph",
+        num_residues=64,
+        hidden_dim=128,
+        num_layers=4,
+        rngs_seed=random_seed,
+    )
+    show(f"- Graph owner: {type(graph_model).__name__}")
+
+    show("Loading retained synthetic ProteinDataset...")
     dataset = load_protein_dataset(
-        num_proteins=50,
+        num_proteins=32,
         max_seq_length=64,
         use_synthetic=True,
         random_seed=random_seed,
     )
+    show(f"- Dataset owner: {type(dataset).__name__}")
+    show(f"- Number of examples: {len(dataset)}")
 
-    # Prepare batch
-    print("Preparing batch...")
+    show("Preparing padded batch through protein_collate_fn...")
     batch = prepare_batch(dataset, batch_size=8, random_seed=random_seed)
-
-    # Create noisy batch
-    print("Adding noise to batch...")
     noisy_batch = add_noise_to_batch(batch, noise_level=0.1, random_seed=random_seed)
 
-    # Create loss function
-    print("Creating loss function...")
-    loss_fn = CompositeLoss(
-        {
-            "rmsd": (create_rmsd_loss(), 1.0),
-            "backbone": (create_backbone_loss(), 0.5),
-        }
+    show("Creating protein loss surface...")
+    loss_fn = create_protein_structure_loss(
+        rmsd_weight=1.0,
+        backbone_weight=0.5,
+        dihedral_weight=0.3,
     )
 
-    # Run model
-    print("Running model...")
-    outputs = model(noisy_batch)
-
-    # Calculate losses
-    print("Calculating losses...")
+    show("Running point-cloud owner...")
+    outputs = point_cloud_model(noisy_batch)
     losses = loss_fn(batch, outputs)
-
-    # Display results
-    print("Displaying results...")
-    display_results(batch, outputs, losses, index=0)
+    summarize_outputs(batch, outputs, losses)
 
 
-# %%
-def run_extensions_example():
-    """Run the high-level API with extensions example."""
-    print("\n=== Running Extensions Example ===\n")
-
-    # Set up random key
-    key = jax.random.PRNGKey(42)
-
-    # Define model config
-    config = {
-        "model_type": "diffusion",
-        "diffusion_type": "protein_point_cloud",
-        "num_residues": 64,
-        "hidden_dim": 128,
-        "num_layers": 4,
-        "num_heads": 8,
-        "dropout": 0.1,
-        "use_constraints": True,
-        "use_conditioning": False,
-    }
-
-    # Create model with extensions
-    model = create_model_with_extensions(config, key=key)
-
-    # Generate samples
-    samples = generate_samples(model, config, key=key)
-
-    # Evaluate sample quality
-    if hasattr(model, "extensions"):
-        evaluate_sample_quality(samples["positions"], model.extensions)
-
-
-# %% [markdown]
-"""
-## Main Execution
-
-Execute both examples and compare approaches.
-"""
-
-
-# %%
-def main():
-    """Run the protein diffusion examples."""
-    print("=== Protein Diffusion Examples ===")
-    print("This example demonstrates two approaches to protein diffusion:")
-    print("1. High-level API with extension components")
-    print("2. Direct model creation and manipulation")
-
-    # Run examples
-    try:
-        run_extensions_example()
-    except Exception as e:
-        print(f"Extensions example failed: {e}")
-
-    try:
-        run_direct_model_example()
-    except Exception as e:
-        print(f"Direct model example failed: {e}")
-
-
-# %% [markdown]
-"""
-## Summary and Next Steps
-
-### Key Takeaways
-
-This example demonstrated:
-
-1. **High-Level API**: Using Artifex extensions for protein diffusion models
-2. **Direct Creation**: Building protein models from scratch with full control
-3. **Geometric Constraints**: Applying backbone, bond, and angle constraints
-4. **Quality Assessment**: Evaluating generated structures with RMSD and violations
-5. **Visualization**: 2D and 3D visualization of protein structures
-
-### Experiments to Try
-
-1. **Different Model Types**: Compare point cloud vs graph representations
-   ```python
-   model = create_protein_diffusion_model(model_type="graph")
-   ```
-
-2. **Constraint Weights**: Adjust geometric constraint importance
-   ```python
-   constraint_config = {
-       "backbone_weight": 2.0,  # Increase backbone constraint
-       "bond_weight": 1.5,
-       "angle_weight": 1.0,
-   }
-   ```
-
-3. **Larger Proteins**: Test with more residues
-   ```python
-   model = create_protein_diffusion_model(num_residues=128)
-   ```
-
-4. **Custom Loss Functions**: Create domain-specific protein losses
-5. **Real Datasets**: Load actual protein structures from PDB files
-
-### Next Steps
-
-- Explore conditional generation based on sequence or function
-- Study protein folding with diffusion models
-- Implement multi-scale protein generation
-- Learn about AlphaFold-style architectures
-
-### Additional Resources
-
-- [Protein Data Bank](https://www.rcsb.org/)
-- [AlphaFold Documentation](https://alphafold.ebi.ac.uk/)
-- [Artifex Protein Modeling Guide](../../docs/protein-modeling.md)
-- [Diffusion Models for Proteins](https://arxiv.org/abs/2205.15019)
-"""
-
-# %%
 if __name__ == "__main__":
     main()

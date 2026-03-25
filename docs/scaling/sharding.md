@@ -8,14 +8,10 @@
 
 Sharding strategies and parallelism configuration for scalable training.
 
-This module provides comprehensive sharding infrastructure including:
-
-- Abstract base class for sharding strategies
-- Concrete implementations for different parallelism types
-- Multi-dimensional parallelism support
-- Configuration management for complex sharding setups
-
-All implementations prioritize performance and follow JAX/Flax NNX patterns.
+This module exposes the retained sharding strategies and configuration
+objects used by `artifex.generative_models.scaling`. It focuses on explicit
+strategy composition and mesh metadata instead of claiming a generic
+parameter-name to `PartitionSpec` inference layer.
 
 ## Classes
 
@@ -133,12 +129,6 @@ def apply_sharding()
 
 ```python
 def assign_layers_to_stages()
-```
-
-### create_partition_spec
-
-```python
-def create_partition_spec()
 ```
 
 ### from_device_count

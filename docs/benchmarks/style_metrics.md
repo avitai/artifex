@@ -8,7 +8,7 @@
 
 StyleGAN-Specific Metrics for Image Generation Evaluation.
 
-This module provides comprehensive metrics for evaluating StyleGAN3 performance,
+This module provides complete metrics for evaluating StyleGAN3 performance,
 including traditional image quality metrics and StyleGAN-specific evaluations.
 
 Key Metrics:

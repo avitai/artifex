@@ -18,7 +18,7 @@ A quick reference guide demonstrating how to configure and instantiate three typ
 ```bash
 # Clone and setup
 cd artifex
-source activate.sh
+pip install artifex
 
 # Run Python script
 python examples/generative_models/geometric/geometric_models_demo.py
@@ -72,7 +72,6 @@ point_cloud_config = PointCloudConfig(
     name="demo_point_cloud",
     network=network_config,
     num_points=512,
-    loss_type="chamfer",
     dropout_rate=0.1,
 )
 point_cloud_model = create_model(point_cloud_config, rngs=rngs)
@@ -89,7 +88,8 @@ point_cloud_model = create_model(point_cloud_config, rngs=rngs)
 - `num_points`: Number of points in the cloud
 - `embed_dim`: Embedding dimension for features
 - `num_layers`: Network depth
-- `loss_type`: Distance metric (chamfer, earth mover's distance)
+- `dropout_rate`: Transformer regularization strength
+- training uses the point cloud model's family-local reconstruction objective
 
 ### 2. Mesh Models
 
@@ -108,15 +108,11 @@ mesh_network_config = MeshNetworkConfig(
     activation="gelu",
 )
 
-# Mesh config with nested network and loss weights
+# Mesh config with nested network
 mesh_config = MeshConfig(
     name="demo_mesh",
     network=mesh_network_config,
     num_vertices=512,
-    template_type="sphere",
-    vertex_loss_weight=1.0,
-    normal_loss_weight=0.2,
-    edge_loss_weight=0.1,
 )
 mesh_model = create_model(mesh_config, rngs=rngs)
 ```
@@ -130,11 +126,9 @@ mesh_model = create_model(mesh_config, rngs=rngs)
 **Key parameters:**
 
 - `num_vertices`: Number of mesh vertices
-- `template_type`: Initial mesh template (sphere, cube, etc.)
-- Loss weights balance geometric properties:
-  - `vertex_loss_weight`: Vertex position accuracy
-  - `normal_loss_weight`: Surface normal consistency
-  - `edge_loss_weight`: Edge length regularization
+- `edge_features_dim`: Size of learned edge features
+- retained topology is derived from the sphere template plus the chosen vertex budget
+- training uses vertex reconstruction; standalone mesh losses live in `geometric-losses-demo`
 
 ### 3. Voxel Models
 
@@ -146,22 +140,21 @@ from artifex.generative_models.core.configuration import (
     VoxelNetworkConfig,
 )
 
-# Network config for voxel 3D CNN
+# Network config for the retained voxel decoder
 voxel_network_config = VoxelNetworkConfig(
     name="voxel_network",
-    hidden_dims=(128, 64),  # Required base config
+    hidden_dims=(128, 64),
     activation="relu",
-    base_channels=64,  # Base number of 3D CNN channels
-    num_layers=4,       # Number of 3D convolutional layers
+    base_channels=64,
+    num_layers=4,
 )
 
 # Voxel config with nested network
 voxel_config = VoxelConfig(
     name="demo_voxel",
     network=voxel_network_config,
-    resolution=16,
-    use_conditioning=True,
-    conditioning_dim=10,
+    voxel_size=16,
+    voxel_dim=1,
     loss_type="focal",
     focal_gamma=2.0,
 )
@@ -176,9 +169,9 @@ voxel_model = create_model(voxel_config, rngs=rngs)
 
 **Key parameters:**
 
-- `resolution`: Grid resolution (16³ = 4,096 voxels)
-- `channels`: Multi-scale architecture layers
-- `use_conditioning`: Enable class-conditional generation
+- `voxel_size`: Grid resolution (16³ = 4,096 voxels)
+- `base_channels`: Width of the retained 3D decoder stack
+- `voxel_dim`: Number of channels per voxel occupancy cell
 - `loss_type`: "focal" handles sparse voxel data
 - `focal_gamma`: Focus on hard-to-classify voxels (2.0 is standard)
 
@@ -192,8 +185,9 @@ Sample shape: (1, 512, 3)
 Creating mesh model...
 Created model: MeshModel
 
-Creating voxel model with conditioning...
+Creating voxel model...
 Created model: VoxelModel
+Sample shape: (1, 16, 16, 16)
 
 Demo completed successfully!
 ```
@@ -236,29 +230,28 @@ sample = point_cloud_model.sample(1, rngs=rngs)
 
 ## Experiments to Try
 
-1. **Change loss types** - Try different distance metrics for point clouds:
+1. **Inspect the point cloud objective** - Verify the retained runtime loss contract:
 
    ```python
-   "loss_type": "emd"  # Earth Mover's Distance (slower but more accurate)
+   loss_dict = point_cloud_model.get_loss_fn()({"target": sample}, {"positions": sample})
    ```
 
-2. **Adjust mesh templates** - Experiment with different starting shapes:
+2. **Vary mesh vertex budget** - Explore a denser sphere-template mesh:
 
    ```python
-   "template_type": "cube"  # or "icosahedron", "octahedron"
+   "num_vertices": 1024,
    ```
 
-3. **Scale voxel resolution** - Balance memory vs. detail:
+3. **Scale voxel size** - Balance memory vs. detail:
 
    ```python
-   "resolution": 32  # 32³ = 32,768 voxels (8x more memory)
+   "voxel_size": 32  # 32³ = 32,768 voxels (8x more memory)
    ```
 
-4. **Conditional generation** - Create class-specific voxel shapes:
+4. **Threshold voxel occupancies** - Convert decoder outputs to binary grids:
 
    ```python
-   labels = jnp.array([0, 1, 5, 9])  # Different classes
-   voxel_model.generate(labels, rngs=rngs)
+   binary = voxel_model.generate(4, rngs=rngs, threshold=0.5)
    ```
 
 ## Next Steps
@@ -293,7 +286,7 @@ sample = point_cloud_model.sample(1, rngs=rngs)
 
     ---
 
-    Comprehensive evaluation on geometric tasks
+    Complete evaluation on geometric tasks
 
     [:octicons-arrow-right-24: geometric_benchmark_demo.py](geometric-benchmark-demo.md)
 
@@ -314,16 +307,16 @@ JAX_PLATFORMS=cpu python examples/generative_models/geometric/geometric_models_d
 **Solution**: Activate the environment first:
 
 ```bash
-source activate.sh
+pip install artifex
 python examples/generative_models/geometric/geometric_models_demo.py
 ```
 
-### Memory errors with high resolution voxels
+### Memory errors with large voxel grids
 
-**Solution**: Reduce voxel resolution or use gradient checkpointing:
+**Solution**: Reduce `voxel_size` or use gradient checkpointing:
 
 ```python
-"resolution": 8,  # Lower resolution (8³ = 512 voxels)
+"voxel_size": 8,  # Lower resolution (8³ = 512 voxels)
 ```
 
 ## Additional Resources

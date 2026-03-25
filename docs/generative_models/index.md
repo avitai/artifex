@@ -37,20 +37,31 @@ The main module containing all generative model implementations, core infrastruc
 ### Creating a Model
 
 ```python
-from artifex.generative_models.factories import create_model
-from artifex.generative_models.core.configuration import VAEConfig
+from artifex.generative_models.factory import create_model
+from artifex.generative_models.core.configuration import DecoderConfig, EncoderConfig, VAEConfig
 from flax import nnx
 
 # Create VAE model
-rngs = nnx.Rngs(0)
+encoder = EncoderConfig(
+    name="vae_encoder",
+    input_shape=(28, 28, 1),
+    latent_dim=64,
+    hidden_dims=(256, 128),
+)
+decoder = DecoderConfig(
+    name="vae_decoder",
+    output_shape=(28, 28, 1),
+    latent_dim=64,
+    hidden_dims=(128, 256),
+)
 config = VAEConfig(
     name="my_vae",
-    latent_dim=64,
-    encoder_hidden_dims=[256, 128],
-    decoder_hidden_dims=[128, 256],
+    encoder=encoder,
+    decoder=decoder,
 )
 
-model = create_model("vae", config=config, rngs=rngs)
+rngs = nnx.Rngs(0)
+model = create_model(config, rngs=rngs)
 ```
 
 ### Training a Model
@@ -69,12 +80,17 @@ trainer.train()
 
 ### Generating Samples
 
-```python
-from artifex.inference import InferencePipeline
+There is no top-level `artifex.inference` namespace or one shared
+inference pipeline in the current runtime. Generation remains family-owned.
 
-pipeline = InferencePipeline(model)
-samples = pipeline.generate(num_samples=16)
+```python
+# `model` above is a VAE built from `VAEConfig`.
+samples = model.sample(num_samples=16)
 ```
+
+See [Inference Overview](../user-guide/inference/overview.md) for the retained
+loading and generation workflow, and [Inference Reference](../inference/index.md)
+for the one shared production-optimization surface.
 
 ## Module Structure
 
@@ -112,17 +128,19 @@ Foundational abstractions and utilities.
 
 ### Modalities
 
-Data modality implementations.
+Registry-backed modalities plus family-scoped owner pages.
 
-| Modality | Description |
-|----------|-------------|
-| [Base](../modalities/base.md) | Base modality classes |
-| [Adapters](../modalities/adapters.md) | Model adapters for modalities |
-| [Evaluation](../modalities/evaluation.md) | Modality evaluation metrics |
-| [Datasets](../modalities/datasets.md) | Dataset utilities |
-| [Representations](../modalities/representations.md) | Feature representations |
+Use [Modalities Overview](../modalities/index.md) for the retained registry-backed surface and the owner pages below only for family-scoped helper details.
 
-[:octicons-arrow-right-24: Modalities Reference](../modalities/index.md)
+| Reference | Description |
+|-----------|-------------|
+| [Registry Owner](../modalities/registry.md) | Shared registry-backed surface for `image`, `molecular`, and `protein` |
+| [Timeseries Base](../modalities/base.md) | Timeseries helper owner page |
+| [Timeseries Datasets](../modalities/datasets.md) | Synthetic timeseries data factories |
+| [Protein Modality](../modalities/modality.md) | Protein-specific adapter and extension lookup |
+| [Protein Losses](../modalities/losses.md) | Protein structure loss builders |
+
+[:octicons-arrow-right-24: Modalities Overview](../modalities/index.md)
 
 ### Training
 
@@ -142,43 +160,42 @@ Training infrastructure and utilities.
 
 ### Extensions
 
-Domain-specific extensions.
+Domain-specific extensions with one curated overview plus live owner pages.
 
-| Extension | Description |
+Use [Extensions Overview](../extensions/index.md) for the curated scope and the owner pages below for live module details.
+
+| Reference | Description |
 |-----------|-------------|
-| [Extensions](../extensions/extensions.md) | Extension system overview |
-| [Backbone](../extensions/backbone.md) | Model backbones |
-| [Embeddings](../extensions/embeddings.md) | Embedding layers |
-| [Features](../extensions/features.md) | Feature processing |
-| [Registry](../extensions/registry.md) | Extension registry |
+| [Base Extensions](../extensions/extensions.md) | Shared extension hierarchy and base contracts |
+| [Registry Owner](../extensions/registry.md) | Registry enum, discovery helpers, and factory surface |
+| [Protein Constraints](../extensions/constraints.md) | Protein constraint owners and measurement helpers |
+| [NLP Embeddings](../extensions/embeddings.md) | RoPE, sinusoidal, and text embedding owners |
+| [Audio Analysis](../extensions/temporal.md) | Temporal audio-analysis owner page |
 
-[:octicons-arrow-right-24: Extensions Reference](../extensions/index.md)
+[:octicons-arrow-right-24: Extensions Overview](../extensions/index.md)
 
-### Factories
+### Factory
 
 Model creation and registration.
 
 ```python
-from artifex.generative_models.factories import (
-    create_model,
-    register_model,
-    list_models,
+from artifex.generative_models.factory import create_model, create_model_with_extensions
+
+# `config` is a family-specific typed config such as VAEConfig, DDPMConfig,
+# WGANConfig, or PointCloudConfig.
+
+# Create a model from a dataclass config
+model = create_model(config, rngs=rngs)
+
+# Create a model with extensions
+model, extensions = create_model_with_extensions(
+    config,
+    extensions_config=extension_configs,
+    rngs=rngs,
 )
-
-# List available models
-available = list_models()
-# ['vae', 'beta_vae', 'vq_vae', 'gan', 'wgan', ...]
-
-# Create model by name
-model = create_model("vae", config=config, rngs=rngs)
-
-# Register custom model
-register_model("my_model", MyModelClass)
 ```
 
 [:octicons-arrow-right-24: Factory Reference](../factory/index.md)
-
-See also: [VAE Factory](../factory/vae.md) | [GAN Factory](../factory/gan.md) | [Diffusion Factory](../factory/diffusion.md) | [Flow Factory](../factory/flow.md)
 
 ## Architecture
 
@@ -212,9 +229,11 @@ generative_models/
 ├── extensions/           # Domain extensions
 │   ├── protein/          # Protein modeling
 │   └── geometric/        # Geometric deep learning
-└── factories/            # Model creation
-    ├── model_factory.py  # Model factory
-    └── registry.py       # Model registry
+├── factory/              # Model creation
+│   ├── core.py           # ModelFactory implementation
+│   ├── registry.py       # Builder registry
+│   └── builders/         # Model-family builders
+└── zoo/                  # Retired preset compatibility boundary
 ```
 
 ## Design Principles

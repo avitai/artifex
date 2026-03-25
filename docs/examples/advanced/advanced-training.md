@@ -115,26 +115,37 @@ class ClassifierConfig:
     output_dim: int = 10
     dropout_rate: float = 0.1
 
-# Training configuration using Artifex's ModelConfig
-from artifex.generative_models.core.configuration import ModelConfig
+# Training configuration uses dedicated training dataclasses
+from artifex.generative_models.core.configuration import (
+    OptimizerConfig,
+    SchedulerConfig,
+    TrainingConfig,
+)
 
-# ModelConfig is a general-purpose training configuration
-config = ModelConfig(
-    name="advanced_training",
-    batch_size=32,
-    num_epochs=10,
-    learning_rate=1e-3,
+optimizer_config = OptimizerConfig(
+    name="adam",
     optimizer_type="adam",
-    checkpoint_dir="./checkpoints/advanced_example",
-    save_frequency=5,
-    # Scheduler settings
-    scheduler_type="cosine",
-    warmup_steps=100,
-    total_steps=1000,
-    # Optimizer settings
+    learning_rate=1e-3,
     beta1=0.9,
     beta2=0.999,
     weight_decay=1e-4,
+)
+
+scheduler_config = SchedulerConfig(
+    name="cosine",
+    scheduler_type="cosine",
+    warmup_steps=100,
+    total_steps=1000,
+)
+
+training_config = TrainingConfig(
+    name="advanced_training",
+    batch_size=32,
+    num_epochs=10,
+    optimizer=optimizer_config,
+    scheduler=scheduler_config,
+    checkpoint_dir="./checkpoints/advanced_example",
+    save_frequency=5,
 )
 
 # Create model config
@@ -146,7 +157,9 @@ model_config = ClassifierConfig(
 )
 ```
 
-This approach centralizes all hyperparameters using frozen dataclasses, making experiments reproducible and configuration management type-safe.
+This approach keeps model, optimizer, scheduler, and training concerns in their
+own frozen dataclasses, making experiments reproducible and the runtime surface
+type-safe.
 
 ### 2. Data Loading
 
@@ -429,27 +442,27 @@ If you encounter NaN or Inf values:
 
     [:octicons-arrow-right-24: GAN Examples](../basic/simple-gan.md)
 
-- :material-chart-line: **Advanced Optimization**
+- :material-chart-line: **Advanced Features**
 
     ---
 
-    Explore gradient clipping, mixed precision, and distributed training
+    Explore gradient accumulation, mixed precision, and retained training helpers
 
-    [:octicons-arrow-right-24: Advanced Techniques](../framework/training-strategies.md)
+    [:octicons-arrow-right-24: Advanced features](../../user-guide/training/advanced-features.md)
 
 - :material-package-variant: **Model Deployment**
 
     ---
 
-    Learn to export and deploy trained models
+    Learn the retained checkpointing and production-optimizer deployment flow
 
-    [:octicons-arrow-right-24: Deployment Guide](../framework/model-deployment.md)
+    [:octicons-arrow-right-24: Deployment guide](../../user-guide/integrations/deployment.md)
 
 </div>
 
 ## Additional Resources
 
-- [Flax NNX Training Guide](https://flax.readthedocs.io/en/latest/guides/training.html)
+- [Flax NNX Training API](https://flax.readthedocs.io/en/latest/api_reference/flax.nnx/training/index.html)
 - [Optax Documentation](https://optax.readthedocs.io/)
 - [JAX Training Best Practices](https://jax.readthedocs.io/en/latest/notebooks/thinking_in_jax.html)
 - [Artifex Training Configuration](../../api/core/configuration.md)

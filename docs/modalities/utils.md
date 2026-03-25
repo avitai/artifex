@@ -1,26 +1,15 @@
-# Utils
+# Protein Utils
 
-**Module:** `generative_models.modalities.protein.utils`
+**Status:** `Supported family-scoped modality owner`
 
-**Source:** `generative_models/modalities/protein/utils.py`
+**Scope:** `Protein-specific owner`
 
-## Overview
+**Module:** `artifex.generative_models.modalities.protein.utils`
 
-Utilities for protein modality.
+**Source:** `src/artifex/generative_models/modalities/protein/utils.py`
 
-This module provides utility functions for creating and working with
-protein-specific modality components.
+Protein adapter lookup helpers around the shared model-family boundary.
 
-## Functions
+## Top-Level Module Exports
 
-### get_protein_adapter
-
-```python
-def get_protein_adapter()
-```
-
-## Module Statistics
-
-- **Classes:** 0
-- **Functions:** 1
-- **Imports:** 4
+- `get_protein_adapter()`

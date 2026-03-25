@@ -290,7 +290,8 @@ class TestOptimizerFactoryIntegrationWithTrainer:
         # Create optimizer via factory
         optimizer = create_optimizer(optimizer_config)
 
-        def loss_fn(model, batch, rng):
+        def loss_fn(model, batch, rng, step):
+            del rng, step
             x = batch["x"]
             y = model(x)
             loss = jnp.mean(y**2)

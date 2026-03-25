@@ -35,8 +35,8 @@ class RegularizationExtension(ModelExtension):
         if isinstance(model_outputs, dict):
             if "z_mean" in model_outputs:
                 return jnp.mean(jnp.square(model_outputs["z_mean"]))
-            elif "reconstruction" in model_outputs:
-                return jnp.mean(jnp.square(model_outputs["reconstruction"])) * 0.001
+            elif "reconstructed" in model_outputs:
+                return jnp.mean(jnp.square(model_outputs["reconstructed"])) * 0.001
         elif isinstance(model_outputs, jax.Array):
             return jnp.mean(jnp.square(model_outputs)) * 0.001
         return jnp.array(0.0)
@@ -148,16 +148,12 @@ class TestEndToEndVAEWithExtensions:
         extensions = {"reg": extension}
 
         # Define VAE loss function
-        def vae_loss_fn(model, batch_data, rng):  # noqa: ARG001
+        def vae_loss_fn(model, batch_data, rng, step):  # noqa: ARG001
             x = batch_data["input"]
-            # Flatten input for dense encoder
-            x_flat = x.reshape(x.shape[0], -1)
-            # VAE forward pass (no rngs needed in __call__)
-            outputs = model(x_flat)
+            outputs = model(x)
             # Simple reconstruction loss
-            if isinstance(outputs, dict) and "reconstruction" in outputs:
-                recon = outputs["reconstruction"]
-                loss = jnp.mean(jnp.square(recon - x_flat))
+            if isinstance(outputs, dict) and "reconstructed" in outputs:
+                loss = jnp.mean(jnp.square(outputs["reconstructed"] - x))
             else:
                 loss = jnp.array(0.0)
             return loss, {"recon_loss": loss}
@@ -190,11 +186,11 @@ class TestEndToEndVAEWithExtensions:
         extensions = {"reg": extension}
 
         # Simple loss function
-        def loss_fn(model, batch_data, rng):  # noqa: ARG001
-            x = batch_data["input"].reshape(batch_data["input"].shape[0], -1)
-            outputs = model(x)  # VAE doesn't take rngs in __call__
-            if isinstance(outputs, dict) and "reconstruction" in outputs:
-                loss = jnp.mean(jnp.square(outputs["reconstruction"] - x))
+        def loss_fn(model, batch_data, rng, step):  # noqa: ARG001
+            x = batch_data["input"]
+            outputs = model(x)
+            if isinstance(outputs, dict) and "reconstructed" in outputs:
+                loss = jnp.mean(jnp.square(outputs["reconstructed"] - x))
             else:
                 loss = jnp.array(1.0)
             return loss, {}
@@ -255,8 +251,8 @@ class TestExtensionStateManagement:
 
         # Compare state dictionaries
         for key in state1:
-            if hasattr(state1[key], "value") and hasattr(state2[key], "value"):
-                assert jnp.allclose(state1[key].value, state2[key].value)
+            if isinstance(state1[key], nnx.Variable) and isinstance(state2[key], nnx.Variable):
+                assert jnp.allclose(state1[key][...], state2[key][...])
 
 
 class TestEdgeCases:
@@ -287,7 +283,7 @@ class TestEdgeCases:
             model=model,
             training_config=config,
             extensions={},  # Empty dict
-            loss_fn=lambda m, b, r: (jnp.array(1.0), {}),  # noqa: ARG005
+            loss_fn=lambda m, b, r, s: (jnp.array(1.0), {}),  # noqa: ARG005
         )
 
         batch = {"input": jnp.ones((4, 4))}
@@ -326,7 +322,7 @@ class TestEdgeCases:
             model=model,
             training_config=config,
             extensions={"nan": extension},
-            loss_fn=lambda m, b, r: (jnp.array(1.0), {}),  # noqa: ARG005
+            loss_fn=lambda m, b, r, s: (jnp.array(1.0), {}),  # noqa: ARG005
         )
 
         batch = {"input": jnp.ones((4, 4))}
@@ -366,7 +362,7 @@ class TestEdgeCases:
             model=model,
             training_config=config,
             extensions={"large": extension},
-            loss_fn=lambda m, b, r: (jnp.array(1.0), {}),  # noqa: ARG005
+            loss_fn=lambda m, b, r, s: (jnp.array(1.0), {}),  # noqa: ARG005
         )
 
         batch = {"input": jnp.ones((4, 4))}

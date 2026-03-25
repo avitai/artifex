@@ -1,46 +1,22 @@
-# Modality
+# Protein Modality
 
-**Module:** `generative_models.modalities.protein.modality`
+**Status:** `Supported family-scoped modality owner`
 
-**Source:** `generative_models/modalities/protein/modality.py`
+**Scope:** `Protein-specific owner`
 
-## Overview
+**Module:** `artifex.generative_models.modalities.protein.modality`
 
-Protein modality implementation.
+**Source:** `src/artifex/generative_models/modalities/protein/modality.py`
 
-This module provides the protein modality implementation that adapts
-generative models to work with protein structure data.
+Protein modality owner for adapter lookup and typed extension bundle materialization.
 
-## Classes
+## Top-Level Module Exports
 
-### ProteinModality
+- `ProteinModality`
 
-```python
-class ProteinModality
-```
+## Class APIs
 
-## Functions
+### `ProteinModality`
 
-### **init**
-
-```python
-def __init__()
-```
-
-### get_adapter
-
-```python
-def get_adapter()
-```
-
-### get_extensions
-
-```python
-def get_extensions()
-```
-
-## Module Statistics
-
-- **Classes:** 1
-- **Functions:** 3
-- **Imports:** 8
+- `get_extensions()`
+- `get_adapter()`

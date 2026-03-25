@@ -1,9 +1,7 @@
 # ---
 # jupyter:
 #   jupytext:
-#     cell_metadata_filter: all
 #     formats: py:percent,ipynb
-#     notebook_metadata_filter: all,-jupytext.text_representation.jupytext_version
 #     text_representation:
 #       extension: .py
 #       format_name: percent
@@ -55,6 +53,12 @@
 # - Artifex installed (see setup instructions below)
 # - [Any optional background knowledge]
 #
+# ```bash
+# ./setup.sh --backend cpu
+# source ./activate.sh
+# uv run python examples/path/to/example.py
+# ```
+#
 # ---
 
 # %%
@@ -82,7 +86,7 @@ try:
     print(f"✅ Available devices: {jax.device_count()}")
 except ImportError as e:
     print(f"❌ JAX import failed: {e}")
-    print("Please run: source activate.sh")
+    print("Please run: source ./activate.sh")
 
 # Import Flax NNX
 try:
@@ -99,7 +103,7 @@ try:
     print("✅ Artifex imported successfully")
 except ImportError as e:
     print(f"❌ Artifex import failed: {e}")
-    print("Make sure Artifex is installed: pip install -e .")
+    print("Make sure the Artifex environment is active: source ./activate.sh")
 
 print("\n🎉 Environment setup complete!")
 
@@ -158,9 +162,6 @@ Imports all libraries and modules needed for the example.
 - Flax NNX is the neural network framework we use
 - Artifex provides high-level abstractions for generative models
 """
-
-# Standard library
-from typing import Tuple
 
 # JAX and numerical computing
 import jax
@@ -337,7 +338,7 @@ class ExampleModel(nnx.Module):
 
     def __init__(
         self,
-        input_dim: Tuple[int, ...],
+        input_dim: tuple[int, ...],
         hidden_dims: list[int],
         output_dim: int,
         *,
@@ -549,9 +550,9 @@ print(f"   Output std: {output.std():.3f}")
 # ### 📚 Additional Resources
 #
 # **Artifex Documentation:**
-# - [Core concepts](link)
-# - [API reference](link)
-# - [Best practices](link)
+# - [Core concepts](../../getting-started/core-concepts.md)
+# - [API reference](../../api/core/base.md)
+# - [Best practices](../../development/example-documentation-design.md)
 #
 # **Research Papers:**
 # - [Paper 1 title] - [Brief description and link]

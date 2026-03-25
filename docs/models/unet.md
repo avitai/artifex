@@ -1,11 +1,13 @@
-# Unet
+# UNet
 
-**Module:** `generative_models.models.common.unet`
+Status: Coming soon
 
-**Source:** `generative_models/models/common/unet.py`
+`artifex.generative_models.models.common.unet` does not ship in the current
+runtime.
 
-## Module Statistics
+The current live UNet owner is
+`artifex.generative_models.models.backbones.unet`, which supports the retained
+diffusion-backbone surface today.
 
-- **Classes:** 0
-- **Functions:** 0
-- **Imports:** 0
+See [planned-modules.md](../roadmap/planned-modules.md) for the roadmap status
+of a standalone model page.

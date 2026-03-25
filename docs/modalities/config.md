@@ -1,31 +1,16 @@
-# Config
+# Protein Config
 
-**Module:** `generative_models.modalities.protein.config`
+**Status:** `Supported family-scoped modality owner`
 
-**Source:** `generative_models/modalities/protein/config.py`
+**Scope:** `Protein-specific owner`
 
-## Overview
+**Module:** `artifex.generative_models.modalities.protein.config`
 
-Configuration for protein modality.
+**Source:** `src/artifex/generative_models/modalities/protein/config.py`
 
-This module provides configuration utilities for the protein modality.
+Protein modality configuration helpers.
 
-## Functions
+## Top-Level Module Exports
 
-### create_default_protein_config
-
-```python
-def create_default_protein_config()
-```
-
-### register_protein_modality
-
-```python
-def register_protein_modality()
-```
-
-## Module Statistics
-
-- **Classes:** 0
-- **Functions:** 2
-- **Imports:** 4
+- `register_protein_modality()`
+- `create_default_protein_config()`

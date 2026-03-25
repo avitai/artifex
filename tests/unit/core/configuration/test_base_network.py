@@ -276,18 +276,3 @@ class TestBaseNetworkConfigUsage:
         assert config.name == "encoder"
         assert config.activation == "gelu"
         assert config.dropout_rate == 0.1
-
-
-class TestBaseNetworkConfigCoverage:
-    """Meta-test to ensure we achieve 80%+ coverage."""
-
-    def test_coverage_reminder(self):
-        """Reminder that we need 80%+ coverage for BaseNetworkConfig.
-
-        All code paths must be tested:
-        - Valid configurations (positive tests)
-        - Invalid configurations (negative tests)
-        - Edge cases (empty, negative, out of range)
-        - Validation errors (field names, error messages)
-        """
-        assert True

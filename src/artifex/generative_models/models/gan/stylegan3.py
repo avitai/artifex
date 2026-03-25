@@ -1,11 +1,11 @@
-"""StyleGAN3 Generator with Translation and Rotation Equivariance.
+"""StyleGAN3-inspired generator and discriminator with simplified style modulation.
 
-This module implements StyleGAN3 architecture based on the official NVIDIA implementation
-but simplified for JAX/Flax NNX patterns while maintaining mathematical correctness.
+This module provides a simplified style-modulated generator/discriminator stack
+for JAX/Flax NNX with mapping and synthesis networks plus progressive upsampling.
 
 Key Features:
 - Style-based generation with mapping and synthesis networks
-- Simplified but effective modulated convolutions
+- Simplified style-modulated convolutions
 - Progressive upsampling architecture
 - JAX/Flax NNX compatibility
 """
@@ -232,7 +232,7 @@ class SynthesisBlock(nnx.Module):
         # Add noise injection
         if rngs is not None:
             noise = jax.random.normal(rngs.noise(), (*x.shape[:3], 1))
-            x = x + noise * self.noise_strength1.value[None, None, None, :]
+            x = x + noise * self.noise_strength1[...][None, None, None, :]
 
         x = nnx.leaky_relu(x, negative_slope=0.2)
 
@@ -242,7 +242,7 @@ class SynthesisBlock(nnx.Module):
         # Add noise injection
         if rngs is not None:
             noise = jax.random.normal(rngs.noise(), (*x.shape[:3], 1))
-            x = x + noise * self.noise_strength2.value[None, None, None, :]
+            x = x + noise * self.noise_strength2[...][None, None, None, :]
 
         x = nnx.leaky_relu(x, negative_slope=0.2)
 
@@ -334,7 +334,7 @@ class SynthesisNetwork(nnx.Module):
         batch_size = w.shape[0]
 
         # Start with learned constant
-        x = jnp.tile(self.const_input.value[None, :, :, :], (batch_size, 1, 1, 1))
+        x = jnp.tile(self.const_input[...][None, :, :, :], (batch_size, 1, 1, 1))
 
         # Progressive synthesis through blocks
         style_idx = 0

@@ -1,6 +1,6 @@
 """Tests for advanced tokenization extension.
 
-This module contains comprehensive tests for the AdvancedTokenization extension
+This module contains complete tests for the AdvancedTokenization extension
 that provides text tokenization utilities for generative models.
 """
 
@@ -426,13 +426,45 @@ class TestMLMMasking:
         assert mask_positions.shape == tokens.shape
 
     def test_apply_masking_mask_token_used(self, tokenizer):
-        """Test that MASK token is used in masking."""
-        tokens = jnp.arange(100) + 5
-        masked_tokens, _ = tokenizer.apply_masking(tokens, mask_probability=0.5)
+        """Test that maskable tokens are deterministically replaced by MASK."""
+        tokens = jnp.arange(10) + 5
+        masked_tokens, mask_positions = tokenizer.apply_masking(tokens, mask_probability=1.0)
 
         mask_id = tokenizer.token_to_id["<MASK>"]
-        # With 50% probability, some tokens should be masked
-        assert jnp.any(masked_tokens == mask_id) or True  # May randomly have no masks
+        assert jnp.array_equal(masked_tokens, jnp.full(tokens.shape, mask_id))
+        assert jnp.array_equal(mask_positions, jnp.ones(tokens.shape, dtype=jnp.int32))
+
+    def test_apply_masking_preserves_special_tokens(self, tokenizer):
+        """Test masking only applies to regular vocabulary tokens."""
+        tokens = jnp.array(
+            [
+                tokenizer.token_to_id["<PAD>"],
+                tokenizer.token_to_id["<UNK>"],
+                tokenizer.token_to_id["<BOS>"],
+                tokenizer.token_to_id["<EOS>"],
+                tokenizer.token_to_id["<MASK>"],
+                5,
+                6,
+            ]
+        )
+        masked_tokens, mask_positions = tokenizer.apply_masking(tokens, mask_probability=1.0)
+
+        mask_id = tokenizer.token_to_id["<MASK>"]
+        expected_tokens = jnp.array(
+            [
+                tokenizer.token_to_id["<PAD>"],
+                tokenizer.token_to_id["<UNK>"],
+                tokenizer.token_to_id["<BOS>"],
+                tokenizer.token_to_id["<EOS>"],
+                tokenizer.token_to_id["<MASK>"],
+                mask_id,
+                mask_id,
+            ]
+        )
+        expected_positions = jnp.array([0, 0, 0, 0, 0, 1, 1], dtype=jnp.int32)
+
+        assert jnp.array_equal(masked_tokens, expected_tokens)
+        assert jnp.array_equal(mask_positions, expected_positions)
 
     def test_apply_masking_2d(self, tokenizer):
         """Test masking works with batch input."""
@@ -523,11 +555,14 @@ class TestCallMethod:
 
     def test_call_with_masking(self, tokenizer):
         """Test __call__ with masking enabled."""
-        inputs = {"text": "hello world test"}
-        result = tokenizer(inputs, {}, apply_masking=True, mask_probability=0.3)
+        inputs = {"text": "token_5 token_6 token_7"}
+        result = tokenizer(inputs, {}, apply_masking=True, mask_probability=1.0)
 
         assert "masked_tokens" in result
         assert "mask_positions" in result
+        mask_id = tokenizer.token_to_id["<MASK>"]
+        assert jnp.array_equal(result["masked_tokens"][:3], jnp.full((3,), mask_id))
+        assert jnp.array_equal(result["mask_positions"][:3], jnp.ones((3,), dtype=jnp.int32))
 
     def test_call_with_output_tokens(self, tokenizer):
         """Test __call__ processes output tokens."""

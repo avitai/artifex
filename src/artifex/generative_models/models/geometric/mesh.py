@@ -1,4 +1,4 @@
-"""Mesh generative model."""
+"""Sphere-template mesh generative model."""
 
 from typing import Any
 
@@ -9,12 +9,15 @@ from flax import nnx
 from artifex.generative_models.core.configuration.geometric_config import (
     MeshConfig,
 )
-from artifex.generative_models.core.losses.geometric import get_mesh_loss
 from artifex.generative_models.models.geometric.base import GeometricModel
 
 
 class SiLU(nnx.Module):
     """SiLU activation function module."""
+
+    def __init__(self):
+        """Initialize SiLU activation module."""
+        super().__init__()
 
     def __call__(self, x):
         """Apply the SiLU activation function.
@@ -25,14 +28,16 @@ class SiLU(nnx.Module):
         Returns:
             Tensor with SiLU activation applied
         """
-        return jax.nn.silu(x)
+        return nnx.silu(x)
 
 
 class MeshModel(GeometricModel):
-    """Model for generating 3D meshes.
+    """Sphere-template model for generating 3D meshes.
 
     Meshes consist of vertices (3D points) and faces (triangles) that
-    connect the vertices.
+    connect the vertices. The retained public contract deforms one built-in
+    sphere template and derives face topology from the configured vertex
+    budget.
     """
 
     def __init__(self, config: MeshConfig, *, rngs: nnx.Rngs):
@@ -46,14 +51,16 @@ class MeshModel(GeometricModel):
             TypeError: If config is not a MeshConfig
         """
         super().__init__(config, rngs=rngs)
+        assert config.network is not None
 
         # Model parameters from dataclass config
-        self.embed_dim = config.network.embed_dim
+        network = config.network
+        self.embed_dim = network.embed_dim
         self.num_vertices = config.num_vertices
-        hidden_dims = list(config.network.hidden_dims)
+        hidden_dims = list(network.hidden_dims)
 
         # Create latent embedding - use embed_dim as latent_dim
-        self.latent_dim = config.network.embed_dim
+        self.latent_dim = network.embed_dim
 
         # MLP for vertex deformation
         layers: list[nnx.Module] = []
@@ -116,7 +123,7 @@ class MeshModel(GeometricModel):
             num_vertices: Number of vertices
 
         Returns:
-            Array of face indices with shape [num_faces, 3]
+            Array of face indices with shape [derived_num_faces, 3]
         """
         # Very simplified face generation
         # This is just a placeholder; real implementation would be more complex
@@ -150,6 +157,7 @@ class MeshModel(GeometricModel):
         # Generate random latent if not provided
         if rngs is None:
             rngs = nnx.Rngs(params=jax.random.PRNGKey(0))
+        assert rngs is not None
 
         # Handle dictionary input format
         batch_size = 1
@@ -211,6 +219,7 @@ class MeshModel(GeometricModel):
         # Use the provided rngs or create a default one
         if rngs is None:
             rngs = nnx.Rngs(params=jax.random.PRNGKey(0))
+        assert rngs is not None
 
         # Get the params key for random number generation
         key = rngs.params()
@@ -237,22 +246,36 @@ class MeshModel(GeometricModel):
         return self.sample(n_samples=n_samples, rngs=rngs)
 
     def get_loss_fn(self, auxiliary: dict[str, Any] | None = None) -> Any:
-        """Get loss function for mesh generation based on configuration.
+        """Get the mesh runtime loss function.
 
         Args:
             auxiliary: Optional auxiliary outputs to use in the loss
 
         Returns:
-            Mesh loss function
+            Loss function returning the generic total-loss contract
         """
-        # Get loss weights from config or use defaults
-        vertex_weight = self.config.get("vertex_loss_weight", 1.0)
-        normal_weight = self.config.get("normal_loss_weight", 0.1)
-        edge_weight = self.config.get("edge_loss_weight", 0.1)
+        del auxiliary
 
-        # Get the mesh loss function with configured weights
-        return get_mesh_loss(
-            vertex_weight=vertex_weight,
-            normal_weight=normal_weight,
-            edge_weight=edge_weight,
-        )
+        def loss_fn(batch: dict[str, jax.Array], outputs: dict[str, jax.Array], **kwargs):
+            """Compute the typed mesh reconstruction loss.
+
+            The mesh model runtime only reconstructs vertex positions directly.
+            Specialized mesh primitives remain standalone helpers under
+            ``artifex.generative_models.core.losses.geometric``.
+            """
+            del kwargs
+
+            target_vertices = batch.get("vertices")
+            if target_vertices is None:
+                target_vertices = batch.get("target")
+            if target_vertices is None:
+                raise ValueError("MeshModel loss_fn requires batch['vertices'] or batch['target'].")
+
+            pred_vertices = outputs["vertices"]
+            vertex_mse_loss = jnp.mean((pred_vertices - target_vertices) ** 2)
+            return {
+                "total_loss": vertex_mse_loss,
+                "vertex_mse_loss": vertex_mse_loss,
+            }
+
+        return loss_fn

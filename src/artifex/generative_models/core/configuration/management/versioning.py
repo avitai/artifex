@@ -7,7 +7,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from artifex.generative_models.core.configuration import BaseConfig
+from artifex.generative_models.core.configuration.base_dataclass import ConfigDocument
 
 
 # Custom JSON encoder to handle datetime objects
@@ -28,7 +28,7 @@ class DateTimeEncoder(json.JSONEncoder):
         return super().default(o)
 
 
-def compute_config_hash(config: dict[str, Any] | BaseConfig) -> str:
+def compute_config_hash(config: dict[str, Any] | ConfigDocument) -> str:
     """
     Compute a deterministic hash for a configuration.
 
@@ -38,7 +38,7 @@ def compute_config_hash(config: dict[str, Any] | BaseConfig) -> str:
     Returns:
         Hex digest of the configuration hash
     """
-    if isinstance(config, BaseConfig):
+    if isinstance(config, ConfigDocument):
         config_dict = config.to_dict()
     else:
         config_dict = config
@@ -100,7 +100,7 @@ class ConfigVersion:
 
     def __init__(
         self,
-        config: dict[str, Any] | BaseConfig,
+        config: dict[str, Any] | ConfigDocument,
         description: str | None = None,
         version: str | None = None,
         timestamp: datetime | None = None,
@@ -142,7 +142,9 @@ class ConfigVersion:
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
-        config_dict = self.config.to_dict() if isinstance(self.config, BaseConfig) else self.config
+        config_dict = (
+            self.config.to_dict() if isinstance(self.config, ConfigDocument) else self.config
+        )
 
         return {
             "version": self.version,
@@ -229,7 +231,7 @@ class ConfigVersionRegistry:
 
     def register(
         self,
-        config: dict[str, Any] | BaseConfig,
+        config: dict[str, Any] | ConfigDocument,
         description: str | None = None,
     ) -> ConfigVersion:
         """

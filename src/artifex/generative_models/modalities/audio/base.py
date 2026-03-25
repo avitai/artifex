@@ -13,6 +13,7 @@ import jax.numpy as jnp
 from flax import nnx
 
 from artifex.generative_models.core.base import GenerativeModel
+from artifex.generative_models.core.configuration.base_dataclass import ConfigDocument
 
 
 class AudioRepresentation(Enum):
@@ -23,8 +24,8 @@ class AudioRepresentation(Enum):
     STFT = "stft"
 
 
-@dataclass
-class AudioModalityConfig:
+@dataclass(frozen=True, slots=True, kw_only=True)
+class AudioModalityConfig(ConfigDocument):
     """Configuration for audio modality processing.
 
     Args:
@@ -172,7 +173,7 @@ class AudioModality(GenerativeModel):
 
     def loss_fn(
         self, batch: dict[str, jnp.ndarray], model_outputs: dict[str, jnp.ndarray], **kwargs
-    ) -> jax.Array:
+    ) -> dict[str, jax.Array]:
         """Compute loss for audio generation training.
 
         Args:
@@ -181,7 +182,7 @@ class AudioModality(GenerativeModel):
             **kwargs: Additional loss parameters
 
         Returns:
-            Loss value
+            Dictionary containing canonical loss terms.
         """
         # Default MSE loss - subclasses should override for specific losses
         target_audio = batch["audio"]
@@ -190,7 +191,8 @@ class AudioModality(GenerativeModel):
         if predicted_audio is None:
             raise ValueError("Model outputs must contain 'audio' or 'predictions' key")
 
-        return jnp.mean((target_audio - predicted_audio) ** 2)
+        loss = jnp.mean((target_audio - predicted_audio) ** 2)
+        return {"total_loss": loss, "mse": loss}
 
 
 def create_audio_modality(

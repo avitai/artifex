@@ -118,7 +118,7 @@ class GatedActivationUnit(nnx.Module):
             Output with gated activation applied
         """
         tanh_out = jnp.tanh(self.tanh_conv(x))
-        sigmoid_out = jax.nn.sigmoid(self.sigmoid_conv(x))
+        sigmoid_out = nnx.sigmoid(self.sigmoid_conv(x))
         return tanh_out * sigmoid_out
 
 
@@ -278,6 +278,10 @@ class WaveNet(AutoregressiveModel):
         Returns:
             Generated sequences [n_samples, max_length]
         """
+        raise NotImplementedError(
+            "Incremental cached WaveNet generation is not implemented; use generate(...) instead."
+        )
+
         if rngs is None:
             rngs = self._rngs
 
@@ -354,7 +358,7 @@ class WaveNet(AutoregressiveModel):
             **kwargs: Additional keyword arguments
 
         Returns:
-            dictionary containing loss and metrics
+            Dictionary containing canonical loss terms.
         """
         # Extract sequences from batch
         if isinstance(batch, dict):
@@ -388,7 +392,7 @@ class WaveNet(AutoregressiveModel):
             accuracy = jnp.mean(correct)
 
         return {
-            "loss": loss,
+            "total_loss": loss,
             "nll_loss": loss,
             "accuracy": accuracy,
             "perplexity": jnp.exp(loss),

@@ -1,11 +1,8 @@
 # Protein Modeling Guide
 
-!!! info "Coming Soon"
-    This guide is being developed. Check back for comprehensive protein modeling documentation.
-
 ## Overview
 
-Learn about protein structure prediction and generation:
+Learn about protein structure prediction and generation. Protein modeling support is available through `modalities.protein` and `extensions.protein`, with geometric models for point clouds and graphs.
 
 - Protein sequence encoding
 - Structure prediction models

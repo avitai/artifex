@@ -308,8 +308,8 @@ class TestIAF:
         assert log_prob.shape == (batch_size,)
         assert jnp.isfinite(log_prob).all()
 
-    def test_iaf_log_likelihood(self, setup_iaf):
-        """Test IAF log likelihood computation."""
+    def test_iaf_exposes_only_log_prob(self, setup_iaf):
+        """Test IAF keeps one canonical log-density API."""
         iaf, config = setup_iaf
 
         batch_size = 3
@@ -323,6 +323,7 @@ class TestIAF:
 
         # Should return one value per sample
         assert log_prob.shape == (batch_size,)
+        assert not hasattr(iaf, "log_likelihood")
 
     def test_iaf_multidimensional_input(self):
         """Test IAF with multidimensional input shapes."""

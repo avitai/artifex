@@ -156,18 +156,17 @@ class TestAudioMetricsUnifiedConfig:
         metric = SpectralMetric(rngs=rngs, config=config)
         real_audio, generated_audio = test_audio
 
-        # Valid inputs
-        assert metric.validate_inputs(real_audio, generated_audio)
+        # Valid inputs — should not raise
+        metric.validate_inputs(real_audio, generated_audio)
 
         # Invalid inputs - not arrays
-        assert not metric.validate_inputs([1, 2, 3], generated_audio)
+        with pytest.raises(ValueError):
+            metric.validate_inputs([1, 2, 3], generated_audio)
 
         # Invalid inputs - shape mismatch
-        assert not metric.validate_inputs(real_audio, generated_audio[:, :1000])
+        with pytest.raises(ValueError):
+            metric.validate_inputs(real_audio, generated_audio[:, :1000])
 
         # Invalid inputs - wrong dimensions
-        assert not metric.validate_inputs(real_audio[0], generated_audio[0])
-
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+        with pytest.raises(ValueError):
+            metric.validate_inputs(real_audio[0], generated_audio[0])

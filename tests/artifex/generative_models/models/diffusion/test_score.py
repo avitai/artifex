@@ -1,6 +1,6 @@
 """Tests for score-based diffusion models.
 
-This module provides comprehensive tests for the ScoreDiffusionModel, covering
+This module provides complete tests for the ScoreDiffusionModel, covering
 initialization, score function computation, noise scheduling, loss computation,
 and sample generation.
 """
@@ -62,7 +62,7 @@ def base_rngs():
         dropout=jax.random.key(1),
         sample=jax.random.key(2),
         noise=jax.random.key(3),
-        time=jax.random.key(4),
+        timestep=jax.random.key(4),
     )
 
 
@@ -217,7 +217,7 @@ class TestScoreFunction:
             dropout=jax.random.key(1),
             sample=jax.random.key(2),
             noise=jax.random.key(3),
-            time=jax.random.key(4),
+            timestep=jax.random.key(4),
         )
         model2 = ScoreDiffusionModel(config2, rngs=base_rngs2)
 
@@ -291,11 +291,11 @@ class TestLossFunction:
 
         rngs1 = nnx.Rngs(
             noise=jax.random.key(42),
-            time=jax.random.key(43),
+            timestep=jax.random.key(43),
         )
         rngs2 = nnx.Rngs(
             noise=jax.random.key(42),
-            time=jax.random.key(43),
+            timestep=jax.random.key(43),
         )
 
         loss1 = model.loss(input_data, rngs=rngs1)
@@ -536,7 +536,7 @@ class TestEdgeCases:
         base_rngs2 = nnx.Rngs(
             params=jax.random.key(10),
             noise=jax.random.key(11),
-            time=jax.random.key(12),
+            timestep=jax.random.key(12),
         )
         config_rgb = create_score_config(input_shape=(16, 16, 3))
         model_rgb = ScoreDiffusionModel(config_rgb, rngs=base_rngs2)

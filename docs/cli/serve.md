@@ -1,11 +1,6 @@
 # Serve
 
-**Module:** `cli.commands.serve`
+The top-level `serve` command is not currently shipped in the runtime CLI.
 
-**Source:** `cli/commands/serve.py`
-
-## Module Statistics
-
-- **Classes:** 0
-- **Functions:** 0
-- **Imports:** 0
+Serving and deployment workflows should be owned by explicit application code
+instead of a phantom Artifex runtime command.

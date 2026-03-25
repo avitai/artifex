@@ -5,7 +5,7 @@ import jax.numpy as jnp
 import pytest
 from flax import nnx
 
-from artifex.generative_models.core.configuration import ModelConfig
+from artifex.generative_models.core.configuration import GeometricConfig
 from artifex.generative_models.models.geometric.base import GeometricModel
 
 
@@ -27,13 +27,7 @@ class ConcreteGeometricModel(GeometricModel):
 def geometric_model():
     """Create a concrete GeometricModel instance for testing."""
     rngs = nnx.Rngs(params=jax.random.key(0))
-    config = ModelConfig(
-        name="test_geometric",
-        model_class="artifex.generative_models.models.geometric.base.GeometricModel",
-        input_dim=3,
-        hidden_dims=[64, 128, 64],
-        output_dim=3,
-    )
+    config = GeometricConfig(name="test_geometric")
     return ConcreteGeometricModel(config, rngs=rngs)
 
 
@@ -43,7 +37,7 @@ class TestGeometricModel:
     def test_init(self, geometric_model):
         """Test that a concrete GeometricModel can be initialized."""
         assert isinstance(geometric_model, GeometricModel)
-        assert geometric_model.config.output_dim == 3
+        assert geometric_model.output_dim == 3
 
     def test_call(self, geometric_model):
         """Test the forward pass of a GeometricModel."""

@@ -1,6 +1,6 @@
 """Tests for conditional normalizing flow implementations.
 
-This module provides comprehensive tests for the conditional normalizing flows,
+This module provides complete tests for the conditional normalizing flows,
 covering config validation, layer initialization, bijection properties, and
 mathematical correctness of the transformations.
 """
@@ -11,8 +11,8 @@ import pytest
 from flax import nnx
 
 from artifex.generative_models.core.configuration import (
+    ConditionalFlowConfig,
     CouplingNetworkConfig,
-    FlowConfig,
 )
 from artifex.generative_models.models.flow.conditional import (
     ConditionalCouplingLayer,
@@ -26,28 +26,24 @@ def create_conditional_flow_config(
     condition_dim: int = 4,
     num_coupling_layers: int = 4,
     hidden_dims: tuple[int, ...] = (32, 32),
-) -> FlowConfig:
-    """Create FlowConfig for testing conditional flows."""
+) -> ConditionalFlowConfig:
+    """Create typed config for testing conditional flows."""
     coupling_network = CouplingNetworkConfig(
         name="conditional_coupling",
         hidden_dims=hidden_dims,
         activation="relu",
     )
-    # Create a config object with required attributes
-    config = FlowConfig(
+    return ConditionalFlowConfig(
         name="test_conditional_flow",
         coupling_network=coupling_network,
         input_dim=input_dim,
         latent_dim=input_dim,
         base_distribution="normal",
         base_distribution_params={"loc": 0.0, "scale": 1.0},
+        condition_dim=condition_dim,
+        num_coupling_layers=num_coupling_layers,
+        mask_type="checkerboard",
     )
-    # Add conditional-specific attributes
-    object.__setattr__(config, "condition_dim", condition_dim)
-    object.__setattr__(config, "hidden_dims", list(hidden_dims))
-    object.__setattr__(config, "num_coupling_layers", num_coupling_layers)
-    object.__setattr__(config, "mask_type", "checkerboard")
-    return config
 
 
 @pytest.fixture
@@ -453,12 +449,12 @@ class TestConditionalNormalizingFlow:
         loss_dict = model.loss_fn(batch, model_outputs, rngs=base_rngs)
 
         # Check expected keys
-        assert "loss" in loss_dict
+        assert "total_loss" in loss_dict
         assert "nll_loss" in loss_dict
         assert "conditional_log_prob" in loss_dict
 
         # Loss should be finite
-        assert jnp.isfinite(loss_dict["loss"])
+        assert jnp.isfinite(loss_dict["total_loss"])
 
     def test_loss_fn_with_array_batch(self, conditional_config, base_rngs, input_data):
         """Test loss function with array batch (no conditioning)."""
@@ -468,12 +464,12 @@ class TestConditionalNormalizingFlow:
         loss_dict = model.loss_fn(input_data, model_outputs, rngs=base_rngs)
 
         # Should work with default conditioning
-        assert jnp.isfinite(loss_dict["loss"])
+        assert jnp.isfinite(loss_dict["total_loss"])
 
-    def test_loss_is_negative_log_likelihood(
+    def test_loss_is_negative_log_prob(
         self, conditional_config, base_rngs, input_data, condition_data
     ):
-        """Test that loss equals negative log likelihood."""
+        """Test that loss equals negative log probability."""
         model = ConditionalNormalizingFlow(conditional_config, rngs=base_rngs)
 
         batch = {"x": input_data, "condition": condition_data}
@@ -483,7 +479,7 @@ class TestConditionalNormalizingFlow:
         log_prob = model.log_prob(input_data, rngs=base_rngs, condition=condition_data)
         expected_loss = -jnp.mean(log_prob)
 
-        assert jnp.allclose(loss_dict["loss"], expected_loss)
+        assert jnp.allclose(loss_dict["total_loss"], expected_loss)
 
     def test_different_conditions_different_samples(self, conditional_config, base_rngs):
         """Test that different conditions produce different samples."""

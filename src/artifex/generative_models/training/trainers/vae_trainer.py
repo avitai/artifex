@@ -11,15 +11,19 @@ References:
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable, Literal
+from typing import Any, Literal
 
 import jax
 import jax.numpy as jnp
 from flax import nnx
 
-from artifex.generative_models.core.losses import binary_cross_entropy
-from artifex.generative_models.core.losses.base import reduce_loss
+from artifex.generative_models.core.losses.vae import (
+    vae_elbo_terms,
+    vae_kl_components,
+    vae_reconstruction_loss,
+)
 from artifex.generative_models.training.utils import extract_batch_data
 
 
@@ -95,8 +99,9 @@ class VAETrainer:
         ```
 
     Note:
-        The model is expected to return (reconstruction, mean, logvar) from
-        its forward pass. The trainer handles loss computation and KL annealing.
+        The model is expected to return a canonical dict with
+        ``reconstructed``, ``mean``, and ``log_var`` keys from its forward pass.
+        The trainer handles ELBO loss computation and KL annealing.
     """
 
     __slots__ = ("config",)
@@ -182,52 +187,32 @@ class VAETrainer:
                 - total_kl_loss: Scalar mean KL loss
                 - kl_per_sample: KL loss per sample, shape (batch,)
         """
-        # KL divergence per dimension: -0.5 * (1 + logvar - mean^2 - exp(logvar))
-        kl_per_dim = -0.5 * (1 + logvar - mean**2 - jnp.exp(logvar))
-
-        # Apply free bits constraint
-        kl_per_dim = self.apply_free_bits(kl_per_dim)
-
-        # Sum over latent dimensions, mean over batch
-        kl_per_sample = jnp.sum(kl_per_dim, axis=-1)
-        kl_loss = jnp.mean(kl_per_sample)
-
-        return kl_loss, kl_per_sample
+        return vae_kl_components(mean, logvar, free_bits=self.config.free_bits)
 
     def compute_reconstruction_loss(
         self,
         x: jax.Array,
         recon_x: jax.Array,
-        loss_type: Literal["mse", "bce"] = "mse",
+        loss_type: Literal["mse", "mae", "bce"] = "mse",
     ) -> jax.Array:
         """Compute reconstruction loss.
 
         Args:
             x: Original input, shape (batch, ...).
             recon_x: Reconstructed output, shape (batch, ...).
-            loss_type: Type of reconstruction loss ("mse" or "bce").
+            loss_type: Type of reconstruction loss.
 
         Returns:
             Scalar reconstruction loss.
         """
-        if loss_type == "mse":
-            # Mean squared error: sum over spatial, mean over batch (standard for VAE)
-            mse = (x - recon_x) ** 2
-            return reduce_loss(mse, reduction="batch_sum")
-
-        if loss_type == "bce":
-            # Binary cross-entropy with batch_sum reduction (standard for VAE ELBO)
-            return binary_cross_entropy(recon_x, x, reduction="batch_sum")
-
-        msg = f"Unknown loss_type: {loss_type}"
-        raise ValueError(msg)
+        return vae_reconstruction_loss(recon_x, x, loss_type=loss_type)
 
     def compute_loss(
         self,
         model: nnx.Module,
         batch: dict[str, Any],
         step: int,
-        loss_type: Literal["mse", "bce"] = "mse",
+        loss_type: Literal["mse", "mae", "bce"] = "mse",
     ) -> tuple[jax.Array, dict[str, Any]]:
         """Compute VAE loss with KL annealing.
 
@@ -243,35 +228,35 @@ class VAETrainer:
         # Get input data using shared utility
         x = extract_batch_data(batch)
 
-        # Forward pass - handle both dict and tuple outputs
+        # Forward pass - VAE-family models expose one canonical output contract
         outputs = model(x)
-        if isinstance(outputs, dict):
-            # Standard VAE model returns dict
-            recon_x = outputs.get("reconstructed", outputs.get("reconstruction"))
-            mean = outputs["mean"]
-            logvar = outputs.get("log_var", outputs.get("logvar"))
-        else:
-            # Legacy tuple format: (reconstruction, mean, logvar)
-            recon_x, mean, logvar = outputs
+        if not isinstance(outputs, dict):
+            raise TypeError("VAE trainer expects model(x) to return a canonical dict output")
 
-        # Reconstruction loss
-        recon_loss = self.compute_reconstruction_loss(x, recon_x, loss_type)
-
-        # KL divergence
-        kl_loss, _ = self.compute_kl_loss(mean, logvar)
+        recon_x = outputs["reconstructed"]
+        mean = outputs["mean"]
+        logvar = outputs["log_var"]
 
         # Apply KL annealing
         kl_weight = self.get_kl_weight(step)
-        total_loss = recon_loss + kl_weight * kl_loss
+        losses = vae_elbo_terms(
+            reconstructed=recon_x,
+            targets=x,
+            mean=mean,
+            log_var=logvar,
+            beta=kl_weight,
+            reconstruction_loss_type=loss_type,
+            free_bits=self.config.free_bits,
+        )
 
         metrics = {
-            "loss": total_loss,
-            "recon_loss": recon_loss,
-            "kl_loss": kl_loss,
+            "loss": losses["total_loss"],
+            "reconstruction_loss": losses["reconstruction_loss"],
+            "kl_loss": losses["kl_loss"],
             "kl_weight": kl_weight,
         }
 
-        return total_loss, metrics
+        return losses["total_loss"], metrics
 
     def train_step(
         self,
@@ -279,7 +264,7 @@ class VAETrainer:
         optimizer: nnx.Optimizer,
         batch: dict[str, Any],
         step: int = 0,
-        loss_type: Literal["mse", "bce"] = "mse",
+        loss_type: Literal["mse", "mae", "bce"] = "mse",
     ) -> tuple[jax.Array, dict[str, Any]]:
         """Execute a single training step.
 

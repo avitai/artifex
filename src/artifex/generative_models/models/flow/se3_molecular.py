@@ -1,6 +1,6 @@
-"""SE(3)-Equivariant Molecular Flow for conformation generation."""
+"""Simplified molecular flow for conformation generation."""
 
-from typing import Any
+from typing import Any, cast
 
 import jax
 import jax.numpy as jnp
@@ -10,10 +10,11 @@ from artifex.generative_models.core.base import GenerativeModel
 
 
 class SE3EquivariantLayer(nnx.Module):
-    """SE(3)-equivariant layer respecting rotational and translational symmetries.
+    """Geometry-aware feature layer used by the simplified molecular flow.
 
-    This layer ensures that the output transforms appropriately under SE(3)
-    transformations (rotations and translations) of the input coordinates.
+    The retained implementation combines pairwise-distance features with
+    displacement-based coordinate updates, but it does not provide a verified
+    global symmetry guarantee.
     """
 
     def __init__(
@@ -24,7 +25,7 @@ class SE3EquivariantLayer(nnx.Module):
         *,
         rngs: nnx.Rngs,
     ):
-        """Initialize SE(3)-equivariant layer.
+        """Initialize geometry-aware feature layer.
 
         Args:
             in_features: Input feature dimension
@@ -37,7 +38,7 @@ class SE3EquivariantLayer(nnx.Module):
         self.out_features = out_features
         self.max_atoms = max_atoms
 
-        # Scalar feature network (invariant to rotations/translations)
+        # Feature network for distance-conditioned scalar updates
         self.scalar_net = nnx.Sequential(
             nnx.Linear(in_features, out_features, rngs=rngs),
             nnx.LayerNorm(out_features, rngs=rngs),
@@ -45,7 +46,7 @@ class SE3EquivariantLayer(nnx.Module):
             nnx.Linear(out_features, out_features, rngs=rngs),
         )
 
-        # Vector feature network (equivariant to rotations, invariant to translations)
+        # Feature network used to parameterize displacement-based updates
         self.vector_net = nnx.Sequential(
             nnx.Linear(in_features, out_features, rngs=rngs),
             nnx.LayerNorm(out_features, rngs=rngs),
@@ -59,7 +60,7 @@ class SE3EquivariantLayer(nnx.Module):
         features: jax.Array,  # [batch, max_atoms, features]
         atom_mask: jax.Array,  # [batch, max_atoms]
     ) -> tuple[jax.Array, jax.Array]:
-        """Apply SE(3)-equivariant transformation.
+        """Apply geometry-aware coordinate and feature updates.
 
         Args:
             coordinates: 3D coordinates [batch, max_atoms, 3]
@@ -71,16 +72,16 @@ class SE3EquivariantLayer(nnx.Module):
         """
         batch_size, max_atoms = coordinates.shape[:2]
 
-        # Compute pairwise distances (invariant to rotations/translations)
+        # Compute pairwise distances used as geometry features
         distances = self._compute_distances(coordinates, atom_mask)
 
-        # Compute edge features (invariant)
+        # Compute edge features
         edge_features = self._compute_edge_features(distances, features, atom_mask)
 
-        # Update scalar features (invariant)
+        # Update features
         new_scalar_features = self.scalar_net(edge_features)
 
-        # Compute vector updates (equivariant)
+        # Compute coordinate updates from displacement features
         vector_updates = self._compute_vector_updates(coordinates, new_scalar_features, atom_mask)
 
         # Apply updates
@@ -90,7 +91,7 @@ class SE3EquivariantLayer(nnx.Module):
         return new_coordinates, new_features
 
     def _compute_distances(self, coordinates: jax.Array, atom_mask: jax.Array) -> jax.Array:
-        """Compute pairwise distances (SE(3) invariant)."""
+        """Compute pairwise distances used by the layer."""
         # Expand coordinates for pairwise computation
         coords_i = coordinates[:, :, None, :]  # [batch, atoms, 1, 3]
         coords_j = coordinates[:, None, :, :]  # [batch, 1, atoms, 3]
@@ -104,7 +105,7 @@ class SE3EquivariantLayer(nnx.Module):
         valid_pairs = mask_i & mask_j
 
         # Set invalid distances to large value
-        distances = jnp.where(valid_pairs, distances, 1e6)
+        distances = cast(jax.Array, jnp.where(valid_pairs, distances, 1e6))
 
         return distances
 
@@ -141,25 +142,26 @@ class SE3EquivariantLayer(nnx.Module):
         scalar_features: jax.Array,
         atom_mask: jax.Array,
     ) -> jax.Array:
-        """Compute SE(3) equivariant coordinate updates.
+        """Compute coordinate updates from pairwise displacement features.
 
-        For true SE(3) equivariance, we use relative displacement vectors
-        between atoms, which transform correctly under rotations.
+        The update uses relative displacement vectors and distance-based
+        weights as geometry-aware signals without claiming a formal symmetry
+        guarantee for the full layer.
         """
         batch_size, max_atoms = coordinates.shape[:2]
 
         # Apply vector network to get update magnitudes per atom
         update_magnitudes = self.vector_net(scalar_features)  # [batch, atoms, out_features]
 
-        # Compute pairwise displacement vectors (SE(3) equivariant)
+        # Compute pairwise displacement vectors
         coords_i = coordinates[:, :, None, :]  # [batch, atoms, 1, 3]
         coords_j = coordinates[:, None, :, :]  # [batch, 1, atoms, 3]
         displacement_vectors = coords_i - coords_j  # [batch, atoms, atoms, 3]
 
-        # Compute distances for weighting (SE(3) invariant)
+        # Compute distances for weighting
         distances = jnp.linalg.norm(displacement_vectors, axis=-1)  # [batch, atoms, atoms]
 
-        # Create attention weights based on distances (SE(3) invariant)
+        # Create distance-based weights
         cutoff_distance = 5.0
         attention_weights = jnp.exp(-distances / cutoff_distance)
         attention_weights = jnp.where(distances < cutoff_distance, attention_weights, 0.0)
@@ -175,7 +177,7 @@ class SE3EquivariantLayer(nnx.Module):
             jnp.sum(attention_weights, axis=-1, keepdims=True) + 1e-8
         )
 
-        # Compute weighted displacement vectors (SE(3) equivariant)
+        # Compute weighted displacement vectors
         # This gives us the "average" direction each atom should move
         weighted_displacements = jnp.sum(
             displacement_vectors * attention_weights[:, :, :, None], axis=2
@@ -192,7 +194,7 @@ class SE3EquivariantLayer(nnx.Module):
 
 
 class SE3CouplingLayer(nnx.Module):
-    """SE(3)-equivariant coupling layer for normalizing flows."""
+    """Coupling layer used by the simplified molecular flow."""
 
     def __init__(
         self,
@@ -202,7 +204,7 @@ class SE3CouplingLayer(nnx.Module):
         *,
         rngs: nnx.Rngs,
     ):
-        """Initialize SE(3) coupling layer.
+        """Initialize molecular-flow coupling layer.
 
         Args:
             hidden_dim: Hidden dimension for networks
@@ -222,7 +224,7 @@ class SE3CouplingLayer(nnx.Module):
             rngs=rngs,
         )
 
-        # SE(3)-equivariant layers for transformation parameters
+        # Geometry-aware helper layers for transformation parameters
         # Use nnx.List for Flax NNX 0.12.0+ compatibility
         self.se3_layers = nnx.List(
             [SE3EquivariantLayer(hidden_dim, hidden_dim, max_atoms, rngs=rngs) for _ in range(2)]
@@ -306,17 +308,16 @@ class SE3CouplingLayer(nnx.Module):
         atom_mask: jax.Array,
         target_shape: tuple[int, int] | None = None,
     ) -> dict[str, jax.Array]:
-        """Compute transformation parameters using only SE(3) invariant features.
+        """Compute transformation parameters from distance-conditioned features.
 
-        Key insight: For SE(3) equivariance, transformation parameters must
-        depend only on SE(3) invariant quantities (distances, angles), not
-        on coordinate updates that break equivariance.
+        The current implementation derives affine transform parameters from
+        the helper-layer feature updates and preserves only the working runtime
+        contract.
         """
-        # Use only SE(3) invariant features, not coordinate updates
+        # Use the feature activations, not the helper-layer coordinate outputs
         current_features = features
 
-        # Apply SE(3)-equivariant layers but ONLY use the feature updates,
-        # not the coordinate updates (which would break invariance)
+        # Apply the helper layers and keep only the feature updates
         for layer in self.se3_layers:
             # Only update features, discard coordinate updates
             _, current_features = layer(coordinates, current_features, atom_mask)
@@ -354,20 +355,15 @@ class SE3CouplingLayer(nnx.Module):
         atom_mask: jax.Array,
         reverse: bool = False,
     ) -> tuple[jax.Array, jax.Array]:
-        """Apply SE(3)-equivariant transformation to coordinates.
+        """Apply the layer's learned affine coordinate transform.
 
-        For true SE(3) equivariance, we apply transformations that are invariant
-        under global rotations and translations. We avoid computing centers of mass
-        which would break equivariance when applied to molecular subsets.
+        The retained runtime applies per-coordinate scale and translation
+        parameters derived from the helper-layer features.
         """
         scale = transform_params["scale"]
         translation = transform_params["translation"]
 
-        # For SE(3) equivariance, apply only coordinate-independent transformations
-        # Use scale factors that preserve molecular geometry
-
-        # Apply simple affine transformations that commute with SE(3)
-        # Scale parameters affect the coordinates directly
+        # Apply the learned affine coordinate transform directly
         if not reverse:
             # Forward: scale coordinates and add translation
             transformed_coords = coordinates * scale + translation
@@ -390,11 +386,11 @@ class SE3CouplingLayer(nnx.Module):
 
 
 class SE3MolecularFlow(GenerativeModel):
-    """SE(3)-Equivariant Normalizing Flow for molecular conformation generation.
+    """Simplified molecular flow for molecular conformation generation.
 
-    This model uses a sequence of SE(3)-equivariant coupling layers to model
-    the probability distribution over molecular conformations while respecting
-    rotational and translational symmetries.
+    The retained implementation uses geometry-conditioned affine coupling
+    layers as a molecular-flow baseline without promising verified global
+    rotation or translation guarantees.
     """
 
     def __init__(
@@ -409,16 +405,16 @@ class SE3MolecularFlow(GenerativeModel):
         *,
         rngs: nnx.Rngs,
     ):
-        """Initialize SE(3) molecular flow.
+        """Initialize simplified molecular flow.
 
         Args:
             hidden_dim: Hidden dimension for networks
-            num_layers: Number of SE(3) layers per coupling layer
+            num_layers: Number of geometry-aware helper layers per coupling layer
             num_coupling_layers: Number of coupling layers
             max_atoms: Maximum number of atoms
             atom_types: Number of atom types (H, C, N, O, F)
-            use_attention: Whether to use attention mechanisms
-            equivariant_layers: Whether to use equivariant layers
+            use_attention: Compatibility flag retained on the constructor surface
+            equivariant_layers: Compatibility flag retained on the constructor surface
             rngs: Random number generators
         """
         super().__init__(rngs=rngs)
@@ -471,8 +467,7 @@ class SE3MolecularFlow(GenerativeModel):
             total_log_det += log_det
 
         # Compute base distribution log probability
-        # For SE(3) equivariance, we should NOT center coordinates here
-        # as it breaks equivariance. Instead, use coordinates directly.
+        # Compute base-distribution log probability from the transformed coordinates directly.
 
         # Standard normal log probability for valid atoms
         base_log_prob = -0.5 * jnp.sum(current_coords**2 * atom_mask[:, :, None], axis=(1, 2))
@@ -521,7 +516,7 @@ class SE3MolecularFlow(GenerativeModel):
         # Apply mask to base samples
         base_samples = base_samples * atom_mask_expanded[:, :, None]
 
-        # Center samples (translation invariance)
+        # Center samples before the forward coupling pass
         centered_samples = self._center_coordinates(base_samples, atom_mask_expanded)
 
         current_coords = centered_samples
@@ -539,7 +534,7 @@ class SE3MolecularFlow(GenerativeModel):
         coordinates: jax.Array,
         atom_mask: jax.Array,
     ) -> jax.Array:
-        """Center coordinates at center of mass (translation invariance)."""
+        """Center coordinates at center of mass before sampling."""
         # Compute center of mass
         masked_coords = coordinates * atom_mask[:, :, None]
         center_of_mass = jnp.sum(masked_coords, axis=1, keepdims=True) / (
@@ -580,15 +575,16 @@ class SE3MolecularFlow(GenerativeModel):
             atom_types = jnp.ones((n_samples, self.max_atoms), dtype=jnp.int32)  # All carbon
             atom_mask = jnp.ones((n_samples, self.max_atoms), dtype=jnp.bool_)  # All atoms present
 
-        return self.sample(atom_types, atom_mask, n_samples, rngs=rngs)
+        sample_fn = cast(Any, self.sample)
+        return cast(jax.Array, sample_fn(atom_types, atom_mask, n_samples, rngs=rngs))
 
     def loss_fn(
         self,
         batch: dict[str, jax.Array],
         model_outputs: Any,
         **kwargs,
-    ) -> jax.Array:
-        """Compute negative log-likelihood loss (required by GenerativeModel interface).
+    ) -> dict[str, jax.Array]:
+        """Compute canonical negative log-likelihood loss terms.
 
         Args:
             batch: Batch of molecular data
@@ -596,14 +592,22 @@ class SE3MolecularFlow(GenerativeModel):
             **kwargs: Additional arguments
 
         Returns:
-            Loss value
+            Dictionary containing canonical loss terms.
         """
         coordinates = batch["coordinates"]
         atom_types = batch["atom_types"]
         atom_mask = batch["atom_mask"]
 
         # Compute log probability
-        log_prob = self.log_prob(coordinates, atom_types, atom_mask)
+        log_prob_fn = cast(Any, self.log_prob)
+        log_prob = cast(jax.Array, log_prob_fn(coordinates, atom_types, atom_mask))
 
-        # Return negative log-likelihood
-        return -jnp.mean(log_prob)
+        nll_loss = -jnp.mean(log_prob)
+        avg_log_prob = jnp.mean(log_prob)
+
+        return {
+            "total_loss": nll_loss,
+            "nll_loss": nll_loss,
+            "log_prob": avg_log_prob,
+            "avg_log_prob": avg_log_prob,
+        }

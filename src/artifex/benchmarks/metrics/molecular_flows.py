@@ -4,7 +4,7 @@ import jax
 import jax.numpy as jnp
 from flax import nnx
 
-from artifex.benchmarks.metrics.core import MetricBase
+from artifex.benchmarks.metrics.core import _init_metric_from_config, MetricBase
 from artifex.generative_models.core.configuration import EvaluationConfig
 from artifex.generative_models.core.evaluation.metrics.distance import (
     _calculate_rmsd_matrix,
@@ -12,7 +12,7 @@ from artifex.generative_models.core.evaluation.metrics.distance import (
 
 
 class MolecularFlowsMetrics(MetricBase):
-    """Comprehensive metrics for evaluating molecular flows.
+    """Complete metrics for evaluating molecular flows.
 
     This class implements metrics specifically designed for SE(3)-equivariant
     molecular flows, focusing on chemical validity, conformational diversity,
@@ -26,12 +26,14 @@ class MolecularFlowsMetrics(MetricBase):
             rngs: Random number generators for stochastic computations
             config: Evaluation configuration (must be EvaluationConfig)
         """
-        if not isinstance(config, EvaluationConfig):
-            raise TypeError(f"config must be an EvaluationConfig, got {type(config).__name__}")
-
-        # Initialize base class with the EvaluationConfig
-        super().__init__(config=config, rngs=rngs)
-        self.eval_batch_size = config.eval_batch_size
+        _init_metric_from_config(
+            self,
+            config=config,
+            rngs=rngs,
+            metric_key="molecular_flows",
+            modality="molecular",
+            higher_is_better=True,
+        )
 
         # Chemical constraints for validity checking
         self.bond_length_thresholds = {
@@ -354,33 +356,30 @@ class MolecularFlowsMetrics(MetricBase):
 
         return results
 
-    def validate_inputs(self, real_data, generated_data) -> bool:
+    def validate_inputs(self, real_data, generated_data) -> None:
         """Validate input data compatibility.
 
         Args:
             real_data: Real molecular data
             generated_data: Generated molecular data dict
 
-        Returns:
-            True if inputs are valid for molecular metrics
+        Raises:
+            ValueError: If inputs are invalid for molecular metrics
         """
         if not isinstance(generated_data, dict):
-            return False
+            raise ValueError("generated_data must be a dict")
 
         required_keys = {"coordinates", "atom_types", "atom_mask"}
         if not required_keys.issubset(generated_data.keys()):
-            return False
+            raise ValueError(f"generated_data must contain keys: {required_keys}")
 
         coords = generated_data["coordinates"]
         types = generated_data["atom_types"]
         mask = generated_data["atom_mask"]
 
-        # Check shapes are compatible
         if len(coords.shape) != 3 or coords.shape[-1] != 3:
-            return False
+            raise ValueError("coordinates must be 3D with last dim = 3")
         if len(types.shape) != 2 or len(mask.shape) != 2:
-            return False
+            raise ValueError("atom_types and atom_mask must be 2D")
         if coords.shape[:2] != types.shape or coords.shape[:2] != mask.shape:
-            return False
-
-        return True
+            raise ValueError("Shapes of coordinates, atom_types, atom_mask must be compatible")

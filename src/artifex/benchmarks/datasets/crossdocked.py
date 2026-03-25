@@ -2,25 +2,32 @@
 
 This module provides a dataset interface for the CrossDocked2020 dataset,
 which contains protein-ligand complexes for co-design benchmarks.
+Structurally conforms to calibrax DatasetProtocol.
 """
 
-from typing import Any, Iterator
+import logging
+from collections.abc import Iterator
+from typing import Any
 
 import jax
 import jax.numpy as jnp
 import numpy as np
 from flax import nnx
 
-from artifex.benchmarks.datasets.base import DatasetProtocol
+from artifex.benchmarks.runtime_guards import demo_mode_from_mapping, require_demo_mode
 from artifex.generative_models.core.configuration import DataConfig
 
 
-class CrossDockedDataset(DatasetProtocol):
+logger = logging.getLogger(__name__)
+
+
+class CrossDockedDataset:
     """CrossDocked2020 dataset for protein-ligand complexes.
 
     This dataset provides protein-ligand complexes with binding affinity data
     for co-design benchmarks. For now, it generates mock data that follows
     the same structure as real CrossDocked data.
+    Structurally conforms to DatasetProtocol.
     """
 
     def __init__(
@@ -46,16 +53,28 @@ class CrossDockedDataset(DatasetProtocol):
         if not isinstance(config, DataConfig):
             raise TypeError(f"config must be DataConfig, got {type(config).__name__}")
 
+        self.config = config
+        self.data_path = data_path
+        self.rngs = rngs
+
         # Extract CrossDocked-specific parameters from config metadata
-        # BEFORE calling super().__init__
         self.max_protein_atoms = config.metadata.get("max_protein_atoms", 1000)
         self.max_ligand_atoms = config.metadata.get("max_ligand_atoms", 50)
         self.pocket_radius = config.metadata.get("pocket_radius", 10.0)
         self.num_samples = config.metadata.get("num_samples", 1000)
         self.batch_size = config.metadata.get("batch_size", 32)
+        self.demo_mode = demo_mode_from_mapping(config.metadata)
 
-        # Now call parent init which will call _load_dataset
-        super().__init__(data_path, config, rngs=rngs)
+        require_demo_mode(
+            enabled=self.demo_mode,
+            component="CrossDockedDataset",
+            detail=(
+                "This dataset still generates mock protein-ligand complexes instead of loading "
+                "benchmark-grade CrossDocked data."
+            ),
+        )
+
+        self._load_dataset()
 
     def _load_dataset(self):
         """Load and preprocess CrossDocked dataset.
@@ -64,8 +83,8 @@ class CrossDockedDataset(DatasetProtocol):
         In a real implementation, this would load actual PDB files and
         binding affinity data.
         """
-        print(f"Loading mock CrossDocked dataset from {self.data_path}")
-        print(f"Generating {self.num_samples} protein-ligand complexes")
+        logger.info("Loading mock CrossDocked dataset from %s", self.data_path)
+        logger.info("Generating %d protein-ligand complexes", self.num_samples)
 
         # Mock data generation parameters
         self.protein_atom_types = np.arange(1, 21)  # 20 amino acid types
@@ -74,7 +93,7 @@ class CrossDockedDataset(DatasetProtocol):
         # Mock binding affinity range (kcal/mol)
         self.affinity_range = (-12.0, -2.0)
 
-        print("Mock dataset loaded successfully")
+        logger.info("Mock dataset loaded successfully")
 
     def __len__(self) -> int:
         """Get the number of samples in the dataset."""

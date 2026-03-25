@@ -1,85 +1,24 @@
-# Error Handling
+# Config Error Handling
 
-**Module:** `configs.utils.error_handling`
+The retained config loader keeps file, parse, and typed-schema failures inside
+one repo-owned error hierarchy.
 
-**Source:** `configs/utils/error_handling.py`
+## Module
 
-## Overview
+`artifex.configs.utils.error_handling`
 
-Utilities for handling configuration errors with clear context and user-friendly messages.
+## Available Error Types
 
-## Classes
+- `ConfigError`: base loader failure for retained config helpers
+- `ConfigNotFoundError`: the requested config path or shipped asset could not be resolved
+- `ConfigValidationError`: the YAML document or typed dataclass payload failed validation
+- `ConfigLoadError`: the file could not be parsed or loaded for a non-validation reason
 
-### ConfigError
+## Current Contract
 
-```python
-class ConfigError
-```
-
-### ConfigLoadError
-
-```python
-class ConfigLoadError
-```
-
-### ConfigNotFoundError
-
-```python
-class ConfigNotFoundError
-```
-
-### ConfigValidationError
-
-```python
-class ConfigValidationError
-```
-
-## Functions
-
-### **init**
-
-```python
-def __init__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### format_config_error
-
-```python
-def format_config_error()
-```
-
-### format_validation_error
-
-```python
-def format_validation_error()
-```
-
-### safe_load_config
-
-```python
-def safe_load_config()
-```
-
-## Module Statistics
-
-- **Classes:** 4
-- **Functions:** 7
-- **Imports:** 4
+- public loader helpers exposed from `artifex.configs` should raise only this
+  hierarchy for config-loading failures
+- raw `dacite`, YAML parser, and file-loading exceptions should not leak past
+  the retained loader helpers or config CLI commands
+- most callers use this module indirectly through the public loader helpers
+  exposed from `artifex.configs`

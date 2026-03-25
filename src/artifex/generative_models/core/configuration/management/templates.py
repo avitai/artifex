@@ -1,40 +1,102 @@
-"""Configuration template system for artifex.generative_models.core."""
+"""Configuration template system for typed Artifex configs."""
 
+import copy
 from typing import Any
 
-from artifex.configs import DistributedConfig, TrainingConfig
-from artifex.configs.utils.error_handling import ConfigValidationError
-from artifex.generative_models.core.configuration import ModelConfig
-from artifex.generative_models.core.protocols.configuration import ConfigTemplate
-
-
-# Predefined templates
-PROTEIN_DIFFUSION_TEMPLATE = ConfigTemplate(
-    name="protein_diffusion",
-    base_config={
-        "name": "protein_diffusion",
-        "description": "Protein diffusion model",
-        "num_layers": 8,
-        "model_dim": 128,
-        "dropout": 0.1,
-        "noise_steps": 1000,
-        "beta_start": 0.0001,
-        "beta_end": 0.02,
-        "beta_schedule": "linear",
-    },
-    required_params=["max_seq_length", "backbone_atom_indices"],
-    optional_params={
-        "hidden_dim": 256,
-    },
-    config_class=ModelConfig,
+from artifex.generative_models.core.configuration.base_dataclass import ConfigDocument
+from artifex.generative_models.core.configuration.distributed_config import (
+    DistributedConfig,
 )
+from artifex.generative_models.core.configuration.training_config import TrainingConfig
+
+
+_TRAINING_OPTIMIZER_PARAMS = (
+    "optimizer_type",
+    "learning_rate",
+    "weight_decay",
+    "beta1",
+    "beta2",
+    "eps",
+    "momentum",
+    "nesterov",
+    "initial_accumulator_value",
+    "gradient_clip_value",
+)
+
+_TRAINING_SCHEDULER_PARAMS = (
+    "scheduler_type",
+    "warmup_steps",
+    "min_lr_ratio",
+    "cycle_length",
+    "decay_rate",
+    "decay_steps",
+    "total_steps",
+    "step_size",
+    "gamma",
+    "milestones",
+)
+
+
+class ConfigTemplate:
+    """Template for generating configurations with validation."""
+
+    def __init__(
+        self,
+        name: str,
+        base_config: dict[str, Any],
+        required_params: list[str],
+        optional_params: dict[str, Any] | None = None,
+        config_class: type[ConfigDocument] | None = None,
+    ):
+        """Initialize configuration template."""
+        self.name = name
+        self.base_config = base_config
+        self.required_params = required_params
+        self.optional_params = optional_params or {}
+        self.config_class = config_class
+
+    def generate(self, **params: Any) -> ConfigDocument | dict[str, Any]:
+        """Generate configuration from the template."""
+        missing = set(self.required_params) - set(params.keys())
+        if missing:
+            raise ValueError(f"Missing required parameters: {missing}")
+
+        config = copy.deepcopy(self.base_config)
+
+        for key, default_value in self.optional_params.items():
+            if key not in params:
+                params[key] = default_value
+
+        config = self._deep_merge(config, params)
+
+        if self.config_class:
+            try:
+                return self.config_class.from_dict(config)
+            except Exception as e:
+                raise ValueError(f"Configuration validation failed: {e}") from e
+
+        return config
+
+    def _deep_merge(self, base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:
+        """Deep merge two dictionaries."""
+        result = base.copy()
+
+        for key, value in override.items():
+            if key in result and isinstance(result[key], dict) and isinstance(value, dict):
+                result[key] = self._deep_merge(result[key], value)
+            else:
+                result[key] = value
+
+        return result
 
 
 class TrainingConfigTemplate(ConfigTemplate):
     """Special template for training configs that handles parameter placement."""
 
-    def generate(self, **params) -> dict[str, Any]:
+    def generate(self, **params: Any) -> TrainingConfig:
         """Generate training config with special parameter handling."""
+        params = params.copy()
+
         # Validate required parameters first
         missing = set(self.required_params) - set(params.keys())
         if missing:
@@ -45,21 +107,17 @@ class TrainingConfigTemplate(ConfigTemplate):
         scheduler_params = {}
 
         # Extract optimizer parameters
-        for param in ["learning_rate", "weight_decay", "beta1", "beta2", "eps"]:
+        for param in _TRAINING_OPTIMIZER_PARAMS:
             if param in params:
                 optimizer_params[param] = params.pop(param)
 
         # Extract scheduler parameters
-        for param in ["warmup_steps", "warmup_ratio", "min_lr_ratio"]:
+        for param in _TRAINING_SCHEDULER_PARAMS:
             if param in params:
                 scheduler_params[param] = params.pop(param)
 
-        # Handle eval_batch_size defaulting to batch_size
-        if "eval_batch_size" not in params and "batch_size" in params:
-            params["eval_batch_size"] = params["batch_size"]
-
         # Start with base config
-        config = self.base_config.copy()
+        config = copy.deepcopy(self.base_config)
 
         # Apply optional defaults for missing params
         for key, default_value in self.optional_params.items():
@@ -84,10 +142,12 @@ class TrainingConfigTemplate(ConfigTemplate):
         # Validate if config class provided
         if self.config_class:
             try:
-                validated_config = self.config_class(**config)
-                return validated_config.to_dict()
+                validated_config = self.config_class.from_dict(config)
+                if not isinstance(validated_config, TrainingConfig):
+                    raise TypeError("training template must materialize TrainingConfig")
+                return validated_config
             except Exception as e:
-                raise ConfigValidationError("template_generated_config", e) from e
+                raise ValueError(f"Template config validation failed: {e}") from e
 
         return config
 
@@ -111,20 +171,15 @@ SIMPLE_TRAINING_TEMPLATE = TrainingConfigTemplate(
             "name": "default_scheduler",
             "scheduler_type": "cosine",
             "warmup_steps": 500,
-            "warmup_ratio": 0.1,
             "min_lr_ratio": 0.001,
         },
-        "log_freq": 20,
-        "eval_freq": 200,
-        "save_freq": 100,
+        "log_frequency": 100,
+        "save_frequency": 1000,
         "max_checkpoints": 5,
-        "num_workers": 4,
-        "grad_clip_norm": 1.0,
+        "gradient_clip_norm": 1.0,
     },
     required_params=["batch_size", "learning_rate"],
-    optional_params={
-        "eval_batch_size": 32,
-    },
+    optional_params={},
     config_class=TrainingConfig,
 )
 
@@ -156,15 +211,14 @@ DISTRIBUTED_TEMPLATE = ConfigTemplate(
 class ConfigTemplateManager:
     """Manager for configuration templates."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize template manager."""
         self.templates = {
-            "protein_diffusion": PROTEIN_DIFFUSION_TEMPLATE,
             "simple_training": SIMPLE_TRAINING_TEMPLATE,
             "distributed_training": DISTRIBUTED_TEMPLATE,
         }
 
-    def register_template(self, template: ConfigTemplate):
+    def register_template(self, template: ConfigTemplate) -> None:
         """Register a new template."""
         self.templates[template.name] = template
 
@@ -176,7 +230,7 @@ class ConfigTemplateManager:
             )
         return self.templates[name]
 
-    def generate_config(self, template_name: str, **params) -> dict[str, Any]:
+    def generate_config(self, template_name: str, **params: Any) -> ConfigDocument | dict[str, Any]:
         """Generate configuration from template."""
         template = self.get_template(template_name)
         return template.generate(**params)

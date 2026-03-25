@@ -118,7 +118,7 @@ class CliffordSpectralConv2d(nnx.Module):
         )  # (B, 4*C, 2*m1, 2*m2)
 
         if self.multiply:
-            _, kernel = get_2d_clifford_kernel(self.weights.value, self.metric)
+            _, kernel = get_2d_clifford_kernel(self.weights[...], self.metric)
             output_mul = batchmul2d(input_mul, kernel)
         else:
             output_mul = input_mul
@@ -288,7 +288,7 @@ class CliffordSpectralConv3d(nnx.Module):
         input_mul = _cat_modes(mv_ft)  # (B, 8*C, 2*m1, 2*m2, 2*m3)
 
         if self.multiply:
-            _, kernel = get_3d_clifford_kernel(self.weights.value, self.metric)
+            _, kernel = get_3d_clifford_kernel(self.weights[...], self.metric)
             output_mul = batchmul3d(input_mul, kernel)
         else:
             output_mul = input_mul

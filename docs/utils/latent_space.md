@@ -1,11 +1,9 @@
 # Latent Space
 
-**Module:** `generative_models.utils.visualization.latent_space`
+**Status:** `Coming soon`
+**Planned module target:** `artifex.generative_models.utils.visualization.latent_space`
 
-**Source:** `generative_models/utils/visualization/latent_space.py`
+`artifex.generative_models.utils.visualization.latent_space` is still relevant to the roadmap, but it is not shipped yet.
 
-## Module Statistics
-
-- **Classes:** 0
-- **Functions:** 0
-- **Imports:** 0
+See [Utilities](index.md) for the current utility docs.
+See [Planned Modules Roadmap](../roadmap/planned-modules.md#utilities) for status and scope.

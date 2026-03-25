@@ -1,6 +1,6 @@
 """Tests for Stable Diffusion implementation.
 
-This module provides comprehensive tests for the StableDiffusionModel,
+This module provides complete tests for the StableDiffusionModel,
 which uses proper components: UNet2DCondition, CLIPTextEncoder, SpatialEncoder/Decoder.
 """
 
@@ -14,7 +14,7 @@ from artifex.generative_models.core.configuration import (
     EncoderConfig,
     NoiseScheduleConfig,
     StableDiffusionConfig,
-    UNetBackboneConfig,
+    UNet2DConditionBackboneConfig,
 )
 from artifex.generative_models.models.diffusion.stable_diffusion import StableDiffusionModel
 
@@ -38,17 +38,28 @@ def create_sd_config(
     vocab_size: int = 500,
     guidance_scale: float = 7.5,
     use_guidance: bool = True,
+    backbone_num_res_blocks: int = 2,
+    backbone_num_heads: int = 8,
+    attention_levels: tuple[int, ...] | None = None,
+    time_embedding_dim: int = 128,
 ) -> StableDiffusionConfig:
     """Helper to create StableDiffusionConfig with all nested configs.
 
     Uses small dimensions for fast testing.
     """
-    backbone = UNetBackboneConfig(
-        name="test_unet",
+    if attention_levels is None:
+        attention_levels = tuple(range(len(hidden_dims)))
+
+    backbone = UNet2DConditionBackboneConfig(
+        name="test_unet_conditioned",
         hidden_dims=hidden_dims,
-        in_channels=input_shape[-1],
-        out_channels=input_shape[-1],
-        activation="gelu",
+        in_channels=latent_channels,
+        out_channels=latent_channels,
+        cross_attention_dim=text_embedding_dim,
+        num_heads=backbone_num_heads,
+        num_res_blocks=backbone_num_res_blocks,
+        attention_levels=attention_levels,
+        time_embedding_dim=time_embedding_dim,
     )
     noise_schedule = NoiseScheduleConfig(
         name="test_schedule",
@@ -516,8 +527,8 @@ class TestStableDiffusionTrainStep:
         result = model.train_step(images, text_tokens)
 
         assert isinstance(result, dict)
-        assert "loss" in result
-        assert result["loss"].shape == ()  # Scalar loss
+        assert "total_loss" in result
+        assert result["total_loss"].shape == ()  # Scalar loss
 
     def test_train_step_loss_finite(self, sd_config, base_rngs):
         """Test that train_step produces finite loss."""
@@ -528,7 +539,7 @@ class TestStableDiffusionTrainStep:
 
         result = model.train_step(images, text_tokens)
 
-        assert jnp.isfinite(result["loss"])
+        assert jnp.isfinite(result["total_loss"])
 
     def test_train_step_loss_positive(self, sd_config, base_rngs):
         """Test that MSE loss is non-negative."""
@@ -539,7 +550,7 @@ class TestStableDiffusionTrainStep:
 
         result = model.train_step(images, text_tokens)
 
-        assert result["loss"] >= 0
+        assert result["total_loss"] >= 0
 
     def test_train_step_different_batches(self, sd_config, base_rngs):
         """Test train_step with different batch sizes."""
@@ -553,7 +564,7 @@ class TestStableDiffusionTrainStep:
 
             result = model.train_step(images, text_tokens)
 
-            assert jnp.isfinite(result["loss"])
+            assert jnp.isfinite(result["total_loss"])
 
 
 class TestStableDiffusionGradients:
@@ -579,7 +590,7 @@ class TestStableDiffusionGradients:
             images = jnp.ones((1, 8, 8, 3))
             text_tokens = jnp.ones((1, 4), dtype=jnp.int32)
             result = model.train_step(images, text_tokens)
-            return result["loss"]
+            return result["total_loss"]
 
         # Compute gradients
         grads = nnx.grad(loss_fn)(model)
@@ -595,15 +606,15 @@ class TestStableDiffusionGradients:
             images = jax.random.normal(jax.random.key(80), (1, 8, 8, 3))
             text_tokens = jax.random.randint(jax.random.key(81), (1, 4), 0, 50)
             result = model.train_step(images, text_tokens)
-            return result["loss"]
+            return result["total_loss"]
 
         grads = nnx.grad(loss_fn)(model)
 
         # Check all gradient leaves are finite
         grad_leaves = jax.tree_util.tree_leaves(nnx.state(grads, nnx.Param))
         for leaf in grad_leaves:
-            if hasattr(leaf, "value"):
-                assert jnp.all(jnp.isfinite(leaf.value)), "Found non-finite gradient"
+            if isinstance(leaf, nnx.Variable):
+                assert jnp.all(jnp.isfinite(leaf[...])), "Found non-finite gradient"
 
 
 class TestStableDiffusionConfigPropagation:
@@ -653,6 +664,28 @@ class TestStableDiffusionConfigPropagation:
         # Default latent scale factor from LatentDiffusionConfig
         assert hasattr(model, "latent_scale_factor")
         assert model.latent_scale_factor > 0
+
+    def test_conditioned_backbone_fields_propagate_to_runtime_unet(self, base_rngs):
+        """Test that Stable Diffusion honors the declared conditioned backbone config."""
+        config = create_sd_config(
+            latent_channels=6,
+            hidden_dims=(48, 96, 192),
+            text_embedding_dim=37,
+            backbone_num_res_blocks=5,
+            backbone_num_heads=2,
+            attention_levels=(0, 2),
+            time_embedding_dim=96,
+        )
+        model = StableDiffusionModel(config, rngs=base_rngs)
+
+        assert model.unet.in_channels == 6
+        assert model.unet.out_channels == 6
+        assert model.unet.hidden_dims == [48, 96, 192]
+        assert model.unet.num_res_blocks == 5
+        assert model.unet.attention_levels == [0, 2]
+        assert model.unet.cross_attention_dim == 37
+        assert model.unet.num_heads == 2
+        assert model.unet.time_embedding.embedding_dim == 96
 
 
 class TestStableDiffusionEdgeCases:

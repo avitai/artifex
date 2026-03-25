@@ -85,10 +85,13 @@ class TestFlowTrainingConfig:
         )
 
         config = FlowTrainingConfig()
-        assert config.flow_type == "cfm"
-        assert config.sigma_min == 0.001
         assert config.time_sampling == "uniform"
-        assert config.use_ot is False
+        assert config.logit_normal_loc == 0.0
+        assert config.logit_normal_scale == 1.0
+        assert not hasattr(config, "flow_type")
+        assert not hasattr(config, "sigma_min")
+        assert not hasattr(config, "use_ot")
+        assert not hasattr(config, "ot_regularization")
 
     def test_config_custom_values(self) -> None:
         """FlowTrainingConfig should accept custom values."""
@@ -97,27 +100,35 @@ class TestFlowTrainingConfig:
         )
 
         config = FlowTrainingConfig(
-            flow_type="ot_cfm",
-            sigma_min=0.01,
             time_sampling="logit_normal",
-            use_ot=True,
-            ot_regularization=0.05,
+            logit_normal_loc=0.5,
+            logit_normal_scale=0.75,
         )
-        assert config.flow_type == "ot_cfm"
-        assert config.sigma_min == 0.01
         assert config.time_sampling == "logit_normal"
-        assert config.use_ot is True
-        assert config.ot_regularization == 0.05
+        assert config.logit_normal_loc == 0.5
+        assert config.logit_normal_scale == 0.75
 
-    def test_config_all_flow_types(self) -> None:
-        """FlowTrainingConfig should support all flow types."""
+    @pytest.mark.parametrize(
+        ("removed_field", "value"),
+        [
+            ("flow_type", "ot_cfm"),
+            ("sigma_min", 0.01),
+            ("use_ot", True),
+            ("ot_regularization", 0.05),
+        ],
+    )
+    def test_config_rejects_removed_path_shape_knobs(
+        self,
+        removed_field: str,
+        value: str | float | bool,
+    ) -> None:
+        """FlowTrainingConfig should reject dead path-shape knobs."""
         from artifex.generative_models.training.trainers.flow_trainer import (
             FlowTrainingConfig,
         )
 
-        for flow_type in ["cfm", "ot_cfm", "rectified_flow"]:
-            config = FlowTrainingConfig(flow_type=flow_type)
-            assert config.flow_type == flow_type
+        with pytest.raises(TypeError, match=removed_field):
+            FlowTrainingConfig(**{removed_field: value})
 
     def test_config_all_time_sampling(self) -> None:
         """FlowTrainingConfig should support all time sampling strategies."""
@@ -381,7 +392,7 @@ class TestFlowLossComputation:
             FlowTrainingConfig,
         )
 
-        config = FlowTrainingConfig(flow_type="cfm")
+        config = FlowTrainingConfig()
         trainer = FlowTrainer(config)
 
         loss, _ = trainer.compute_loss(flow_model, sample_batch, rng_key)
@@ -416,14 +427,14 @@ class TestFlowTrainStep:
 
         # Get initial params
         initial_params = nnx.state(flow_model, nnx.Param)
-        initial_fc1_kernel = initial_params["fc1"]["kernel"].value.copy()
+        initial_fc1_kernel = initial_params["fc1"]["kernel"][...].copy()
 
         # Run train step
         trainer.train_step(flow_model, optimizer, sample_batch, rng_key)
 
         # Get updated params
         updated_params = nnx.state(flow_model, nnx.Param)
-        updated_fc1_kernel = updated_params["fc1"]["kernel"].value
+        updated_fc1_kernel = updated_params["fc1"]["kernel"][...]
 
         # Params should have changed
         assert not jnp.allclose(initial_fc1_kernel, updated_fc1_kernel)
@@ -476,8 +487,8 @@ class TestFlowDRYIntegration:
         # Should be able to create a loss function for the base Trainer
         loss_fn = trainer.create_loss_fn()
 
-        # Loss function should have correct signature: (model, batch, rng) -> (loss, metrics)
-        loss, metrics = loss_fn(flow_model, sample_batch, rng_key)
+        # Loss function should have correct signature: (model, batch, rng, step)
+        loss, metrics = loss_fn(flow_model, sample_batch, rng_key, jnp.array(0))
 
         assert isinstance(loss, jax.Array)
         assert "loss" in metrics

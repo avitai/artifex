@@ -127,7 +127,6 @@ class TestEGNNLayer:
     def layer(self, rngs):
         """Fixture providing a default EGNNLayer."""
         return EGNNLayer(
-            node_dim=16,
             edge_dim=4,
             hidden_dim=16,
             num_mlp_layers=2,
@@ -153,7 +152,6 @@ class TestEGNNLayer:
 
     def test_init(self, layer):
         """Test layer initialises correctly."""
-        assert layer.node_dim == 16
         assert layer.edge_dim == 4
         assert layer.hidden_dim == 16
         assert layer.use_attention is True
@@ -171,7 +169,6 @@ class TestEGNNLayer:
     def test_no_edge_features(self, rngs):
         """Test forward pass without edge features."""
         layer = EGNNLayer(
-            node_dim=8,
             edge_dim=0,
             hidden_dim=8,
             dropout_rate=0.0,
@@ -186,10 +183,26 @@ class TestEGNNLayer:
         assert new_nf.shape == (batch, n_nodes, 8)
         assert new_coord.shape == (batch, n_nodes, 3)
 
+    def test_rejects_node_features_that_do_not_match_hidden_dim(self, rngs):
+        """Test EGNNLayer fails fast when direct inputs do not match hidden_dim."""
+        layer = EGNNLayer(
+            edge_dim=4,
+            hidden_dim=16,
+            dropout_rate=0.0,
+            rngs=rngs,
+        )
+
+        nf = jnp.ones((1, 4, 12))
+        coord = jnp.ones((1, 4, 3))
+        ei = jnp.ones((1, 4, 4)) - jnp.eye(4)
+        ef = jnp.ones((1, 4, 4, 4))
+
+        with pytest.raises(ValueError, match="hidden_dim"):
+            layer(nf, coord, ei, ef, deterministic=True)
+
     def test_no_attention(self, rngs, inputs):
         """Test forward pass without attention."""
         layer = EGNNLayer(
-            node_dim=16,
             edge_dim=4,
             hidden_dim=16,
             use_attention=False,
@@ -204,7 +217,6 @@ class TestEGNNLayer:
     def test_no_residual(self, rngs, inputs):
         """Test forward pass without residual connection."""
         layer = EGNNLayer(
-            node_dim=16,
             edge_dim=4,
             hidden_dim=16,
             residual=False,
@@ -278,7 +290,6 @@ class TestEGNNLayer:
     def test_deterministic_mode(self, rngs, inputs):
         """Test deterministic flag disables randomness."""
         layer = EGNNLayer(
-            node_dim=16,
             edge_dim=4,
             hidden_dim=16,
             dropout_rate=0.5,

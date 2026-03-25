@@ -1,97 +1,18 @@
 # Runner
 
-**Module:** `generative_models.core.evaluation.benchmarks.runner`
+`BenchmarkRunner` and `PerformanceTracker` live in
+`artifex.benchmarks.core.runner`.
 
-**Source:** `generative_models/core/evaluation/benchmarks/runner.py`
+## Current Contract
 
-## Overview
+- `BenchmarkRunner` executes the retained NNX benchmark workflow and keeps
+  result history for comparisons.
+- `PerformanceTracker` records explicit metric snapshots against the
+  `EvaluationConfig.metric_params["target_metrics"]` contract.
+- Unsupported workflow behavior should fail in the benchmark or metric
+  implementation rather than silently fabricating results.
 
-Benchmark runner implementations for artifex.generative_models.core.evaluation.
+## Import Guidance
 
-## Classes
-
-### BenchmarkRunner
-
-```python
-class BenchmarkRunner
-```
-
-### PerformanceTracker
-
-```python
-class PerformanceTracker
-```
-
-## Functions
-
-### **init**
-
-```python
-def __init__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### check_target_achievement
-
-```python
-def check_target_achievement()
-```
-
-### clear_history
-
-```python
-def clear_history()
-```
-
-### compare_performance
-
-```python
-def compare_performance()
-```
-
-### get_current_performance
-
-```python
-def get_current_performance()
-```
-
-### get_latest_results
-
-```python
-def get_latest_results()
-```
-
-### get_performance_summary
-
-```python
-def get_performance_summary()
-```
-
-### get_run_count
-
-```python
-def get_run_count()
-```
-
-### run_full_benchmark
-
-```python
-def run_full_benchmark()
-```
-
-### track_metrics
-
-```python
-def track_metrics()
-```
-
-## Module Statistics
-
-- **Classes:** 2
-- **Functions:** 11
-- **Imports:** 5
+Use `from artifex.benchmarks.core import BenchmarkRunner, PerformanceTracker`
+in new code.

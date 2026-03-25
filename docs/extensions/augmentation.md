@@ -1,58 +1,23 @@
 # Augmentation
 
-**Module:** `generative_models.extensions.vision.augmentation`
+**Status:** `Supported runtime extension owner`
 
-**Source:** `generative_models/extensions/vision/augmentation.py`
+**Module:** `artifex.generative_models.extensions.vision.augmentation`
 
-## Overview
+**Source:** `src/artifex/generative_models/extensions/vision/augmentation.py`
 
-Advanced image augmentation for generative models.
+Image augmentation helpers for the vision extension family.
 
-This module provides JAX-compatible image augmentation techniques
-for training robust generative models.
+## Top-Level Module Exports
 
-## Classes
+- `AdvancedImageAugmentation`
 
-### AdvancedImageAugmentation
+## Class APIs
 
-```python
-class AdvancedImageAugmentation
-```
+### `AdvancedImageAugmentation`
 
-## Functions
-
-### **call**
-
-```python
-def __call__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### apply_cutout
-
-```python
-def apply_cutout()
-```
-
-### apply_horizontal_flip
-
-```python
-def apply_horizontal_flip()
-```
-
-### create_augmentation_sequence
-
-```python
-def create_augmentation_sequence()
-```
-
-## Module Statistics
-
-- **Classes:** 1
-- **Functions:** 5
-- **Imports:** 5
+- `augment()`
+- `apply_horizontal_flip()`
+- `apply_vertical_flip()`
+- `apply_cutout()`
+- `create_augmentation_sequence()`

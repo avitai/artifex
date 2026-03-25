@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
-import os
-from typing import Any, Callable, TYPE_CHECKING
+from collections.abc import Callable
+from pathlib import Path
+from typing import Any, cast, TYPE_CHECKING
 
 import jax
+import jax.numpy as jnp
 import optax
+from datarax import from_source
+from datarax.sources import MemorySource, MemorySourceConfig
 from flax import nnx
 
 from artifex.generative_models.core.configuration import (
@@ -25,17 +29,24 @@ if TYPE_CHECKING:
     )
 
 
+TrainerLossFn = Callable[
+    [nnx.Module, dict[str, Any], jax.Array, jax.Array],
+    tuple[jax.Array, dict[str, Any]],
+]
+
+
 class Trainer:
-    """Trainer for NNX-based generative models.
+    """Low-level trainer for NNX-based generative models.
 
     This trainer is designed to work with Flax NNX modules, using nnx.value_and_grad
     for proper gradient computation and state management.
 
-    The loss function should have signature:
-        loss_fn(model: nnx.Module, batch: dict, rng: jax.Array) -> tuple[float, dict]
+    Callers must provide an explicit objective with signature:
+        loss_fn(model: nnx.Module, batch: dict, rng: jax.Array, step: jax.Array)
+        -> tuple[float, dict]
 
-    Where the model is passed directly (not extracted params), allowing the loss
-    function to call model methods that may use internal state like rngs.
+    The model is passed directly (not extracted params), allowing the objective
+    to call model methods that may use internal state like rngs.
     """
 
     def __init__(
@@ -47,7 +58,8 @@ class Trainer:
         val_data_loader: Callable | None = None,
         workdir: str | None = None,
         rng: jax.Array | None = None,
-        loss_fn: Callable | None = None,
+        *,
+        loss_fn: TrainerLossFn,
         metrics_logger: MetricsLogger | None = None,
         logger: Logger | None = None,
         checkpoint_dir: str | None = None,
@@ -66,8 +78,8 @@ class Trainer:
             val_data_loader: Function to load validation data.
             workdir: Working directory for outputs.
             rng: JAX random number generator key.
-            loss_fn: Function to compute loss. Signature:
-                     loss_fn(model, batch, rng) -> (loss, metrics_dict)
+            loss_fn: Explicit objective function. Signature:
+                     loss_fn(model, batch, rng, step) -> (loss, metrics_dict)
             metrics_logger: Logger for training metrics.
             logger: Artifex logger for general logging.
             checkpoint_dir: Directory to save checkpoints.
@@ -101,7 +113,10 @@ class Trainer:
         self.val_data_loader = val_data_loader
         self.workdir = workdir
         self.rng = rng if rng is not None else jax.random.PRNGKey(0)
-        self.loss_fn = loss_fn or self._default_loss_fn
+        if not callable(loss_fn):
+            raise TypeError("loss_fn must be callable")
+
+        self.loss_fn = loss_fn
         self.metrics_logger = metrics_logger
         self.logger = logger
         self.checkpoint_dir = checkpoint_dir or (workdir if workdir else "checkpoints")
@@ -128,10 +143,11 @@ class Trainer:
 
         # Create checkpoint directory if it doesn't exist
         if self.checkpoint_dir is not None:
-            os.makedirs(self.checkpoint_dir, exist_ok=True)
+            Path(self.checkpoint_dir).mkdir(parents=True, exist_ok=True)
 
         # Initialize optimizer state with model parameters
-        self.opt_state = self.optimizer.init(nnx.state(self.model, nnx.Param))
+        # Cast: nnx.state returns GraphState which is pytree-compatible with optax Params
+        self.opt_state = self.optimizer.init(cast(optax.Params, nnx.state(self.model, nnx.Param)))
 
         # Training state (step counter and rng)
         self.step = 0
@@ -213,16 +229,37 @@ class Trainer:
 
         return create_scheduler(scheduler_config, base_lr)
 
-    def _default_loss_fn(
-        self, model: nnx.Module, batch: dict[str, Any], rng: jax.Array
-    ) -> tuple[float, dict[str, Any]]:
-        """Default loss function using model's loss_fn method."""
-        if hasattr(model, "loss_fn"):
-            return model.loss_fn(batch, rng)
-        else:
-            raise NotImplementedError(
-                "Model does not have a loss_fn method and no loss_fn was provided."
-            )
+    @staticmethod
+    def _average_metrics(metric_history: list[dict[str, Any]]) -> dict[str, Any]:
+        """Average a list of metric dictionaries, excluding the step counter."""
+        if not metric_history:
+            return {}
+
+        averaged: dict[str, Any] = {}
+        for key in metric_history[0]:
+            if key == "step":
+                continue
+            values = [metrics[key] for metrics in metric_history if key in metrics]
+            averaged[key] = sum(values) / len(values)
+
+        return averaged
+
+    @staticmethod
+    def _prefix_validation_metrics(metrics: dict[str, Any]) -> dict[str, Any]:
+        """Prefix validation metrics so callbacks can monitor `val_*` keys."""
+        prefixed: dict[str, Any] = {}
+        for key, value in metrics.items():
+            if key.startswith("val_"):
+                prefixed[key] = value
+            else:
+                prefixed[f"val_{key}"] = value
+        return prefixed
+
+    def _callbacks_should_stop(self) -> bool:
+        """Return whether any registered callback has requested an early stop."""
+        if self.callbacks is None:
+            return False
+        return any(getattr(callback, "should_stop", False) is True for callback in self.callbacks)
 
     def train_step(self, batch: dict[str, Any]) -> dict[str, Any]:
         """Execute a single training step using NNX transforms.
@@ -237,7 +274,13 @@ class Trainer:
         Returns:
             Dictionary of training metrics including loss and extension losses
         """
-        import jax.numpy as jnp
+        if self.callbacks is not None:
+            self.callbacks.on_batch_begin(self, self.step)
+
+        for _ext_name, ext in self.extensions.items():
+            on_batch_begin = getattr(ext, "on_batch_begin", None)
+            if on_batch_begin is not None:
+                on_batch_begin(self, self.step)
 
         # Split RNG for this step
         self.rng, step_rng = jax.random.split(self.rng)
@@ -246,7 +289,7 @@ class Trainer:
         # Define loss function that includes extension losses
         def loss_fn(model: nnx.Module) -> tuple[jax.Array, dict[str, Any]]:
             # Compute base loss
-            base_loss, base_metrics = self.loss_fn(model, batch, step_rng)
+            base_loss, base_metrics = self.loss_fn(model, batch, step_rng, jnp.array(self.step))
 
             # Compute extension losses
             ext_losses: dict[str, jax.Array] = {}
@@ -258,13 +301,16 @@ class Trainer:
                 # Get outputs from model if it has a __call__ method
                 if hasattr(model, "__call__") and "input" in batch:
                     model_outputs = model(batch["input"])
-                elif hasattr(model, "encode") and "input" in batch:
-                    model_outputs = model.encode(batch["input"])
+                else:
+                    encode_fn = getattr(model, "encode", None)
+                    if encode_fn is not None and "input" in batch:
+                        model_outputs = encode_fn(batch["input"])
 
             for ext_name, ext in self.extensions.items():
-                if hasattr(ext, "is_enabled") and ext.is_enabled():
-                    if hasattr(ext, "loss_fn"):
-                        ext_loss = ext.loss_fn(batch, model_outputs)
+                if ext.is_enabled():
+                    ext_loss_fn = getattr(ext, "loss_fn", None)
+                    if ext_loss_fn is not None:
+                        ext_loss = ext_loss_fn(batch, model_outputs)
                         weighted_loss = ext.weight * ext_loss
                         ext_losses[f"{ext_name}_loss"] = weighted_loss
                         total_ext_loss = total_ext_loss + weighted_loss
@@ -281,11 +327,11 @@ class Trainer:
         # nnx.value_and_grad handles the model state properly
         (loss, metrics), grads = nnx.value_and_grad(loss_fn, has_aux=True)(self.model)
 
-        # Extract parameter gradients
-        param_grads = nnx.state(grads, nnx.Param)
+        # Extract parameter gradients and params as pytree-compatible types
+        param_grads = cast(optax.Updates, nnx.state(grads, nnx.Param))
+        params = cast(optax.Params, nnx.state(self.model, nnx.Param))
 
         # Compute parameter updates
-        params = nnx.state(self.model, nnx.Param)
         updates, self.opt_state = self.optimizer.update(param_grads, self.opt_state, params)
 
         # Apply updates to model parameters in-place
@@ -311,8 +357,9 @@ class Trainer:
 
         # Call extension callbacks
         for _ext_name, ext in self.extensions.items():
-            if hasattr(ext, "on_batch_end"):
-                ext.on_batch_end(self, self.step, metrics)
+            on_batch_end = getattr(ext, "on_batch_end", None)
+            if on_batch_end is not None:
+                on_batch_end(self, self.step, metrics)
 
         return metrics
 
@@ -329,7 +376,7 @@ class Trainer:
         self.rng, val_rng = jax.random.split(self.rng)
 
         # Compute validation loss (no gradients needed)
-        loss, metrics = self.loss_fn(self.model, batch, val_rng)
+        loss, metrics = self.loss_fn(self.model, batch, val_rng, jnp.array(self.step))
 
         metrics = {**metrics, "loss": float(loss), "step": self.step}
 
@@ -362,14 +409,7 @@ class Trainer:
             if self.step % self.training_config.save_frequency == 0:
                 self.save_checkpoint()
 
-        # Average metrics over the epoch
-        avg_metrics: dict[str, Any] = {}
-        for key in epoch_metrics[0].keys():
-            if key != "step":
-                values = [m[key] for m in epoch_metrics]
-                avg_metrics[key] = sum(values) / len(values)
-
-        return avg_metrics
+        return self._average_metrics(epoch_metrics)
 
     def train(
         self,
@@ -391,65 +431,103 @@ class Trainer:
         Returns:
             Final metrics after training
         """
-        # Get first key to determine data length
-        first_key = next(iter(train_data.keys()))
-        data_len = len(train_data[first_key])
-        num_batches = data_len // batch_size
-
         if self.logger:
             self.logger.log_text(
-                f"Training for {num_epochs} epochs with {num_batches} batches per epoch"
+                "training", f"Training for {num_epochs} epochs with batch_size={batch_size}"
             )
 
         metrics: dict[str, Any] = {}
+        if self.callbacks is not None:
+            self.callbacks.on_train_begin(self)
+        for _ext_name, ext in self.extensions.items():
+            on_train_begin = getattr(ext, "on_train_begin", None)
+            if on_train_begin is not None:
+                on_train_begin(self)
 
-        for epoch in range(num_epochs):
-            # Shuffle data
-            self.rng, shuffle_rng = jax.random.split(self.rng)
-            perm = jax.random.permutation(shuffle_rng, data_len)
-            shuffled_data = jax.tree.map(lambda x: x[perm], train_data)
+        try:
+            for epoch in range(num_epochs):
+                if self.callbacks is not None:
+                    self.callbacks.on_epoch_begin(self, epoch)
 
-            for batch_idx in range(num_batches):
-                batch_start = batch_idx * batch_size
-                batch_end = batch_start + batch_size
-                batch = {key: val[batch_start:batch_end] for key, val in shuffled_data.items()}
+                epoch_metrics: list[dict[str, Any]] = []
 
-                # Train step
-                metrics = self.train_step(batch)
+                # Create a shuffled datarax pipeline for this epoch
+                self.rng, shuffle_rng = jax.random.split(self.rng)
+                epoch_seed = int(jax.random.randint(shuffle_rng, (), 0, 2**31 - 1))
+                source = MemorySource(
+                    MemorySourceConfig(shuffle=True),
+                    train_data,
+                    rngs=nnx.Rngs(epoch_seed),
+                )
+                pipeline = from_source(source, batch_size=batch_size)
 
-                # Log metrics
-                if self.metrics_logger:
-                    self.metrics_logger.log_training_metrics(metrics, step=self.step)
+                for batch_view in pipeline:
+                    batch = batch_view.get_data()
 
-                # Validate periodically
-                if val_data is not None and self.step % val_interval == 0:
+                    # Train step
+                    metrics = self.train_step(batch)
+                    epoch_metrics.append(metrics)
+
+                    # Log metrics
+                    if self.metrics_logger:
+                        self.metrics_logger.log_training_metrics(metrics, step=self.step)
+
+                    # Validate periodically
+                    if val_data is not None and self.step % val_interval == 0:
+                        val_metrics = self.evaluate(val_data, batch_size)
+                        if self.metrics_logger:
+                            self.metrics_logger.log_validation_metrics(val_metrics, step=self.step)
+
+                    # Save checkpoint
+                    if self.checkpoint_dir and self.step % self.save_interval == 0:
+                        self.save_checkpoint()
+
+                    # Log progress
+                    if self.step % 100 == 0 and self.logger:
+                        self.logger.log_text(
+                            "progress",
+                            f"Epoch {epoch + 1}/{num_epochs}, "
+                            f"Step {self.step}, "
+                            f"Loss: {metrics['loss']:.4f}",
+                        )
+
+                epoch_logs = self._average_metrics(epoch_metrics)
+
+                if val_data is not None:
+                    if self.callbacks is not None:
+                        self.callbacks.on_validation_begin(self)
+
                     val_metrics = self.evaluate(val_data, batch_size)
+
                     if self.metrics_logger:
                         self.metrics_logger.log_validation_metrics(val_metrics, step=self.step)
 
-                # Save checkpoint
-                if self.checkpoint_dir and self.step % self.save_interval == 0:
-                    self.save_checkpoint()
+                    if self.callbacks is not None:
+                        self.callbacks.on_validation_end(self, val_metrics)
 
-                # Log progress
-                if self.step % 100 == 0 and self.logger:
-                    total_steps = num_epochs * num_batches
-                    progress = self.step / total_steps * 100
-                    self.logger.log_text(
-                        f"Epoch {epoch + 1}/{num_epochs}, "
-                        f"Step {self.step}, "
-                        f"Loss: {metrics['loss']:.4f}, "
-                        f"Progress: {progress:.1f}%"
-                    )
+                    epoch_logs.update(self._prefix_validation_metrics(val_metrics))
 
-        # Final validation
-        if val_data is not None:
-            final_metrics = self.evaluate(val_data, batch_size)
-            if self.metrics_logger:
-                self.metrics_logger.log_test_metrics(final_metrics)
-            return final_metrics
+                if self.callbacks is not None:
+                    self.callbacks.on_epoch_end(self, epoch, epoch_logs)
 
-        return metrics
+                if self._callbacks_should_stop():
+                    break
+
+            # Final validation
+            if val_data is not None:
+                final_metrics = self.evaluate(val_data, batch_size)
+                if self.metrics_logger:
+                    self.metrics_logger.log_test_metrics(final_metrics)
+                return final_metrics
+
+            return metrics
+        finally:
+            if self.callbacks is not None:
+                self.callbacks.on_train_end(self)
+            for _ext_name, ext in self.extensions.items():
+                on_train_end = getattr(ext, "on_train_end", None)
+                if on_train_end is not None:
+                    on_train_end(self)
 
     def evaluate(self, data: dict[str, Any], batch_size: int) -> dict[str, Any]:
         """Evaluate the model on data.
@@ -461,24 +539,27 @@ class Trainer:
         Returns:
             Average evaluation metrics
         """
-        first_key = next(iter(data.keys()))
-        data_len = len(data[first_key])
-        num_batches = data_len // batch_size
+        source = MemorySource(
+            MemorySourceConfig(shuffle=False),
+            data,
+            rngs=nnx.Rngs(0),
+        )
+        pipeline = from_source(source, batch_size=batch_size)
         all_metrics: list[dict[str, Any]] = []
 
-        for batch_idx in range(num_batches):
-            batch_start = batch_idx * batch_size
-            batch_end = batch_start + batch_size
-            batch = {key: val[batch_start:batch_end] for key, val in data.items()}
-
+        for batch_view in pipeline:
+            batch = batch_view.get_data()
             self.rng, eval_rng = jax.random.split(self.rng)
-            loss, metrics = self.loss_fn(self.model, batch, eval_rng)
+            loss, metrics = self.loss_fn(self.model, batch, eval_rng, jnp.array(self.step))
             metrics["loss"] = float(loss)
             all_metrics.append(metrics)
 
+        if not all_metrics:
+            return {}
+
         # Average metrics
         avg_metrics: dict[str, Any] = {}
-        for key in all_metrics[0].keys():
+        for key in all_metrics[0]:
             values = [m[key] for m in all_metrics]
             avg_metrics[key] = sum(values) / len(values)
 
@@ -494,7 +575,7 @@ class Trainer:
             raise ValueError("No checkpoint directory specified.")
 
         if path is None:
-            path = os.path.join(self.checkpoint_dir, f"checkpoint_{self.step}.pkl")
+            path = str(Path(self.checkpoint_dir) / f"checkpoint_{self.step}.pkl")
 
         import pickle  # nosec B403
 
@@ -510,7 +591,7 @@ class Trainer:
             pickle.dump(checkpoint, f)
 
         if self.logger:
-            self.logger.log_text(f"Saved checkpoint to {path}")
+            self.logger.log_text("checkpoint", f"Saved checkpoint to {path}")
 
     def load_checkpoint(self, path: str) -> None:
         """Load a checkpoint.
@@ -537,4 +618,4 @@ class Trainer:
                     nnx.update(self.extensions[name], ext_state)
 
         if self.logger:
-            self.logger.log_text(f"Loaded checkpoint from {path}")
+            self.logger.log_text("checkpoint", f"Loaded checkpoint from {path}")

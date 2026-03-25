@@ -20,14 +20,9 @@ from artifex.benchmarks.datasets.dataset_loaders import (
 class ConcreteBenchmarkDataset(BenchmarkDataset):
     """Concrete implementation of BenchmarkDataset for testing."""
 
-    def __init__(self, config, data):
-        """Initialize without calling super().__init__ to avoid DatasetProtocol init."""
-        self.config = config
-        if isinstance(data, jnp.ndarray):
-            self.data = data
-        else:
-            self.data = jnp.array(data)
-        # Add dummy rngs for compatibility
+    def __init__(self, config: BenchmarkDatasetConfig, data: jnp.ndarray) -> None:
+        """Initialize with config and data."""
+        super().__init__(config=config, data=data)
         self.rngs = nnx.Rngs(0)
 
     def _validate_dataset_path(self):

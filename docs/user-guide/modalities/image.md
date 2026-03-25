@@ -4,7 +4,7 @@ This guide covers working with image data in Artifex, including image representa
 
 ## Overview
 
-Artifex's image modality provides a unified interface for working with different image formats and resolutions. It supports RGB, RGBA, and grayscale images with configurable preprocessing and augmentation.
+Artifex's image modality provides a unified interface for working with different image formats and resolutions. It supports RGB, RGBA, and grayscale images with configurable preprocessing and a small retained augmentation helper surface.
 
 <div class="grid cards" markdown>
 
@@ -32,11 +32,11 @@ Artifex's image modality provides a unified interface for working with different
 
     Ready-to-use synthetic datasets for testing and development
 
-- :material-auto-fix:{ .lg .middle } **Augmentation**
+- :material-auto-fix:{ .lg .middle } **Basic Augmentation**
 
     ---
 
-    Common image augmentation techniques (flip, rotate, brightness, contrast)
+    Horizontal flip and brightness jitter through the retained augmentation helper
 
 - :material-speedometer:{ .lg .middle } **JAX-Native**
 
@@ -128,24 +128,26 @@ print(f"Grayscale shape: {grayscale_modality.image_shape}")  # (28, 28, 1)
 
 ### Synthetic Image Datasets
 
-Artifex provides several synthetic dataset types for testing and development:
+Artifex provides several synthetic dataset types for testing and development.
+All datasets are created via the `create_image_dataset()` factory, which returns
+a `MemorySource` instance from datarax:
 
 #### Random Patterns
 
 ```python
-from artifex.generative_models.modalities.image.datasets import SyntheticImageDataset
+from artifex.generative_models.modalities.image.datasets import create_image_dataset
 
 # Random noise patterns
-random_dataset = SyntheticImageDataset(
+random_dataset = create_image_dataset(
+    "synthetic",
     config=rgb_config,
+    rngs=rngs,
     dataset_size=10000,
     pattern_type="random",
-    split="train",
-    rngs=rngs
 )
 
-# Get batch
-batch = random_dataset.get_batch(batch_size=32)
+# Get batch (stateful — advances internal index)
+batch = random_dataset.get_batch(32)
 print(batch["images"].shape)  # (32, 64, 64, 3)
 
 # Each image is filled with uniform random noise
@@ -155,12 +157,12 @@ print(batch["images"].shape)  # (32, 64, 64, 3)
 
 ```python
 # Linear gradients with varying directions
-gradient_dataset = SyntheticImageDataset(
+gradient_dataset = create_image_dataset(
+    "synthetic",
     config=rgb_config,
+    rngs=rngs,
     dataset_size=10000,
     pattern_type="gradient",
-    split="train",
-    rngs=rngs
 )
 
 # Gradients have:
@@ -173,12 +175,12 @@ gradient_dataset = SyntheticImageDataset(
 
 ```python
 # Checkerboard patterns with random sizes
-checkerboard_dataset = SyntheticImageDataset(
+checkerboard_dataset = create_image_dataset(
+    "synthetic",
     config=rgb_config,
+    rngs=rngs,
     dataset_size=10000,
     pattern_type="checkerboard",
-    split="train",
-    rngs=rngs
 )
 
 # Checkerboards have:
@@ -191,12 +193,12 @@ checkerboard_dataset = SyntheticImageDataset(
 
 ```python
 # Circular patterns with random positions and radii
-circles_dataset = SyntheticImageDataset(
+circles_dataset = create_image_dataset(
+    "synthetic",
     config=rgb_config,
+    rngs=rngs,
     dataset_size=10000,
     pattern_type="circles",
-    split="train",
-    rngs=rngs
 )
 
 # Circles have:
@@ -210,7 +212,7 @@ circles_dataset = SyntheticImageDataset(
 For digit-like pattern recognition:
 
 ```python
-from artifex.generative_models.modalities.image.datasets import MNISTLikeDataset
+from artifex.generative_models.modalities.image.datasets import create_image_dataset
 
 # Configure for MNIST-like images (28x28 grayscale)
 mnist_config = ImageModalityConfig(
@@ -221,21 +223,21 @@ mnist_config = ImageModalityConfig(
     normalize=True
 )
 
-# Create MNIST-like dataset
-mnist_dataset = MNISTLikeDataset(
+# Create MNIST-like dataset (returns MemorySource)
+mnist_dataset = create_image_dataset(
+    "mnist_like",
     config=mnist_config,
+    rngs=rngs,
     dataset_size=60000,
     num_classes=10,
-    split="train",
-    rngs=rngs
 )
 
 # Get labeled batch
-batch = mnist_dataset.get_batch(batch_size=128)
+batch = mnist_dataset.get_batch(128)
 print(batch["images"].shape)  # (128, 28, 28, 1)
 print(batch["labels"].shape)  # (128,)
 
-# Iterate with labels
+# Iterate over individual samples
 for sample in mnist_dataset:
     image = sample["images"]  # (28, 28, 1)
     label = sample["labels"]  # Scalar label
@@ -250,28 +252,24 @@ for sample in mnist_dataset:
 - Class 2: Horizontal line
 - Additional classes follow similar geometric patterns
 
-### Factory Function
+### Shuffled Datasets
+
+Enable shuffling so each epoch sees a different ordering:
 
 ```python
-from artifex.generative_models.modalities.image.datasets import create_image_dataset
-
-# Create dataset using factory
-dataset = create_image_dataset(
-    dataset_type="synthetic",  # or "mnist_like"
+shuffled_dataset = create_image_dataset(
+    "synthetic",
     config=rgb_config,
-    pattern_type="gradient",
+    rngs=rngs,
+    shuffle=True,
     dataset_size=5000,
-    rngs=rngs
+    pattern_type="gradient",
 )
 
-# MNIST-like via factory
-mnist = create_image_dataset(
-    dataset_type="mnist_like",
-    config=mnist_config,
-    dataset_size=60000,
-    num_classes=10,
-    rngs=rngs
-)
+# Iteration order is randomised per epoch
+for sample in shuffled_dataset:
+    print(sample["images"].shape)  # (64, 64, 3)
+    break
 ```
 
 ## Image Preprocessing
@@ -374,368 +372,67 @@ processed = modality.process(raw_images)
 
 ## Image Augmentation
 
-### Basic Augmentations
+The retained image helper layer exposes one small augmentation surface through
+`AugmentationProcessor`: horizontal flips plus brightness jitter.
+
+Rotations, contrast/saturation/hue transforms, crops, zoom, and noise
+augmentations are not part of
+`artifex.generative_models.modalities.image`.
 
 ```python
-import jax
 import jax.numpy as jnp
+from flax import nnx
+from artifex.generative_models.modalities.image import (
+    AugmentationProcessor,
+    ImageModalityConfig,
+    ImageRepresentation,
+)
 
-def random_horizontal_flip(image, key, prob=0.5):
-    """Randomly flip image horizontally.
+rngs = nnx.Rngs(0)
+config = ImageModalityConfig(
+    representation=ImageRepresentation.RGB,
+    height=64,
+    width=64,
+    normalize=True,
+    augmentation=True,
+)
 
-    Args:
-        image: Input image (H, W, C)
-        key: Random key
-        prob: Probability of flipping
+augmenter = AugmentationProcessor(config=config, brightness_range=0.1, rngs=rngs)
+images = jnp.ones((8, 64, 64, 3), dtype=jnp.float32) * 0.5
+augmented = augmenter.augment_batch(images)
 
-    Returns:
-        Flipped or original image
-    """
-    flip = jax.random.bernoulli(key, prob)
-    return jax.lax.cond(
-        flip,
-        lambda img: jnp.flip(img, axis=1),
-        lambda img: img,
-        image
-    )
-
-def random_vertical_flip(image, key, prob=0.5):
-    """Randomly flip image vertically."""
-    flip = jax.random.bernoulli(key, prob)
-    return jax.lax.cond(
-        flip,
-        lambda img: jnp.flip(img, axis=0),
-        lambda img: img,
-        image
-    )
-
-def random_rotation(image, key):
-    """Randomly rotate image by 0, 90, 180, or 270 degrees.
-
-    Args:
-        image: Input image (H, W, C)
-        key: Random key
-
-    Returns:
-        Rotated image
-    """
-    k = jax.random.randint(key, (), 0, 4)
-    return jnp.rot90(image, k=int(k), axes=(0, 1))
-
-# Usage
-key = jax.random.key(0)
-keys = jax.random.split(key, 3)
-
-image = jnp.array([...])  # (H, W, C)
-image = random_horizontal_flip(image, keys[0])
-image = random_vertical_flip(image, keys[1])
-image = random_rotation(image, keys[2])
+print(augmented.shape)  # (8, 64, 64, 3)
 ```
 
-### Color Augmentations
+If you need richer augmentation pipelines, keep them in your dataset/training
+stack rather than teaching them as modality-owned helpers.
+
+## Image Helper Metrics
+
+`compute_image_metrics(...)` provides modality-local helper metrics such as
+`mse`, `psnr`, `ssim`, `ms_ssim`, `vendi_score`, and
+`perceptual_distance`.
+
+Benchmark-grade metrics such as FID, Inception Score, and LPIPS are owned by
+`artifex.benchmarks.metrics.image`, not by this modality helper layer.
 
 ```python
-def random_brightness(image, key, delta=0.2):
-    """Randomly adjust brightness.
-
-    Args:
-        image: Input image (H, W, C)
-        key: Random key
-        delta: Maximum brightness change
-
-    Returns:
-        Brightness-adjusted image
-    """
-    factor = jax.random.uniform(key, minval=1-delta, maxval=1+delta)
-    return jnp.clip(image * factor, 0, 1)
-
-def random_contrast(image, key, delta=0.2):
-    """Randomly adjust contrast.
-
-    Args:
-        image: Input image (H, W, C)
-        key: Random key
-        delta: Maximum contrast change
-
-    Returns:
-        Contrast-adjusted image
-    """
-    factor = jax.random.uniform(key, minval=1-delta, maxval=1+delta)
-    mean = jnp.mean(image)
-    return jnp.clip((image - mean) * factor + mean, 0, 1)
-
-def random_saturation(image, key, delta=0.2):
-    """Randomly adjust saturation (RGB only).
-
-    Args:
-        image: Input RGB image (H, W, 3)
-        key: Random key
-        delta: Maximum saturation change
-
-    Returns:
-        Saturation-adjusted image
-    """
-    factor = jax.random.uniform(key, minval=1-delta, maxval=1+delta)
-
-    # Convert to grayscale
-    gray = jnp.mean(image, axis=-1, keepdims=True)
-
-    # Interpolate between gray and original
-    adjusted = gray + factor * (image - gray)
-
-    return jnp.clip(adjusted, 0, 1)
-
-def random_hue(image, key, delta=0.1):
-    """Randomly adjust hue (RGB only).
-
-    Args:
-        image: Input RGB image (H, W, 3)
-        key: Random key
-        delta: Maximum hue change
-
-    Returns:
-        Hue-adjusted image
-    """
-    factor = jax.random.uniform(key, minval=-delta, maxval=delta)
-
-    # Simple hue rotation by channel shifting
-    r, g, b = image[..., 0], image[..., 1], image[..., 2]
-
-    # Rotate through channels
-    shifted = jnp.stack([
-        r + factor * (g - r),
-        g + factor * (b - g),
-        b + factor * (r - b)
-    ], axis=-1)
-
-    return jnp.clip(shifted, 0, 1)
-
-# Usage
-key = jax.random.key(0)
-keys = jax.random.split(key, 4)
-
-rgb_image = jnp.array([...])  # (H, W, 3)
-rgb_image = random_brightness(rgb_image, keys[0])
-rgb_image = random_contrast(rgb_image, keys[1])
-rgb_image = random_saturation(rgb_image, keys[2])
-rgb_image = random_hue(rgb_image, keys[3])
-```
-
-### Noise Augmentations
-
-```python
-def add_gaussian_noise(image, key, std=0.05):
-    """Add Gaussian noise to image.
-
-    Args:
-        image: Input image (H, W, C)
-        key: Random key
-        std: Standard deviation of noise
-
-    Returns:
-        Noisy image
-    """
-    noise = std * jax.random.normal(key, image.shape)
-    return jnp.clip(image + noise, 0, 1)
-
-def add_salt_pepper_noise(image, key, prob=0.01):
-    """Add salt and pepper noise.
-
-    Args:
-        image: Input image (H, W, C)
-        key: Random key
-        prob: Probability of noise per pixel
-
-    Returns:
-        Noisy image
-    """
-    keys = jax.random.split(key, 2)
-
-    # Salt (white pixels)
-    salt_mask = jax.random.bernoulli(keys[0], prob, image.shape)
-    image = jnp.where(salt_mask, 1.0, image)
-
-    # Pepper (black pixels)
-    pepper_mask = jax.random.bernoulli(keys[1], prob, image.shape)
-    image = jnp.where(pepper_mask, 0.0, image)
-
-    return image
-
-def add_speckle_noise(image, key, std=0.1):
-    """Add multiplicative speckle noise.
-
-    Args:
-        image: Input image (H, W, C)
-        key: Random key
-        std: Standard deviation of noise
-
-    Returns:
-        Noisy image
-    """
-    noise = 1 + std * jax.random.normal(key, image.shape)
-    return jnp.clip(image * noise, 0, 1)
-
-# Usage
-key = jax.random.key(0)
-keys = jax.random.split(key, 3)
-
-image = jnp.array([...])  # (H, W, C)
-noisy1 = add_gaussian_noise(image, keys[0], std=0.05)
-noisy2 = add_salt_pepper_noise(image, keys[1], prob=0.01)
-noisy3 = add_speckle_noise(image, keys[2], std=0.1)
-```
-
-### Geometric Augmentations
-
-```python
-def random_crop(image, key, crop_height, crop_width):
-    """Randomly crop image.
-
-    Args:
-        image: Input image (H, W, C)
-        key: Random key
-        crop_height: Height of crop
-        crop_width: Width of crop
-
-    Returns:
-        Cropped image
-    """
-    h, w = image.shape[:2]
-
-    # Random starting position
-    top = jax.random.randint(key, (), 0, h - crop_height + 1)
-    left = jax.random.randint(jax.random.fold_in(key, 1), (), 0, w - crop_width + 1)
-
-    return image[top:top+crop_height, left:left+crop_width]
-
-def center_crop(image, crop_height, crop_width):
-    """Center crop image.
-
-    Args:
-        image: Input image (H, W, C)
-        crop_height: Height of crop
-        crop_width: Width of crop
-
-    Returns:
-        Center-cropped image
-    """
-    h, w = image.shape[:2]
-
-    top = (h - crop_height) // 2
-    left = (w - crop_width) // 2
-
-    return image[top:top+crop_height, left:left+crop_width]
-
-def random_zoom(image, key, zoom_range=(0.8, 1.2)):
-    """Randomly zoom image.
-
-    Args:
-        image: Input image (H, W, C)
-        key: Random key
-        zoom_range: (min_zoom, max_zoom)
-
-    Returns:
-        Zoomed image
-    """
-    h, w, c = image.shape
-    zoom_factor = jax.random.uniform(key, minval=zoom_range[0], maxval=zoom_range[1])
-
-    # Calculate new size
-    new_h = int(h * zoom_factor)
-    new_w = int(w * zoom_factor)
-
-    # Resize
-    from jax import image as jax_image
-    zoomed = jax_image.resize(
-        image[jnp.newaxis, ...],
-        shape=(1, new_h, new_w, c),
-        method="bilinear"
-    )[0]
-
-    # Crop or pad to original size
-    if zoom_factor > 1.0:
-        # Crop
-        zoomed = center_crop(zoomed, h, w)
-    else:
-        # Pad
-        pad_h = (h - new_h) // 2
-        pad_w = (w - new_w) // 2
-        zoomed = jnp.pad(
-            zoomed,
-            ((pad_h, h - new_h - pad_h), (pad_w, w - new_w - pad_w), (0, 0)),
-            mode='constant'
-        )
-
-    return zoomed
-
-# Usage
-key = jax.random.key(0)
-keys = jax.random.split(key, 2)
-
-image = jnp.array([...])  # (64, 64, 3)
-cropped = random_crop(image, keys[0], 48, 48)
-zoomed = random_zoom(image, keys[1], zoom_range=(0.9, 1.1))
-```
-
-### Complete Augmentation Pipeline
-
-```python
-@jax.jit
-def augment_image(image, key):
-    """Apply comprehensive augmentation pipeline.
-
-    Args:
-        image: Input image (H, W, C)
-        key: Random key
-
-    Returns:
-        Augmented image
-    """
-    keys = jax.random.split(key, 8)
-
-    # Geometric augmentations
-    image = random_horizontal_flip(image, keys[0], prob=0.5)
-    image = random_rotation(image, keys[1])
-
-    # Color augmentations
-    image = random_brightness(image, keys[2], delta=0.2)
-    image = random_contrast(image, keys[3], delta=0.2)
-
-    # RGB-specific
-    if image.shape[-1] == 3:
-        image = random_saturation(image, keys[4], delta=0.2)
-        image = random_hue(image, keys[5], delta=0.1)
-
-    # Noise
-    image = add_gaussian_noise(image, keys[6], std=0.02)
-
-    return image
-
-# Batch augmentation
-def augment_batch(images, key):
-    """Augment batch of images.
-
-    Args:
-        images: Batch of images (N, H, W, C)
-        key: Random key
-
-    Returns:
-        Augmented batch
-    """
-    batch_size = images.shape[0]
-    keys = jax.random.split(key, batch_size)
-
-    # Vectorize over batch
-    augmented = jax.vmap(augment_image)(images, keys)
-
-    return augmented
-
-# Usage in training
-key = jax.random.key(0)
-for batch in data_loader:
-    key, subkey = jax.random.split(key)
-    augmented_batch = augment_batch(batch["images"], subkey)
-    # Use augmented_batch for training
+import jax.numpy as jnp
+from flax import nnx
+from artifex.generative_models.modalities.image import compute_image_metrics
+
+rngs = nnx.Rngs(0)
+generated = jnp.zeros((4, 64, 64, 3), dtype=jnp.float32)
+reference = jnp.ones((4, 64, 64, 3), dtype=jnp.float32) * 0.25
+
+metrics = compute_image_metrics(
+    generated_images=generated,
+    reference_images=reference,
+    metrics=["mse", "psnr", "ssim"],
+    rngs=rngs,
+)
+
+print(metrics.keys())  # dict_keys(["mse", "psnr", "ssim"])
 ```
 
 ## Working with Different Image Sizes
@@ -814,9 +511,10 @@ import jax.numpy as jnp
 from flax import nnx
 from artifex.generative_models.modalities import ImageModality
 from artifex.generative_models.modalities.image import (
+    AugmentationProcessor,
     ImageModalityConfig,
     ImageRepresentation,
-    SyntheticImageDataset
+    create_image_dataset,
 )
 
 # Setup
@@ -830,22 +528,24 @@ config = ImageModalityConfig(
 )
 
 modality = ImageModality(config=config, rngs=rngs)
+augmenter = AugmentationProcessor(config=config, brightness_range=0.1, rngs=rngs)
 
-# Create datasets
-train_dataset = SyntheticImageDataset(
+# Create datasets (MemorySource instances)
+train_dataset = create_image_dataset(
+    "synthetic",
     config=config,
+    rngs=rngs,
+    shuffle=True,
     dataset_size=10000,
     pattern_type="gradient",
-    split="train",
-    rngs=rngs
 )
 
-val_dataset = SyntheticImageDataset(
+val_dataset = create_image_dataset(
+    "synthetic",
     config=config,
+    rngs=rngs,
     dataset_size=1000,
     pattern_type="gradient",
-    split="val",
-    rngs=rngs
 )
 
 # Training loop with augmentation
@@ -861,12 +561,14 @@ for epoch in range(num_epochs):
         # Get batch
         batch = train_dataset.get_batch(batch_size)
 
-        # Apply augmentation
-        key, subkey = jax.random.split(key)
-        augmented = augment_batch(batch["images"], subkey)
+        # Apply retained modality-local augmentation helpers
+        augmented = augmenter.augment_batch(batch["images"])
 
         # Training step (placeholder)
         # loss = train_step(model, augmented)
+
+    # Reset for next epoch
+    train_dataset.reset()
 
     # Validation (no augmentation)
     val_batches = len(val_dataset) // batch_size
@@ -875,28 +577,33 @@ for epoch in range(num_epochs):
         # Validation step
         # val_loss = validate_step(model, val_batch["images"])
 
+    val_dataset.reset()
+
     print(f"Epoch {epoch + 1}/{num_epochs} complete")
 ```
 
 ### Example 2: Multi-Resolution Training
 
 ```python
+from artifex.generative_models.modalities.image import create_image_dataset
+
 # Create datasets at multiple resolutions
 resolutions = [32, 64, 128]
 datasets = {}
 
 for res in resolutions:
-    config = ImageModalityConfig(
+    res_config = ImageModalityConfig(
         representation=ImageRepresentation.RGB,
         height=res,
-        width=res
+        width=res,
     )
 
-    datasets[res] = SyntheticImageDataset(
-        config=config,
+    datasets[res] = create_image_dataset(
+        "synthetic",
+        config=res_config,
+        rngs=rngs,
         dataset_size=5000,
         pattern_type="random",
-        rngs=rngs
     )
 
 # Progressive training
@@ -911,80 +618,54 @@ for resolution in resolutions:
             # Train at this resolution
             # loss = train_step(model, batch["images"], resolution)
 
+        dataset.reset()
         print(f"  Epoch {epoch + 1}/5 at {resolution}x{resolution}")
 ```
 
-### Example 3: Custom Image Dataset
+### Example 3: Custom Image Dataset via MemorySource
 
 ```python
-from typing import Iterator
-from artifex.generative_models.modalities.base import BaseDataset
+import jax
+import jax.numpy as jnp
+from flax import nnx
+from datarax.sources import MemorySource, MemorySourceConfig
 
-class CustomImageDataset(BaseDataset):
-    """Custom dataset loading images from file paths."""
+# Load your images into arrays (use PIL, OpenCV, etc.)
+# For demonstration, generate placeholder data
+num_images = 500
+height, width, channels = 64, 64, 3
 
-    def __init__(
-        self,
-        config: ImageModalityConfig,
-        image_paths: list[str],
-        labels: list[int] = None,
-        split: str = "train",
-        *,
-        rngs: nnx.Rngs,
-    ):
-        super().__init__(config, split, rngs=rngs)
-        self.image_paths = image_paths
-        self.labels = labels
+images = jnp.stack([
+    jax.random.uniform(
+        jax.random.key(i),
+        (height, width, channels),
+    )
+    for i in range(num_images)
+])
 
-        # Load and preprocess images
-        self.images = self._load_images()
+labels = jnp.array([i % 10 for i in range(num_images)])
 
-    def _load_images(self):
-        """Load images from paths."""
-        images = []
-        for path in self.image_paths:
-            # In practice, use PIL, OpenCV, etc.
-            # For demo, generate synthetic
-            img = jax.random.uniform(
-                jax.random.key(hash(path)),
-                (self.config.height, self.config.width, self.config.channels)
-            )
-            images.append(img)
-        return images
-
-    def __len__(self) -> int:
-        return len(self.images)
-
-    def __iter__(self) -> Iterator[dict[str, jax.Array]]:
-        for i, image in enumerate(self.images):
-            sample = {"images": image, "index": jnp.array(i)}
-            if self.labels:
-                sample["labels"] = jnp.array(self.labels[i])
-            yield sample
-
-    def get_batch(self, batch_size: int) -> dict[str, jax.Array]:
-        key = self.rngs.sample() if "sample" in self.rngs else jax.random.key(0)
-        indices = jax.random.randint(key, (batch_size,), 0, len(self))
-
-        batch_images = [self.images[int(idx)] for idx in indices]
-        batch = {"images": jnp.stack(batch_images), "indices": indices}
-
-        if self.labels:
-            batch_labels = [self.labels[int(idx)] for idx in indices]
-            batch["labels"] = jnp.array(batch_labels)
-
-        return batch
-
-# Usage
-image_paths = ["/path/to/img1.jpg", "/path/to/img2.jpg", ...]
-labels = [0, 1, 0, 2, ...]  # Optional labels
-
-custom_dataset = CustomImageDataset(
-    config=config,
-    image_paths=image_paths,
-    labels=labels,
-    rngs=rngs
+# Wrap in a MemorySource for batching, shuffling, and iteration
+source_config = MemorySourceConfig(shuffle=True)
+custom_dataset = MemorySource(
+    source_config,
+    {"images": images, "labels": labels},
+    rngs=nnx.Rngs(0),
 )
+
+# Get a batch (stateful — advances internal index)
+batch = custom_dataset.get_batch(32)
+print(batch["images"].shape)  # (32, 64, 64, 3)
+print(batch["labels"].shape)  # (32,)
+
+# Iterate over individual samples
+for sample in custom_dataset:
+    print(sample["images"].shape)  # (64, 64, 3)
+    print(sample["labels"])
+    break
+
+# Reset internal state for the next epoch
+custom_dataset.reset()
 ```
 
 ## Best Practices
@@ -1001,11 +682,10 @@ custom_dataset = CustomImageDataset(
 
 !!! tip "Augmentation"
     - Apply augmentation only during training, not validation
-    - Use JIT compilation for augmentation pipelines
+    - Keep modality-local augmentation expectations limited to horizontal flip and brightness jitter
     - Balance augmentation strength with training stability
-    - Apply geometric augmentations before color augmentations
-    - Use vectorized operations for batch augmentation
-    - Test augmentations visually before training
+    - Use vectorized batch augmentation through `AugmentationProcessor.augment_batch(...)`
+    - Test retained augmentations visually before training
 
 !!! tip "Performance"
     - Resize images to target resolution once
@@ -1021,6 +701,7 @@ custom_dataset = CustomImageDataset(
     - Mix different image resolutions in same batch
     - Forget to normalize images
     - Apply augmentation during validation/testing
+    - Teach rotations, crops, zoom, or noise helpers as if they lived in `artifex.generative_models.modalities.image`
     - Use non-JAX operations in data pipeline
     - Load full-resolution images if working with downscaled versions
     - Ignore color space (RGB vs BGR)
@@ -1029,7 +710,6 @@ custom_dataset = CustomImageDataset(
 !!! danger "Performance Issues"
     - Load images from disk in training loop
     - Use Python loops for image processing
-    - Apply expensive augmentations without JIT
     - Keep multiple copies of images in memory
     - Use very large batch sizes on limited GPU memory
 
@@ -1038,7 +718,7 @@ custom_dataset = CustomImageDataset(
     - Use inappropriate resize methods (nearest for photos)
     - Mix normalized and unnormalized images
     - Ignore aspect ratio when resizing
-    - Apply same augmentation to all images in batch
+    - Assume benchmark metrics such as FID or LPIPS come from the modality helper layer
 
 ## Summary
 
@@ -1047,9 +727,10 @@ This guide covered:
 - **Image representations** - RGB, RGBA, and grayscale configurations
 - **Image datasets** - Synthetic datasets with various patterns
 - **Preprocessing** - Normalization, resizing, and validation
-- **Augmentation** - Geometric, color, and noise augmentations
+- **Augmentation** - Retained horizontal-flip and brightness-jitter helpers
+- **Helper metrics** - Modality-local metrics plus the benchmark-package boundary
 - **Different sizes** - Working with various image resolutions
-- **Complete examples** - Training with augmentation, multi-resolution, custom datasets
+- **Complete examples** - Training with retained helper augmentation, multi-resolution, custom datasets
 - **Best practices** - DOs and DON'Ts for image data
 
 ## Next Steps

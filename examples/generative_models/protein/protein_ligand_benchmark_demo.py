@@ -18,7 +18,7 @@
 
 ## Overview
 
-This example demonstrates a comprehensive protein-ligand co-design benchmark suite,
+This example demonstrates a complete protein-ligand co-design benchmark suite,
 showcasing how to evaluate generative models for drug discovery applications.
 
 ## Source Code Dependencies
@@ -32,11 +32,11 @@ This example depends on the following Artifex source files:
 - `src/artifex/generative_models/modalities/molecular.py` - Molecular modality
 
 **Validation Status:**
-- ✅ All dependencies validated against `memory-bank/guides/flax-nnx-guide.md`
+- ✅ All dependencies validated against the internal Flax NNX compatibility guide
 - ✅ No anti-patterns detected (RNG handling, module init, etc.)
 - ✅ All tests passing for dependency files
 
-**Note:** This example was validated as part of Week 0 source dependency validation.
+**Note:** This example was validated as part of v0 source dependency validation.
 
 ## What You'll Learn
 
@@ -45,7 +45,7 @@ By running this example, you will understand:
 1. **Molecular Modality Framework** - How to represent and manipulate molecular structures
 2. **CrossDocked2020 Dataset** - Accessing protein-ligand binding data for benchmarks
 3. **Protein-Ligand Metrics** - Evaluating binding affinity, molecular validity, and drug-likeness
-4. **Benchmark Suites** - Running comprehensive evaluations across multiple metrics
+4. **Benchmark Suites** - Running complete evaluations across multiple metrics
 5. **Model Comparison** - Systematically comparing different model architectures
 
 ## Key Features Demonstrated
@@ -192,7 +192,13 @@ from artifex.benchmarks.suites.protein_ligand_suite import (
     ProteinLigandBenchmarkSuite,
     ProteinLigandCoDesignBenchmark,
 )
-from artifex.generative_models.core.configuration import DataConfig, ModalityConfig
+from artifex.generative_models.core.configuration import (
+    ChemicalConstraintConfig,
+    DataConfig,
+    EvaluationConfig,
+    ExtensionConfig,
+    ModalityConfig,
+)
 from artifex.generative_models.modalities.molecular import MolecularModality
 
 
@@ -386,12 +392,18 @@ def demonstrate_molecular_modality():
     config = ModalityConfig(
         name="molecular_modality_config",
         modality_name="molecular",
-        metadata={
-            "use_chemical_constraints": True,
-            "bond_length_weight": 1.0,
-            "bond_angle_weight": 0.5,
-            "use_pharmacophore_features": True,
-            "pharmacophore_types": ["donor", "acceptor", "hydrophobic"],
+        extensions={
+            "chemical": ChemicalConstraintConfig(
+                name="chemical",
+                weight=1.0,
+                enforce_valence=True,
+                enforce_bond_lengths=True,
+                enforce_ring_closure=True,
+            ),
+            "pharmacophore": ExtensionConfig(
+                name="pharmacophore",
+                weight=0.5,
+            ),
         },
     )
 
@@ -439,6 +451,7 @@ def demonstrate_crossdocked_dataset():
             "max_protein_atoms": 200,
             "max_ligand_atoms": 30,
             "pocket_radius": 8.0,
+            "demo_mode": True,
         },
     )
     dataset = CrossDockedDataset(
@@ -529,7 +542,15 @@ def demonstrate_protein_ligand_metrics():
 
     # 1. Binding Affinity Metric
     print("\n1. Binding Affinity Metric (RMSE target: <1.0 kcal/mol)")
-    affinity_metric = BindingAffinityMetric(rngs=rngs)
+    affinity_metric = BindingAffinityMetric(
+        rngs=rngs,
+        config=EvaluationConfig(
+            name="binding_affinity_demo",
+            metrics=["binding_affinity"],
+            metric_params={"higher_is_better": False},
+            eval_batch_size=4,
+        ),
+    )
 
     # Simulate good predictions (should pass target)
     true_affinities = jnp.array([-8.2, -6.5, -9.1, -7.8, -5.9])
@@ -552,7 +573,15 @@ def demonstrate_protein_ligand_metrics():
 
     # 2. Molecular Validity Metric
     print("\n2. Molecular Validity Metric (target: >95%)")
-    validity_metric = MolecularValidityMetric(rngs=rngs)
+    validity_metric = MolecularValidityMetric(
+        rngs=rngs,
+        config=EvaluationConfig(
+            name="molecular_validity_demo",
+            metrics=["molecular_validity"],
+            metric_params={"higher_is_better": True},
+            eval_batch_size=4,
+        ),
+    )
 
     # Generate reasonable molecular structures
     batch_size = 8
@@ -571,7 +600,15 @@ def demonstrate_protein_ligand_metrics():
 
     # 3. Drug-likeness Metric
     print("\n3. Drug-likeness Metric (QED target: >0.7)")
-    drug_metric = DrugLikenessMetric(rngs=rngs)
+    drug_metric = DrugLikenessMetric(
+        rngs=rngs,
+        config=EvaluationConfig(
+            name="drug_likeness_demo",
+            metrics=["drug_likeness"],
+            metric_params={"drug_likeness": {"demo_mode": True, "higher_is_better": True}},
+            eval_batch_size=4,
+        ),
+    )
 
     # Generate drug-like molecules (moderate size)
     drug_coords = jax.random.normal(rngs.default(), (4, 25, 3)) * 2.0
@@ -591,7 +628,7 @@ def demonstrate_protein_ligand_metrics():
 """
 ## Section 6: Complete Benchmark Suite Demo
 
-The benchmark suite orchestrates comprehensive evaluation across all metrics.
+The benchmark suite orchestrates complete evaluation across all metrics.
 This demo tests three model qualities (poor/good/excellent) to show how
 performance varies across the target metrics.
 """
@@ -617,6 +654,7 @@ def demonstrate_benchmark_suite():
             "num_samples": 16,  # Even smaller for quick demo
             "batch_size": 4,
         },
+        demo_mode=True,
         rngs=rngs,
     )
 
@@ -685,6 +723,7 @@ def demonstrate_model_comparison():
             "num_samples": 20,
             "max_protein_atoms": 100,
             "max_ligand_atoms": 20,
+            "demo_mode": True,
         },
     )
     dataset = CrossDockedDataset(
@@ -694,7 +733,7 @@ def demonstrate_model_comparison():
     )
 
     benchmark = ProteinLigandCoDesignBenchmark(
-        dataset=dataset, num_samples=8, batch_size=4, rngs=rngs
+        dataset=dataset, num_samples=8, batch_size=4, demo_mode=True, rngs=rngs
     )
 
     # Test multiple model configurations
@@ -774,7 +813,7 @@ def main():
         print("✅ Molecular modality framework operational")
         print("✅ CrossDocked2020 dataset ready")
         print("✅ Protein-ligand metrics implemented")
-        print("✅ Comprehensive benchmark suite functional")
+        print("✅ Complete benchmark suite functional")
         print("\n🎯 Ready for protein-ligand co-design benchmarks!")
         print("📊 Target metrics: RMSE <1.0 kcal/mol, >95% validity, QED >0.7")
 
@@ -803,7 +842,7 @@ if __name__ == "__main__":
 - ✅ **Binding Affinity Prediction**: Evaluating model accuracy with RMSE metrics
 - ✅ **Molecular Validity**: Ensuring generated molecules satisfy chemical constraints
 - ✅ **Drug-likeness**: Quantifying pharmaceutical potential with QED scores
-- ✅ **Benchmark Suites**: Running comprehensive evaluations systematically
+- ✅ **Benchmark Suites**: Running complete evaluations systematically
 - ✅ **Model Comparison**: Identifying performance improvements across architectures
 
 ### Key Performance Targets
@@ -859,5 +898,5 @@ if __name__ == "__main__":
 
 **Congratulations!** You've completed the protein-ligand co-design benchmark demonstration.
 You now understand how to evaluate generative models for computational drug discovery using
-Artifex's comprehensive benchmarking framework.
+Artifex's complete benchmarking framework.
 """

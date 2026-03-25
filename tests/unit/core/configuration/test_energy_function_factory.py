@@ -59,7 +59,7 @@ class TestCreateEnergyFunctionExists:
 
     def test_factory_function_exists(self):
         """Test that create_energy_function function exists."""
-        from artifex.generative_models.core.configuration.energy_config import (
+        from artifex.generative_models.factory.builders.energy_builder import (
             create_energy_function,
         )
 
@@ -68,7 +68,7 @@ class TestCreateEnergyFunctionExists:
 
     def test_factory_accepts_config_and_rngs(self, mlp_energy_config, rngs):
         """Test that factory accepts config and rngs parameters."""
-        from artifex.generative_models.core.configuration.energy_config import (
+        from artifex.generative_models.factory.builders.energy_builder import (
             create_energy_function,
         )
 
@@ -87,7 +87,7 @@ class TestCreateMLPEnergyFunction:
 
     def test_create_mlp_energy_function(self, mlp_energy_config, rngs):
         """Test creating MLPEnergyFunction from config."""
-        from artifex.generative_models.core.configuration.energy_config import (
+        from artifex.generative_models.factory.builders.energy_builder import (
             create_energy_function,
         )
         from artifex.generative_models.models.energy.base import MLPEnergyFunction
@@ -99,7 +99,7 @@ class TestCreateMLPEnergyFunction:
 
     def test_mlp_hidden_dims_from_config(self, mlp_energy_config, rngs):
         """Test that hidden_dims are used from config."""
-        from artifex.generative_models.core.configuration.energy_config import (
+        from artifex.generative_models.factory.builders.energy_builder import (
             create_energy_function,
         )
 
@@ -110,7 +110,7 @@ class TestCreateMLPEnergyFunction:
 
     def test_mlp_input_dim_required(self, mlp_energy_config, rngs):
         """Test that input_dim is required for MLP energy function."""
-        from artifex.generative_models.core.configuration.energy_config import (
+        from artifex.generative_models.factory.builders.energy_builder import (
             create_energy_function,
         )
 
@@ -120,7 +120,7 @@ class TestCreateMLPEnergyFunction:
 
     def test_mlp_use_bias_from_config(self, rngs):
         """Test that use_bias is used from config."""
-        from artifex.generative_models.core.configuration.energy_config import (
+        from artifex.generative_models.factory.builders.energy_builder import (
             create_energy_function,
         )
 
@@ -156,7 +156,7 @@ class TestCreateCNNEnergyFunction:
 
     def test_create_cnn_energy_function(self, cnn_energy_config, rngs):
         """Test creating CNNEnergyFunction from config."""
-        from artifex.generative_models.core.configuration.energy_config import (
+        from artifex.generative_models.factory.builders.energy_builder import (
             create_energy_function,
         )
         from artifex.generative_models.models.energy.base import CNNEnergyFunction
@@ -168,7 +168,7 @@ class TestCreateCNNEnergyFunction:
 
     def test_cnn_hidden_dims_from_config(self, cnn_energy_config, rngs):
         """Test that hidden_dims are used from config."""
-        from artifex.generative_models.core.configuration.energy_config import (
+        from artifex.generative_models.factory.builders.energy_builder import (
             create_energy_function,
         )
 
@@ -179,7 +179,7 @@ class TestCreateCNNEnergyFunction:
 
     def test_cnn_input_channels_required(self, cnn_energy_config, rngs):
         """Test that input_channels is required for CNN energy function."""
-        from artifex.generative_models.core.configuration.energy_config import (
+        from artifex.generative_models.factory.builders.energy_builder import (
             create_energy_function,
         )
 
@@ -198,7 +198,7 @@ class TestNetworkTypeDispatch:
 
     def test_mlp_type_creates_mlp(self, rngs):
         """Test network_type='mlp' creates MLPEnergyFunction."""
-        from artifex.generative_models.core.configuration.energy_config import (
+        from artifex.generative_models.factory.builders.energy_builder import (
             create_energy_function,
         )
         from artifex.generative_models.models.energy.base import MLPEnergyFunction
@@ -216,7 +216,7 @@ class TestNetworkTypeDispatch:
 
     def test_cnn_type_creates_cnn(self, rngs):
         """Test network_type='cnn' creates CNNEnergyFunction."""
-        from artifex.generative_models.core.configuration.energy_config import (
+        from artifex.generative_models.factory.builders.energy_builder import (
             create_energy_function,
         )
         from artifex.generative_models.models.energy.base import CNNEnergyFunction
@@ -253,7 +253,7 @@ class TestActivationFunction:
 
     def test_gelu_activation(self, rngs):
         """Test gelu activation is mapped correctly."""
-        from artifex.generative_models.core.configuration.energy_config import (
+        from artifex.generative_models.factory.builders.energy_builder import (
             create_energy_function,
         )
 
@@ -271,7 +271,7 @@ class TestActivationFunction:
 
     def test_silu_activation(self, rngs):
         """Test silu activation is mapped correctly."""
-        from artifex.generative_models.core.configuration.energy_config import (
+        from artifex.generative_models.factory.builders.energy_builder import (
             create_energy_function,
         )
 
@@ -297,7 +297,7 @@ class TestDropoutRate:
 
     def test_mlp_dropout_rate_from_config(self, rngs):
         """Test that dropout_rate is used from config for MLP."""
-        from artifex.generative_models.core.configuration.energy_config import (
+        from artifex.generative_models.factory.builders.energy_builder import (
             create_energy_function,
         )
 
@@ -315,7 +315,7 @@ class TestDropoutRate:
 
     def test_mlp_zero_dropout_no_layer(self, rngs):
         """Test that zero dropout doesn't create dropout layer."""
-        from artifex.generative_models.core.configuration.energy_config import (
+        from artifex.generative_models.factory.builders.energy_builder import (
             create_energy_function,
         )
 

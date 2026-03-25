@@ -10,11 +10,10 @@ import flax.nnx as nnx
 import jax.numpy as jnp
 import pytest
 
-from artifex.benchmarks.datasets.base import DatasetProtocol
 from artifex.generative_models.core.configuration import DataConfig
 
 
-class MockDataset(DatasetProtocol):
+class MockDataset:
     """Mock dataset for testing DataConfig usage."""
 
     def __init__(self, data_path: str, config: DataConfig, *, rngs: nnx.Rngs):
@@ -22,20 +21,12 @@ class MockDataset(DatasetProtocol):
         if not isinstance(config, DataConfig):
             raise TypeError(f"config must be DataConfig, got {type(config).__name__}")
 
-        # Store typed_config and pass it directly to base class
         self.typed_config = config
-        # Pass DataConfig directly - no dict conversion needed
-        super().__init__(data_path, config, rngs=rngs)
-
-    def _validate_dataset_path(self):
-        """Validate dataset path exists."""
-        if not self.data_path.exists():
-            self.data_path.mkdir(parents=True, exist_ok=True)
+        self.data_path = Path(data_path)
+        self._load_dataset()
 
     def _load_dataset(self):
         """Load mock dataset."""
-        # Create mock data based on config
-        self.typed_config.metadata.get("batch_size", 32)
         feature_dim = self.typed_config.metadata.get("feature_dim", 10)
         self.data = jnp.ones((100, feature_dim))
 

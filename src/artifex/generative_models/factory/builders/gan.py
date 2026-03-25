@@ -1,13 +1,14 @@
 """GAN model builder with dataclass configs.
 
-This builder accepts dataclass-based GAN configs (GANConfig, WGANConfig, etc.)
-and creates the appropriate GAN model instances.
+This builder dispatches concrete GAN config subclasses to the matching runtime
+model classes. The abstract base `GANConfig` remains a shared config parent but
+is not directly instantiable through the factory.
 
 The builder follows Principle #4: Methods Take Configs, NOT Individual Parameters.
 Model class is determined by config type, not a model_class string field.
 """
 
-from typing import Any, Union
+from typing import Any
 
 from flax import nnx
 
@@ -22,24 +23,24 @@ from artifex.generative_models.core.configuration.gan_config import (
 
 
 # Type alias for all supported GAN configs
-GANConfigTypes = Union[
-    GANConfig, WGANConfig, LSGANConfig, ConditionalGANConfig, CycleGANConfig, DCGANConfig
-]
+GANConfigTypes = (
+    GANConfig | WGANConfig | LSGANConfig | ConditionalGANConfig | CycleGANConfig | DCGANConfig
+)
 
 
 class GANBuilder:
     """Builder for GAN models using dataclass configs.
 
-    This builder accepts dataclass-based GAN configs and creates
-    the appropriate model instances. The model class is determined by
-    the config type:
+    This builder accepts concrete dataclass-based GAN configs and creates the
+    appropriate model instances. The model class is determined by the config
+    type:
 
     - WGANConfig -> WGAN
     - LSGANConfig -> LSGAN
     - ConditionalGANConfig -> ConditionalGAN
     - CycleGANConfig -> CycleGAN
     - DCGANConfig -> DCGAN
-    - GANConfig -> (base GAN, currently not implemented)
+    - GANConfig -> rejected; use a concrete GAN config subclass instead
 
     All configs must have nested GeneratorConfig and DiscriminatorConfig.
     """
@@ -54,7 +55,7 @@ class GANBuilder:
         """Build a GAN model from config.
 
         Args:
-            config: Dataclass GAN config (WGANConfig, LSGANConfig, etc.)
+            config: Concrete dataclass GAN config (WGANConfig, LSGANConfig, etc.)
             rngs: Random number generators
             **kwargs: Additional keyword arguments passed to model constructor
 
@@ -74,12 +75,11 @@ class GANBuilder:
                 "not a dict. Use WGANConfig(...) or similar to create the config."
             )
 
-        # Check for old Pydantic ModelConfiguration
+        # Reject unsupported catch-all config objects
         if hasattr(config, "model_class"):
             raise TypeError(
                 "config must be a dataclass config (WGANConfig, LSGANConfig, etc.), "
-                "not a Pydantic ModelConfiguration. "
-                "The builder no longer accepts ModelConfiguration."
+                "not an unsupported catch-all config object with a model_class field."
             )
 
         # Get model class based on config type

@@ -20,8 +20,8 @@ This tutorial demonstrates how to train a RealNVP normalizing flow model using A
 ## Quick Start
 
 ```bash
-# Activate Artifex environment
-source activate.sh
+# Install Artifex if needed
+pip install artifex
 
 # Run the Python script
 python examples/generative_models/image/flow/flow_mnist.py
@@ -130,10 +130,10 @@ Before diving into the code, let's understand why we use specific techniques:
 
 ```bash
 # Install Artifex with CUDA support (recommended)
-uv sync --extra cuda-dev
+pip install "artifex[cuda12]"
 
 # Or CPU-only
-uv sync
+pip install artifex
 ```
 
 ---
@@ -146,6 +146,8 @@ import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
 import optax
+from datarax import from_source
+from datarax.sources import from_tfds
 from flax import nnx
 from tqdm import tqdm
 
@@ -189,36 +191,28 @@ WARMUP_STEPS = 200  # Warmup steps
 Flow models require continuous data. MNIST is discrete (0-255), so we apply dequantization:
 
 ```python
-import tensorflow_datasets as tfds
+# DataRax source using the live TFDS helper
+data_rngs = nnx.Rngs(default=jax.random.key(SEED + 1))
+train_source = from_tfds(
+    "mnist",
+    "train",
+    eager=False,
+    shuffle=True,
+    seed=SEED + 1,
+    rngs=data_rngs,
+)
+train_pipeline = from_source(train_source, batch_size=BATCH_SIZE, jit_compile=True)
+n_batches = len(train_source) // BATCH_SIZE
+print(f"Train: {len(train_source)} samples, {n_batches} batches per epoch")
 
-def load_mnist_data():
-    """Load MNIST dataset."""
-    ds_train = tfds.load("mnist", split="train", shuffle_files=False, as_supervised=True)
-
-    train_images = []
-    for image, _ in ds_train:
-        train_images.append(np.array(image))
-    return np.array(train_images)
-
-def preprocess_for_flow(images, key):
+def preprocess_for_flow(batch, key):
     """Preprocess MNIST for flow models: normalize, flatten, dequantize, scale."""
-    # Normalize to [0, 1]
-    images = images.astype(np.float32) / 255.0
-
-    # Flatten to (N, 784)
-    images = images.reshape(len(images), -1)
-
-    # Dequantization: add uniform noise
+    images = batch["image"].astype(jnp.float32) / 255.0
+    images = images.reshape(images.shape[0], -1)
     noise = jax.random.uniform(key, images.shape) / 256.0
     images = images + noise
-
-    # Scale to [-1, 1]
     images = (images - 0.5) / 0.5
-
     return images
-
-train_images = load_mnist_data()
-print(f"Train: {train_images.shape}")  # (60000, 28, 28, 1)
 ```
 
 **Why Dequantization?**
@@ -358,7 +352,7 @@ print(f"Training for {NUM_EPOCHS} epochs...")
 for epoch in range(NUM_EPOCHS):
     epoch_losses = []
 
-    for batch in tqdm(train_loader, desc=f"Epoch {epoch+1}/{NUM_EPOCHS}"):
+    for batch in tqdm(train_pipeline, total=n_batches, desc=f"Epoch {epoch+1}/{NUM_EPOCHS}"):
         train_key, dequant_key = jax.random.split(train_key)
 
         # Preprocess: dequantize and scale
@@ -540,11 +534,11 @@ In this tutorial, you learned:
 
     Compare with variational autoencoders
 
-- :material-star-shooting: **[Advanced Flow](../advanced/advanced-flow.md)**
+- :material-book-open-variant: **[Flow Guide](../../user-guide/models/flow-guide.md)**
 
     ---
 
-    Glow, Neural Spline Flows, and more
+    Review the retained Artifex flow families and public APIs
 
 </div>
 

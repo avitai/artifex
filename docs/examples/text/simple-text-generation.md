@@ -6,6 +6,12 @@
 <span class="badge badge-format-dual">📓 Dual Format</span>
 </div>
 
+**Status:** `Standalone pedagogy`
+**Device:** CPU-compatible
+
+This walkthrough is a standalone JAX/Flax NNX concept demo.
+It does not instantiate shipped Artifex runtime owners.
+
 ## Files
 
 - **Python Script**: [`simple_text_generation.py`](https://github.com/avitai/artifex/blob/main/examples/generative_models/text/simple_text_generation.py)
@@ -14,8 +20,7 @@
 ## Quick Start
 
 ```bash
-# Run the Python script
-uv run python examples/generative_models/text/simple_text_generation.py
+python examples/generative_models/text/simple_text_generation.py
 
 # Or open the Jupyter notebook
 jupyter lab examples/generative_models/text/simple_text_generation.ipynb
@@ -23,7 +28,7 @@ jupyter lab examples/generative_models/text/simple_text_generation.ipynb
 
 ## Overview
 
-This example demonstrates fundamental text generation using character-level language modeling. Learn how to build a simple recurrent text generator that processes sequences one character at a time, implementing the basic building blocks of more sophisticated language models.
+This standalone walkthrough demonstrates fundamental text generation using character-level language modeling. Learn how to build a simple recurrent text generator that processes sequences one character at a time, implementing the basic building blocks of more sophisticated language models.
 
 ### Learning Objectives
 
@@ -372,37 +377,37 @@ class ConditionalTextGenerator(nnx.Module):
 
 <div class="grid cards" markdown>
 
-- :material-transformer: **Transformer Models**
+- :material-book-open-variant: **Autoregressive Guide**
 
     ---
 
-    Explore modern attention-based architectures that revolutionized NLP
+    Review the retained transformer and PixelCNN model surfaces
 
-    [:octicons-arrow-right-24: Transformer Examples](../basic/transformer-text.md)
+    [:octicons-arrow-right-24: AR guide](../../user-guide/models/autoregressive-guide.md)
 
-- :material-zip-box: **Text Compression**
-
-    ---
-
-    Learn information-theoretic approaches to text modeling
-
-    [:octicons-arrow-right-24: Compression Examples](../advanced/text-compression.md)
-
-- :material-translate: **Sequence-to-Sequence**
+- :material-format-text: **Text Modality**
 
     ---
 
-    Build models for translation, summarization, and other seq2seq tasks
+    Understand the retained token and text preprocessing contracts
 
-    [:octicons-arrow-right-24: Seq2Seq Examples](../advanced/seq2seq.md)
+    [:octicons-arrow-right-24: Text guide](../../user-guide/modalities/text.md)
 
-- :material-image-text: **Multimodal Models**
+- :material-view-grid: **Multimodal Guide**
 
     ---
 
-    Combine text with images for richer representations
+    See how text combines with other retained modalities in the shared runtime
 
-    [:octicons-arrow-right-24: Multimodal Examples](../advanced/multimodal.md)
+    [:octicons-arrow-right-24: Multimodal guide](../../user-guide/modalities/multimodal.md)
+
+- :material-map-outline: **Planned Topics**
+
+    ---
+
+    Track the still-unshipped transformer, seq2seq, and multimodal example work
+
+    [:octicons-arrow-right-24: Planned examples](../../roadmap/planned-examples.md#text-and-multimodal)
 
 </div>
 
@@ -459,7 +464,7 @@ def generate_step(model, input_seq, key):
 
 - [Flax NNX Guide](https://flax.readthedocs.io/en/latest/nnx/index.html)
 - [JAX Random Numbers](https://jax.readthedocs.io/en/latest/jax.random.html)
-- [Language Modeling Tutorial](https://flax.readthedocs.io/en/latest/guides/text_classification.html)
+- [Flax NNX Recurrent Modules](https://flax.readthedocs.io/en/latest/api_reference/flax.nnx/nn/recurrent.html)
 
 ### Research Papers
 

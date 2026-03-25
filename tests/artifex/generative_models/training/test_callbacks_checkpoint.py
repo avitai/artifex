@@ -11,6 +11,71 @@ import jax.numpy as jnp
 import pytest
 from flax import nnx
 
+from tests.artifex.generative_models.training.timing_utils import best_average_us_per_call
+
+
+class _FakeCheckpointManager:
+    """Minimal fake Orbax manager for callback unit tests."""
+
+    def __init__(self, *, max_to_keep, best_fn, best_mode):
+        self._max_to_keep = max_to_keep
+        self._best_fn = best_fn
+        self._best_mode = best_mode
+        self._metrics_by_step: dict[int, dict[str, float]] = {}
+
+    def save(self, step: int, metrics: dict[str, float]) -> None:
+        self._metrics_by_step[step] = metrics
+        if self._max_to_keep is not None and len(self._metrics_by_step) > self._max_to_keep:
+            sorted_steps = sorted(
+                self._metrics_by_step,
+                key=lambda s: self._best_fn(self._metrics_by_step[s]),
+                reverse=self._best_mode == "max",
+            )
+            kept_steps = set(sorted_steps[: self._max_to_keep])
+            self._metrics_by_step = {
+                step: metrics
+                for step, metrics in self._metrics_by_step.items()
+                if step in kept_steps
+            }
+
+    def all_steps(self) -> list[int]:
+        return sorted(self._metrics_by_step)
+
+    def best_step(self) -> int | None:
+        if not self._metrics_by_step:
+            return None
+        return sorted(
+            self._metrics_by_step,
+            key=lambda s: self._best_fn(self._metrics_by_step[s]),
+            reverse=self._best_mode == "max",
+        )[0]
+
+
+@pytest.fixture(autouse=True)
+def _patch_checkpoint_backend(monkeypatch):
+    """Patch checkpoint backend so callback tests stay unit-scoped."""
+
+    def setup_checkpoint_manager(_dirpath, *, max_to_keep=5, best_fn=None, best_mode="max"):
+        manager = _FakeCheckpointManager(
+            max_to_keep=max_to_keep,
+            best_fn=best_fn or (lambda _metrics: 0.0),
+            best_mode=best_mode,
+        )
+        return manager, str(_dirpath)
+
+    def save_checkpoint(manager, _model, step, *, metrics=None):
+        manager.save(step, dict(metrics or {}))
+        return manager
+
+    monkeypatch.setattr(
+        "artifex.generative_models.training.callbacks.checkpoint.setup_checkpoint_manager",
+        setup_checkpoint_manager,
+    )
+    monkeypatch.setattr(
+        "artifex.generative_models.training.callbacks.checkpoint.save_checkpoint",
+        save_checkpoint,
+    )
+
 
 class SimpleModel(nnx.Module):
     """Simple NNX model for testing."""
@@ -51,11 +116,8 @@ class TestCheckpointConfig:
         assert config.monitor == "val_loss"
         assert config.mode == "min"
         assert config.save_top_k == 3
-        assert config.save_last is True
         assert config.every_n_epochs == 1
-        assert config.save_weights_only is False
         assert config.dirpath == "checkpoints"
-        assert "{epoch" in config.filename  # Contains epoch placeholder
 
     def test_config_custom_values(self):
         """CheckpointConfig should accept custom values."""
@@ -63,22 +125,16 @@ class TestCheckpointConfig:
 
         config = CheckpointConfig(
             dirpath="/custom/path",
-            filename="best-{epoch:03d}",
             monitor="accuracy",
             mode="max",
             save_top_k=5,
-            save_last=False,
             every_n_epochs=2,
-            save_weights_only=True,
         )
         assert config.dirpath == "/custom/path"
-        assert config.filename == "best-{epoch:03d}"
         assert config.monitor == "accuracy"
         assert config.mode == "max"
         assert config.save_top_k == 5
-        assert config.save_last is False
         assert config.every_n_epochs == 2
-        assert config.save_weights_only is True
 
 
 class TestModelCheckpointBasic:
@@ -112,7 +168,8 @@ class TestModelCheckpointBasic:
         with tempfile.TemporaryDirectory() as tmpdir:
             callback = ModelCheckpoint(CheckpointConfig(dirpath=tmpdir))
             assert callback.best_score is None
-            assert callback.best_checkpoint_path is None
+            assert callback.best_checkpoint_step is None
+            assert callback.saved_checkpoint_steps == []
 
 
 class TestModelCheckpointSaving:
@@ -149,10 +206,12 @@ class TestModelCheckpointSaving:
             # First epoch - establishes baseline, should save
             callback.on_epoch_end(trainer, 0, {"loss": 1.0})
             assert callback.best_score == 1.0
+            assert callback.best_checkpoint_step == 0
 
             # Second epoch - improvement, should save
             callback.on_epoch_end(trainer, 1, {"loss": 0.8})
             assert callback.best_score == 0.8
+            assert callback.best_checkpoint_step == 1
 
     def test_saves_checkpoint_on_improvement_max_mode(self):
         """ModelCheckpoint should save when metric improves in max mode."""
@@ -172,10 +231,12 @@ class TestModelCheckpointSaving:
             # First epoch
             callback.on_epoch_end(trainer, 0, {"accuracy": 0.8})
             assert callback.best_score == 0.8
+            assert callback.best_checkpoint_step == 0
 
             # Improvement
             callback.on_epoch_end(trainer, 1, {"accuracy": 0.9})
             assert callback.best_score == 0.9
+            assert callback.best_checkpoint_step == 1
 
     def test_does_not_update_best_on_worse_metric(self):
         """ModelCheckpoint should not update best_score on worse metric."""
@@ -226,7 +287,8 @@ class TestModelCheckpointTopK:
                 callback.on_epoch_end(trainer, epoch, {"loss": loss})
 
             # Should have at most save_top_k checkpoints tracked
-            assert len(callback.saved_checkpoints) <= 2
+            assert len(callback.saved_checkpoint_steps) <= 2
+            assert callback.best_checkpoint_step == 3
 
     def test_save_top_k_minus_one_saves_all(self):
         """save_top_k=-1 should save all checkpoints."""
@@ -253,7 +315,8 @@ class TestModelCheckpointTopK:
                 callback.on_epoch_end(trainer, epoch, {"loss": 1.0 - epoch * 0.1})
 
             # All should be tracked
-            assert len(callback.saved_checkpoints) == 5
+            assert callback.saved_checkpoint_steps == [0, 1, 2, 3, 4]
+            assert callback.best_checkpoint_step == 4
 
     def test_save_top_k_zero_saves_none(self):
         """save_top_k=0 should not save any checkpoints (but still track best)."""
@@ -278,7 +341,7 @@ class TestModelCheckpointTopK:
             callback.on_epoch_end(trainer, 0, {"loss": 1.0})
 
             # No checkpoints should be saved
-            assert len(callback.saved_checkpoints) == 0
+            assert callback.saved_checkpoint_steps == []
 
 
 class TestModelCheckpointEveryNEpochs:
@@ -310,7 +373,7 @@ class TestModelCheckpointEveryNEpochs:
                 callback.on_epoch_end(trainer, epoch, {"loss": 1.0 - epoch * 0.1})
 
             # Should only save on epochs 0, 2, 4 (every 2 epochs starting from 0)
-            assert len(callback.saved_checkpoints) == 3
+            assert callback.saved_checkpoint_steps == [0, 2, 4]
 
 
 class TestModelCheckpointMissingMetric:
@@ -356,11 +419,11 @@ class TestModelCheckpointJaxArrays:
             assert callback.best_score == pytest.approx(0.9)
 
 
-class TestModelCheckpointFilename:
-    """Test checkpoint filename formatting."""
+class TestModelCheckpointBestStepTracking:
+    """Test best-step tracking on top of Orbax-managed checkpoints."""
 
-    def test_filename_formatting_with_epoch(self):
-        """Filename should be formatted with epoch number."""
+    def test_tracks_best_step_for_min_mode(self):
+        """The best checkpoint should be tracked by step for min-mode metrics."""
         from artifex.generative_models.training.callbacks import (
             CheckpointConfig,
             ModelCheckpoint,
@@ -370,34 +433,20 @@ class TestModelCheckpointFilename:
             callback = ModelCheckpoint(
                 CheckpointConfig(
                     dirpath=tmpdir,
-                    filename="model-{epoch:03d}",
                     monitor="loss",
+                    mode="min",
+                    save_top_k=-1,
                 )
             )
 
-            # Test filename formatting
-            filename = callback._format_filename(epoch=5, logs={"loss": 0.123})
-            assert "005" in filename
+            model = SimpleModel(rngs=nnx.Rngs(0))
+            trainer = SimpleTrainer(model)
 
-    def test_filename_formatting_with_metric(self):
-        """Filename should be formatted with metric value."""
-        from artifex.generative_models.training.callbacks import (
-            CheckpointConfig,
-            ModelCheckpoint,
-        )
+            callback.on_epoch_end(trainer, 0, {"loss": 1.0})
+            callback.on_epoch_end(trainer, 1, {"loss": 0.8})
+            callback.on_epoch_end(trainer, 2, {"loss": 0.9})
 
-        with tempfile.TemporaryDirectory() as tmpdir:
-            callback = ModelCheckpoint(
-                CheckpointConfig(
-                    dirpath=tmpdir,
-                    filename="model-{epoch:02d}-{loss:.4f}",
-                    monitor="loss",
-                )
-            )
-
-            filename = callback._format_filename(epoch=3, logs={"loss": 0.1234})
-            assert "03" in filename
-            assert "0.1234" in filename
+            assert callback.best_checkpoint_step == 1
 
 
 class TestModelCheckpointOverhead:
@@ -405,8 +454,6 @@ class TestModelCheckpointOverhead:
 
     def test_overhead_is_minimal_when_not_saving(self):
         """ModelCheckpoint overhead should be minimal when not saving."""
-        import time
-
         from artifex.generative_models.training.callbacks import (
             CheckpointConfig,
             ModelCheckpoint,
@@ -433,13 +480,18 @@ class TestModelCheckpointOverhead:
                 # Worse loss, should not trigger save
                 callback.on_epoch_end(trainer, i + 1, {"loss": 1.0})
 
-            # Benchmark (no saves should happen)
-            iterations = 10_000
-            start = time.perf_counter()
-            for i in range(iterations):
-                callback.on_epoch_end(trainer, i + 101, {"loss": 1.0})
-            elapsed = time.perf_counter() - start
+            logs = {"loss": 1.0}
 
-            # Should be < 10 microseconds per call when not saving
-            avg_time_us = (elapsed / iterations) * 1_000_000
-            assert avg_time_us < 10.0, f"ModelCheckpoint overhead too high: {avg_time_us:.3f}us"
+            def baseline_dispatch() -> None:
+                current = float(logs[callback.config.monitor])
+                callback._is_improvement(current)
+
+            iterations = 20_000
+            baseline_us = best_average_us_per_call(baseline_dispatch, iterations=iterations)
+            avg_time_us = best_average_us_per_call(
+                lambda: callback.on_epoch_end(trainer, 101, logs),
+                iterations=iterations,
+            )
+
+            overhead_us = avg_time_us - baseline_us
+            assert overhead_us < 3.0, f"ModelCheckpoint overhead too high: {overhead_us:.3f}us"

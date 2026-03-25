@@ -4,8 +4,7 @@ Each test instantiates both the Artifex layer and the jaxKAN reference layer wit
 matching parameters, copies identical weights between them, runs the same input
 through both, and asserts the outputs are numerically close (atol=1e-5).
 
-The jaxKAN repository (reference implementation) lives at:
-    /media/mahdi/ssd23/Works/jaxKAN/
+These reference checks run only when the external ``jaxkan`` package is installed.
 
 Tested pairs:
     - DenseKANLayer   vs jaxKAN BaseLayer
@@ -17,19 +16,16 @@ Tested pairs:
     - SineKANLayer    vs jaxKAN SineLayer
 """
 
-import sys
-from pathlib import Path
-
 import jax
 import jax.numpy as jnp
 import pytest
 from flax import nnx
 
 
-# Add jaxKAN to sys.path so we can import the reference implementations
-_JAXKAN_ROOT = Path("/media/mahdi/ssd23/Works/jaxKAN")
-if str(_JAXKAN_ROOT) not in sys.path:
-    sys.path.insert(0, str(_JAXKAN_ROOT))
+pytest.importorskip(
+    "jaxkan",
+    reason="KAN reference tests require the external jaxKAN reference implementation",
+)
 
 from jaxkan.layers.Chebyshev import ChebyshevLayer as RefChebyshevLayer
 from jaxkan.layers.Fourier import FourierLayer as RefFourierLayer
@@ -234,7 +230,7 @@ class TestEfficientKANLayerVsRefSplineLayer:
         )
 
         # Copy grid: jaxKAN SplineGrid stores as .item (n_in, G+2k+1)
-        # Artifex EfficientKANGrid stores as .knots.value (n_in, G+2k+1)
+        # Artifex EfficientKANGrid stores knots as an NNX variable (n_in, G+2k+1)
         art.grid.knots = nnx.Variable(ref.grid.item)
 
         x = _make_input()
@@ -714,7 +710,7 @@ class TestRBFKANLayerVsRef:
             rngs=nnx.Rngs(SEED),
         )
 
-        # Copy grid: jaxKAN RBFGrid stores as .item, Artifex stores as .knots.value
+        # Copy grid: jaxKAN RBFGrid stores as .item, Artifex stores knots as an NNX variable
         art.grid.knots = nnx.Variable(ref.grid.item)
 
         x = _make_input()
@@ -963,8 +959,8 @@ class TestGridNumericalEquivalence:
             grid_e=0.05,
         )
 
-        assert jnp.allclose(ref_grid.item, art_grid.knots.value, atol=1e-7), (
-            f"Grid max diff: {jnp.abs(ref_grid.item - art_grid.knots.value).max()}"
+        assert jnp.allclose(ref_grid.item, art_grid.knots[...], atol=1e-7), (
+            f"Grid max diff: {jnp.abs(ref_grid.item - art_grid.knots[...]).max()}"
         )
 
     def test_efficient_grid_init_matches_spline_grid(self) -> None:
@@ -983,8 +979,8 @@ class TestGridNumericalEquivalence:
             grid_e=0.05,
         )
 
-        assert jnp.allclose(ref_grid.item, art_grid.knots.value, atol=1e-7), (
-            f"Grid max diff: {jnp.abs(ref_grid.item - art_grid.knots.value).max()}"
+        assert jnp.allclose(ref_grid.item, art_grid.knots[...], atol=1e-7), (
+            f"Grid max diff: {jnp.abs(ref_grid.item - art_grid.knots[...]).max()}"
         )
 
     def test_rbf_grid_init_matches(self) -> None:
@@ -1002,8 +998,8 @@ class TestGridNumericalEquivalence:
             grid_e=1.0,
         )
 
-        assert jnp.allclose(ref_grid.item, art_grid.knots.value, atol=1e-7), (
-            f"Grid max diff: {jnp.abs(ref_grid.item - art_grid.knots.value).max()}"
+        assert jnp.allclose(ref_grid.item, art_grid.knots[...], atol=1e-7), (
+            f"Grid max diff: {jnp.abs(ref_grid.item - art_grid.knots[...]).max()}"
         )
 
 

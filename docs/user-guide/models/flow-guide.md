@@ -135,9 +135,11 @@ config_image = RealNVPConfig(
 )
 ```
 
-### Glow (High-Quality Image Generation)
+### Glow (Single-Scale Image Flow Baseline)
 
-**Glow** uses a multi-scale architecture with ActNorm, invertible 1×1 convolutions, and coupling layers.
+**Glow** in Artifex retains a single image-scale stack with ActNorm,
+invertible 1×1 convolutions, and coupling layers. It does not currently
+implement the squeeze/split multi-scale stages from the original paper.
 
 ```python
 from artifex.generative_models.core.configuration.flow_config import (
@@ -161,9 +163,8 @@ config = GlowConfig(
     coupling_network=coupling_config,
     input_dim=3072,                  # 32*32*3 flattened
     base_distribution="normal",
-    image_shape=(32, 32, 3),         # Image shape for multi-scale
-    num_scales=3,                    # Multi-scale architecture
-    blocks_per_scale=6,              # Flow steps per scale
+    image_shape=(32, 32, 3),         # Retained image-shape contract
+    blocks_per_scale=6,              # Sequential Glow blocks
 )
 
 # Create Glow model
@@ -175,14 +176,14 @@ images = jax.random.normal(rngs.sample(), (16, 32, 32, 3))
 outputs = model(images, rngs=rngs)
 loss = -jnp.mean(outputs["log_prob"])
 
-# Generate high-quality samples
+# Generate image samples
 samples = model.generate(n_samples=16, rngs=rngs)
 ```
 
 **Glow Architecture Parameters:**
 
-- `num_scales`: Number of multi-scale levels (typically 2-4)
-- `blocks_per_scale`: Flow steps at each scale (typically 4-8)
+- `image_shape`: Fixed image shape consumed by the retained flow stack
+- `blocks_per_scale`: Number of sequential Glow blocks (typically 4-8)
 - Higher values = more expressive but slower
 
 ### MAF (Fast Density Estimation)
@@ -855,7 +856,7 @@ from artifex.generative_models.core.configuration.flow_config import (
     CouplingNetworkConfig,
 )
 
-# Use Glow with multi-scale architecture
+# Use Glow as a deeper single-scale image flow baseline
 coupling_config = CouplingNetworkConfig(
     name="glow_highres_coupling",
     hidden_dims=(512, 512),
@@ -870,8 +871,7 @@ config = GlowConfig(
     input_dim=12288,                 # 64*64*3 flattened
     base_distribution="normal",
     image_shape=(64, 64, 3),
-    num_scales=4,                    # More scales for higher resolution
-    blocks_per_scale=8,
+    blocks_per_scale=8,              # Deeper retained block stack
 )
 
 # Reduce memory by processing in patches
@@ -1210,7 +1210,7 @@ test_invertibility(model, validation_batch, rngs)
 # MAF for density estimation
 # IAF for fast sampling
 # RealNVP for balance
-# Glow for high-quality images
+# Glow for single-scale image flows
 # Spline Flows for expressiveness
 ```
 
@@ -1275,7 +1275,7 @@ model = MAF(config, rngs=rngs)
 | Model | Recommended | Notes |
 |-------|------------|-------|
 | RealNVP | [512, 512] | 2-3 layers sufficient |
-| Glow | [512, 512] | Larger for high-res |
+| Glow | [512, 512] | Single-scale image baseline; scale cautiously |
 | MAF/IAF | [512] - [1024] | Single deep network |
 | Spline | [128, 128] | Splines are expressive |
 
@@ -1303,7 +1303,7 @@ model = MAF(config, rngs=rngs)
 **Model Selection**:
 
 - **RealNVP**: Balanced performance, good for most tasks
-- **Glow**: Best for high-quality image generation
+- **Glow**: Single-scale image flow baseline with learned channel mixing
 - **MAF**: Optimal for density estimation
 - **IAF**: Optimal for fast sampling
 - **Spline Flows**: Most expressive transformations

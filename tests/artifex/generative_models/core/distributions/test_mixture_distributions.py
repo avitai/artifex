@@ -104,7 +104,7 @@ class TestMixtureOfGaussians:
 
     def test_with_nnx_rng(self, mog_dist):
         """Test using nnx.Rngs for sampling."""
-        rngs = nnx.Rngs(params=0)
+        rngs = nnx.Rngs(0)
 
         # Sample with nnx.Rngs
         samples = mog_dist.sample(sample_shape=(10,), rngs=rngs)

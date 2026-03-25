@@ -2,39 +2,26 @@
 
 **Module:** `generative_models.core.device_manager`
 
-**Source:** `generative_models/core/device_manager.py`
-
 ## Overview
 
-Foundation-first device management system for Artifex.
+The device manager is a runtime helper, not a backend bootstrap layer.
 
-This module provides a comprehensive, type-safe device management architecture
-that prioritizes clean design and robust error handling over backward compatibility.
+It provides:
 
-## Classes
+- inspection of the active JAX runtime
+- access to visible devices
+- default-device selection
+- simple batch sharding across visible devices
 
-### CUDADetector
+It does not expose backend configuration knobs such as memory strategies,
+environment-variable injection, or forced platform ordering.
 
-```python
-class CUDADetector
-```
+## Public Classes
 
 ### DeviceCapabilities
 
 ```python
 class DeviceCapabilities
-```
-
-### DeviceConfiguration
-
-```python
-class DeviceConfiguration
-```
-
-### DeviceDetector
-
-```python
-class DeviceDetector
 ```
 
 ### DeviceManager
@@ -49,90 +36,12 @@ class DeviceManager
 class DeviceType
 ```
 
-### JAXDeviceManager
-
-```python
-class JAXDeviceManager
-```
-
-### MemoryStrategy
-
-```python
-class MemoryStrategy
-```
-
-## Functions
-
-### **init**
-
-```python
-def __init__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### configure_for_generative_models
-
-```python
-def configure_for_generative_models()
-```
-
-### cpu_devices
-
-```python
-def cpu_devices()
-```
-
-### detect_capabilities
-
-```python
-def detect_capabilities()
-```
-
-### detect_capabilities
-
-```python
-def detect_capabilities()
-```
-
-### device_count
-
-```python
-def device_count()
-```
-
-### devices
-
-```python
-def devices()
-```
-
-### distribute_data
-
-```python
-def distribute_data()
-```
+## Public Functions
 
 ### get_default_device
 
 ```python
 def get_default_device()
-```
-
-### get_default_device
-
-```python
-def get_default_device()
-```
-
-### get_device_info
-
-```python
-def get_device_info()
 ```
 
 ### get_device_manager
@@ -141,34 +50,10 @@ def get_device_info()
 def get_device_manager()
 ```
 
-### gpu_count
-
-```python
-def gpu_count()
-```
-
-### gpu_devices
-
-```python
-def gpu_devices()
-```
-
 ### has_gpu
 
 ```python
 def has_gpu()
-```
-
-### has_gpu
-
-```python
-def has_gpu()
-```
-
-### optimize_for_model_size
-
-```python
-def optimize_for_model_size()
 ```
 
 ### print_device_info
@@ -176,9 +61,3 @@ def optimize_for_model_size()
 ```python
 def print_device_info()
 ```
-
-## Module Statistics
-
-- **Classes:** 8
-- **Functions:** 19
-- **Imports:** 8

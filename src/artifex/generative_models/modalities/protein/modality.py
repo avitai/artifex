@@ -1,14 +1,13 @@
 """Protein modality implementation.
 
-This module provides the protein modality implementation that adapts
-generative models to work with protein structure data.
+This module provides the retained protein modality boundary for typed protein
+extension bundles and adapter lookup around the shared model families.
 """
-
-from typing import Any, Type
 
 from flax import nnx
 
-from artifex.generative_models.extensions.base import ModelExtension
+from artifex.generative_models.core.configuration import ProteinExtensionsConfig
+from artifex.generative_models.extensions.base import ExtensionDict
 from artifex.generative_models.extensions.protein import (
     create_protein_extensions,
 )
@@ -30,8 +29,9 @@ from artifex.generative_models.models.base import GenerativeModelProtocol
 class ProteinModality(Modality):
     """Protein modality for generative models.
 
-    This modality adapts generative models to work with protein structure
-    data.
+    The shared factory still chooses the base model family from the typed
+    config; this modality owns the retained protein adapter and extension
+    lookup surface.
     """
 
     name = "protein"
@@ -48,29 +48,28 @@ class ProteinModality(Modality):
         pass
 
     def get_extensions(
-        self, config: dict[str, Any], *, rngs: nnx.Rngs | None = None
-    ) -> dict[str, ModelExtension]:
+        self, config: ProteinExtensionsConfig, *, rngs: nnx.Rngs | None = None
+    ) -> ExtensionDict:
         """Get protein-specific extensions.
 
         Args:
-            config: Extension configuration.
+            config: Typed protein extension bundle.
             rngs: Random number generator keys.
 
         Returns:
             dictionary mapping extension names to extension instances.
         """
-        # For test compatibility, handle extensions key
-        extensions_config = config.get("extensions", {})
+        if not isinstance(config, ProteinExtensionsConfig):
+            raise TypeError(f"config must be ProteinExtensionsConfig, got {type(config).__name__}")
 
         # Create default RNGs if not provided
         if rngs is None:
             rngs = nnx.Rngs(0)
 
-        # Create extensions
-        return create_protein_extensions(extensions_config, rngs=rngs)
+        return create_protein_extensions(config, rngs=rngs)
 
     def get_adapter(
-        self, adapter_type: str | Type[GenerativeModelProtocol] | None = None
+        self, adapter_type: str | type[GenerativeModelProtocol] | None = None
     ) -> ModelAdapter:
         """Get an adapter for the specified model type.
 

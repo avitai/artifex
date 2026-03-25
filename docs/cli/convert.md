@@ -1,11 +1,6 @@
 # Convert
 
-**Module:** `cli.commands.convert`
+The top-level `convert` command is not currently shipped in the runtime CLI.
 
-**Source:** `cli/commands/convert.py`
-
-## Module Statistics
-
-- **Classes:** 0
-- **Functions:** 0
-- **Imports:** 0
+Format-conversion workflows should be implemented in explicit project tooling
+instead of relying on a nonexistent shared CLI command.

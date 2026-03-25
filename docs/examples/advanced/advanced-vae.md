@@ -4,6 +4,11 @@
 
 Advanced Variational Autoencoder variants and techniques, including β-VAE, β-VAE with Capacity Control, Conditional VAE, and VQ-VAE.
 
+## Files
+
+- **Python Script**: [`examples/generative_models/image/vae/advanced_vae.py`](https://github.com/avitai/artifex/blob/main/examples/generative_models/image/vae/advanced_vae.py)
+- **Jupyter Notebook**: [`examples/generative_models/image/vae/advanced_vae.ipynb`](https://github.com/avitai/artifex/blob/main/examples/generative_models/image/vae/advanced_vae.ipynb)
+
 ## Prerequisites
 
 **Required Knowledge:**
@@ -25,6 +30,8 @@ Advanced Variational Autoencoder variants and techniques, including β-VAE, β-V
     - **β-VAE with Capacity Control**: Burgess et al. capacity-based training for stable disentanglement
     - **Conditional VAE**: Label-conditioned generation for controlled sampling
     - **VQ-VAE**: Discrete latent codes using vector quantization
+
+- **Monitoring VQ-VAE codebook usage and perplexity** with the runtime metric surfaced by `VQVAE.loss_fn(...)`
 
     Each variant includes complete working code that you can run independently or integrate into your projects.
 
@@ -116,18 +123,18 @@ def beta_vae_loss(model, batch, beta=4.0):
     output = model(batch["data"])
 
     # Reconstruction loss
-    recon_loss = jnp.mean((batch["data"] - output["reconstruction"]) ** 2)
+    recon_loss = jnp.mean((batch["data"] - output["reconstructed"]) ** 2)
 
     # KL divergence
     kl_loss = -0.5 * jnp.mean(
-        1 + output["logvar"] - output["mean"] ** 2 - jnp.exp(output["logvar"])
+        1 + output["log_var"] - output["mean"] ** 2 - jnp.exp(output["log_var"])
     )
 
     # β-weighted total loss
     total_loss = recon_loss + beta * kl_loss
 
     return total_loss, {
-        "loss": total_loss,
+        "total_loss": total_loss,
         "reconstruction_loss": recon_loss,
         "kl_loss": kl_loss,
     }
@@ -161,7 +168,7 @@ for epoch in range(num_epochs):
             model_state, batch, optimizer_state, beta=beta
         )
 
-    print(f"Epoch {epoch}, β={beta:.2f}, Loss={metrics['loss']:.4f}")
+    print(f"Epoch {epoch}, β={beta:.2f}, Loss={metrics['total_loss']:.4f}")
 ```
 
 !!! tip "Choosing β Values"
@@ -428,8 +435,8 @@ class VQVAE(nnx.Module):
         total_loss = recon_loss + vq_info["vq_loss"]
 
         return {
-            "reconstruction": reconstruction,
-            "loss": total_loss,
+            "reconstructed": reconstruction,
+            "total_loss": total_loss,
             "reconstruction_loss": recon_loss,
             "vq_loss": vq_info["vq_loss"],
             "perplexity": vq_info["perplexity"],
@@ -549,7 +556,7 @@ class ConditionalVAE(nnx.Module):
         mean = self.mean_layer(h)
         logvar = self.logvar_layer(h)
 
-        return {"mean": mean, "logvar": logvar}
+        return {"mean": mean, "log_var": logvar}
 
     def decode(self, z: jax.Array, labels: jax.Array) -> jax.Array:
         """Decode with label conditioning."""
@@ -589,7 +596,7 @@ class ConditionalVAE(nnx.Module):
         else:
             key = jax.random.key(0)
 
-        std = jnp.exp(0.5 * latent_params["logvar"])
+        std = jnp.exp(0.5 * latent_params["log_var"])
         eps = jax.random.normal(key, latent_params["mean"].shape)
         z = latent_params["mean"] + eps * std
 
@@ -602,14 +609,14 @@ class ConditionalVAE(nnx.Module):
         # Loss
         recon_loss = jnp.mean((x_flat - reconstruction.reshape(batch_size, -1)) ** 2)
         kl_loss = -0.5 * jnp.mean(
-            1 + latent_params["logvar"]
+            1 + latent_params["log_var"]
             - latent_params["mean"] ** 2
-            - jnp.exp(latent_params["logvar"])
+            - jnp.exp(latent_params["log_var"])
         )
 
         return {
-            "reconstruction": reconstruction,
-            "loss": recon_loss + kl_loss,
+            "reconstructed": reconstruction,
+            "total_loss": recon_loss + kl_loss,
             "reconstruction_loss": recon_loss,
             "kl_loss": kl_loss,
         }
@@ -629,7 +636,8 @@ x = jnp.ones((32, 28, 28, 1))
 labels = jnp.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9] * 3 + [0, 1])
 
 output = cvae(x, labels, rngs=nnx.Rngs(1))
-print(f"Loss: {output['loss']:.4f}")
+losses = cvae.loss_fn(x, output)
+print(f"Loss: {losses['total_loss']:.4f}")
 
 # Generate specific digit
 z = jax.random.normal(jax.random.key(0), (10, 20))
@@ -735,7 +743,7 @@ outputs = model(x)
 losses = model.loss_fn(x=x, outputs=outputs, step=current_step)
 
 # losses contains:
-# - "loss": Total loss to optimize
+# - "total_loss": Total loss to optimize
 # - "reconstruction_loss": Reconstruction term
 # - "kl_loss": KL divergence
 # - "capacity_loss": γ * |KL - C|
@@ -761,7 +769,7 @@ Track these metrics during training:
 
 ```python
 history = {
-    "loss": [],
+    "total_loss": [],
     "reconstruction_loss": [],
     "kl_loss": [],
     "capacity_loss": [],
@@ -833,27 +841,27 @@ Each variant offers different trade-offs:
 
     [:octicons-arrow-right-24: Advanced GANs](advanced-gan.md)
 
-- :material-blur:{ .lg .middle } **Advanced Diffusion**
+- :material-blur:{ .lg .middle } **Diffusion Guide**
 
     ---
 
-    Learn classifier guidance and advanced sampling
+    Study the retained diffusion runtime, training flow, and API surface
 
-    [:octicons-arrow-right-24: Advanced Diffusion](advanced-diffusion.md)
+    [:octicons-arrow-right-24: Diffusion guide](../../user-guide/models/diffusion-guide.md)
 
-- :material-vector-polyline:{ .lg .middle } **Advanced Flows**
+- :material-vector-polyline:{ .lg .middle } **Flow Guide**
 
     ---
 
-    Implement continuous normalizing flows
+    Review the retained flow architectures and public APIs
 
-    [:octicons-arrow-right-24: Advanced Flows](advanced-flow.md)
+    [:octicons-arrow-right-24: Flow guide](../../user-guide/models/flow-guide.md)
 
 - :material-book-open-variant:{ .lg .middle } **VAE Guide**
 
     ---
 
-    Return to the comprehensive VAE documentation
+    Return to the complete VAE documentation
 
     [:octicons-arrow-right-24: VAE guide](../../user-guide/models/vae-guide.md)
 

@@ -21,7 +21,7 @@ When training large models or using high-resolution inputs, GPU memory often lim
 
 This simulates training with a larger effective batch size without requiring more memory.
 
-**Effective batch size = micro_batch_size × accumulation_steps**
+Effective batch size = `micro_batch_size * accumulation_steps`.
 
 ### Basic Usage
 
@@ -86,10 +86,11 @@ def train_with_accumulation(
         """Compute gradients for a single micro-batch."""
         def loss_fn(model):
             outputs = model(batch["images"], training=True)
-            return outputs["loss"], outputs
+            loss_dict = model.loss_fn(batch, outputs)
+            return loss_dict["total_loss"], loss_dict
 
-        (loss, outputs), grads = nnx.value_and_grad(loss_fn, has_aux=True)(model)
-        return grads, loss, outputs
+        (loss, loss_dict), grads = nnx.value_and_grad(loss_fn, has_aux=True)(model)
+        return grads, loss, loss_dict
 
     @nnx.jit
     def apply_gradients(model, opt_state, grads):
@@ -237,10 +238,11 @@ def train_with_mixed_precision(
         def loss_fn(model):
             # Forward pass (in lower precision if model uses fp16/bf16)
             outputs = model(batch["images"], training=True)
-            return outputs["loss"], outputs
+            loss_dict = model.loss_fn(batch, outputs)
+            return loss_dict["total_loss"], loss_dict
 
         # Compute loss and gradients
-        (loss, outputs), grads = nnx.value_and_grad(loss_fn, has_aux=True)(model)
+        (loss, loss_dict), grads = nnx.value_and_grad(loss_fn, has_aux=True)(model)
 
         # Scale loss for numerical stability
         scaled_loss = scaler.scale_loss(loss)
@@ -354,15 +356,16 @@ def train_with_accumulation_and_scaling(
         """Compute gradients with loss scaling."""
         def loss_fn(model):
             outputs = model(batch["images"], training=True)
+            loss_dict = model.loss_fn(batch, outputs)
             # Scale loss before backward pass
-            scaled_loss = scaler.scale_loss(outputs["loss"])
-            return scaled_loss, outputs
+            scaled_loss = scaler.scale_loss(loss_dict["total_loss"])
+            return scaled_loss, loss_dict
 
-        (_, outputs), grads = nnx.value_and_grad(loss_fn, has_aux=True)(model)
+        (_, loss_dict), grads = nnx.value_and_grad(loss_fn, has_aux=True)(model)
 
         # Unscale gradients immediately
         unscaled_grads = scaler.unscale_gradients(grads)
-        return unscaled_grads, outputs["loss"]
+        return unscaled_grads, loss_dict["total_loss"]
 
     # Training loop
     global_step = 0
@@ -433,29 +436,39 @@ def train_with_accumulation_and_scaling(
 
 ## Integration with Model-Specific Trainers
 
-The advanced features integrate seamlessly with Artifex's model-specific trainers:
+The advanced features integrate cleanly with Artifex's explicit objective boundaries:
 
 ```python
-from artifex.generative_models.training.trainers import VAETrainer
 from artifex.generative_models.training import (
     GradientAccumulator,
     GradientAccumulatorConfig,
 )
+from flax import nnx
+import jax
+import optax
 
-# Create trainer
-trainer = VAETrainer(model, optimizer, config)
+optimizer = optax.adam(learning_rate)
+opt_state = optimizer.init(nnx.state(model, nnx.Param))
 
 # Use accumulator in custom training loop
 accumulator = GradientAccumulator(
     GradientAccumulatorConfig(accumulation_steps=4)
 )
 
-for batch in dataloader:
-    grads, metrics = trainer.compute_gradients(batch)
+def loss_fn(model, batch, rng):
+    del rng
+    predictions = model(batch["input"])
+    return jax.numpy.mean((predictions - batch["target"]) ** 2), {}
+
+for step, batch in enumerate(dataloader):
+    rng = jax.random.key(step)
+    loss_value, grads = nnx.value_and_grad(loss_fn, has_aux=True)(model, batch, rng)
     accumulator.accumulate(grads)
 
     if accumulator.should_update(step):
-        trainer.apply_gradients(accumulator.get_gradients())
+        params = nnx.state(model, nnx.Param)
+        updates, opt_state = optimizer.update(accumulator.get_gradients(), opt_state, params)
+        nnx.update(model, optax.apply_updates(params, updates))
         accumulator.reset()
 ```
 

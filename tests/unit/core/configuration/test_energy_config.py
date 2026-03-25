@@ -77,14 +77,15 @@ class TestEnergyNetworkConfigDefaults:
         )
         assert config.use_bias is True
 
-    def test_default_use_spectral_norm(self):
-        """Test use_spectral_norm defaults to False."""
-        config = EnergyNetworkConfig(
-            name="energy_net",
-            hidden_dims=(64,),
-            activation="gelu",
-        )
-        assert config.use_spectral_norm is False
+    def test_removed_use_spectral_norm_surface(self):
+        """Test use_spectral_norm is no longer accepted."""
+        with pytest.raises(TypeError, match="use_spectral_norm"):
+            EnergyNetworkConfig(
+                name="energy_net",
+                hidden_dims=(64,),
+                activation="gelu",
+                use_spectral_norm=True,
+            )
 
     def test_default_use_residual(self):
         """Test use_residual defaults to False."""
@@ -131,13 +132,14 @@ class TestEnergyNetworkConfigSerialization:
             hidden_dims=(64, 128),
             activation="silu",
             network_type="cnn",
-            use_spectral_norm=True,
+            use_residual=True,
         )
         data = config.to_dict()
         assert data["name"] == "energy_net"
         assert data["hidden_dims"] == (64, 128)
         assert data["network_type"] == "cnn"
-        assert data["use_spectral_norm"] is True
+        assert data["use_residual"] is True
+        assert "use_spectral_norm" not in data
 
     def test_from_dict(self):
         """Test from_dict creation."""
@@ -159,7 +161,6 @@ class TestEnergyNetworkConfigSerialization:
             activation="relu",
             network_type="mlp",
             use_bias=False,
-            use_spectral_norm=True,
             use_residual=True,
         )
         data = original.to_dict()
@@ -632,7 +633,6 @@ class TestDeepEBMConfigBasics:
             activation="silu",
             network_type="cnn",
             use_residual=True,
-            use_spectral_norm=True,
         )
 
     @pytest.fixture

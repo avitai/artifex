@@ -2,7 +2,6 @@
 
 from .audio.base import AudioModality
 from .base import (
-    BaseDataset,
     BaseEvaluationSuite,
     BaseGenerationProtocol,
     BaseModalityConfig,
@@ -34,7 +33,6 @@ __all__ = [
     # Base classes for implementation
     "BaseModalityConfig",
     "BaseModalityImplementation",
-    "BaseDataset",
     "BaseEvaluationSuite",
     "BaseProcessor",
     # Type aliases

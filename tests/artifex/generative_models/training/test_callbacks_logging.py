@@ -389,11 +389,12 @@ class TestProgressBarCallback:
             ProgressBarConfig,
         )
 
-        config = ProgressBarConfig(refresh_rate=10, show_eta=True)
+        config = ProgressBarConfig(show_eta=True, show_metrics=False)
         callback = ProgressBarCallback(config=config)
 
-        assert callback.config.refresh_rate == 10
         assert callback.config.show_eta is True
+        assert callback.config.show_metrics is False
+        assert not hasattr(callback.config, "refresh_rate")
 
     def test_progress_bar_default_config(self) -> None:
         """Test ProgressBarCallback with default config."""
@@ -402,7 +403,9 @@ class TestProgressBarCallback:
         callback = ProgressBarCallback()
 
         assert callback.config is not None
-        assert callback.config.refresh_rate == 10  # Default value
+        assert callback.config.show_eta is True
+        assert callback.config.show_metrics is True
+        assert not hasattr(callback.config, "refresh_rate")
 
     def test_progress_bar_on_train_begin_creates_progress(
         self, simple_trainer: SimpleTrainer
@@ -588,6 +591,14 @@ class TestLoggingConfigs:
 
         assert config.log_dir == "logs/tensorboard"
         assert config.flush_secs == 120
+        assert not hasattr(config, "log_graph")
+
+    def test_tensorboard_logger_config_rejects_removed_log_graph(self) -> None:
+        """TensorBoardLoggerConfig should reject the removed graph toggle."""
+        from artifex.generative_models.training.callbacks.logging import TensorBoardLoggerConfig
+
+        with pytest.raises(TypeError, match="log_graph"):
+            TensorBoardLoggerConfig(log_graph=True)
 
     def test_progress_bar_config_defaults(self) -> None:
         """Test ProgressBarConfig default values."""
@@ -595,6 +606,13 @@ class TestLoggingConfigs:
 
         config = ProgressBarConfig()
 
-        assert config.refresh_rate == 10
         assert config.show_eta is True
         assert config.show_metrics is True
+        assert not hasattr(config, "refresh_rate")
+
+    def test_progress_bar_config_rejects_removed_refresh_rate(self) -> None:
+        """ProgressBarConfig should reject the removed refresh rate knob."""
+        from artifex.generative_models.training.callbacks.logging import ProgressBarConfig
+
+        with pytest.raises(TypeError, match="refresh_rate"):
+            ProgressBarConfig(refresh_rate=10)

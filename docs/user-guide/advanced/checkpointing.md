@@ -1115,7 +1115,7 @@ Checkpointing in Artifex provides:
 
     ---
 
-    Return to the comprehensive training documentation
+    Return to the complete training documentation
 
     [:octicons-arrow-right-24: Training guide](../training/training-guide.md)
 

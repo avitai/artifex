@@ -12,8 +12,8 @@ Bayesian regression tasks.
 
 ## Files
 
-- Python script: [`examples/generative_models/sampling/blackjax_example.py`](https://github.com/avitai/artifex/examples/generative_models/sampling/blackjax_example.py)
-- Jupyter notebook: [`examples/generative_models/sampling/blackjax_example.ipynb`](https://github.com/avitai/artifex/examples/generative_models/sampling/blackjax_example.ipynb)
+- Python script: [`examples/generative_models/sampling/blackjax_example.py`](https://github.com/avitai/artifex/blob/main/examples/generative_models/sampling/blackjax_example.py)
+- Jupyter notebook: [`examples/generative_models/sampling/blackjax_example.ipynb`](https://github.com/avitai/artifex/blob/main/examples/generative_models/sampling/blackjax_example.ipynb)
 
 ## Quick Start
 
@@ -49,7 +49,7 @@ After completing this example, you will:
 ## What is BlackJAX?
 
 [BlackJAX](https://blackjax-devs.github.io/blackjax/) is a library of samplers for JAX that provides
-state-of-the-art MCMC algorithms. Artifex integrates BlackJAX to offer advanced sampling capabilities.
+state-of-the-art MCMC algorithms. Artifex integrates BlackJAX to offer advanced sampling capabilities. Pass an explicit JAX key or `nnx.Rngs` to every sampling helper; the Artifex wrapper layer does not fabricate fallback RNG state.
 
 ### Supported Algorithms
 
@@ -219,7 +219,7 @@ Expected results:
 
 - **HMC/MALA**: Moderate memory usage
 - **NUTS**: Higher memory usage due to trajectory storage
-- For memory-constrained systems, reduce `max_num_doublings` in NUTS
+- For memory-constrained systems, reduce problem dimension, sample count, or burn-in length
 
 ### Tuning Guidelines
 
@@ -234,8 +234,8 @@ Expected results:
 
 **NUTS:**
 
-- `step_size`: Usually auto-tuned, but can be set manually
-- `max_num_doublings`: Controls trajectory length and memory usage (default: 10)
+- `step_size`: Can be set manually for the retained Artifex wrapper surface
+- Use the direct BlackJAX API if you need additional engine-specific tuning beyond the published wrapper controls
 
 ## Experiments to Try
 
@@ -285,14 +285,14 @@ Expected results:
 **Solution**:
 
 ```python
-# Reduce max_num_doublings
+# Reduce retained wrapper work instead of relying on unpublished controls
 nuts_samples = nuts_sampling(
     log_prob_fn=log_prob_fn,
     init_state=init_state,
     key=key,
-    n_samples=1000,  # Reduce number of samples
-    n_burnin=500,
-    max_num_doublings=5,  # Lower from default 10
+    n_samples=500,
+    n_burnin=200,
+    step_size=0.5,
 )
 ```
 
@@ -329,7 +329,7 @@ nuts_samples = nuts_sampling(
 ### Further Learning
 
 - [BlackJAX Documentation](https://blackjax-devs.github.io/blackjax/)
-- [MCMC Diagnostics](https://mc-stan.org/docs/reference-manual/mcmc-diagnostics.html)
+- [Stan MCMC Sampling Reference](https://mc-stan.org/docs/reference-manual/mcmc.html)
 - [HMC Tutorial](https://arxiv.org/abs/1701.02434)
 - Artifex Sampling Module Documentation
 
@@ -352,7 +352,7 @@ nuts_samples = nuts_sampling(
 
 If you encounter issues:
 
-1. Check that BlackJAX is installed: `pip install blackjax`
+1. Check that BlackJAX is importable: `python -c "import blackjax; print(blackjax.__version__)"`
 2. Verify JAX GPU/CPU setup is correct
 3. Review error messages for parameter constraints
 4. Consult Artifex documentation or open an issue

@@ -25,8 +25,8 @@ This advanced example demonstrates Diffusion Transformers (DiT), which combines 
 ### Run the Python Script
 
 ```bash
-# Activate environment
-source activate.sh
+# Install Artifex if needed
+pip install artifex
 
 # Run the example
 python examples/generative_models/diffusion/dit_demo.py
@@ -35,8 +35,8 @@ python examples/generative_models/diffusion/dit_demo.py
 ### Run the Jupyter Notebook
 
 ```bash
-# Activate environment
-source activate.sh
+# Install Artifex if needed
+pip install artifex
 
 # Launch Jupyter
 jupyter lab examples/generative_models/diffusion/dit_demo.ipynb
@@ -218,7 +218,7 @@ x = jnp.ones((2, 16, 16, 3))
 t = jnp.array([5, 8])
 y = jnp.array([2, 7])  # Class labels
 
-output = model(x, t, y, deterministic=True, cfg_scale=3.0)
+output = model(x, t, y, deterministic=True)
 
 # Generate samples using the built-in generate method
 samples = model.generate(
@@ -379,7 +379,7 @@ assert image_size % patch_size == 0, "Image size must be divisible by patch size
 
 - [Simple Diffusion](simple-diffusion.md) - Diffusion basics
 - [Simple EBM](../energy/simple-ebm.md) - Energy-based models
-- [Advanced Diffusion](../../examples/advanced/advanced-diffusion.md) - More diffusion techniques
+- [Diffusion Guide](../../user-guide/models/diffusion-guide.md) - Retained diffusion runtime and training reference
 
 ## Performance Comparison
 

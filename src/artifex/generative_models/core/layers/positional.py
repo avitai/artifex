@@ -4,7 +4,7 @@ This module provides various positional encoding implementations that can be
 used with transformer models using Flax NNX.
 """
 
-from typing import Callable
+from collections.abc import Callable
 
 import jax
 import jax.numpy as jnp
@@ -141,8 +141,8 @@ class SinusoidalPositionalEncoding(PositionalEncoding):
         """
         # Add positional encoding
         # Input x has shape [batch, length, dim]
-        # self.pe.value has shape [max_len, dim]
-        # We slice self.pe.value to the actual sequence length of x
+        # self.pe has shape [max_len, dim]
+        # We slice self.pe to the actual sequence length of x
         seq_len = x.shape[1]
 
         if seq_len > self.max_len:
@@ -150,7 +150,7 @@ class SinusoidalPositionalEncoding(PositionalEncoding):
 
         # The positional encoding is added to the input embeddings.
         # Broadcasting takes care of the batch dimension.
-        x = x + self.pe.value[:seq_len, :]
+        x = x + self.pe[:seq_len, :]
 
         # Apply dropout if not in deterministic mode and dropout_rate > 0
         if self.dropout_rate > 0 and not deterministic:
@@ -229,7 +229,7 @@ class LearnedPositionalEncoding(PositionalEncoding):
 
         # Add the learned positional embeddings (sliced to the current sequence length)
         # to the input embeddings.
-        x = x + self.pe.value[:seq_len, :]
+        x = x + self.pe[:seq_len, :]
 
         # Apply dropout if not in deterministic mode and dropout_rate > 0
         if self.dropout_rate > 0 and not deterministic:
@@ -330,8 +330,8 @@ class RotaryPositionalEncoding(PositionalEncoding):
 
         # Get sin and cos values for the current sequence length
         # Sliced sin/cos shapes: [seq_len, dim/2]
-        sin_pos = self.sin.value[:seq_len, :]
-        cos_pos = self.cos.value[:seq_len, :]
+        sin_pos = self.sin[:seq_len, :]
+        cos_pos = self.cos[:seq_len, :]
 
         # Split input into two halves along the last dimension
         # x_left, x_right shapes: [batch, seq_len, dim/2]

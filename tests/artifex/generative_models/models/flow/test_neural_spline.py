@@ -488,7 +488,7 @@ class TestNeuralSplineFlow:
         assert jnp.isfinite(samples).all()
 
     def test_nsf_loss_fn(self, rngs):
-        """Test NSF loss function."""
+        """NSF loss must follow the canonical flow loss contract."""
         coupling_network = CouplingNetworkConfig(
             name="nsf_coupling",
             hidden_dims=(16, 16),
@@ -514,9 +514,41 @@ class TestNeuralSplineFlow:
         z, log_det = nsf.forward(x)
         model_outputs = {"z": z, "log_det": log_det}
 
-        loss = nsf.loss_fn(batch, model_outputs)
+        losses = nsf.loss_fn(batch, model_outputs)
 
-        assert isinstance(loss, (float, jax.Array))
+        assert set(losses) == {"total_loss", "nll_loss", "log_prob", "avg_log_prob"}
+        assert jnp.isfinite(losses["total_loss"])
+        assert jnp.isfinite(losses["nll_loss"])
+        assert jnp.isfinite(losses["log_prob"])
+        assert jnp.isfinite(losses["avg_log_prob"])
+        assert jnp.allclose(losses["total_loss"], losses["nll_loss"])
+        assert jnp.allclose(losses["total_loss"], -losses["log_prob"])
+
+    def test_nsf_loss_fn_is_jittable(self, rngs):
+        """NSF loss must remain jittable at the NNX model boundary."""
+        coupling_network = CouplingNetworkConfig(
+            name="nsf_coupling",
+            hidden_dims=(16, 16),
+            activation="relu",
+        )
+        config = NeuralSplineConfig(
+            name="test_neural_spline",
+            coupling_network=coupling_network,
+            input_dim=4,
+            latent_dim=4,
+            num_layers=2,
+            num_bins=4,
+        )
+        nsf = NeuralSplineFlow(config, rngs=rngs)
+
+        x = jax.random.normal(rngs.params(), (3, 4))
+        batch = {"x": x}
+
+        @nnx.jit
+        def total_loss(model, loss_batch):
+            return model.loss_fn(loss_batch, {}, rngs=rngs)["total_loss"]
+
+        loss = total_loss(nsf, batch)
         assert jnp.isfinite(loss)
 
     def test_nsf_different_hidden_dims(self, rngs):
@@ -548,7 +580,7 @@ class TestNeuralSplineFlow:
         assert jnp.allclose(x, x_reconstructed, atol=1e-3)
 
     def test_nsf_gradient_computation(self, rngs):
-        """Test gradient computation for NSF."""
+        """NSF loss must remain differentiable at the NNX model boundary."""
         coupling_network = CouplingNetworkConfig(
             name="nsf_coupling",
             hidden_dims=(16, 16),
@@ -570,9 +602,7 @@ class TestNeuralSplineFlow:
         batch = {"x": x}
 
         def loss_fn(model):
-            z, log_det = model.forward(x)
-            model_outputs = {"z": z, "log_det": log_det}
-            return model.loss_fn(batch, model_outputs)
+            return model.loss_fn(batch, {}, rngs=rngs)["total_loss"]
 
         # Compute gradients
         loss, grads = nnx.value_and_grad(loss_fn)(nsf)

@@ -1,9 +1,11 @@
 """Tests for BlackJAX samplers integration.
 
-This module provides comprehensive tests for the BlackJAX integration in the
+This module provides complete tests for the BlackJAX integration in the
 artifex package for sampling from probability distributions using various MCMC
 methods (HMC, NUTS, MALA).
 """
+
+import inspect
 
 import jax
 import jax.numpy as jnp
@@ -82,17 +84,17 @@ class TestExtractKey:
         result = _extract_key(rngs)
         assert hasattr(result, "shape")
 
-    def test_extract_key_from_rngs_with_other_key(self):
-        """Test extracting key from nnx.Rngs with custom key name."""
+    def test_extract_key_from_rngs_with_other_key_raises(self):
+        """Only explicit sampling streams should be accepted."""
         rngs = nnx.Rngs(params=42)
-        result = _extract_key(rngs)
-        assert hasattr(result, "shape")
+        with pytest.raises(ValueError, match="sample or default"):
+            _extract_key(rngs)
 
-    def test_extract_key_from_rngs_seed_only(self):
-        """Test extracting key from nnx.Rngs initialized with just seed."""
+    def test_extract_key_from_rngs_seed_only_raises(self):
+        """Seed-only RNG containers should fail fast."""
         rngs = nnx.Rngs(seed=42)
-        result = _extract_key(rngs)
-        assert hasattr(result, "shape")
+        with pytest.raises(ValueError, match="sample or default"):
+            _extract_key(rngs)
 
 
 # =============================================================================
@@ -1008,45 +1010,10 @@ class TestPyTreeStateHandling:
 class TestEdgeCases:
     """Test edge cases for BlackJAX samplers."""
 
-    def test_hmc_with_rngs_parameter(self):
-        """Test HMC sampler with rngs parameter in constructor."""
-        log_prob_fn = simple_log_prob
-        rngs = nnx.Rngs(seed=42)
-
-        hmc = BlackJAXHMC(
-            log_prob_fn,
-            step_size=0.1,
-            num_integration_steps=5,
-            rngs=rngs,
-        )
-
-        assert hmc.rngs is rngs
-
-    def test_nuts_with_rngs_parameter(self):
-        """Test NUTS sampler with rngs parameter in constructor."""
-        log_prob_fn = simple_log_prob
-        rngs = nnx.Rngs(seed=42)
-
-        nuts = BlackJAXNUTS(
-            log_prob_fn,
-            step_size=0.1,
-            rngs=rngs,
-        )
-
-        assert nuts.rngs is rngs
-
-    def test_mala_with_rngs_parameter(self):
-        """Test MALA sampler with rngs parameter in constructor."""
-        log_prob_fn = simple_log_prob
-        rngs = nnx.Rngs(seed=42)
-
-        mala = BlackJAXMALA(
-            log_prob_fn,
-            step_size=0.1,
-            rngs=rngs,
-        )
-
-        assert mala.rngs is rngs
+    def test_sampler_classes_do_not_accept_dead_rngs_constructor_knobs(self):
+        assert "rngs" not in inspect.signature(BlackJAXHMC).parameters
+        assert "rngs" not in inspect.signature(BlackJAXNUTS).parameters
+        assert "rngs" not in inspect.signature(BlackJAXMALA).parameters
 
     def test_scalar_log_prob_wrapper(self):
         """Test that _scalar_log_prob_fn properly handles multi-dim output."""
@@ -1124,5 +1091,13 @@ class TestStatisticalProperties:
         assert jnp.allclose(sample_std, scale[0], atol=0.3)
 
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+class TestPublicSamplerSignatures:
+    """Public BlackJAX helper signatures should only expose live controls."""
+
+    def test_hmc_sampling_drops_dead_adaptation_flag(self):
+        assert "adapt_step_size" not in inspect.signature(hmc_sampling).parameters
+
+    def test_nuts_sampling_drops_dead_tree_controls(self):
+        params = inspect.signature(nuts_sampling).parameters
+        assert "max_num_doublings" not in params
+        assert "divergence_threshold" not in params

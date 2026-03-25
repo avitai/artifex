@@ -68,7 +68,7 @@ def get_performance_suite() -> list[Benchmark]:
 
 
 def get_standard_suite() -> list[Benchmark]:
-    """Get a comprehensive suite of benchmarks for evaluating generative models.
+    """Get a complete suite of benchmarks for evaluating generative models.
 
     This suite includes both quality and performance benchmarks.
 

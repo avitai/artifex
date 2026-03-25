@@ -327,7 +327,3 @@ class TestAutoregressiveModelAbstractMethods:
         x = jnp.ones((1, 32))
         with pytest.raises(NotImplementedError):
             model(x)
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

@@ -214,5 +214,5 @@ class TestDiffusionModelGeneration:
         result = model.loss_fn(x, model_outputs)
 
         assert isinstance(result, dict)
-        assert "loss" in result
-        assert jnp.isfinite(result["loss"])
+        assert "total_loss" in result
+        assert jnp.isfinite(result["total_loss"])

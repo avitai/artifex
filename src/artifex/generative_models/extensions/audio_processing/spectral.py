@@ -366,7 +366,7 @@ class SpectralAnalysis(ModelExtension):
         return linear_spec
 
     def extract_spectral_features(self, audio: jax.Array) -> dict[str, jax.Array]:
-        """Extract comprehensive spectral features.
+        """Extract complete spectral features.
 
         Args:
             audio: Audio signal [length] or [batch, length]
@@ -418,7 +418,7 @@ class SpectralAnalysis(ModelExtension):
                 "error": "No audio data found in model outputs",
             }
 
-        # Extract comprehensive spectral features
+        # Extract complete spectral features
         features = self.extract_spectral_features(audio)
 
         return {

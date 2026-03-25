@@ -2,7 +2,7 @@
 """
 # BlackJAX Sampling Examples for Generative Models
 
-This example demonstrates comprehensive usage of BlackJAX samplers integrated with Artifex's
+This example demonstrates complete usage of BlackJAX samplers integrated with Artifex's
 generative modeling framework.
 
 ## Learning Objectives
@@ -315,13 +315,12 @@ def example_nuts_artifex():
             n_samples=n_samples,
             n_burnin=n_burnin,
             step_size=0.8,
-            max_num_doublings=5,  # Lower value to reduce memory usage
         )
         plot_samples(nuts_samples, "Artifex NUTS Sampling", "nuts_artifex_samples.png")
-    except Exception as e:
+    except (RuntimeError, MemoryError, ValueError) as e:
         print(f"NUTS sampling failed with error: {e}")
         print("This may be due to memory constraints on your system.")
-        print("Try reducing n_samples, n_burnin, or max_num_doublings.")
+        print("Try reducing n_samples, n_burnin, or problem dimensionality.")
 
 
 # %% [markdown]
@@ -433,7 +432,8 @@ After running this example, you should understand:
    handle common use cases while maintaining access to advanced features
 
 3. **Memory Considerations**: NUTS can be memory-intensive due to trajectory storage.
-   Use `max_num_doublings` to control memory usage
+   Reduce sample count, burn-in, or problem dimensionality before using lower-level
+   engine tuning
 
 4. **Direct API Access**: When needed, you can use BlackJAX directly for maximum control
 

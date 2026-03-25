@@ -210,6 +210,18 @@ class TestVAEConfigValidation:
                 kl_weight=-0.5,
             )
 
+    def test_encoder_type_rejects_removed_resnet_surface(
+        self, encoder_config: EncoderConfig, decoder_config: DecoderConfig
+    ) -> None:
+        """VAEConfig should only accept the retained dense and cnn encoder types."""
+        with pytest.raises(ValueError, match="encoder_type"):
+            VAEConfig(
+                name="vae",
+                encoder=encoder_config,
+                decoder=decoder_config,
+                encoder_type="resnet",
+            )
+
     def test_kl_weight_zero_allowed(
         self, encoder_config: EncoderConfig, decoder_config: DecoderConfig
     ) -> None:

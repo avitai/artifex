@@ -12,16 +12,37 @@ import jax
 import jax.numpy as jnp
 from flax import nnx
 
-from artifex.generative_models.core.protocols.configuration import BaseModalityConfig
-
-# Import the registry which already has all modalities registered
-from artifex.generative_models.modalities import registry
-
-# Ensure modalities are imported so they're registered
+from artifex.generative_models.core.configuration import BaseModalityConfig
+from artifex.generative_models.modalities.audio.base import AudioModality
 from artifex.generative_models.modalities.base import BaseModalityImplementation
+from artifex.generative_models.modalities.image.base import ImageModality
+from artifex.generative_models.modalities.text.base import TextModality
 
 
-# Don't copy the registry at module import time, access it dynamically
+SUPPORTED_MULTI_MODAL_HELPER_MODALITIES = ("image", "text", "audio")
+
+
+def validate_multi_modal_helper_modalities(
+    modalities: tuple[str, ...] | list[str],
+) -> tuple[str, ...]:
+    """Validate the retained multi-modal helper child-modality set."""
+    normalized_modalities = tuple(modalities)
+
+    for modality in normalized_modalities:
+        if modality not in SUPPORTED_MULTI_MODAL_HELPER_MODALITIES:
+            supported = ", ".join(SUPPORTED_MULTI_MODAL_HELPER_MODALITIES)
+            raise ValueError(
+                f"Unsupported multi-modal helper modality '{modality}'. Supported: {supported}"
+            )
+
+    return normalized_modalities
+
+
+_MULTI_MODAL_HELPER_MODALITY_CLASSES: dict[str, type] = {
+    "image": ImageModality,
+    "text": TextModality,
+    "audio": AudioModality,
+}
 
 
 class MultiModalRepresentation(str, Enum):
@@ -33,36 +54,29 @@ class MultiModalRepresentation(str, Enum):
     HIERARCHICAL = "hierarchical"  # Hierarchical fusion
 
 
-@dataclass
+@dataclass(frozen=True, slots=True, kw_only=True)
 class MultiModalModalityConfig(BaseModalityConfig):
     """Configuration for multi-modal modality."""
 
-    modalities: list[str] = field(default_factory=list)  # List of modality names to combine
+    modalities: tuple[str, ...] = field(default_factory=tuple)
     fusion_strategy: str = "concatenate"  # How to combine modalities
     alignment_method: str | None = None  # Cross-modal alignment method
     shared_embedding_dim: int | None = None  # Shared embedding dimension
     modality_weights: dict[str, float] | None = None  # Importance weights
     dropout_rate: float = 0.0  # Modality dropout for robustness
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate configuration after initialization."""
+        BaseModalityConfig.__post_init__(self)
+        object.__setattr__(
+            self,
+            "modalities",
+            validate_multi_modal_helper_modalities(self.modalities),
+        )
+
         # Validate modalities
         if len(self.modalities) < 2:
             raise ValueError("Multi-modal requires at least 2 modalities")
-
-        # Check that modalities are valid
-        valid_modalities = [
-            "image",
-            "text",
-            "audio",
-            "tabular",
-            "timeseries",
-            "protein",
-            "molecular",
-        ]
-        for modality in self.modalities:
-            if modality not in valid_modalities:
-                raise ValueError(f"Unknown modality: {modality}")
 
         # Validate fusion strategy
         valid_strategies = ["concatenate", "attention", "gated", "hierarchical"]
@@ -111,14 +125,7 @@ class MultiModalModality(BaseModalityImplementation):
         # Initialize individual modality instances
         self.modality_instances = {}
         for modality_name in self.modalities:
-            # Get modality class from registry
-            if modality_name not in registry._MODALITY_REGISTRY:
-                raise ValueError(f"Modality '{modality_name}' not found in registry")
-
-            modality_class = registry._MODALITY_REGISTRY[modality_name]
-
-            # Create modality instance with default config
-            # In real implementation, we'd use modality-specific configs
+            modality_class = _MULTI_MODAL_HELPER_MODALITY_CLASSES[modality_name]
             self.modality_instances[modality_name] = modality_class(
                 config=self._create_modality_config(modality_name),
                 rngs=rngs,
@@ -139,6 +146,45 @@ class MultiModalModality(BaseModalityImplementation):
         # Return None to use default config in each modality
         return None
 
+    def _process_modality_input(
+        self,
+        modality_name: str,
+        modality_input: jax.Array,
+    ) -> jax.Array:
+        """Process one retained child modality into a feature representation."""
+        modality = self.modality_instances[modality_name]
+
+        if hasattr(modality, "process"):
+            return modality.process(modality_input)
+
+        if modality_name == "audio":
+            audio = jnp.asarray(modality_input)
+            if audio.ndim <= 1:
+                return audio.reshape(-1)
+            return audio.reshape(audio.shape[0], -1)
+
+        raise ValueError(
+            f"Unsupported multi-modal helper modality '{modality_name}' cannot be processed"
+        )
+
+    def _normalize_features(self, features: jax.Array) -> jax.Array:
+        """Pad or truncate features to the shared embedding dimension."""
+        target_dim = self.shared_embedding_dim
+
+        if features.ndim == 1:
+            current_dim = features.shape[0]
+            if current_dim >= target_dim:
+                return features[:target_dim]
+            return jnp.pad(features, (0, target_dim - current_dim))
+
+        current_dim = features.shape[-1]
+        if current_dim >= target_dim:
+            return features[..., :target_dim]
+
+        pad_width = [(0, 0)] * features.ndim
+        pad_width[-1] = (0, target_dim - current_dim)
+        return jnp.pad(features, pad_width)
+
     def _setup_fusion_components(self, rngs: nnx.Rngs):
         """Setup fusion components based on strategy.
 
@@ -156,7 +202,7 @@ class MultiModalModality(BaseModalityImplementation):
         self,
         inputs: dict[str, jax.Array],
         representation: MultiModalRepresentation | None = None,
-    ) -> dict[str, jax.Array]:
+    ) -> dict[str, jax.Array | dict[str, jax.Array]]:
         """Process multi-modal inputs.
 
         Args:
@@ -173,8 +219,16 @@ class MultiModalModality(BaseModalityImplementation):
         processed = {}
         for modality_name, modality_input in inputs.items():
             if modality_name in self.modality_instances:
-                modality = self.modality_instances[modality_name]
-                processed[modality_name] = modality.process(modality_input)
+                processed[modality_name] = self._process_modality_input(
+                    modality_name,
+                    modality_input,
+                )
+
+        if not processed:
+            expected = ", ".join(self.modalities)
+            raise ValueError(
+                f"No retained multi-modal helper inputs were provided. Expected any of: {expected}"
+            )
 
         # Apply fusion based on representation
         if representation == MultiModalRepresentation.CONCATENATED:
@@ -208,11 +262,7 @@ class MultiModalModality(BaseModalityImplementation):
         # Simplified alignment - project to shared dimension
         aligned = {}
         for mod, features in processed.items():
-            # Project to shared dimension (simplified)
-            if features.ndim == 1:
-                aligned[mod] = features[: self.shared_embedding_dim]
-            else:
-                aligned[mod] = features[..., : self.shared_embedding_dim]
+            aligned[mod] = self._normalize_features(features)
 
         # Stack aligned features
         return jnp.stack([aligned[mod] for mod in self.modalities if mod in aligned])
@@ -231,10 +281,14 @@ class MultiModalModality(BaseModalityImplementation):
         for mod in self.modalities:
             if mod in processed:
                 weight = self.modality_weights[mod]
+                normalized = self._normalize_features(processed[mod])
                 if fused is None:
-                    fused = processed[mod] * weight
+                    fused = normalized * weight
                 else:
-                    fused = fused + processed[mod] * weight
+                    fused = fused + normalized * weight
+
+        if fused is None:
+            raise ValueError("No retained multi-modal helper features were available to fuse")
 
         return fused
 
@@ -258,7 +312,9 @@ class MultiModalModality(BaseModalityImplementation):
 
         # Fuse visual modalities
         visual_features = [
-            processed[mod] for mod in visual_mods if mod in processed and mod in self.modalities
+            self._normalize_features(processed[mod])
+            for mod in visual_mods
+            if mod in processed and mod in self.modalities
         ]
         if visual_features:
             visual_fused = jnp.mean(jnp.stack(visual_features), axis=0)
@@ -266,7 +322,9 @@ class MultiModalModality(BaseModalityImplementation):
 
         # Fuse textual modalities
         textual_features = [
-            processed[mod] for mod in textual_mods if mod in processed and mod in self.modalities
+            self._normalize_features(processed[mod])
+            for mod in textual_mods
+            if mod in processed and mod in self.modalities
         ]
         if textual_features:
             textual_fused = jnp.mean(jnp.stack(textual_features), axis=0)
@@ -278,7 +336,7 @@ class MultiModalModality(BaseModalityImplementation):
         ]
         for mod in remaining_mods:
             if mod in processed:
-                groups.append(processed[mod])
+                groups.append(self._normalize_features(processed[mod]))
 
         # Final fusion of groups
         if groups:

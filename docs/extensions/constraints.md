@@ -1,99 +1,29 @@
 # Constraints
 
-**Module:** `generative_models.extensions.protein.constraints`
+**Status:** `Supported runtime extension owner`
 
-**Source:** `generative_models/extensions/protein/constraints.py`
+**Module:** `artifex.generative_models.extensions.protein.constraints`
 
-## Overview
+**Source:** `src/artifex/generative_models/extensions/protein/constraints.py`
 
-Protein geometric constraints.
+Protein geometric constraint owners plus the retained top-level measurement helpers.
 
-This module defines constraints specific to protein structure generation.
+## Top-Level Module Exports
 
-## Classes
+- `ProteinBackboneConstraint`
+- `ProteinDihedralConstraint`
+- `calculate_bond_lengths()`
+- `calculate_bond_angles()`
+- `calculate_dihedral_angles()`
 
-### ProteinBackboneConstraint
+## Class APIs
 
-```python
-class ProteinBackboneConstraint
-```
+### `ProteinBackboneConstraint`
 
-### ProteinDihedralConstraint
+- `loss_fn()`
+- `validate()`
 
-```python
-class ProteinDihedralConstraint
-```
+### `ProteinDihedralConstraint`
 
-## Functions
-
-### **call**
-
-```python
-def __call__()
-```
-
-### **call**
-
-```python
-def __call__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### calculate_bond_angles
-
-```python
-def calculate_bond_angles()
-```
-
-### calculate_bond_lengths
-
-```python
-def calculate_bond_lengths()
-```
-
-### calculate_dihedral_angles
-
-```python
-def calculate_dihedral_angles()
-```
-
-### loss_fn
-
-```python
-def loss_fn()
-```
-
-### loss_fn
-
-```python
-def loss_fn()
-```
-
-### validate
-
-```python
-def validate()
-```
-
-### validate
-
-```python
-def validate()
-```
-
-## Module Statistics
-
-- **Classes:** 2
-- **Functions:** 11
-- **Imports:** 6
+- `loss_fn()`
+- `validate()`

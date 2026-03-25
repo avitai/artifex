@@ -39,7 +39,7 @@ class PPOConfig:
         clip_param: Clipping parameter for surrogate objective. Default 0.2.
         vf_coeff: Coefficient for value function loss. Default 0.5.
         entropy_coeff: Coefficient for entropy bonus. Default 0.01.
-        max_grad_norm: Maximum gradient norm for clipping. Default 0.5.
+        max_grad_norm: Maximum global gradient norm for clipping. Default 0.5.
     """
 
     gamma: float = 0.99
@@ -65,14 +65,12 @@ class GRPOConfig:
         clip_param: Clipping parameter for surrogate objective. Default 0.2.
         beta: KL penalty coefficient for regularization. Default 0.01.
         entropy_coeff: Coefficient for entropy bonus. Default 0.01.
-        gamma: Discount factor (used if computing returns). Default 0.99.
     """
 
     num_generations: int = 4
     clip_param: float = 0.2
     beta: float = 0.01
     entropy_coeff: float = 0.01
-    gamma: float = 0.99
 
 
 @dataclass(slots=True)

@@ -97,6 +97,36 @@ class TestVoxelModel:
         assert jnp.all(generated >= 0.0)
         assert jnp.all(generated <= 1.0)
 
+    def test_call_with_latent_vector_decodes_voxels(self, voxel_model):
+        """Direct latent decoding should return learned voxel grids."""
+        batch_size = 2
+        latent = jnp.ones((batch_size, voxel_model.latent_dim))
+
+        output, aux_outputs = voxel_model(latent, deterministic=True)
+
+        expected_shape = (
+            batch_size,
+            voxel_model.resolution,
+            voxel_model.resolution,
+            voxel_model.resolution,
+        )
+        assert output.shape == expected_shape
+        assert aux_outputs["latent"].shape == latent.shape
+        assert jnp.all(output >= 0.0)
+        assert jnp.all(output <= 1.0)
+
+    def test_generate_depends_on_model_parameters(self, voxel_config):
+        """Same-seed generation should change when the learned parameters change."""
+        model_a = VoxelModel(voxel_config, rngs=nnx.Rngs(params=jax.random.key(10)))
+        model_b = VoxelModel(voxel_config, rngs=nnx.Rngs(params=jax.random.key(11)))
+
+        generated_a = model_a.generate(n_samples=1, rngs=nnx.Rngs(params=jax.random.key(12)))
+        generated_b = model_b.generate(n_samples=1, rngs=nnx.Rngs(params=jax.random.key(12)))
+
+        assert generated_a.shape == generated_b.shape
+        assert not jnp.array_equal(generated_a, generated_b)
+        assert jnp.max(jnp.abs(generated_a - generated_b)) > 0.0
+
     def test_with_deterministic(self, voxel_model):
         """Test model with deterministic flag."""
         batch_size = 2

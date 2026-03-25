@@ -23,6 +23,39 @@ from flax import nnx
 from artifex.generative_models.core.configuration import NoiseScheduleConfig
 
 
+def extract_timesteps_into_tensor(
+    arr: jnp.ndarray,
+    timesteps: jnp.ndarray,
+    broadcast_shape: tuple[int, ...],
+) -> jnp.ndarray:
+    """Extract schedule values with one explicit broadcast rule.
+
+    Timesteps may either match the batch size exactly, contain one element that
+    is broadcast across the batch, or define a shorter schedule that repeats
+    evenly across the batch.
+    """
+    timesteps = jnp.asarray(timesteps, dtype=jnp.int32)
+    if timesteps.ndim == 0:
+        timesteps = timesteps.reshape(1)
+
+    batch_size = broadcast_shape[0]
+    if timesteps.shape[0] == 1:
+        timesteps = jnp.broadcast_to(timesteps, (batch_size,))
+    elif timesteps.shape[0] == batch_size:
+        pass
+    elif batch_size % timesteps.shape[0] == 0:
+        timesteps = jnp.repeat(timesteps, batch_size // timesteps.shape[0])
+    else:
+        raise ValueError(
+            "timesteps batch must match the data batch size, contain one element, "
+            "or divide the batch size evenly"
+        )
+
+    res = arr[timesteps]
+    target_shape = (batch_size,) + (1,) * (len(broadcast_shape) - 1)
+    return jnp.broadcast_to(res.reshape(target_shape), broadcast_shape)
+
+
 class NoiseSchedule(nnx.Module, abc.ABC):
     """Abstract base class for noise schedules.
 
@@ -119,42 +152,8 @@ class NoiseSchedule(nnx.Module, abc.ABC):
         timesteps: jnp.ndarray,
         broadcast_shape: tuple[int, ...],
     ) -> jnp.ndarray:
-        """Extract values from a 1D array for a batch of indices.
-
-        Args:
-            arr: 1D array to extract from
-            timesteps: Indices to extract
-            broadcast_shape: Shape to broadcast the extracted values to
-
-        Returns:
-            Array of extracted values broadcast to the target shape
-        """
-        # Extract values at specified indices
-        res = arr[timesteps]
-
-        # Ensure we have the right batch size
-        batch_size = broadcast_shape[0]
-
-        # Handle timesteps batch size mismatch
-        if timesteps.shape[0] != batch_size:
-            if timesteps.shape[0] == 1:
-                timesteps = jnp.repeat(timesteps, batch_size, axis=0)
-                res = arr[timesteps]
-            elif timesteps.shape[0] < batch_size:
-                padding_needed = batch_size - timesteps.shape[0]
-                last_value = timesteps[-1:] if timesteps.size > 0 else jnp.array([0])
-                padding = jnp.repeat(last_value, padding_needed)
-                timesteps = jnp.concatenate([timesteps, padding])
-                res = arr[timesteps]
-            else:
-                timesteps = timesteps[:batch_size]
-                res = arr[timesteps]
-
-        # Reshape to (batch_size, 1, 1, ...) to match broadcast_shape dimensions
-        target_shape = (batch_size,) + (1,) * (len(broadcast_shape) - 1)
-        res = res.reshape(target_shape)
-
-        return jnp.broadcast_to(res, broadcast_shape)
+        """Extract schedule values under the shared timestep contract."""
+        return extract_timesteps_into_tensor(arr, timesteps, broadcast_shape)
 
     def q_sample(
         self,

@@ -18,11 +18,13 @@ cd artifex
 2. **Install with Development Dependencies**:
 
 ```bash
-# Install all development dependencies
-uv sync --all-extras
+# Recommended repository setup
+./setup.sh
+source ./activate.sh
 
-# Or install specific extras
-uv sync --extra cuda-dev  # For GPU development
+# Or sync a backend explicitly
+uv sync --extra dev --extra test
+uv sync --extra cuda-dev  # For Linux CUDA development
 ```
 
 3. **Install Pre-commit Hooks**:
@@ -123,7 +125,9 @@ def my_function(x: jax.Array, y: int) -> dict[str, jax.Array]:
 2. **Docstrings**: Use Google-style docstrings:
 
 ```python
-def train_model(config: ModelConfig) -> dict:
+from artifex.generative_models.core.configuration import BaseConfig
+
+def train_model(config: BaseConfig) -> dict:
     """Train a generative model.
 
     Args:
@@ -168,30 +172,43 @@ tests/artifex/generative_models/models/test_vae.py
 import pytest
 import jax.numpy as jnp
 from flax import nnx
-from artifex.generative_models.models.vae import create_vae_model
+from artifex.generative_models.core.configuration import (
+    DecoderConfig,
+    EncoderConfig,
+    VAEConfig,
+)
+from artifex.generative_models.factory import create_model
 
 def test_vae_creation():
     """Test VAE model creation."""
-    config = ModelConfig(
-        model_type="vae",
+    encoder = EncoderConfig(
+        name="encoder",
+        input_shape=(28, 28, 1),
         latent_dim=10,
-        # ...
+        hidden_dims=(64, 32),
     )
+    decoder = DecoderConfig(
+        name="decoder",
+        latent_dim=10,
+        output_shape=(28, 28, 1),
+        hidden_dims=(32, 64),
+    )
+    config = VAEConfig(name="vae", encoder=encoder, decoder=decoder)
 
-    model = create_vae_model(config, rngs=nnx.Rngs(0))
+    model = create_model(config, rngs=nnx.Rngs(0))
 
     assert model is not None
-    assert model.latent_dim == 10
+    assert model.config.encoder.latent_dim == 10
 
 def test_vae_forward_pass():
     """Test VAE forward pass."""
-    model = create_vae_model(config, rngs=nnx.Rngs(0))
+    model = create_model(config, rngs=nnx.Rngs(0))
 
     x = jnp.ones((2, 28, 28, 1))
     output = model(x)
 
-    assert "reconstruction" in output
-    assert output["reconstruction"].shape == x.shape
+    assert "reconstructed" in output
+    assert output["reconstructed"].shape == x.shape
 ```
 
 3. **GPU Tests**: Mark GPU-specific tests:
@@ -207,8 +224,8 @@ def test_gpu_training():
 ### Running Tests
 
 ```bash
-# Run all tests
-uv run pytest tests/ -v
+# Run the standard suite
+uv run pytest
 
 # Run specific test file
 uv run pytest tests/artifex/generative_models/models/test_vae.py -xvs
@@ -220,6 +237,8 @@ uv run pytest --cov=src/artifex --cov-report=html
 uv run pytest -m gpu
 ```
 
+Use the root `TESTING.md` file as the source of truth for commands, markers, and coverage policy. Keep tests under the live `tests/artifex/` or `tests/unit/` tree, import real Artifex owners, and prefer shared fixtures such as `test_device` and `gpu_test_fixture` over local replica helpers.
+
 ## Documentation
 
 ### Writing Documentation
@@ -227,7 +246,19 @@ uv run pytest -m gpu
 1. **Structure**: Follow existing patterns
 2. **Examples**: Include working code examples
 3. **Cross-references**: Link to related docs
-4. **No AI Traces**: Never mention AI assistants, Claude, etc.
+4. **No Private Tooling Traces**: Never mention internal drafting tools or private planning systems.
+
+### Creating or Updating Examples
+
+Use the dedicated
+[Example Documentation Design Guide](../development/example-documentation-design.md)
+when you add or revise examples. It defines:
+
+- where example source, notebook, and docs files should live
+- how to label CPU-safe, GPU-optional, and GPU-required examples
+- how to sync `.py` and `.ipynb` pairs with `scripts/jupytext_converter.py`
+- how to write Artifex-specific example docs around `uv`, Flax NNX, and
+  `artifex.configs`
 
 ### Building Documentation
 

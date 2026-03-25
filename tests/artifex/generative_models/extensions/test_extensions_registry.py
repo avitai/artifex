@@ -40,6 +40,29 @@ class TestExtensionsRegistry:
         if molecular_extensions:
             assert any("chemical" in ext or "molecular" in ext for ext in molecular_extensions)
 
+    def test_registry_exposes_shipped_extension_families(self, registry):
+        """The shared registry should expose the shipped non-protein families too."""
+        all_extensions = registry.list_all_extensions()
+
+        expected_extension_names = {
+            "protein_bond_length",
+            "protein_bond_angle",
+            "protein_backbone_constraint",
+            "protein_dihedral_constraint",
+            "protein_mixin",
+            "chemical_constraints",
+            "molecular_features",
+            "image_augmentation",
+            "spectral_analysis",
+            "temporal_analysis",
+            "advanced_tokenization",
+            "text_embeddings",
+        }
+        expected_modalities = {"protein", "geometric", "molecular", "image", "audio", "text"}
+
+        assert expected_extension_names <= set(all_extensions)
+        assert expected_modalities <= set(registry.get_available_modalities())
+
     def test_get_extensions_by_capability(self, registry):
         """Test getting extensions by capability."""
         # Test augmentation capability

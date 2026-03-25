@@ -103,12 +103,12 @@ class CliffordLinear(nnx.Module):
         x_flat = x_perm.reshape(batch, -1)
 
         # Construct Clifford kernel and apply
-        _, kernel = self._get_kernel(self.weight.value, self.metric)
+        _, kernel = self._get_kernel(self.weight[...], self.metric)
         # kernel: (I*O, I*C)
         output = x_flat @ kernel.T
 
         if self.bias is not None:
-            output = output + self.bias.value.reshape(-1)
+            output = output + self.bias[...].reshape(-1)
 
         # (B, I*O) -> (B, I, O) -> (B, O, I)
         output = output.reshape(batch, self.n_blades, -1)

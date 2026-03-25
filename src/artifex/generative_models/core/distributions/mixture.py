@@ -9,6 +9,8 @@ import jax
 import jax.numpy as jnp
 from flax import nnx
 
+from artifex.generative_models.core.rng import extract_rng_key
+
 from .base import Distribution
 
 
@@ -70,68 +72,6 @@ class MixtureOfGaussians(Distribution):
                 components_distribution=components_dist,
             )
         )
-
-    def __call__(
-        self, x: jax.Array | None = None, *, rngs: nnx.Rngs | None = None
-    ) -> jax.Array | tuple[jax.Array, jax.Array]:
-        """Compute log probability of x or sample if x is None.
-
-        Args:
-            x: Input tensor. If None, returns a sample.
-            rngs: Random number generators for sampling.
-                If None, uses the distribution's internal RNGs.
-
-        Returns:
-            If x is provided, returns log probability of x.
-            If x is None, returns a sample from the distribution.
-        """
-        if x is None:
-            return self.sample(sample_shape=(), rngs=rngs)
-        return self.log_prob(x)
-
-    def sample(self, sample_shape: tuple = (), *, rngs: nnx.Rngs | None = None) -> jax.Array:
-        """Sample from the mixture of gaussians.
-
-        Args:
-            sample_shape: Shape of the samples
-            rngs: Random number generators for sampling.
-                If None, uses the distribution's internal RNGs.
-
-        Returns:
-            Samples from the distribution
-        """
-        if self._dist is None:
-            raise ValueError("Distribution not initialized.")
-
-        # Handle RNG keys - JIT-compatible approach
-        if rngs is None:
-            rngs = self._rngs
-
-        if rngs is None:
-            raise ValueError("rngs must be provided for sampling")
-
-        sample_key = rngs.sample()
-
-        return self._dist.sample(seed=sample_key, sample_shape=sample_shape)
-
-    def log_prob(self, x: jax.Array) -> jax.Array:
-        """Compute log probability of x.
-
-        Args:
-            x: Input tensor
-
-        Returns:
-            Log probability of x
-        """
-        return super().log_prob(x)
-
-    def entropy(self) -> jax.Array:
-        """Compute the entropy of the distribution.
-
-        Returns:
-            Entropy of the distribution
-        """
-        return super().entropy()
 
 
 class Mixture(Distribution):
@@ -199,16 +139,14 @@ class Mixture(Distribution):
         Returns:
             A JAX random key for sampling.
         """
-        # Handle RNG case - JIT-compatible approach
-        if rngs is None:
-            rngs = self._rngs
-
-        if rngs is None:
+        source_rngs = rngs if rngs is not None else self._rngs
+        if source_rngs is None:
             raise ValueError("rngs must be provided for sampling")
-
-        sample_key = rngs.sample()
-
-        return sample_key
+        return extract_rng_key(
+            source_rngs,
+            streams=("sample", "default"),
+            context="mixture sampling",
+        )
 
     def sample(self, sample_shape: tuple = (), *, rngs: nnx.Rngs | None = None) -> jax.Array:
         """Sample from the mixture distribution using vectorized operations.

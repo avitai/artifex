@@ -1,10 +1,14 @@
 """Point cloud model implementation."""
 
+import logging
 from typing import Any
 
 import jax
 import jax.numpy as jnp
 from flax import nnx
+
+
+logger = logging.getLogger(__name__)
 
 from artifex.generative_models.core.configuration.geometric_config import (
     PointCloudConfig,
@@ -42,11 +46,14 @@ class PointCloudModel(GeometricModel):
         """
         super().__init__(config, extensions=extensions, rngs=rngs)
 
+        network = config.network
+        assert network is not None
+
         # Extract configuration parameters from dataclass config
-        self.embed_dim = config.network.embed_dim
+        self.embed_dim = network.embed_dim
         self.num_points = config.num_points
-        self.num_layers = config.network.num_layers
-        self.num_heads = config.network.num_heads
+        self.num_layers = network.num_layers
+        self.num_heads = network.num_heads
         self.dropout = config.dropout_rate
 
         # Ensure rngs has both params and dropout keys
@@ -88,7 +95,7 @@ class PointCloudModel(GeometricModel):
         *,
         deterministic: bool = False,
         rngs: nnx.Rngs | None = None,
-    ) -> dict[str, jax.Array]:
+    ) -> dict[str, Any]:
         """Forward pass through the model.
 
         Args:
@@ -105,6 +112,7 @@ class PointCloudModel(GeometricModel):
 
         # Get batch size
         batch_size = 1
+        protein_atom_positions_shape: tuple[int, int, int, int] | None = None
         if x is not None:
             if isinstance(x, dict):
                 # Try to extract batch size from positions or features
@@ -123,6 +131,7 @@ class PointCloudModel(GeometricModel):
                 positions = x["atom_positions"]
                 if len(positions.shape) == 4:  # [batch, residues, atoms, 3]
                     batch_size, num_residues, num_atoms, _ = positions.shape
+                    protein_atom_positions_shape = (batch_size, num_residues, num_atoms, 3)
                     # Reshape to [batch, residues*atoms, 3]
                     positions = positions.reshape(batch_size, num_residues * num_atoms, 3)
                     x["positions"] = positions
@@ -204,21 +213,44 @@ class PointCloudModel(GeometricModel):
         # Project to 3D coordinates
         coords = self.coord_proj(embeddings)  # [batch, num_points, 3]
 
+        model_outputs: Any = coords
+        if protein_atom_positions_shape is not None:
+            _, num_residues, num_atoms, _ = protein_atom_positions_shape
+            model_outputs = {
+                "positions": coords,
+                "atom_positions": coords.reshape(batch_size, num_residues, num_atoms, 3),
+            }
+
         # Apply extensions (constraints) if any
         if self.extension_modules:
             processed_coords, extension_outputs = self.apply_extensions(
-                x or {}, coords, deterministic=deterministic
+                x or {}, model_outputs, deterministic=deterministic
             )
         else:
-            processed_coords = coords
+            processed_coords = model_outputs
             extension_outputs = {}
 
-        # Return results
-        return {
+        if isinstance(processed_coords, dict):
+            results = {
+                "positions": processed_coords["positions"],
+                "embeddings": embeddings,
+                "extension_outputs": extension_outputs,
+            }
+            if "atom_positions" in processed_coords:
+                results["atom_positions"] = processed_coords["atom_positions"]
+            return results
+
+        results = {
             "positions": processed_coords,
             "embeddings": embeddings,
             "extension_outputs": extension_outputs,
         }
+        if protein_atom_positions_shape is not None:
+            _, num_residues, num_atoms, _ = protein_atom_positions_shape
+            results["atom_positions"] = processed_coords.reshape(
+                batch_size, num_residues, num_atoms, 3
+            )
+        return results
 
     def sample(self, n_samples: int, *, rngs: nnx.Rngs | None = None) -> jax.Array:
         """Generate point cloud samples.
@@ -249,13 +281,12 @@ class PointCloudModel(GeometricModel):
         # Project to 3D coordinates
         return self.coord_proj(embedded)
 
-    def generate(self, n_samples: int = 1, *, rngs: nnx.Rngs | None = None, **kwargs) -> jax.Array:
+    def generate(self, n_samples: int = 1, *, rngs: nnx.Rngs | None = None) -> jax.Array:
         """Generate point cloud samples. Alias for sample.
 
         Args:
             n_samples: Number of samples to generate
             rngs: Optional random number generator keys
-            **kwargs: Additional keyword arguments passed to sample
 
         Returns:
             Generated point clouds with shape [n_samples, num_points, 3]
@@ -344,11 +375,18 @@ class PointCloudModel(GeometricModel):
                 try:
                     sq_diff = jnp.square(predicted - target) * expanded_mask
                     mse_loss = jnp.sum(sq_diff) / (jnp.sum(mask) * 3 + 1e-8)
-                except Exception as e:
-                    # If broadcasting fails, print useful debug info and re-raise
-                    print(f"Error during loss calculation: {e}")
-                    print(f"predicted shape: {predicted.shape}, target shape: {target.shape}")
-                    print(f"mask shape: {mask.shape}, expanded_mask shape: {expanded_mask.shape}")
+                except (ValueError, TypeError) as e:
+                    # If broadcasting fails, log useful debug info and re-raise
+                    logger.error(
+                        "Error during loss calculation: %s | "
+                        "predicted shape: %s, target shape: %s | "
+                        "mask shape: %s, expanded_mask shape: %s",
+                        e,
+                        predicted.shape,
+                        target.shape,
+                        mask.shape,
+                        expanded_mask.shape,
+                    )
                     raise
             else:
                 # Calculate simple MSE loss
@@ -394,24 +432,27 @@ class TransformerBlock(nnx.Module):
             dropout: Dropout rate.
             rngs: Random number generator keys.
         """
-        super().__init__(rngs=rngs or nnx.Rngs())
+        super().__init__()
+        rngs = rngs or nnx.Rngs()
 
         # Self-attention
         self.attention = nnx.MultiHeadAttention(
             num_heads=num_heads,
+            in_features=embed_dim,
             qkv_features=embed_dim,
+            out_features=embed_dim,
             rngs=rngs,
         )
 
         # Feed-forward network components
-        self.ffn_norm = nnx.LayerNorm(embed_dim, rngs=rngs)
+        self.ffn_norm = nnx.LayerNorm(num_features=embed_dim, rngs=rngs)
         self.ffn_linear1 = nnx.Linear(in_features=embed_dim, out_features=embed_dim * 4, rngs=rngs)
         self.ffn_dropout1 = nnx.Dropout(dropout, rngs=rngs)
         self.ffn_linear2 = nnx.Linear(in_features=embed_dim * 4, out_features=embed_dim, rngs=rngs)
         self.ffn_dropout2 = nnx.Dropout(dropout, rngs=rngs)
 
         # Layer normalization
-        self.layer_norm = nnx.LayerNorm(embed_dim, rngs=rngs)
+        self.layer_norm = nnx.LayerNorm(num_features=embed_dim, rngs=rngs)
 
     def __call__(
         self,

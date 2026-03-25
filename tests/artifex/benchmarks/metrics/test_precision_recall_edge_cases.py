@@ -10,7 +10,7 @@ import jax.numpy as jnp
 import numpy as np
 import pytest
 
-from artifex.benchmarks.base import BenchmarkResult
+from artifex.benchmarks import BenchmarkResult
 from artifex.benchmarks.metrics.precision_recall import (
     compute_precision_recall,
     is_well_separated_clusters,

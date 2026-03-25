@@ -1,6 +1,6 @@
 """Text evaluation metrics for the text modality.
 
-This module provides comprehensive evaluation metrics for text generation,
+This module provides complete evaluation metrics for text generation,
 including BLEU, ROUGE, perplexity, and other text quality measures.
 """
 
@@ -30,7 +30,7 @@ class TextMetrics:
 
 
 class TextEvaluationSuite(nnx.Module):
-    """Comprehensive text evaluation suite."""
+    """Complete text evaluation suite."""
 
     def __init__(
         self,
@@ -411,7 +411,7 @@ def compute_text_metrics(
     *,
     rngs: nnx.Rngs,
 ) -> TextMetrics:
-    """Compute comprehensive text metrics.
+    """Compute complete text metrics.
 
     Args:
         generated_tokens: Generated token sequences

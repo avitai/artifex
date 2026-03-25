@@ -10,7 +10,7 @@ from `artifex.generative_models.utils.logging`.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Literal, Optional
+from typing import Any, Literal
 
 from artifex.generative_models.training.callbacks.base import BaseCallback, TrainerLike
 from artifex.generative_models.utils.logging.logger import Logger
@@ -55,16 +55,16 @@ class WandbLoggerConfig:
     """
 
     project: str
-    entity: Optional[str] = None
-    name: Optional[str] = None
+    entity: str | None = None
+    name: str | None = None
     tags: list[str] = field(default_factory=list)
-    notes: Optional[str] = None
+    notes: str | None = None
     config: dict[str, Any] = field(default_factory=dict)
     mode: Literal["online", "offline", "disabled"] = "online"
     resume: Literal["allow", "never", "must", "auto"] | bool | None = None
     log_every_n_steps: int = 1
     log_on_epoch_end: bool = True
-    log_dir: Optional[str] = None
+    log_dir: str | None = None
 
 
 @dataclass(slots=True)
@@ -77,7 +77,6 @@ class TensorBoardLoggerConfig:
         max_queue: Max queue size for pending events.
         log_every_n_steps: Log metrics every N training steps.
         log_on_epoch_end: Whether to log metrics at end of each epoch.
-        log_graph: Whether to log model graph.
     """
 
     log_dir: str = "logs/tensorboard"
@@ -85,7 +84,6 @@ class TensorBoardLoggerConfig:
     max_queue: int = 10
     log_every_n_steps: int = 1
     log_on_epoch_end: bool = True
-    log_graph: bool = False
 
 
 @dataclass(slots=True)
@@ -93,14 +91,12 @@ class ProgressBarConfig:
     """Configuration for progress bar callback.
 
     Attributes:
-        refresh_rate: How often to refresh the progress bar (steps).
         show_eta: Whether to show estimated time of arrival.
         show_metrics: Whether to display metrics in progress bar.
         leave: Whether to leave progress bar after completion.
         disable: Whether to disable progress bar entirely.
     """
 
-    refresh_rate: int = 10
     show_eta: bool = True
     show_metrics: bool = True
     leave: bool = True
@@ -131,7 +127,7 @@ class LoggerCallback(BaseCallback):
     def __init__(
         self,
         logger: Logger,
-        config: Optional[LoggerCallbackConfig] = None,
+        config: LoggerCallbackConfig | None = None,
     ):
         """Initialize the logger callback.
 
@@ -533,7 +529,6 @@ class ProgressBarCallback(BaseCallback):
 
     Example:
         config = ProgressBarConfig(
-            refresh_rate=10,
             show_eta=True,
             show_metrics=True,
         )
@@ -543,7 +538,7 @@ class ProgressBarCallback(BaseCallback):
 
     __slots__ = ("config", "_progress", "_task_id", "_epoch_task_id")
 
-    def __init__(self, config: Optional[ProgressBarConfig] = None):
+    def __init__(self, config: ProgressBarConfig | None = None):
         """Initialize the progress bar callback.
 
         Args:

@@ -8,8 +8,12 @@ from flax import nnx
 
 from artifex.generative_models.core.base import GenerativeModel
 from artifex.generative_models.core.configuration import DiffusionConfig
-from artifex.generative_models.core.configuration.backbone_config import create_backbone
-from artifex.generative_models.core.noise_schedule import create_noise_schedule, NoiseSchedule
+from artifex.generative_models.core.noise_schedule import (
+    create_noise_schedule,
+    extract_timesteps_into_tensor,
+    NoiseSchedule,
+)
+from artifex.generative_models.factory.builders.backbone_builder import create_backbone
 from artifex.generative_models.training.utils import extract_model_prediction
 
 
@@ -25,7 +29,7 @@ class DiffusionModel(GenerativeModel):
     - noise_schedule: NoiseScheduleConfig for the diffusion schedule
 
     Backbone type is determined by config.backbone.backbone_type discriminator.
-    Supported backbones: UNet, DiT, U-ViT, UNet2DCondition.
+    Supported backbones: UNet, DiT, UNet2DCondition, and UNet1D.
 
     Attributes:
         config: DiffusionConfig for the model
@@ -146,47 +150,8 @@ class DiffusionModel(GenerativeModel):
         timesteps: jax.Array,
         broadcast_shape: tuple[int, ...],
     ) -> jax.Array:
-        """Extract values from a 1D array for a batch of indices.
-
-        Args:
-            arr: 1D array to extract from
-            timesteps: Indices to extract
-            broadcast_shape: Shape to broadcast the extracted values to
-
-        Returns:
-            Array of extracted values
-        """
-        # Extract values at specified indices
-        res = arr[timesteps]
-
-        # Ensure we have the right batch size
-        batch_size = broadcast_shape[0]
-
-        # Ensure timesteps has the same batch size as the input
-        if timesteps.shape[0] != batch_size:
-            # Repeat timesteps to match batch size
-            if timesteps.shape[0] == 1:
-                timesteps = jnp.repeat(timesteps, batch_size, axis=0)
-                res = arr[timesteps]
-            else:
-                # Truncate or pad to match batch size
-                if timesteps.shape[0] < batch_size:
-                    # Pad by repeating the last value
-                    padding_needed = batch_size - timesteps.shape[0]
-                    last_value = timesteps[-1:] if timesteps.size > 0 else jnp.array([0])
-                    padding = jnp.repeat(last_value, padding_needed)
-                    timesteps = jnp.concatenate([timesteps, padding])
-                else:
-                    # Truncate to batch size
-                    timesteps = timesteps[:batch_size]
-                res = arr[timesteps]
-
-        # Reshape to (batch_size, 1, 1, ...) to match broadcast_shape dimensions
-        # The first dimension is batch_size, the rest should be 1s
-        target_shape = (batch_size,) + (1,) * (len(broadcast_shape) - 1)
-        res = res.reshape(target_shape)
-
-        return jnp.broadcast_to(res, broadcast_shape)
+        """Extract schedule values under the shared timestep contract."""
+        return extract_timesteps_into_tensor(arr, timesteps, broadcast_shape)
 
     def predict_start_from_noise(self, x_t: jax.Array, t: jax.Array, noise: jax.Array) -> jax.Array:
         """Predict x_0 from noise model output.
@@ -253,6 +218,7 @@ class DiffusionModel(GenerativeModel):
             x_t: Noisy input at timestep t
             t: Timesteps
             clip_denoised: Whether to clip the denoised signal to [-1, 1]
+            rngs: Optional RNG streams overriding the model-owned RNGs
 
         Returns:
             dictionary with predicted mean and variance
@@ -293,6 +259,7 @@ class DiffusionModel(GenerativeModel):
             x_t: Noisy input at timestep t
             t: Timesteps
             clip_denoised: Whether to clip the denoised signal to [-1, 1]
+            rngs: Optional RNG streams overriding the model-owned RNGs
 
         Returns:
             Denoised x_{t-1}
@@ -318,6 +285,7 @@ class DiffusionModel(GenerativeModel):
         *,
         shape: tuple[int, ...] | None = None,
         clip_denoised: bool = True,
+        rngs: nnx.Rngs | None = None,
     ) -> jax.Array:
         """Generate samples from random noise.
 
@@ -325,19 +293,20 @@ class DiffusionModel(GenerativeModel):
             n_samples: Number of samples to generate
             shape: Shape of samples to generate (excluding batch dimension)
             clip_denoised: Whether to clip the denoised signal to [-1, 1]
+            rngs: Optional RNG streams overriding the model-owned RNGs
 
         Returns:
             Generated samples
         """
         # Determine shape of samples - use input_shape from config
-        if shape is None:
-            shape = self.config.input_shape
+        sample_shape = self.config.input_shape if shape is None else shape
 
         # Initialize noise — extract RNG key before entering lax.scan
         # to avoid mutating NNX RngCount inside a different trace level
-        key = self.rngs.sample()
+        active_rngs = self.rngs if rngs is None else rngs
+        key = active_rngs.sample()
         key, init_key = jax.random.split(key)
-        img = jax.random.normal(init_key, (n_samples, *shape))
+        img = jax.random.normal(init_key, (n_samples, *sample_shape))
 
         # Get number of timesteps from noise schedule
         num_timesteps = self.noise_schedule.num_timesteps
@@ -388,7 +357,7 @@ class DiffusionModel(GenerativeModel):
             model_outputs: Model outputs from forward pass
 
         Returns:
-            Dictionary containing loss and metrics
+            Dictionary containing canonical loss terms.
         """
         # Extract data from batch
         if isinstance(batch, dict):
@@ -417,7 +386,7 @@ class DiffusionModel(GenerativeModel):
 
         # Return loss and metrics as dictionary
         return {
-            "loss": loss,
+            "total_loss": loss,
             "mse_loss": loss,
             "avg_timestep": jnp.mean(t.astype(jnp.float32)),
         }

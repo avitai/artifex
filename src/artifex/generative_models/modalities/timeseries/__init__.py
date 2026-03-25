@@ -1,4 +1,10 @@
-"""Timeseries modality for temporal sequence generation."""
+"""Typed-config timeseries modality helpers for temporal sequence processing.
+
+Construct `TimeseriesModality` with `TimeseriesModalityConfig` plus explicit
+`rngs`. The retained public surface uses the `Timeseries*` names only; legacy
+`TimeSeries*` aliases are not part of the supported surface. Public evaluation
+lives in `TimeseriesEvaluationSuite` and `compute_timeseries_metrics(...)`.
+"""
 
 from .base import (
     DecompositionMethod,
@@ -9,7 +15,7 @@ from .base import (
 from .datasets import (
     create_simple_timeseries_dataset,
     create_synthetic_timeseries_dataset,
-    SyntheticTimeseriesDataset,
+    generate_synthetic_timeseries,
 )
 from .evaluation import compute_timeseries_metrics, TimeseriesEvaluationSuite
 from .representations import (
@@ -25,7 +31,7 @@ __all__ = [
     "TimeseriesModalityConfig",
     "TimeseriesRepresentation",
     "DecompositionMethod",
-    "SyntheticTimeseriesDataset",
+    "generate_synthetic_timeseries",
     "create_synthetic_timeseries_dataset",
     "create_simple_timeseries_dataset",
     "TimeseriesEvaluationSuite",

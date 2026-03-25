@@ -14,7 +14,7 @@ Artifex provides a robust training system built on JAX/Flax NNX, working towards
 
     ---
 
-    Type-safe configuration system with Pydantic validation and YAML support
+    Type-safe frozen dataclass configuration with YAML support
 
 - :material-scale-balance: **Flexible**
 
@@ -47,7 +47,7 @@ graph TB
 
     subgraph "Trainer"
         T[Trainer]
-        TS[TrainingState]
+        TS[Optimizer state + step + rng]
         OPT[Optimizer]
 
         T -->|manages| TS
@@ -112,10 +112,14 @@ training_config = TrainingConfig(
     log_frequency=100,
 )
 
+# Generic Trainer executes an explicit task objective.
+loss_fn = task_loss_fn
+
 # Initialize trainer
 trainer = Trainer(
     model=model,
     training_config=training_config,
+    loss_fn=loss_fn,
     train_data_loader=train_loader,
     val_data_loader=val_loader,
     workdir="./experiments/vae",
@@ -124,49 +128,33 @@ trainer = Trainer(
 
 **Key Features:**
 
-- **Type-Safe Configuration**: Uses Pydantic-based configuration with validation
+- **Type-Safe Configuration**: Uses frozen dataclass configuration with validation
 - **Automatic Setup**: Handles optimizer initialization, state management, and checkpointing
 - **Flexible Training**: Supports custom loss functions and training loops
 - **Built-in Logging**: Integrates with Artifex's logging system and external trackers
 - **Checkpointing**: Automatic saving and loading of training state
 
-### 2. TrainingState
+### 2. Trainer Runtime State
 
-The `TrainingState` is a PyTree that holds all training state:
+`Trainer` keeps the optimizer state, RNG key, and current step internally.
+Those runtime details are not exposed as a public `TrainingState` type.
 
-```python
-from artifex.generative_models.training.trainer import TrainingState
+What remains public is the execution surface:
 
-state = TrainingState.create(
-    params=model_params,
-    opt_state=optimizer.init(model_params),
-    rng=jax.random.PRNGKey(42),
-    step=0,
-    best_loss=float("inf"),
-)
-```
-
-**Components:**
-
-- `params`: Model parameters
-- `opt_state`: Optimizer state
-- `rng`: JAX random number generator
-- `step`: Current training step
-- `best_loss`: Best validation loss (for early stopping)
-
-**Benefits:**
-
-- JAX-compatible PyTree structure
-- Easy to save/load with checkpointing
-- Immutable updates for functional programming
-- Integrates with JAX transformations (jit, grad, etc.)
+- `train_step(batch)`
+- `validate_step(batch)`
+- `train_epoch()`
+- `train(train_data, num_epochs, batch_size, val_data=None, val_interval=...)`
+- `evaluate(data, batch_size)`
+- `save_checkpoint(path=None)`
+- `load_checkpoint(path)`
 
 ### 3. Configuration System
 
-Artifex uses a unified, type-safe configuration system based on Pydantic:
+Artifex uses a unified, type-safe configuration system built on frozen dataclasses:
 
 ```python
-from artifex.generative_models.core.configuration import (
+from artifex.configs import (
     TrainingConfig,
     OptimizerConfig,
     SchedulerConfig,
@@ -205,7 +193,7 @@ training_config = TrainingConfig(
 
 **Advantages:**
 
-- **Type Safety**: Pydantic validates all fields at creation
+- **Type Safety**: dataclass validation runs at construction time
 - **IDE Support**: Full autocompletion and type checking
 - **Serialization**: Easy YAML/JSON save/load
 - **Validation**: Built-in constraints and custom validators
@@ -251,19 +239,17 @@ sequenceDiagram
 The core training step is JIT-compiled for performance:
 
 ```python
-def _train_step(state, batch):
+def _train_step(state, batch, objective_fn):
     """Single training step (JIT-compiled)."""
     rng, step_rng = jax.random.split(state["rng"])
 
     # Define loss function
-    def loss_fn(params):
-        loss, metrics = model.loss_fn(params, batch, step_rng)
+    def loss_fn(model):
+        loss, metrics = objective_fn(model, batch, step_rng)
         return loss, metrics
 
     # Compute gradients
-    (loss, metrics), grads = jax.value_and_grad(
-        loss_fn, has_aux=True
-    )(state["params"])
+    (loss, metrics), grads = jax.value_and_grad(loss_fn, has_aux=True)(state["model"])
 
     # Update parameters
     updates, opt_state = optimizer.update(
@@ -300,7 +286,7 @@ def _validate_step(state, batch):
     _, val_rng = jax.random.split(state["rng"])
 
     # Compute validation loss (no gradients)
-    loss, metrics = model.loss_fn(state["params"], batch, val_rng)
+    loss, metrics = objective_fn(state["model"], batch, val_rng)
     metrics["loss"] = loss
 
     return metrics
@@ -355,9 +341,12 @@ training_config = TrainingConfig(
     max_checkpoints=5,    # Keep last 5 checkpoints
 )
 
+loss_fn = task_loss_fn
+
 trainer = Trainer(
     model=model,
     training_config=training_config,
+    loss_fn=loss_fn,
 )
 
 # Training automatically saves checkpoints
@@ -407,16 +396,28 @@ Each checkpoint contains the complete training state:
 Artifex includes structured logging:
 
 ```python
-from artifex.generative_models.utils.logging import Logger, MetricsLogger
+from artifex.generative_models.core.evaluation.metrics.general import PrecisionRecall
+from artifex.generative_models.core.evaluation.metrics.image import (
+    FrechetInceptionDistance,
+)
+from artifex.generative_models.utils.logging import FileLogger, MetricsLogger
 
 # Create loggers
-logger = Logger(log_dir="./logs")
-metrics_logger = MetricsLogger(log_dir="./logs/metrics")
+logger = FileLogger(name="training_logger", log_dir="./logs")
+metrics_logger = MetricsLogger(
+    logger=logger,
+    metrics={
+        "fid": FrechetInceptionDistance(),
+        "precision_recall": PrecisionRecall(),
+    },
+)
+loss_fn = task_loss_fn
 
 # Initialize trainer with loggers
 trainer = Trainer(
     model=model,
     training_config=training_config,
+    loss_fn=loss_fn,
     logger=logger,
     metrics_logger=metrics_logger,
 )
@@ -438,9 +439,12 @@ def custom_log_callback(step, metrics, prefix="train"):
     if wandb_enabled:
         wandb.log({f"{prefix}/{k}": v for k, v in metrics.items()}, step=step)
 
+loss_fn = task_loss_fn
+
 trainer = Trainer(
     model=model,
     training_config=training_config,
+    loss_fn=loss_fn,
     log_callback=custom_log_callback,
 )
 ```
@@ -629,7 +633,7 @@ if hasattr(model, 'reconstruction_loss'):
     print(f"KL divergence: {val_metrics['kl_loss']:.4f}")
 ```
 
-For comprehensive evaluation with FID, Inception Score, and other metrics, see the [Benchmarks documentation](../../benchmarks/index.md).
+For complete evaluation with FID, Inception Score, and other metrics, see the [Benchmarks documentation](../../benchmarks/index.md).
 
 ## Complete Training Example
 
@@ -637,23 +641,35 @@ Here's a complete training workflow:
 
 ```python
 from artifex.generative_models.core.configuration import (
-    ModelConfig,
-    TrainingConfig,
+    DecoderConfig,
+    EncoderConfig,
     OptimizerConfig,
     SchedulerConfig,
+    TrainingConfig,
+    VAEConfig,
 )
 from artifex.generative_models.factory import create_model
 from artifex.generative_models.training import Trainer
 from flax import nnx
 
 # 1. Create model configuration
-model_config = ModelConfig(
+encoder_config = EncoderConfig(
+    name="vae_encoder",
+    input_shape=(28, 28, 1),
+    latent_dim=64,
+    hidden_dims=(512, 256),
+)
+decoder_config = DecoderConfig(
+    name="vae_decoder",
+    latent_dim=64,
+    output_shape=(28, 28, 1),
+    hidden_dims=(256, 512),
+)
+model_config = VAEConfig(
     name="vae_mnist",
-    model_class="artifex.generative_models.models.vae.base.VAE",
-    input_dim=(28, 28, 1),
-    hidden_dims=[512, 256],
-    output_dim=64,
-    parameters={"beta": 1.0},
+    encoder=encoder_config,
+    decoder=decoder_config,
+    kl_weight=1.0,
 )
 
 # 2. Initialize model
@@ -690,10 +706,14 @@ training_config = TrainingConfig(
     checkpoint_dir="./checkpoints/vae",
 )
 
+loss_fn = task_loss_fn
+best_val_loss = float("inf")
+
 # 6. Initialize trainer
 trainer = Trainer(
     model=model,
     training_config=training_config,
+    loss_fn=loss_fn,
     train_data_loader=train_loader,
     val_data_loader=val_loader,
     workdir="./experiments/vae",
@@ -710,11 +730,12 @@ for epoch in range(training_config.num_epochs):
     print(f"Epoch {epoch + 1}: Val Loss = {val_metrics['loss']:.4f}")
 
     # Save best model
-    if val_metrics['loss'] < trainer.state.get('best_loss', float('inf')):
+    if val_metrics['loss'] < best_val_loss:
+        best_val_loss = val_metrics['loss']
         trainer.save_checkpoint(f"./checkpoints/vae/best_model.pkl")
 
-# 8. Generate samples
-samples = trainer.generate_samples(num_samples=16)
+# 8. Use the model's generation surface after training
+samples = model.generate(num_samples=16)
 ```
 
 ## Key Design Principles
@@ -740,7 +761,7 @@ def train_step(state, batch):
 
 ### 2. Type Safety
 
-All configurations use Pydantic for type safety:
+All configurations use typed dataclass validation for type safety:
 
 ```python
 # Type-safe configuration
@@ -757,7 +778,7 @@ try:
         name="bad",
         batch_size="invalid",  # TypeError: not an int
     )
-except ValidationError as e:
+except (TypeError, ValueError) as e:
     print(e)
 ```
 
@@ -798,12 +819,12 @@ Leverages JAX for performance and scalability:
 
 The Artifex training system provides:
 
-- ✅ **Type-Safe Configuration**: Pydantic-based with validation
+- ✅ **Type-Safe Configuration**: Frozen dataclass-based with validation
 - ✅ **Flexible Training**: Custom loops, optimizers, and schedules
 - ✅ **Research-Ready Features**: Checkpointing, logging, monitoring
 - ✅ **High Performance**: JIT compilation and JAX optimizations
 - ✅ **Easy to Use**: Simple API with sensible defaults
-- ✅ **Well-Tested**: Comprehensive test coverage
+- ✅ **Well-Tested**: Complete test coverage
 
 ## Next Steps
 

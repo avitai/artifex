@@ -5,7 +5,7 @@ This module provides a logger implementation that integrates with MLflow
 for experiment tracking, including metrics, parameters, artifacts, and models.
 """
 
-import os
+from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -100,8 +100,9 @@ class MLFlowLogger(Logger):
 
         # Configure local artifact logging
         if log_dir is not None:
-            self.artifact_dir = os.path.join(log_dir, "artifacts")
-            os.makedirs(self.artifact_dir, exist_ok=True)
+            artifact_path = Path(log_dir) / "artifacts"
+            artifact_path.mkdir(parents=True, exist_ok=True)
+            self.artifact_dir = str(artifact_path)
         else:
             self.artifact_dir = None
 
@@ -173,8 +174,8 @@ class MLFlowLogger(Logger):
 
             # Create temporary directory for images
             if self.artifact_dir:
-                images_dir = os.path.join(self.artifact_dir, "images")
-                os.makedirs(images_dir, exist_ok=True)
+                images_dir = Path(self.artifact_dir) / "images"
+                images_dir.mkdir(parents=True, exist_ok=True)
 
             if isinstance(image, list):
                 # Handle multiple images
@@ -195,7 +196,7 @@ class MLFlowLogger(Logger):
                 # Save and log the figure
                 if self.artifact_dir:
                     filename = f"{name}{step_str}.png"
-                    filepath = os.path.join(images_dir, filename)
+                    filepath = str(images_dir / filename)
                     fig.savefig(filepath, bbox_inches="tight")
                     self.mlflow.log_artifact(filepath, "images")
                 else:
@@ -228,7 +229,7 @@ class MLFlowLogger(Logger):
                 # Save and log the figure
                 if self.artifact_dir:
                     filename = f"{name}{step_str}.png"
-                    filepath = os.path.join(images_dir, filename)
+                    filepath = str(images_dir / filename)
                     fig.savefig(filepath, bbox_inches="tight")
                     self.mlflow.log_artifact(filepath, "images")
                 else:
@@ -292,10 +293,10 @@ class MLFlowLogger(Logger):
 
             # Save and log the histogram
             if self.artifact_dir:
-                histograms_dir = os.path.join(self.artifact_dir, "histograms")
-                os.makedirs(histograms_dir, exist_ok=True)
+                histograms_dir = Path(self.artifact_dir) / "histograms"
+                histograms_dir.mkdir(parents=True, exist_ok=True)
                 filename = f"{name}{step_str}.png"
-                filepath = os.path.join(histograms_dir, filename)
+                filepath = str(histograms_dir / filename)
                 fig.savefig(filepath)
                 self.mlflow.log_artifact(filepath, "histograms")
             else:
@@ -332,10 +333,10 @@ class MLFlowLogger(Logger):
 
         # Log to file and then log as artifact
         if self.artifact_dir:
-            texts_dir = os.path.join(self.artifact_dir, "texts")
-            os.makedirs(texts_dir, exist_ok=True)
+            texts_dir = Path(self.artifact_dir) / "texts"
+            texts_dir.mkdir(parents=True, exist_ok=True)
             filename = f"{name}{step_str}.txt"
-            filepath = os.path.join(texts_dir, filename)
+            filepath = str(texts_dir / filename)
             with open(filepath, "w") as f:
                 f.write(text)
             self.mlflow.log_artifact(filepath, "texts")

@@ -1,13 +1,4 @@
-"""Group Relative Policy Optimization (GRPO) trainer.
-
-GRPO is a critic-free RL algorithm from DeepSeek-R1 that:
-- Generates multiple completions per prompt
-- Normalizes advantages within each group
-- Uses PPO-style clipping
-- Saves ~50% memory by eliminating the value network
-
-Reference: https://arxiv.org/abs/2402.03300 (DeepSeek-R1)
-"""
+"""GRPO trainer over grouped autoregressive rollout batches."""
 
 from __future__ import annotations
 
@@ -17,32 +8,19 @@ import jax
 import jax.numpy as jnp
 from flax import nnx
 
+from artifex.generative_models.training.rl.adapters import SequencePolicyAdapter
 from artifex.generative_models.training.rl.configs import GRPOConfig
+from artifex.generative_models.training.rl.protocols import SequenceRolloutPolicyAdapter
+from artifex.generative_models.training.rl.types import GroupRolloutBatch, SequenceRolloutBatch
 from artifex.generative_models.training.rl.utils import (
-    compute_clipped_surrogate_loss,
-    compute_kl_divergence,
-    compute_policy_entropy,
+    compute_masked_clipped_surrogate_loss,
+    compute_masked_kl_divergence,
+    compute_masked_policy_entropy,
 )
 
 
 class GRPOTrainer:
-    """Group Relative Policy Optimization trainer.
-
-    GRPO is a critic-free algorithm that:
-    1. Generates G completions per prompt
-    2. Computes rewards for each completion
-    3. Normalizes rewards within each group: (r - mean) / std
-    4. Uses normalized rewards as advantages
-    5. Applies PPO-style clipped objective
-
-    This eliminates the need for a value network, saving ~50% memory.
-
-    Attributes:
-        model: Policy model to train.
-        optimizer: Flax NNX optimizer.
-        config: GRPO configuration.
-        reference_model: Optional frozen reference for KL penalty.
-    """
+    """Group Relative Policy Optimization trainer for sequence rollouts."""
 
     def __init__(
         self,
@@ -50,19 +28,61 @@ class GRPOTrainer:
         optimizer: nnx.Optimizer,
         config: GRPOConfig | None = None,
         reference_model: nnx.Module | None = None,
+        *,
+        policy_adapter: SequenceRolloutPolicyAdapter | None = None,
+        reference_adapter: SequenceRolloutPolicyAdapter | None = None,
     ) -> None:
-        """Initialize GRPO trainer.
-
-        Args:
-            model: Policy model to train.
-            optimizer: Flax NNX optimizer for the model.
-            config: GRPO configuration. Uses defaults if not provided.
-            reference_model: Optional frozen reference model for KL penalty.
-        """
         self.model = model
         self.optimizer = optimizer
         self.config = config if config is not None else GRPOConfig()
         self.reference_model = reference_model
+        self.policy_adapter = policy_adapter or SequencePolicyAdapter(model)
+        self.reference_adapter = (
+            reference_adapter
+            if reference_adapter is not None
+            else (SequencePolicyAdapter(reference_model) if reference_model is not None else None)
+        )
+
+    def _resolve_policy_adapter(
+        self,
+        model: nnx.Module | None = None,
+    ) -> SequenceRolloutPolicyAdapter:
+        """Return the active policy adapter, rebound without mutating shared trainer state."""
+        adapter = self.policy_adapter
+        if model is None or getattr(adapter, "model", None) is model:
+            return adapter
+
+        bind = getattr(adapter, "bind", None)
+        if callable(bind):
+            return bind(model)
+
+        if hasattr(adapter, "model"):
+            msg = (
+                "Transform-compatible GRPO loss functions require policy adapters "
+                "to implement bind(model) when they capture a model instance."
+            )
+            raise TypeError(msg)
+        return adapter
+
+    def _resolve_reference_adapter(self) -> SequenceRolloutPolicyAdapter | None:
+        """Return the active reference adapter, rebound without mutating trainer state."""
+        adapter = self.reference_adapter
+        if adapter is None:
+            return None
+        if self.reference_model is None or getattr(adapter, "model", None) is self.reference_model:
+            return adapter
+
+        bind = getattr(adapter, "bind", None)
+        if callable(bind):
+            return bind(self.reference_model)
+
+        if hasattr(adapter, "model"):
+            msg = (
+                "Transform-compatible GRPO loss functions require reference adapters "
+                "to implement bind(model) when they capture a model instance."
+            )
+            raise TypeError(msg)
+        return adapter
 
     def normalize_group_rewards(
         self,
@@ -70,141 +90,102 @@ class GRPOTrainer:
         group_size: int,
         eps: float = 1e-8,
     ) -> jax.Array:
-        """Normalize rewards within each group.
-
-        For GRPO, we have G generations per prompt. We normalize
-        rewards within each group to zero mean, unit variance.
-
-        Args:
-            rewards: Rewards with shape (batch_size,) where batch_size
-                is num_prompts * group_size.
-            group_size: Number of generations per prompt (G).
-            eps: Small constant for numerical stability.
-
-        Returns:
-            Group-normalized advantages with same shape.
-        """
-        # Reshape to (num_prompts, group_size)
+        """Normalize rewards within each prompt group."""
         num_prompts = rewards.shape[0] // group_size
         grouped = rewards.reshape(num_prompts, group_size)
-
-        # Compute per-group statistics
         group_mean = jnp.mean(grouped, axis=1, keepdims=True)
         group_std = jnp.std(grouped, axis=1, keepdims=True)
-
-        # Normalize within groups
         normalized = (grouped - group_mean) / (group_std + eps)
-
-        # Flatten back
         return normalized.reshape(-1)
 
-    def compute_loss(
+    def _compute_loss_with_adapters(
         self,
-        states: jax.Array,
-        actions: jax.Array,
-        old_log_probs: jax.Array,
-        rewards: jax.Array,
-        group_size: int | None = None,
+        batch: GroupRolloutBatch[SequenceRolloutBatch],
+        policy_adapter: SequenceRolloutPolicyAdapter,
+        reference_adapter: SequenceRolloutPolicyAdapter | None,
     ) -> tuple[jax.Array, dict[str, Any]]:
-        """Compute GRPO loss.
+        """Compute GRPO loss over a grouped sequence rollout batch."""
+        rollout = batch.rollout
+        if rollout.old_log_probs is None or rollout.sequence_rewards is None:
+            msg = (
+                "GRPOTrainer requires old_log_probs and sequence rewards on "
+                "GroupRolloutBatch.rollout"
+            )
+            raise ValueError(msg)
 
-        Args:
-            states: Input states with shape (batch_size, ...).
-            actions: Actions taken with shape (batch_size,).
-            old_log_probs: Log probs from old policy with shape (batch_size,).
-            rewards: Rewards with shape (batch_size,).
-            group_size: Number of generations per prompt. If None, uses
-                config.num_generations.
+        sequence_advantages = self.normalize_group_rewards(
+            rollout.sequence_rewards,
+            batch.group_size,
+        )
+        action_mask = rollout.action_mask
+        broadcast_advantages = sequence_advantages[:, None] * action_mask
 
-        Returns:
-            Tuple of (loss, metrics_dict).
-        """
-        if group_size is None:
-            group_size = self.config.num_generations
-
-        # Normalize rewards within groups to get advantages
-        advantages = self.normalize_group_rewards(rewards, group_size)
-
-        # Forward pass to get current log probs
-        logits = self.model(states)
-        log_probs_all = jax.nn.log_softmax(logits, axis=-1)
-        log_probs = jnp.take_along_axis(
-            log_probs_all,
-            actions[:, None],
-            axis=-1,
-        ).squeeze(-1)
-
-        # Clipped surrogate loss
-        policy_loss = compute_clipped_surrogate_loss(
-            log_probs,
-            old_log_probs,
-            advantages,
+        action_log_probs = policy_adapter.action_log_probs(rollout)
+        policy_loss = compute_masked_clipped_surrogate_loss(
+            action_log_probs,
+            rollout.old_log_probs,
+            broadcast_advantages,
+            action_mask,
             self.config.clip_param,
         )
 
-        # Entropy bonus
-        entropy = compute_policy_entropy(log_probs_all)
+        policy_log_probs = policy_adapter.log_prob_distributions(rollout)
+        entropy = compute_masked_policy_entropy(policy_log_probs, action_mask)
 
-        # KL penalty if reference model exists
         kl_penalty = jnp.array(0.0)
-        if self.reference_model is not None:
-            ref_logits = self.reference_model(states)
-            ref_log_probs = jax.nn.log_softmax(ref_logits, axis=-1)
-            kl_penalty = compute_kl_divergence(log_probs_all, ref_log_probs)
+        if reference_adapter is not None:
+            reference_log_probs = reference_adapter.log_prob_distributions(rollout)
+            kl_penalty = compute_masked_kl_divergence(
+                policy_log_probs,
+                reference_log_probs,
+                action_mask,
+            )
 
-        # Total loss
         total_loss = (
             policy_loss + self.config.beta * kl_penalty - self.config.entropy_coeff * entropy
         )
-
         metrics = {
             "policy_loss": policy_loss,
             "entropy": entropy,
             "kl_penalty": kl_penalty,
             "total_loss": total_loss,
-            "advantages_mean": jnp.mean(advantages),
-            "advantages_std": jnp.std(advantages),
+            "advantages_mean": jnp.mean(sequence_advantages),
+            "advantages_std": jnp.std(sequence_advantages),
         }
-
         return total_loss, metrics
+
+    def compute_loss(
+        self,
+        batch: GroupRolloutBatch[SequenceRolloutBatch],
+    ) -> tuple[jax.Array, dict[str, Any]]:
+        """Compute GRPO loss for a grouped sequence rollout batch."""
+        return self._compute_loss_with_adapters(
+            batch,
+            self._resolve_policy_adapter(),
+            self._resolve_reference_adapter(),
+        )
+
+    def create_loss_fn(self):
+        """Create a transform-friendly GRPO loss function with explicit model input."""
+
+        def loss_fn(
+            model: nnx.Module,
+            batch: GroupRolloutBatch[SequenceRolloutBatch],
+        ) -> tuple[jax.Array, dict[str, Any]]:
+            return self._compute_loss_with_adapters(
+                batch,
+                self._resolve_policy_adapter(model),
+                self._resolve_reference_adapter(),
+            )
+
+        return loss_fn
 
     def train_step(
         self,
-        batch: dict[str, jax.Array],
+        batch: GroupRolloutBatch[SequenceRolloutBatch],
     ) -> tuple[jax.Array, dict[str, Any]]:
-        """Perform a single GRPO training step.
-
-        Args:
-            batch: Dictionary containing:
-                - "states": Input states.
-                - "actions": Actions taken.
-                - "old_log_probs": Log probs from old policy.
-                - "rewards": Rewards for each completion.
-                - "group_size": Optional, number of generations per prompt.
-
-        Returns:
-            Tuple of (loss, metrics_dict).
-        """
-        states = batch["states"]
-        actions = batch["actions"]
-        old_log_probs = batch["old_log_probs"]
-        rewards = batch["rewards"]
-        group_size_value = batch.get("group_size")
-        group_size: int = (
-            int(group_size_value) if group_size_value is not None else self.config.num_generations
-        )
-
-        def loss_fn(model: nnx.Module) -> tuple[jax.Array, dict[str, Any]]:
-            original_model = self.model
-            self.model = model
-            loss, metrics = self.compute_loss(states, actions, old_log_probs, rewards, group_size)
-            self.model = original_model
-            return loss, metrics
-
-        # Compute gradients
-        grads, metrics = nnx.grad(loss_fn, has_aux=True)(self.model)
-
-        # Update model
+        """Perform a single GRPO update step."""
+        loss_fn = self.create_loss_fn()
+        (loss, metrics), grads = nnx.value_and_grad(loss_fn, has_aux=True)(self.model, batch)
         self.optimizer.update(self.model, grads)
-
-        return metrics["total_loss"], metrics
+        return loss, metrics

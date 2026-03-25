@@ -7,6 +7,9 @@ on:
     paths:
       - 'docs/**'
       - 'mkdocs.yml'
+      - 'pyproject.toml'
+      - 'scripts/validate_docs.py'
+      - '.github/actions/setup-artifex/action.yml'
       - '.github/workflows/docs.yml'
   workflow_dispatch:
 
@@ -22,22 +25,18 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - name: Set up Artifex docs environment
+        uses: ./.github/actions/setup-artifex
         with:
           python-version: '3.11'
+          cache-suffix: docs-py311
+          linux-editable-target: ".[docs]"
 
-      - name: Install uv
-        run: curl -LsSf https://astral.sh/uv/install.sh | sh
-
-      - name: Add uv to PATH
-        run: echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-
-      - name: Install dependencies
-        run: uv sync --extra docs
+      - name: Validate documentation contract
+        run: uv run python scripts/validate_docs.py --config-path mkdocs.yml --docs-path docs --src-path src
 
       - name: Build documentation
-        run: uv run mkdocs build --clean
+        run: uv run mkdocs build --clean --strict
 
       - name: Prepare deployment directory
         run: |

@@ -1,12 +1,8 @@
 #!/usr/bin/env python3
-"""
-Comprehensive documentation build script for Artifex.
+# ruff: noqa: T201
+"""Validate the curated docs tree, then build or serve it with MkDocs."""
 
-This script handles the complete documentation build process:
-1. Generate documentation from source code
-2. Build the documentation with MkDocs
-3. Optionally serve the documentation for preview
-"""
+from __future__ import annotations
 
 import argparse
 import subprocess
@@ -14,89 +10,87 @@ import sys
 from pathlib import Path
 
 
-def run_command(cmd, cwd=None, description=""):
-    """Run a command and handle errors."""
-    if description:
-        print(f"🔄 {description}")
-
-    try:
-        result = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, check=True)
-        if result.stdout:
-            print(result.stdout)
-        return True
-    except subprocess.CalledProcessError as e:
-        print(f"❌ Command failed: {' '.join(cmd)}")
-        print(f"Error: {e.stderr}")
-        return False
-    except Exception as e:
-        print(f"❌ Unexpected error: {e}")
-        return False
+def _run_command(command: list[str], cwd: Path, description: str) -> int:
+    """Run one CLI command and stream its output to the terminal."""
+    print(description)
+    completed = subprocess.run(command, cwd=cwd, check=False)
+    if completed.returncode != 0:
+        print(f"Command failed: {' '.join(command)}")
+    return completed.returncode
 
 
-def main():
-    """Main build process."""
-    parser = argparse.ArgumentParser(description="Build Artifex documentation")
-    parser.add_argument(
-        "--serve", action="store_true", help="Serve documentation after building (for preview)"
+def build_parser() -> argparse.ArgumentParser:
+    """Create the CLI parser."""
+    parser = argparse.ArgumentParser(
+        description="Validate curated docs, then build or serve them with MkDocs."
     )
     parser.add_argument(
-        "--port", type=int, default=8000, help="Port for serving documentation (default: 8000)"
+        "--config-path",
+        default="mkdocs.yml",
+        help="Path to the MkDocs configuration file (default: mkdocs.yml)",
     )
     parser.add_argument(
-        "--skip-generation", action="store_true", help="Skip documentation generation step"
+        "--docs-path",
+        default="docs",
+        help="Path to the curated documentation tree (default: docs)",
     )
+    parser.add_argument(
+        "--src-path",
+        default="src",
+        help="Path to the Python source tree used for docs validation (default: src)",
+    )
+    parser.add_argument(
+        "--serve",
+        action="store_true",
+        help="Serve the validated docs after the strict build completes",
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=8000,
+        help="Port to use when serving documentation (default: 8000)",
+    )
+    return parser
 
-    args = parser.parse_args()
 
-    # Get project root
-    project_root = Path(__file__).parent.parent
+def main() -> int:
+    """Run the docs build workflow."""
+    args = build_parser().parse_args()
+    project_root = Path(__file__).resolve().parent.parent
+    validator_script = project_root / "scripts" / "validate_docs.py"
 
-    print("🚀 Starting Artifex documentation build process...")
+    validation_command = [
+        sys.executable,
+        str(validator_script),
+        "--config-path",
+        args.config_path,
+        "--docs-path",
+        args.docs_path,
+        "--src-path",
+        args.src_path,
+    ]
+    if _run_command(validation_command, project_root, "Validating curated documentation...") != 0:
+        return 1
 
-    # Step 1: Generate documentation from source code
-    if not args.skip_generation:
-        print("\n📚 Step 1: Generating documentation from source code...")
+    build_command = ["uv", "run", "mkdocs", "build", "--clean", "--strict", "-f", args.config_path]
+    if _run_command(build_command, project_root, "Building documentation...") != 0:
+        return 1
 
-        generate_script = project_root / "scripts" / "generate_docs.py"
-        if not generate_script.exists():
-            print(f"❌ Documentation generation script not found: {generate_script}")
-            sys.exit(1)
+    if not args.serve:
+        return 0
 
-        if not run_command(
-            [sys.executable, str(generate_script)],
-            cwd=project_root,
-            description="Running documentation generation...",
-        ):
-            sys.exit(1)
-    else:
-        print("\n⏭️  Skipping documentation generation (--skip-generation flag)")
-
-    # Step 2: Build documentation with MkDocs
-    print("\n🔨 Step 2: Building documentation with MkDocs...")
-
-    if not run_command(
-        ["uv", "run", "mkdocs", "build"], cwd=project_root, description="Building documentation..."
-    ):
-        sys.exit(1)
-
-    print("✅ Documentation build completed successfully!")
-
-    # Step 3: Optionally serve documentation
-    if args.serve:
-        print(f"\n🌐 Step 3: Serving documentation on port {args.port}...")
-        print(f"📖 Documentation will be available at: http://localhost:{args.port}")
-        print("Press Ctrl+C to stop the server")
-
-        try:
-            subprocess.run(
-                ["uv", "run", "mkdocs", "serve", "--dev-addr", f"0.0.0.0:{args.port}"],
-                cwd=project_root,
-            )
-        except KeyboardInterrupt:
-            print("\n👋 Documentation server stopped")
-
-    print("\n🎉 Documentation build process completed!")
+    serve_command = [
+        "uv",
+        "run",
+        "mkdocs",
+        "serve",
+        "-f",
+        args.config_path,
+        "--dev-addr",
+        f"0.0.0.0:{args.port}",
+    ]
+    return _run_command(serve_command, project_root, "Serving documentation...")
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

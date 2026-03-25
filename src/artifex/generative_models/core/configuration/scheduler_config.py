@@ -1,7 +1,5 @@
 """SchedulerConfig frozen dataclass configuration.
 
-Replaces Pydantic SchedulerConfiguration with frozen dataclass.
-
 Design:
 - Frozen dataclass inheriting from BaseConfig
 - All validation in __post_init__ using DRY utilities
@@ -18,7 +16,7 @@ from artifex.generative_models.core.configuration.validation import (
 )
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class SchedulerConfig(BaseConfig):
     """Configuration for learning rate schedulers.
 
@@ -63,14 +61,14 @@ class SchedulerConfig(BaseConfig):
     # MultiStep scheduler (use tuple for immutability)
     milestones: tuple[int, ...] = ()
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate all fields.
 
         Validation uses DRY utilities from validation.py where possible.
         Follows fail-fast principle - raise on first error.
         """
         # Call parent validation first
-        super().__post_init__()
+        super(SchedulerConfig, self).__post_init__()
 
         # Validate required fields (they have dummy defaults for dataclass compatibility)
         if not self.scheduler_type:

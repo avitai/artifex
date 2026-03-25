@@ -3,7 +3,7 @@
 Integrates the Diffusion Transformer backbone with the diffusion framework.
 """
 
-from typing import Callable
+from collections.abc import Callable
 
 import jax
 import jax.numpy as jnp
@@ -113,7 +113,6 @@ class DiTModel(GenerativeModel):
         y: jax.Array | None = None,
         *,
         deterministic: bool = False,
-        cfg_scale: float | None = None,
     ) -> jax.Array:
         """Forward pass through DiT model.
 
@@ -122,15 +121,11 @@ class DiTModel(GenerativeModel):
             t: Timesteps [batch]
             y: Optional class labels [batch]
             deterministic: Whether to apply dropout
-            cfg_scale: Classifier-free guidance scale
 
         Returns:
             Predicted noise [batch, height, width, channels]
         """
-        if cfg_scale is None:
-            cfg_scale = self.cfg_scale
-
-        return self.backbone(x, t, y, deterministic=deterministic, cfg_scale=cfg_scale)
+        return self.backbone(x, t, y, deterministic=deterministic)
 
     def sample_step(
         self,
@@ -153,11 +148,11 @@ class DiTModel(GenerativeModel):
         Returns:
             Denoised sample [batch, height, width, channels]
         """
-        if cfg_scale is None:
-            cfg_scale = self.cfg_scale
+        cfg_scale_value = self.cfg_scale if cfg_scale is None else cfg_scale
 
         # Get noise prediction
-        if cfg_scale > 1.0 and y is not None:
+        if cfg_scale_value > 1.0 and y is not None:
+            assert self.num_classes is not None
             # Classifier-free guidance
             # Predict noise with and without conditioning
             x_t.shape[0]
@@ -167,8 +162,8 @@ class DiTModel(GenerativeModel):
             t_combined = jnp.concatenate([t, t], axis=0)
 
             # Create labels: actual labels and null labels
-            null_labels = jnp.full_like(y, self.num_classes) if self.num_classes else None
-            y_combined = jnp.concatenate([y, null_labels], axis=0) if y is not None else None
+            null_labels = jnp.full_like(y, self.num_classes)
+            y_combined = jnp.concatenate([y, null_labels], axis=0)
 
             # Get predictions
             noise_pred = self.backbone(x_combined, t_combined, y_combined, deterministic=True)
@@ -177,7 +172,7 @@ class DiTModel(GenerativeModel):
             noise_cond, noise_uncond = jnp.split(noise_pred, 2, axis=0)
 
             # Apply classifier-free guidance
-            noise_pred = noise_uncond + cfg_scale * (noise_cond - noise_uncond)
+            noise_pred = noise_uncond + cfg_scale_value * (noise_cond - noise_uncond)
         else:
             # Standard prediction
             noise_pred = self.backbone(x_t, t, y, deterministic=True)

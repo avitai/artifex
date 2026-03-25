@@ -1,124 +1,33 @@
 # Guidance
 
-**Module:** `generative_models.models.diffusion.guidance`
+Supported owner: `artifex.generative_models.models.diffusion.guidance`
 
-**Source:** `generative_models/models/diffusion/guidance.py`
+## Public Imports
+
+```python
+from artifex.generative_models.models.diffusion import (
+    ClassifierFreeGuidance,
+    ClassifierGuidance,
+    ConditionalDiffusionMixin,
+    GuidedDiffusionModel,
+    apply_guidance,
+    cosine_guidance_schedule,
+    linear_guidance_schedule,
+)
+```
 
 ## Overview
 
-Guidance techniques for diffusion models.
+The retained guidance surface is the top-level diffusion export set above.
+These owners cover classifier-free guidance, classifier guidance, the
+conditional diffusion mixin, the guided wrapper model, and the exported
+schedule helpers.
 
-This module implements various guidance methods including classifier-free guidance,
-classifier guidance, and other conditional generation techniques.
+Family-local closures and per-instance helper methods remain implementation
+details rather than supported module-level API.
 
-## Classes
+## Related Pages
 
-### ClassifierFreeGuidance
-
-```python
-class ClassifierFreeGuidance
-```
-
-### ClassifierGuidance
-
-```python
-class ClassifierGuidance
-```
-
-### ConditionalDiffusionMixin
-
-```python
-class ConditionalDiffusionMixin
-```
-
-### GuidedDiffusionModel
-
-```python
-class GuidedDiffusionModel
-```
-
-## Functions
-
-### **call**
-
-```python
-def __call__()
-```
-
-### **call**
-
-```python
-def __call__()
-```
-
-### **call**
-
-```python
-def __call__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-### apply_guidance
-
-```python
-def apply_guidance()
-```
-
-### classifier_fn
-
-```python
-def classifier_fn()
-```
-
-### cosine_guidance_schedule
-
-```python
-def cosine_guidance_schedule()
-```
-
-### generate
-
-```python
-def generate()
-```
-
-### guided_sample_step
-
-```python
-def guided_sample_step()
-```
-
-### linear_guidance_schedule
-
-```python
-def linear_guidance_schedule()
-```
-
-## Module Statistics
-
-- **Classes:** 4
-- **Functions:** 13
-- **Imports:** 5
+- [Model Implementations](index.md)
+- [Diffusion API Reference](../api/models/diffusion.md)
+- [Diffusion Guide](../user-guide/models/diffusion-guide.md)

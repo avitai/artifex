@@ -84,10 +84,10 @@ def __init__()
 def __init__()
 ```
 
-### create_decoder_unified
+### create_decoder
 
 ```python
-def create_decoder_unified()
+def create_decoder()
 ```
 
 ## Module Statistics

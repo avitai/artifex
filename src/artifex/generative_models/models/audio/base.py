@@ -182,7 +182,7 @@ class BaseAudioModel(GenerativeModel):
         *,
         rngs: nnx.Rngs | None = None,
         **kwargs,
-    ) -> dict[str, float]:
+    ) -> dict[str, jax.Array]:
         """Compute training loss.
 
         Args:
@@ -191,7 +191,7 @@ class BaseAudioModel(GenerativeModel):
             **kwargs: Additional loss parameters
 
         Returns:
-            Loss value
+            Dictionary containing canonical loss terms.
         """
         target_audio = batch["audio"]
         predicted_audio = model_outputs.get("audio", model_outputs.get("predictions"))
@@ -207,6 +207,6 @@ class BaseAudioModel(GenerativeModel):
         loss_type = kwargs.get("loss_type", "mse")
         loss = self.compute_reconstruction_loss(target_audio, predicted_audio, loss_type)
         return {
-            "loss": float(loss),
-            f"{loss_type}_loss": float(loss),
+            "total_loss": loss,
+            f"{loss_type}_loss": loss,
         }

@@ -5,7 +5,7 @@ how well a probability model predicts a sample. Lower perplexity indicates
 better prediction performance.
 """
 
-from typing import Callable
+from collections.abc import Callable
 
 import flax.nnx as nnx
 import jax
@@ -44,7 +44,13 @@ class Perplexity(SequenceMetric):
             name: Name of the metric
             rngs: Optional RNG state
         """
-        super().__init__(name=name, batch_size=batch_size, rngs=rngs)
+        super().__init__(
+            name=name,
+            batch_size=batch_size,
+            rngs=rngs,
+            modality="text",
+            higher_is_better=False,
+        )
         self.model = model
 
     def compute_log_probs(self, inputs: jax.Array) -> jax.Array:

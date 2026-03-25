@@ -1,38 +1,20 @@
-# Device
+# Device Utilities
 
-**Module:** `generative_models.utils.jax.device`
+**Status:** `Supported runtime utility`
+**Module:** `artifex.generative_models.utils.jax.device`
+**Source:** `src/artifex/generative_models/utils/jax/device.py`
 
-**Source:** `generative_models/utils/jax/device.py`
+This page documents the runtime-oriented device helpers layered on top of
+`artifex.generative_models.core.device_manager` and
+`artifex.generative_models.core.device_testing`.
 
-## Overview
+## Public Helpers
 
-Device utilities for artifex generative models.
+### `verify_device_setup(critical_only: bool = False) -> bool`
 
-This module provides a clean interface to the comprehensive device management system.
-All functionality has been moved to the core device management architecture.
+Runs the device diagnostics suite and returns its health verdict.
 
-## Functions
+### `get_recommended_batch_size(model_params: int, base_batch_size: int = 32) -> int`
 
-### get_recommended_batch_size
-
-```python
-def get_recommended_batch_size()
-```
-
-### setup_device_for_training
-
-```python
-def setup_device_for_training()
-```
-
-### verify_device_setup
-
-```python
-def verify_device_setup()
-```
-
-## Module Statistics
-
-- **Classes:** 0
-- **Functions:** 3
-- **Imports:** 2
+Returns a simple runtime-aware batch-size heuristic based on GPU availability and
+model size.

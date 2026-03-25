@@ -1,7 +1,21 @@
+# ---
+# jupyter:
+#   jupytext:
+#     formats: py:percent,ipynb
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+# ---
+
 # %% [markdown]
 r"""
 # Simple Text Generation with Character-Level Models
 
+**Status:** Standalone pedagogy
+
+This walkthrough is a standalone JAX/Flax NNX concept demo.
+It does not instantiate shipped Artifex runtime owners.
 This example demonstrates text generation using character-level language modeling
 with JAX/Flax NNX. Learn how to build a simple recurrent text generator that
 processes sequences one character at a time.
@@ -43,11 +57,12 @@ $$P_T(x_t) = \\frac{\\exp(z_t / T)}{\\sum_i \\exp(z_i / T)}$$
 """
 
 # %%
-#!/usr/bin/env python
-"""Simple text generation example using the Artifex framework.
+# !/usr/bin/env python
+"""Standalone JAX/Flax NNX concept walkthrough.
 
-This example demonstrates basic text generation using character-level
-language modeling with JAX/Flax.
+This file does not instantiate shipped Artifex runtime owners.
+It demonstrates basic text generation using character-level language modeling
+with JAX/Flax.
 
 Source Code Dependencies:
     - flax.nnx: Neural network modules (Embed, Linear, Sequential)
@@ -55,10 +70,21 @@ Source Code Dependencies:
     - jax.random: Sampling operations
 """
 
+import logging
+
 import jax
 import jax.numpy as jnp
 import numpy as np
 from flax import nnx
+
+
+logging.basicConfig(level=logging.INFO, format="%(message)s")
+LOGGER = logging.getLogger(__name__)
+
+
+def echo(message: object = "") -> None:
+    """Emit example progress without raw print calls."""
+    LOGGER.info("%s", message)
 
 
 # %% [markdown]
@@ -248,9 +274,9 @@ parameter affects output diversity.
 # %%
 def demonstrate_text_generation():
     """Demonstrate text generation capabilities."""
-    print("=" * 60)
-    print("Simple Text Generation Example")
-    print("=" * 60)
+    echo("=" * 60)
+    echo("Simple Text Generation Example")
+    echo("=" * 60)
 
     # Set random seed
     seed = 42
@@ -258,43 +284,43 @@ def demonstrate_text_generation():
     rngs = nnx.Rngs(params=key, sample=key)
 
     # Create text generator
-    print("\nCreating text generator...")
+    echo("\nCreating text generator...")
     generator = SimpleTextGenerator(
         vocab_size=128, embed_dim=64, hidden_dim=128, seq_length=32, rngs=rngs
     )
 
-    print(f"Vocabulary size: {generator.vocab_size}")
-    print(f"Embedding dimension: {generator.embed_dim}")
-    print(f"Hidden dimension: {generator.hidden_dim}")
-    print(f"Sequence length: {generator.seq_length}")
+    echo(f"Vocabulary size: {generator.vocab_size}")
+    echo(f"Embedding dimension: {generator.embed_dim}")
+    echo(f"Hidden dimension: {generator.hidden_dim}")
+    echo(f"Sequence length: {generator.seq_length}")
 
     # Create training data
-    print("\nCreating training data...")
+    echo("\nCreating training data...")
     text_data, token_ids = create_training_data()
-    print(f"Training text length: {len(text_data)} characters")
-    print(f"Sample text: '{text_data[:50]}...'")
+    echo(f"Training text length: {len(text_data)} characters")
+    echo(f"Sample text: '{text_data[:50]}...'")
 
     # Test forward pass
-    print("\nTesting forward pass...")
+    echo("\nTesting forward pass...")
     # Create a batch of sequences
     seq_len = 16
     batch_size = 4
     test_input = token_ids[: batch_size * seq_len].reshape(batch_size, seq_len)
     logits = generator(test_input)
-    print(f"Input shape: {test_input.shape}")
-    print(f"Output logits shape: {logits.shape}")
+    echo(f"Input shape: {test_input.shape}")
+    echo(f"Output logits shape: {logits.shape}")
 
     # Generate text with different temperatures
-    print()
-    print("=" * 40)
-    print("Text Generation Examples")
-    print("=" * 40)
+    echo()
+    echo("=" * 40)
+    echo("Text Generation Examples")
+    echo("=" * 40)
 
     prompts = ["The ", "Hello ", "Machine ", ""]
     temperatures = [0.5, 0.8, 1.0, 1.5]
 
     for prompt in prompts:
-        print(f"\nPrompt: '{prompt}'")
+        echo(f"\nPrompt: '{prompt}'")
         for temp in temperatures:
             # Create new RNG for each generation
             gen_key = jax.random.key(np.random.randint(0, 10000))
@@ -309,13 +335,13 @@ def demonstrate_text_generation():
             if len(generated_clean) > 60:
                 generated_clean = generated_clean[:60] + "..."
 
-            print(f"  Temp {temp:.1f}: {generated_clean}")
+            echo(f"  Temp {temp:.1f}: {generated_clean}")
 
     # Demonstrate batch generation
-    print()
-    print("=" * 40)
-    print("Batch Processing Example")
-    print("=" * 40)
+    echo()
+    echo("=" * 40)
+    echo("Batch Processing Example")
+    echo("=" * 40)
 
     # Process multiple sequences
     batch_prompts = ["The ", "Hello ", "JAX "]
@@ -333,19 +359,19 @@ def demonstrate_text_generation():
     batch_input = jnp.array(batch_ids)
     batch_logits = generator(batch_input)
 
-    print(f"\nBatch input shape: {batch_input.shape}")
-    print(f"Batch output shape: {batch_logits.shape}")
+    echo(f"\nBatch input shape: {batch_input.shape}")
+    echo(f"Batch output shape: {batch_logits.shape}")
 
     # Get predictions for next character
     next_char_logits = batch_logits[:, -1, :]
     next_chars = jnp.argmax(next_char_logits, axis=-1)
 
-    print("\nNext character predictions:")
+    echo("\nNext character predictions:")
     for i, (prompt, next_id) in enumerate(zip(batch_prompts, next_chars)):
         next_char = chr(int(next_id) % 128)
-        print(f"  '{prompt}' -> '{next_char}'")
+        echo(f"  '{prompt}' -> '{next_char}'")
 
-    print("\nSimple text generation example completed successfully!")
+    echo("\nSimple text generation example completed successfully!")
 
 
 # %% [markdown]

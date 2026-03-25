@@ -1,8 +1,5 @@
 # Configuration Guide
 
-!!! info "Coming Soon"
-    This guide is being developed. Check back for comprehensive configuration documentation.
-
 ## Overview
 
 Learn how to configure Artifex models and training:
@@ -30,4 +27,5 @@ Complex models use nested configuration objects.
 
 ### Validation
 
-Configurations are validated at creation time using Pydantic.
+Configurations are validated at creation time through typed dataclass construction and
+`__post_init__`.

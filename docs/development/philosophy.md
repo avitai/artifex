@@ -28,7 +28,7 @@ Strong typing throughout:
 
 - **Protocol-Based Design**: All major components implement Python Protocols for type-safe interfaces
 - **Frozen Dataclass Configs**: Immutable configuration objects with automatic validation
-- **Full Type Annotations**: Comprehensive type hints for IDE support and static analysis
+- **Full Type Annotations**: Complete type hints for IDE support and static analysis
 
 ## Configuration Philosophy
 
@@ -117,11 +117,11 @@ Different streams serve different purposes:
 
 ### Test Organization
 
-Tests mirror source structure:
+Tests should import live Artifex owners instead of recreating local shadow configs or models.
 
-- `tests/standalone/`: Isolated component tests
-- `tests/artifex/`: Integrated system tests
-- GPU tests marked with `@pytest.mark.gpu`
+- `tests/artifex/`: package, integration, and repo-contract coverage tied to the live runtime
+- `tests/unit/`: narrower low-level unit coverage where that layout already exists
+- GPU requirements are explicit through `@pytest.mark.gpu` or `@pytest.mark.requires_gpu`
 
 ## What We Don't Do
 

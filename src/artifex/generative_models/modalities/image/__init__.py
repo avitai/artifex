@@ -1,16 +1,19 @@
-"""Image modality for generative models.
+"""Lightweight image modality helpers for generative models.
 
-This module provides comprehensive image generation capabilities including:
-- Multiple resolution and channel support (grayscale, RGB, RGBA)
-- Integration with VAE, GAN, and Diffusion models
-- Comprehensive image evaluation metrics (FID, IS, LPIPS)
-- Data augmentation and preprocessing pipelines
-- Integration with benchmark framework
+This package provides:
+- RGB, RGBA, and grayscale image modality configuration
+- synthetic image dataset helpers
+- modality-local helper metrics such as MSE, PSNR, SSIM, and perceptual distance
+- basic preprocessing plus retained augmentation helpers (horizontal flip and brightness jitter)
+
+Benchmark-grade metrics such as FID, Inception Score, and LPIPS are owned by
+`artifex.benchmarks.metrics.image`, not by this modality helper layer.
 
 Example:
-    >>> from artifex.generative_models.modalities.image import ImageModality, ImageRepresentation
-    >>> modality = ImageModality(resolution=64, channels=3)
-    >>> images = modality.generate(n_samples=4)
+    >>> from flax import nnx
+    >>> from artifex.generative_models.modalities.image import ImageModality, ImageModalityConfig
+    >>> modality = ImageModality(config=ImageModalityConfig(height=64, width=64), rngs=nnx.Rngs(0))
+    >>> images = modality.generate(n_samples=4, rngs=nnx.Rngs(1))
 """
 
 from .adapters import ImageModalityAdapter
@@ -21,7 +24,11 @@ from .base import (
     ImageModalityConfig,
     ImageRepresentation,
 )
-from .datasets import create_image_dataset, ImageDataset, SyntheticImageDataset
+from .datasets import (
+    create_image_dataset,
+    generate_mnist_like_images,
+    generate_synthetic_images,
+)
 from .evaluation import compute_image_metrics, ImageEvaluationSuite, ImageMetrics
 from .representations import AugmentationProcessor, ImageProcessor, MultiScaleProcessor
 
@@ -36,8 +43,8 @@ __all__ = [
     # Adapters
     "ImageModalityAdapter",
     # Dataset handling
-    "ImageDataset",
-    "SyntheticImageDataset",
+    "generate_synthetic_images",
+    "generate_mnist_like_images",
     "create_image_dataset",
     # Evaluation
     "ImageEvaluationSuite",

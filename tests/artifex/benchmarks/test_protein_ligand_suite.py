@@ -15,7 +15,7 @@ from artifex.benchmarks.suites.protein_ligand_suite import (
     ProteinLigandBenchmarkSuite,
     ProteinLigandCoDesignBenchmark,
 )
-from artifex.generative_models.core.configuration import DataConfig
+from artifex.generative_models.core.configuration import DataConfig, EvaluationConfig
 
 
 @pytest.fixture
@@ -37,6 +37,7 @@ def small_dataset(rngs):
             "max_ligand_atoms": 20,
             "pocket_radius": 10.0,
             "batch_size": 3,
+            "demo_mode": True,
         },
     )
     return CrossDockedDataset(
@@ -102,6 +103,7 @@ class TestCrossDockedDataset:
                 "max_ligand_atoms": 30,
                 "pocket_radius": 10.0,
                 "batch_size": 32,
+                "demo_mode": True,
             },
         )
         dataset = CrossDockedDataset(
@@ -189,7 +191,13 @@ class TestProteinLigandMetrics:
 
     def test_binding_affinity_metric(self, rngs):
         """Test binding affinity metric computation."""
-        metric = BindingAffinityMetric(rngs=rngs)
+        config = EvaluationConfig(
+            name="binding_affinity",
+            metrics=["binding_affinity"],
+            metric_params={"higher_is_better": False},
+            eval_batch_size=4,
+        )
+        metric = BindingAffinityMetric(rngs=rngs, config=config)
 
         # Mock predictions and targets
         predictions = jnp.array([-8.5, -6.2, -9.1, -7.3])
@@ -210,7 +218,13 @@ class TestProteinLigandMetrics:
 
     def test_molecular_validity_metric(self, rngs):
         """Test molecular validity metric computation."""
-        metric = MolecularValidityMetric(rngs=rngs)
+        config = EvaluationConfig(
+            name="molecular_validity",
+            metrics=["molecular_validity"],
+            metric_params={"higher_is_better": True},
+            eval_batch_size=4,
+        )
+        metric = MolecularValidityMetric(rngs=rngs, config=config)
 
         # Create mock molecular data
         batch_size = 3
@@ -232,7 +246,13 @@ class TestProteinLigandMetrics:
 
     def test_drug_likeness_metric(self, rngs):
         """Test drug-likeness metric computation."""
-        metric = DrugLikenessMetric(rngs=rngs)
+        config = EvaluationConfig(
+            name="drug_likeness",
+            metrics=["drug_likeness"],
+            metric_params={"drug_likeness": {"higher_is_better": True, "demo_mode": True}},
+            eval_batch_size=4,
+        )
+        metric = DrugLikenessMetric(rngs=rngs, config=config)
 
         # Create mock ligand data
         batch_size = 2
@@ -267,7 +287,7 @@ class TestProteinLigandBenchmark:
     def test_benchmark_initialization(self, small_dataset, rngs):
         """Test benchmark can be initialized."""
         benchmark = ProteinLigandCoDesignBenchmark(
-            dataset=small_dataset, num_samples=5, batch_size=2, rngs=rngs
+            dataset=small_dataset, num_samples=5, batch_size=2, demo_mode=True, rngs=rngs
         )
 
         assert benchmark.config.name == "protein_ligand_codesign"
@@ -285,7 +305,7 @@ class TestProteinLigandBenchmark:
     def test_benchmark_run_with_mock_model(self, small_dataset, rngs):
         """Test benchmark execution with mock model."""
         benchmark = ProteinLigandCoDesignBenchmark(
-            dataset=small_dataset, num_samples=4, batch_size=2, rngs=rngs
+            dataset=small_dataset, num_samples=4, batch_size=2, demo_mode=True, rngs=rngs
         )
 
         model = MockProteinLigandModel(rngs)
@@ -305,18 +325,14 @@ class TestProteinLigandBenchmark:
         assert result.metadata["num_samples"] == 4
         assert result.metadata["batch_size"] == 2
 
-    def test_mock_prediction_generation(self, small_dataset, rngs):
-        """Test mock prediction generation for fallback."""
+    def test_benchmark_rejects_models_without_required_interfaces(self, small_dataset, rngs):
+        """Benchmark should fail fast instead of fabricating placeholder predictions."""
         benchmark = ProteinLigandCoDesignBenchmark(
-            dataset=small_dataset, num_samples=3, batch_size=3, rngs=rngs
+            dataset=small_dataset, num_samples=3, batch_size=3, demo_mode=True, rngs=rngs
         )
 
-        true_affinities = jnp.array([-8.0, -6.5, -9.2])
-        mock_predictions = benchmark._generate_mock_predictions(true_affinities)
-
-        assert mock_predictions.shape == true_affinities.shape
-        # Predictions should be close but not identical
-        assert not jnp.allclose(mock_predictions, true_affinities)
+        with pytest.raises(ValueError, match="predict_binding_affinity"):
+            benchmark.run(object())
 
 
 class TestProteinLigandBenchmarkSuite:
@@ -325,8 +341,9 @@ class TestProteinLigandBenchmarkSuite:
     def test_suite_initialization(self, rngs):
         """Test suite can be initialized with default config."""
         suite = ProteinLigandBenchmarkSuite(
-            dataset_config={"num_samples": 20},
+            dataset_config={"num_samples": 20, "demo_mode": True},
             benchmark_config={"num_samples": 5, "batch_size": 2},
+            demo_mode=True,
             rngs=rngs,
         )
 
@@ -337,8 +354,9 @@ class TestProteinLigandBenchmarkSuite:
     def test_suite_run_all(self, rngs):
         """Test running all benchmarks in the suite."""
         suite = ProteinLigandBenchmarkSuite(
-            dataset_config={"num_samples": 8},
+            dataset_config={"num_samples": 8, "demo_mode": True},
             benchmark_config={"num_samples": 4, "batch_size": 2},
+            demo_mode=True,
             rngs=rngs,
         )
 
@@ -368,6 +386,7 @@ class TestIntegration:
                 "num_samples": 6,
                 "max_protein_atoms": 100,  # Use higher value to accommodate mock data
                 "max_ligand_atoms": 30,  # Use higher value to accommodate mock data
+                "demo_mode": True,
             },
             benchmark_config={
                 "num_samples": 4,
@@ -382,13 +401,13 @@ class TestIntegration:
         # Run complete evaluation
         results = suite.run_all(model)
 
-        # Verify comprehensive results
+        # Verify complete results
         assert len(results) > 0
 
         for benchmark_name, result in results.items():
             metrics = result.metrics
 
-            # Check Week 5-8 target metrics are evaluated
+            # Check v0.5-v0.8 target metrics are evaluated
             assert "binding_affinity_rmse" in metrics
             assert "molecular_validity_rate" in metrics
             assert "qed_score" in metrics
@@ -406,8 +425,14 @@ class TestIntegration:
     def test_performance_targets_validation(self, rngs):
         """Test that the benchmark properly validates against performance targets."""
         suite = ProteinLigandBenchmarkSuite(
-            dataset_config={"num_samples": 4, "max_protein_atoms": 100, "max_ligand_atoms": 30},
+            dataset_config={
+                "num_samples": 4,
+                "max_protein_atoms": 100,
+                "max_ligand_atoms": 30,
+                "demo_mode": True,
+            },
             benchmark_config={"num_samples": 2, "batch_size": 1},
+            demo_mode=True,
             rngs=rngs,
         )
 
@@ -418,7 +443,7 @@ class TestIntegration:
         for result in results.values():
             target_metrics = result.metadata.get("target_metrics", {})
 
-            # Week 5-8 targets should be present
+            # v0.5-v0.8 targets should be present
             assert target_metrics.get("binding_affinity_rmse") == 1.0
             assert target_metrics.get("molecular_validity_rate") == 0.95
             assert target_metrics.get("qed_score") == 0.7

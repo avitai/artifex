@@ -1,16 +1,15 @@
 name: default_voxel_model
-description: Default configuration for voxel grid generation model
-
-model_type: voxel
-latent_dim: 256
-use_conditioning: false
-
-# Voxel specific parameters
-resolution: 32
-channels: [512, 256, 128, 64, 32, 1]
-kernel_size: 4
-use_batch_norm: true
-activation: leaky_relu
-
-# Loss function parameters
-loss_type: bce
+description: Default typed config for voxel generation models.
+network:
+  name: voxel_network
+  hidden_dims: [64, 64, 64, 64]
+  activation: gelu
+  base_channels: 64
+  num_layers: 4
+  kernel_size: 3
+  use_residual: true
+voxel_size: 16
+voxel_dim: 1
+loss_type: focal
+focal_gamma: 2.0
+dropout_rate: 0.1

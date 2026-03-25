@@ -1,461 +1,211 @@
 # Artifex Scripts Directory
 
-This directory contains utility scripts for development, testing, and maintenance of the Artifex project.
+This directory contains repo-maintenance helpers. Supported contributor
+workflows should use `uv run python ...` for Python entrypoints or checked-in
+shell wrappers such as `./scripts/serve_docs_fast.sh`.
+
+Some local one-off maintenance scripts remain intentionally undocumented here
+until their safety contracts are repaired. This catalog only covers retained
+surfaces with reviewed behavior.
 
 ## 📋 Table of Contents
 
 - [Environment Setup](#-environment-setup)
 - [Testing](#-testing)
-- [Code Quality](#-code-quality)
+- [GPU/Hardware Verification](#-gpuhardware-verification)
+- [Code Analysis](#-code-analysis)
 - [Documentation](#-documentation)
-- [Development Utilities](#development-utilities)
+- [Script Guidelines](#-script-guidelines)
 - [Maintenance](#-maintenance)
 
 ## 🚀 Environment Setup
 
 ### setup_env.py
 
-**Purpose:** Python-based environment management utility complementing the main setup.sh script.
-
-**Features:**
-
-- Environment status checking
-- Installation verification
-- Configuration file generation
-- Environment cleanup
+**Purpose:** Write and inspect the generated `.artifex.env` file loaded by
+`activate.sh`.
 
 **Usage:**
 
 ```bash
-# Check environment status
-python scripts/setup_env.py check
-
-# Verify installation
-python scripts/setup_env.py verify
-
-# Clean environment
-python scripts/setup_env.py clean [--deep]
-
-# Create .env configuration only
-python scripts/setup_env.py create-env [--cpu-only]
+uv run python scripts/setup_env.py show
+uv run python scripts/setup_env.py write --backend cpu
+uv run python scripts/setup_env.py write --backend cuda12
 ```
 
-**Note:** For full environment setup, use `./setup.sh` in the project root.
+For full environment setup, use `./setup.sh` in the project root. The generated
+file is `.artifex.env`; `.env` remains user-owned.
 
 ## 🧪 Testing
 
-### smart_test_runner.sh
-
-**Purpose:** Intelligent test execution with automatic GPU detection and parallel optimization.
-
-**Features:**
-
-- Automatic GPU/CPU detection
-- Smart parallelization strategy
-- GPU test marker detection
-- Environment variable loading
-
-**Execution Strategies:**
-
-- GPU tests on GPU: Sequential (prevents CUDA conflicts)
-- GPU tests on CPU: Skip with warning
-- CPU tests: Parallel execution
-- Mixed: Automatic detection
-
-**Usage:**
+Ad hoc test wrappers have been removed. Use direct `uv run pytest` commands so
+the test surface stays aligned with the central pytest configuration.
 
 ```bash
-# Run all tests with smart detection
-./scripts/smart_test_runner.sh tests/
-
-# Run specific test types
-./scripts/smart_test_runner.sh tests/ -k test_gpu    # GPU tests only
-./scripts/smart_test_runner.sh tests/ -m "not gpu"   # CPU tests only
-
-# Force execution mode
-./scripts/smart_test_runner.sh tests/ --parallel     # Force parallel
-./scripts/smart_test_runner.sh tests/ --sequential   # Force sequential
-```
-
-### blackjax_test_helper.py
-
-**Purpose:** Helper for managing BlackJAX test execution.
-
-**Features:**
-
-- Enable/disable BlackJAX tests via environment variables
-- Test filtering and selection
-- Coverage report generation
-
-**Usage:**
-
-```bash
-# Enable BlackJAX tests
-python scripts/blackjax_test_helper.py --enable
-
-# Check status
-python scripts/blackjax_test_helper.py --status
-
-# Run with BlackJAX tests
-python scripts/blackjax_test_helper.py --enable --run
+uv run pytest tests/ -v
+uv run pytest -m gpu -v
+uv run pytest -m blackjax -v
+uv run pytest tests/artifex/generative_models/core/sampling/test_blackjax_samplers.py -v
 ```
 
 ## 🎮 GPU/Hardware Verification
 
 ### verify_gpu_setup.py
 
-**Purpose:** Comprehensive GPU setup verification and diagnostics.
-
-**Features:**
-
-- Hardware capability detection
-- JAX device configuration verification
-- Memory management testing
-- CUDA library validation
-- Performance analysis
-- Detailed recommendations
-
-**Usage:**
+**Purpose:** Verify the active JAX backend and device visibility.
 
 ```bash
-# Full verification suite
-python scripts/verify_gpu_setup.py
-
-# Quick critical tests only
-python scripts/verify_gpu_setup.py --critical-only
-
-# Configure before verification
-python scripts/verify_gpu_setup.py --configure-first
+uv run python scripts/verify_gpu_setup.py
+uv run python scripts/verify_gpu_setup.py --require-gpu
+uv run python scripts/verify_gpu_setup.py --json
 ```
 
 ### gpu_utils.py
 
-**Purpose:** Utility functions for GPU detection and configuration.
-
-**Features:**
-
-- CUDA version detection
-- GPU memory querying
-- Device capability checking
-- Environment configuration helpers
-
-**Usage:**
-
-```python
-from gpu_utils import detect_cuda_version, get_gpu_memory
-
-cuda_version = detect_cuda_version()
-memory_info = get_gpu_memory()
-```
-
-## 📝 Code Quality
-
-### analyze_dependencies.py
-
-**Purpose:** Analyze module dependencies and detect circular imports.
-
-**Features:**
-
-- Dependency graph generation
-- Circular dependency detection
-- Module relationship analysis
-- Visual dependency reports
-
-**Usage:**
+**Purpose:** Run repo-local GPU diagnostics against the current runtime device
+surface.
 
 ```bash
-# Analyze dependencies
-python scripts/analyze_dependencies.py
-
-# Custom output directory
-python scripts/analyze_dependencies.py --output-dir custom/path
-
-# Specific source directory
-python scripts/analyze_dependencies.py --source-dir src/artifex
-```
-
-### analyze_test_structure.py
-
-**Purpose:** Analyze test coverage and structure.
-
-**Features:**
-
-- Test file discovery
-- Source module mapping
-- Coverage analysis
-- Test structure recommendations
-
-**Usage:**
-
-```bash
-# Analyze test structure
-python scripts/analyze_test_structure.py
-
-# Custom directories
-python scripts/analyze_test_structure.py --test-dir tests --src-dir src/artifex
-
-# JSON output
-python scripts/analyze_test_structure.py --json-output analysis.json
-```
-
-### find_circular_imports.py
-
-**Purpose:** Detect circular import dependencies.
-
-**Features:**
-
-- AST-based import analysis
-- Circular dependency detection
-- Detailed cycle reporting
-
-**Usage:**
-
-```bash
-# Find circular imports
-python scripts/find_circular_imports.py
-```
-
-### fix_imports.py
-
-**Purpose:** Fix import statements in test files.
-
-**Features:**
-
-- Remove `src.` prefix from imports
-- Batch processing of test files
-- Safe import rewriting
-
-**Usage:**
-
-```bash
-# Fix imports in all test files
-python scripts/fix_imports.py
+uv run python scripts/gpu_utils.py
+uv run python scripts/gpu_utils.py --detailed
+uv run python scripts/gpu_utils.py --test
+uv run python scripts/gpu_utils.py --test-critical
 ```
 
 ### check_jax_nnx_compatibility.py
 
-**Purpose:** Verify JAX and Flax NNX version compatibility.
-
-**Features:**
-
-- Version checking for JAX ecosystem
-- Compatibility matrix validation
-- Recommended version reporting
-
-**Usage:**
+**Purpose:** Compare the installed JAX ecosystem packages against the live repo
+dependency contract declared in `pyproject.toml`.
 
 ```bash
-# Check compatibility
-python scripts/check_jax_nnx_compatibility.py
+uv run python scripts/check_jax_nnx_compatibility.py
+uv run python scripts/check_jax_nnx_compatibility.py --json
+```
+
+## 📝 Code Analysis
+
+### analyze_dependencies.py
+
+**Purpose:** Analyze repo-local import relationships and render dependency
+artifacts into ignored output paths.
+
+```bash
+uv run python scripts/analyze_dependencies.py
+uv run python scripts/analyze_dependencies.py --source-dir src/artifex
+uv run python scripts/analyze_dependencies.py --output-dir test_artifacts/code_analysis/custom
+```
+
+### analyze_test_structure.py
+
+**Purpose:** Analyze test-to-source coverage and write reports into ignored
+repo-local artifacts.
+
+Default outputs land under
+`test_artifacts/code_analysis/test_structure/`, not under curated docs.
+
+```bash
+uv run python scripts/analyze_test_structure.py
+uv run python scripts/analyze_test_structure.py --test-dir tests --src-dir src/artifex
+uv run python scripts/analyze_test_structure.py --json-output test_artifacts/code_analysis/test_structure/custom.json
+```
+
+### find_circular_imports.py
+
+**Purpose:** Report full repo-local circular dependency groups from the import
+graph.
+
+```bash
+uv run python scripts/find_circular_imports.py
+uv run python scripts/find_circular_imports.py --source-dir src/artifex --fail-on-cycles
 ```
 
 ## 📚 Documentation
 
 ### build_docs.py
 
-**Purpose:** Comprehensive documentation build orchestration.
-
-**Features:**
-
-- Documentation generation from source
-- MkDocs build integration
-- Optional documentation serving
-- Error handling and reporting
-
-**Usage:**
+**Purpose:** Run the docs validator, then perform a strict MkDocs build. The
+optional serve mode uses the same validated config path.
 
 ```bash
-# Build documentation
-python scripts/build_docs.py
-
-# Build and serve
-python scripts/build_docs.py --serve [--port 8000]
-
-# Skip generation step
-python scripts/build_docs.py --skip-generation
-```
-
-### generate_docs.py
-
-**Purpose:** Modern documentation generator with dynamic discovery.
-
-**Features:**
-
-- Dynamic project structure discovery
-- Automatic module categorization
-- Incremental generation support
-- MkDocs navigation generation
-- Progress tracking and error handling
-
-**Usage:**
-
-```bash
-# Standard generation
-python scripts/generate_docs.py
-
-# Clean rebuild with verbose output
-python scripts/generate_docs.py --clean --verbose
-
-# Incremental build
-python scripts/generate_docs.py --incremental
+uv run python scripts/build_docs.py
+uv run python scripts/build_docs.py --config-path mkdocs.yml --docs-path docs --src-path src
+uv run python scripts/build_docs.py --serve --port 8000
 ```
 
 ### validate_docs.py
 
-**Purpose:** Validate and auto-fix documentation issues.
+**Purpose:** Validate the curated docs contract: nav coverage, internal links,
+and mkdocstrings module references.
 
-**Features:**
-
-- Validates Python module references in mkdocstrings
-- Auto-fixes incorrect module paths
-- Checks for missing directories and files
-- Validates navigation structure in mkdocs.yml
-- Reports issues with detailed suggestions
-
-**Usage:**
+`--fix` is intentionally narrow. It only repairs safe scaffolding gaps such as
+a missing `theme.custom_dir`; unresolved issues still exit non-zero.
 
 ```bash
-# Check for issues
-python scripts/validate_docs.py --check-only
+uv run python scripts/validate_docs.py --check-only
+uv run python scripts/validate_docs.py --fix
+uv run python scripts/validate_docs.py --fix --verbose --config-path mkdocs.yml --docs-path docs --src-path src
+```
 
-# Auto-fix issues
-python scripts/validate_docs.py --fix
+### serve_docs_fast.sh
 
-# Verbose checking with fixes
-python scripts/validate_docs.py --fix --verbose
+**Purpose:** Serve the local docs quickly with `mkdocs-dev.yml` and dirty
+reload.
+
+```bash
+./scripts/serve_docs_fast.sh
 ```
 
 ## 🧹 Maintenance
 
 ### clean_cache.sh
 
-**Purpose:** Remove cache files and temporary artifacts.
-
-**Cleans:**
-
-- Python bytecode (`__pycache__`, `*.pyc`, `*.pyo`)
-- Test artifacts (`.pytest_cache`, `.coverage`)
-- Type checking cache (`.mypy_cache`)
-- Linting cache (`.ruff_cache`)
-- Build artifacts (`dist/`, `build/`, `*.egg-info`)
-- Temporary files
-
-**Preserves:**
-
-- Virtual environment (`.venv/`)
-- Lock files (`uv.lock`)
-- Git repository (`.git/`)
-- Configuration files
-
-**Usage:**
+**Purpose:** Remove common cache files and temporary artifacts while preserving
+the virtual environment, lock files, and Git metadata.
 
 ```bash
-# Clean all cache files
 ./scripts/clean_cache.sh
 ```
 
 ## 🔧 Script Guidelines
 
-### Adding New Scripts
+When adding or changing scripts:
 
-1. **Documentation**: Include comprehensive header documentation
-2. **Error Handling**: Implement proper error handling and exit codes
-3. **Logging**: Use colored output for better readability
-4. **Dependencies**: Document all required dependencies
-5. **Examples**: Provide usage examples in the script header
-
-### Script Header Template
-
-```bash
-#!/bin/bash
-# Script Name and Purpose
-# =======================
-#
-# PURPOSE:
-#   Brief description of what the script does
-#
-# USAGE:
-#   ./scripts/script_name.sh [OPTIONS]
-#
-# OPTIONS:
-#   --option1    Description of option1
-#   --option2    Description of option2
-#
-# EXAMPLES:
-#   ./scripts/script_name.sh --option1 value
-#
-# EXIT CODES:
-#   0 - Success
-#   1 - Error
-#
-# DEPENDENCIES:
-#   - dependency1
-#   - dependency2
-#
-# Author: Artifex Team
-# License: MIT
-```
-
-### Python Script Template
-
-```python
-#!/usr/bin/env python
-"""
-Script Name and Purpose
-=======================
-
-PURPOSE:
-    Brief description of what the script does
-
-USAGE:
-    python scripts/script_name.py [OPTIONS]
-
-OPTIONS:
-    --option1    Description of option1
-    --option2    Description of option2
-
-EXAMPLES:
-    python scripts/script_name.py --option1 value
-
-DEPENDENCIES:
-    - dependency1
-    - dependency2
-
-Author: Artifex Team
-License: MIT
-"""
-```
+1. Keep the CLI surface narrow and truthful.
+2. Prefer `uv run python ...` for contributor-facing Python workflows.
+3. Default write-capable helpers to ignored output paths or explicit reviewed targets.
+4. Add or update repo-contract tests before expanding the documented surface.
+5. Document only the retained, supported behavior in this file.
 
 ## 📊 Examples
 
-Example scripts have been moved to the `examples/` directory:
-
-- `examples/benchmarks/protein_benchmark_example.py` - Protein benchmark demonstration
-- `examples/benchmarks/run_protein_benchmarks.py` - Protein benchmark runner
-- `examples/verify_examples.py` - README examples verification
+Example workflows live under `examples/` and are documented separately through
+the example-specific docs contracts.
 
 ## 🚦 Quick Reference
 
 | Task | Command |
 |------|---------|
-| Check environment | `python scripts/setup_env.py check` |
-| Verify GPU setup | `python scripts/verify_gpu_setup.py` |
-| Run all tests | `./scripts/smart_test_runner.sh tests/` |
+| Check environment | `uv run python scripts/setup_env.py show` |
+| Verify GPU setup | `uv run python scripts/verify_gpu_setup.py` |
+| Run critical GPU diagnostics | `uv run python scripts/gpu_utils.py --test-critical` |
+| Run all tests | `uv run pytest tests/ -v` |
 | Clean caches | `./scripts/clean_cache.sh` |
-| Build docs | `python scripts/build_docs.py` |
-| Check dependencies | `python scripts/analyze_dependencies.py` |
-| Fix imports | `python scripts/fix_imports.py` |
+| Check docs | `uv run python scripts/validate_docs.py --check-only` |
+| Build docs | `uv run python scripts/build_docs.py` |
+| Serve docs quickly | `./scripts/serve_docs_fast.sh` |
+| Check dependencies | `uv run python scripts/analyze_dependencies.py` |
+| Analyze test structure | `uv run python scripts/analyze_test_structure.py` |
 
 ## 🤝 Contributing
 
-When adding or modifying scripts:
+When modifying this directory:
 
-1. Follow the documentation templates above
-2. Test thoroughly on both CPU and GPU systems
-3. Update this README with new script documentation
-4. Ensure scripts are executable (`chmod +x script.sh`)
-5. Use consistent error handling and logging
+1. Update the relevant repo-contract tests first.
+2. Keep public documentation aligned with the retained CLI surface.
+3. Avoid introducing blind in-place rewrites of tracked files.
+4. Prefer shared setup flows over script-local environment assumptions.
 
 ## 📝 License
 
-All scripts in this directory are part of the Artifex project and are licensed under the MIT License.
+All scripts in this directory are part of the Artifex project and are licensed
+under the MIT License.

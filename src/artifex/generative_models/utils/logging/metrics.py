@@ -5,10 +5,11 @@ This module provides utility functions for logging metrics from various
 evaluation metrics and integrating them with loggers.
 """
 
-import jax
+from typing import Any
+
 import numpy as np
 
-from artifex.generative_models.core.evaluation.metrics.base import MetricModule as Metric
+from artifex.generative_models.core.protocols.metrics import MetricBase as Metric
 from artifex.generative_models.utils.logging.logger import Logger
 
 
@@ -82,8 +83,8 @@ class MetricsLogger:
 
     def compute_metrics(
         self,
-        real_data: jax.Array,
-        generated_data: jax.Array,
+        real_data: Any,
+        generated_data: Any,
         step: int | None = None,
         log_results: bool = True,
         **kwargs,
@@ -231,7 +232,7 @@ class MetricsLogger:
 
     def log_generated_samples(
         self,
-        samples: jax.Array,
+        samples: Any,
         name: str = "generated_samples",
         step: int | None = None,
         max_samples: int = 16,
@@ -254,8 +255,8 @@ class MetricsLogger:
 
     def log_comparison(
         self,
-        real_samples: jax.Array,
-        generated_samples: jax.Array,
+        real_samples: Any,
+        generated_samples: Any,
         name: str = "real_vs_generated",
         step: int | None = None,
         max_samples: int = 8,
@@ -310,33 +311,10 @@ class MetricsLogger:
             self.log_generated_samples(gen_to_log, name="generated_samples", step=step)
 
 
-# Convenience functions
-
-
-def get_default_metrics() -> dict[str, Metric]:
-    """
-    Get default metrics for generative model evaluation.
-
-    Returns:
-        Dictionary of default metrics.
-    """
-    from artifex.generative_models.core.metrics.fid import FrechetInceptionDistance
-    from artifex.generative_models.core.metrics.inception_score import InceptionScore
-    from artifex.generative_models.core.metrics.precision_recall import PrecisionRecall
-
-    metrics = {
-        "inception_score": InceptionScore(),
-        "fid": FrechetInceptionDistance(),
-        "precision_recall": PrecisionRecall(),
-    }
-
-    return metrics
-
-
 def log_distribution_metrics(
     logger: Logger,
-    real_samples: jax.Array,
-    generated_samples: jax.Array,
+    real_samples: Any,
+    generated_samples: Any,
     step: int | None = None,
 ) -> dict[str, float]:
     """

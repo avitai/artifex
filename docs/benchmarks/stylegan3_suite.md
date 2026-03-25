@@ -8,7 +8,7 @@
 
 StyleGAN3 Benchmark Suite for High-Resolution Image Generation.
 
-This module provides a comprehensive benchmark suite for evaluating StyleGAN3
+This module provides a complete benchmark suite for evaluating StyleGAN3
 performance on FFHQ dataset with few-shot adaptation capabilities.
 
 Key Features:

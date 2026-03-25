@@ -1,19 +1,14 @@
-"""Production inference optimization for scaled models.
+"""Experimental production inference helpers.
 
-This module provides comprehensive production optimization infrastructure
-including:
-- Automatic optimization pipeline selection
-- Production-ready inference optimization
-- Model adapter classes for different architectures
-- Comprehensive monitoring and debugging tools
-
-All implementations follow JAX/Flax NNX best practices and prioritize
-performance through hardware-aware optimization.
+The retained runtime currently provides one real optimization step,
+`jit_compilation`, plus lightweight request-latency monitoring around an
+optimized pipeline. Quantization, pruning, caching, and dynamic batching remain
+internal placeholders and are not reported as applied production techniques.
 """
 
 import time
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, cast
 
 import flax.nnx as nnx
 import jax
@@ -24,6 +19,26 @@ from ...core.performance import (
     PerformanceEstimator,
 )
 from ...scaling.sharding import ParallelismConfig
+
+
+def _call_model(model: nnx.Module, inputs: jax.Array) -> jax.Array:
+    """Call model safely, handling different model interfaces.
+
+    Args:
+        model: The model to call
+        inputs: Input data
+
+    Returns:
+        Model output
+    """
+    if hasattr(model, "__call__"):
+        return model(inputs)
+
+    apply_fn = getattr(model, "apply", None)
+    if callable(apply_fn):
+        return cast(jax.Array, apply_fn(inputs))
+
+    raise ValueError(f"Model of type {type(model)} is not callable")
 
 
 @dataclass
@@ -52,23 +67,27 @@ class OptimizationResult:
 
 @dataclass
 class MonitoringMetrics:
-    """Real-time monitoring metrics for production inference."""
+    """Real-time monitoring metrics for production inference.
+
+    Fields without live instrumentation stay `None` instead of shipping
+    placeholder zero values.
+    """
 
     request_count: int = 0
     average_latency_ms: float = 0.0
     p95_latency_ms: float = 0.0
     p99_latency_ms: float = 0.0
     throughput_qps: float = 0.0
-    memory_usage_gb: float = 0.0
+    memory_usage_gb: float | None = None
     error_rate: float = 0.0
-    cache_hit_rate: float = 0.0
+    cache_hit_rate: float | None = None
 
 
 class ProductionOptimizer:
-    """Production inference optimizer with automatic optimization selection.
+    """Experimental production optimizer around JIT compilation.
 
-    Provides comprehensive optimization pipeline for production deployment
-    of scaled models with hardware-aware optimization and monitoring.
+    The retained contract measures a compiled pipeline and reports only the
+    optimization steps that have a real runtime effect today.
     """
 
     def __init__(
@@ -114,29 +133,8 @@ class ProductionOptimizer:
             optimized_model = self._apply_compilation_optimization(optimized_model, sample_inputs)
             optimization_techniques.append("jit_compilation")
 
-        # 2. Quantization optimization
-        if self._should_apply_quantization(optimization_target):
-            optimized_model = self._apply_quantization_optimization(
-                optimized_model, optimization_target
-            )
-            optimization_techniques.append("quantization")
-
-        # 3. Pruning optimization
-        if self._should_apply_pruning(optimization_target):
-            optimized_model = self._apply_pruning_optimization(optimized_model, optimization_target)
-            optimization_techniques.append("pruning")
-
-        # 4. Caching optimization
-        if self._should_apply_caching(optimization_target):
-            optimized_model = self._apply_caching_optimization(optimized_model, sample_inputs)
-            optimization_techniques.append("caching")
-
-        # 5. Batching optimization
-        if self._should_apply_batching(optimization_target):
-            optimized_model = self._apply_batching_optimization(
-                optimized_model, optimization_target
-            )
-            optimization_techniques.append("dynamic_batching")
+        # The remaining optimization hooks are placeholders only and are not
+        # reported as applied techniques until they change runtime behavior.
 
         # Measure performance
         performance_metrics = self._measure_production_performance(optimized_model, sample_inputs)
@@ -203,7 +201,6 @@ class ProductionOptimizer:
         self, model: nnx.Module, sample_inputs: tuple[jax.Array, ...]
     ) -> nnx.Module:
         """Apply JIT compilation optimization."""
-        optimizer_ref = self
 
         # Wrap model with nnx.jit-compiled forward pass (model as explicit arg)
         class CompiledModel(nnx.Module):
@@ -216,7 +213,7 @@ class ProductionOptimizer:
 
             @nnx.jit
             def __call__(self, inputs: jax.Array) -> jax.Array:
-                return optimizer_ref._call_model(self.base_model, inputs)
+                return _call_model(self.base_model, inputs)
 
         return CompiledModel(model, self)
 
@@ -252,37 +249,20 @@ class ProductionOptimizer:
         # In a real implementation, this would implement dynamic batching
         return model
 
-    def _call_model(self, model: nnx.Module, inputs: jax.Array) -> jax.Array:
-        """Call model safely, handling different model interfaces.
-
-        Args:
-            model: The model to call
-            inputs: Input data
-
-        Returns:
-            Model output
-        """
-        if hasattr(model, "__call__"):
-            return model(inputs)
-        elif hasattr(model, "apply"):
-            return model.apply(inputs)
-        else:
-            raise ValueError(f"Model of type {type(model)} is not callable")
-
     def _measure_production_performance(
         self, model: nnx.Module, sample_inputs: tuple[jax.Array, ...]
     ) -> dict[str, float]:
         """Measure production performance metrics."""
         # Warm up
         for _ in range(3):
-            result = self._call_model(model, sample_inputs[0])
+            result = _call_model(model, sample_inputs[0])
             jax.block_until_ready(result)
 
         # Measure latency
         latencies = []
         for _ in range(10):
             start_time = time.time()
-            output = self._call_model(model, sample_inputs[0])
+            output = _call_model(model, sample_inputs[0])
             jax.block_until_ready(output)
             # Convert to ms
             latencies.append((time.time() - start_time) * 1000)
@@ -339,7 +319,7 @@ class ProductionPipeline:
 
         try:
             # Perform inference
-            outputs = self._call_model(self.model, inputs)
+            outputs = _call_model(self.model, inputs)
             jax.block_until_ready(outputs)
 
             # Update monitoring metrics
@@ -348,11 +328,11 @@ class ProductionPipeline:
 
             return outputs
 
-        except Exception as e:
+        except Exception:  # noqa: BLE001 — re-raises after recording metrics
             # Record failed request
             latency_ms = (time.time() - start_time) * 1000
             self.monitoring.record_request(latency_ms, success=False)
-            raise e
+            raise
 
     def predict_batch(self, inputs: jax.Array) -> jax.Array:
         """Perform batch inference with monitoring.
@@ -368,7 +348,7 @@ class ProductionPipeline:
 
         try:
             # Perform batch inference
-            outputs = self._call_model(self.model, inputs)
+            outputs = _call_model(self.model, inputs)
             jax.block_until_ready(outputs)
 
             # Update monitoring metrics
@@ -380,14 +360,14 @@ class ProductionPipeline:
 
             return outputs
 
-        except Exception as e:
+        except Exception:  # noqa: BLE001 — re-raises after recording metrics
             # Record failed requests
             total_latency_ms = (time.time() - start_time) * 1000
             avg_latency_ms = total_latency_ms / batch_size
 
             for _ in range(batch_size):
                 self.monitoring.record_request(avg_latency_ms, success=False)
-            raise e
+            raise
 
     def get_monitoring_metrics(self) -> MonitoringMetrics:
         """Get current monitoring metrics.
@@ -401,26 +381,9 @@ class ProductionPipeline:
         """Reset monitoring metrics."""
         self.monitoring.reset()
 
-    def _call_model(self, model: nnx.Module, inputs: jax.Array) -> jax.Array:
-        """Call model safely, handling different model interfaces.
-
-        Args:
-            model: The model to call
-            inputs: Input data
-
-        Returns:
-            Model output
-        """
-        if hasattr(model, "__call__"):
-            return model(inputs)
-        elif hasattr(model, "apply"):
-            return model.apply(inputs)
-        else:
-            raise ValueError(f"Model of type {type(model)} is not callable")
-
 
 class ProductionMonitor:
-    """Real-time monitoring for production inference."""
+    """Lightweight request monitoring for production inference."""
 
     def __init__(self, window_size: int = 1000) -> None:
         """Initialize production monitor.
@@ -490,8 +453,8 @@ class ProductionMonitor:
             p99_latency_ms=p99_latency,
             throughput_qps=throughput,
             error_rate=error_rate,
-            memory_usage_gb=0.0,  # Placeholder
-            cache_hit_rate=0.0,  # Placeholder
+            memory_usage_gb=None,
+            cache_hit_rate=None,
         )
 
     def reset(self) -> None:

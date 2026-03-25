@@ -1,12 +1,16 @@
 # Simple Audio Generation
 
-**Level:** Beginner | **Runtime:** ~10 seconds (CPU) | **Format:** Python + Jupyter
+**Status:** `Standalone pedagogy`
+**Level:** Beginner | **Runtime:** ~10 seconds (CPU) | **Format:** Python + Jupyter | **Device:** CPU-compatible
+
+This walkthrough is a standalone JAX/Flax NNX concept demo.
+It does not instantiate shipped Artifex runtime owners.
 
 **Prerequisites:** Basic neural networks and JAX | **Target Audience:** Users learning audio generation with neural networks
 
 ## Overview
 
-This example demonstrates how to generate audio waveforms using neural networks with JAX and Flax NNX. Learn how to build a simple audio generator, create waveform variations, visualize audio in time and frequency domains, and save outputs for playback.
+This standalone walkthrough demonstrates how to generate audio waveforms using neural networks with JAX and Flax NNX. Learn how to build a simple audio generator, create waveform variations, visualize audio in time and frequency domains, and save outputs for playback.
 
 ## What You'll Learn
 
@@ -47,23 +51,8 @@ This example is available in two formats:
 
 ## Quick Start
 
-### Run the Python Script
-
 ```bash
-# Activate environment
-source activate.sh
-
-# Run the example
 python examples/generative_models/audio/simple_audio_generation.py
-```
-
-### Run the Jupyter Notebook
-
-```bash
-# Activate environment
-source activate.sh
-
-# Launch Jupyter
 jupyter lab examples/generative_models/audio/simple_audio_generation.ipynb
 ```
 
@@ -342,7 +331,7 @@ The example consists of four main components:
 
     Learn WaveNet and autoregressive models
 
-    [:octicons-arrow-right-24: WaveNet Tutorial](#)
+    [:octicons-arrow-right-24: Autoregressive Models Guide](../../user-guide/models/autoregressive-guide.md)
 
 - :material-arrow-right: **Conditional Generation**
 
@@ -350,7 +339,7 @@ The example consists of four main components:
 
     Generate audio conditioned on text or labels
 
-    [:octicons-arrow-right-24: Conditional Audio](#)
+    Follow-up guide pending.
 
 - :material-arrow-right: **Audio VAE**
 
@@ -358,15 +347,15 @@ The example consists of four main components:
 
     Build variational autoencoders for audio
 
-    [:octicons-arrow-right-24: Audio VAE Tutorial](#)
+    [:octicons-arrow-right-24: VAE Guide](../../user-guide/models/vae-guide.md)
 
-- :material-arrow-right: **Framework Features**
+- :material-arrow-right: **Artifex Audio Surface**
 
     ---
 
-    Understand Artifex's modality system
+    Compare this standalone walkthrough with the current Artifex audio helpers
 
-    [:octicons-arrow-right-24: Framework Demo](../framework/framework-features-demo.md)
+    [:octicons-arrow-right-24: Audio modality guide](../../user-guide/modalities/audio.md)
 
 </div>
 
@@ -443,7 +432,7 @@ generator = SimpleAudioGenerator(
 
 ### Related Examples
 
-- [Framework Features Demo](../framework/framework-features-demo.md) - Modality system overview
+- [Audio Modality Guide](../../user-guide/modalities/audio.md) - Current Artifex audio helpers
 - [Loss Examples](../losses/loss-examples.md) - Loss functions for audio models
 
 ### Papers and Resources

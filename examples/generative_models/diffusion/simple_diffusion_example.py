@@ -2,6 +2,7 @@
 # ---
 # jupyter:
 #   jupytext:
+#     formats: py:percent,ipynb
 #     text_representation:
 #       extension: .py
 #       format_name: percent
@@ -16,8 +17,11 @@
 """
 # Simple Diffusion Model Example
 
+**Status:** Standalone pedagogy
 **Duration:** 10 minutes | **Level:** Beginner | **GPU Required:** No
 
+Standalone JAX/Flax NNX concept walkthrough.
+This file does not instantiate shipped Artifex runtime owners.
 This example demonstrates the fundamentals of diffusion models using JAX and Flax NNX.
 You'll learn how diffusion models generate data by gradually denoising random noise.
 
@@ -37,7 +41,7 @@ This example depends on the following Artifex source files:
 - `src/artifex/generative_models/core/base.py` - GenerativeModel base class
 
 **Validation Status:**
-- ✅ All dependencies validated against `memory-bank/guides/flax-nnx-guide.md`
+- ✅ All dependencies validated against the internal Flax NNX compatibility guide
 - ✅ No anti-patterns detected (RNG handling, module init, activations)
 - ✅ All tests passing for dependency files
 
@@ -61,15 +65,15 @@ a full neural network training pipeline.
 
 - Basic understanding of generative models
 - Familiarity with JAX and NumPy
-- Artifex installed (see below)
+- Activated Artifex repository environment
 
 ## 📦 Setup
 
-Before running this example, activate the Artifex environment:
+Before running this example, activate the repository environment:
 
 ```bash
-source activate.sh
-python examples/generative_models/diffusion/simple_diffusion_example.py
+source ./activate.sh
+uv run python examples/generative_models/diffusion/simple_diffusion_example.py
 ```
 
 ## 🎬 Expected Output
@@ -110,6 +114,7 @@ We'll use:
 """
 
 # %%
+import logging
 import os
 
 import jax
@@ -120,9 +125,18 @@ from flax import nnx
 from artifex.generative_models.core.base import GenerativeModel
 
 
-print("✅ All dependencies imported successfully!")
-print(f"JAX version: {jax.__version__}")
-print(f"JAX backend: {jax.default_backend()}")
+logging.basicConfig(level=logging.INFO, format="%(message)s")
+LOGGER = logging.getLogger(__name__)
+
+
+def echo(message: object = "") -> None:
+    """Emit example progress without raw print calls."""
+    LOGGER.info("%s", message)
+
+
+echo("✅ All dependencies imported successfully!")
+echo(f"JAX version: {jax.__version__}")
+echo(f"JAX backend: {jax.default_backend()}")
 
 # %% [markdown]
 """
@@ -178,6 +192,7 @@ class SimpleDiffusionModel(GenerativeModel):
         )
 
         self.config = config
+        self.rngs = rngs
         self.data_shape = config["input_dim"]
         self.noise_steps = config.get("noise_steps", 50)
         self.beta_start = config.get("beta_start", 1e-4)
@@ -211,7 +226,7 @@ class SimpleDiffusionModel(GenerativeModel):
         """
         # Use provided RNGs or fall back to stored ones
         if rngs is None:
-            rngs = self._rngs
+            rngs = self.rngs
 
         if num_steps is None:
             num_steps = self.noise_steps
@@ -228,17 +243,17 @@ class SimpleDiffusionModel(GenerativeModel):
         # Generate initial noise from standard normal distribution
         x = jax.random.normal(rng, shape=(batch_size, *self.data_shape))
 
-        # Simple denoising process with three phases
+        # Simple denoising process with three stages
         for i in range(num_steps):
             # Current timestep (counting backward from noise_steps)
             t = self.noise_steps - i - 1
             alpha = self.alpha_cumprod[t]
 
-            # Phase 1: Early steps (first third) - Reduce noise magnitude
+            # Stage 1: Early steps (first third) - Reduce noise magnitude
             if i < num_steps // 3:
                 x = 0.99 * x
 
-            # Phase 2: Middle steps - Add spatial structure
+            # Stage 2: Middle steps - Add spatial structure
             elif i < 2 * num_steps // 3:
                 # Create a centered circular pattern
                 center_h = self.data_shape[0] // 2
@@ -260,7 +275,7 @@ class SimpleDiffusionModel(GenerativeModel):
                 pattern_weight = jnp.sqrt(alpha)
                 x = noise_weight * x + pattern_weight * pattern
 
-            # Phase 3: Later steps - Refine and sharpen
+            # Stage 3: Later steps - Refine and sharpen
             else:
                 noise_weight = jnp.sqrt(1 - alpha) * 0.5
                 signal_weight = jnp.sqrt(alpha) * 1.2
@@ -271,7 +286,7 @@ class SimpleDiffusionModel(GenerativeModel):
         return x
 
 
-print("✅ SimpleDiffusionModel class defined!")
+echo("✅ SimpleDiffusionModel class defined!")
 
 # %% [markdown]
 """
@@ -316,14 +331,14 @@ config = {
     "beta_end": 0.02,
 }
 
-print("=" * 80)
-print("Diffusion Model Configuration")
-print("=" * 80)
-print(f"🖼️  Image shape: {data_shape}")
-print(f"📊 Batch size: {batch_size}")
-print(f"🔢 Noise steps: {config['noise_steps']}")
-print(f"📉 Beta range: [{config['beta_start']:.6f}, {config['beta_end']:.6f}]")
-print("=" * 80)
+echo("=" * 80)
+echo("Diffusion Model Configuration")
+echo("=" * 80)
+echo(f"🖼️  Image shape: {data_shape}")
+echo(f"📊 Batch size: {batch_size}")
+echo(f"🔢 Noise steps: {config['noise_steps']}")
+echo(f"📉 Beta range: [{config['beta_start']:.6f}, {config['beta_end']:.6f}]")
+echo("=" * 80)
 
 # %% [markdown]
 """
@@ -333,17 +348,17 @@ Let's instantiate the model and examine its properties.
 """
 
 # %%
-print("\n🏗️  Creating SimpleDiffusionModel...")
+echo("\n🏗️  Creating SimpleDiffusionModel...")
 model = SimpleDiffusionModel(config, rngs=rngs)
 
-print("✅ Model created successfully!")
-print("\n📋 Model Properties:")
-print(f"  - Data shape: {model.data_shape}")
-print(f"  - Noise steps: {model.noise_steps}")
-print(f"  - Beta start: {model.beta_start}")
-print(f"  - Beta end: {model.beta_end}")
-print(f"  - Alpha min: {model.alpha_cumprod.min():.6f}")
-print(f"  - Alpha max: {model.alpha_cumprod.max():.6f}")
+echo("✅ Model created successfully!")
+echo("\n📋 Model Properties:")
+echo(f"  - Data shape: {model.data_shape}")
+echo(f"  - Noise steps: {model.noise_steps}")
+echo(f"  - Beta start: {model.beta_start}")
+echo(f"  - Beta end: {model.beta_end}")
+echo(f"  - Alpha min: {model.alpha_cumprod.min():.6f}")
+echo(f"  - Alpha max: {model.alpha_cumprod.max():.6f}")
 
 # %% [markdown]
 """
@@ -358,7 +373,7 @@ The model will:
 """
 
 # %%
-print("\n🎨 Generating samples from noise...")
+echo("\n🎨 Generating samples from noise...")
 
 # Create new RNG for sampling
 key, sample_key = jax.random.split(key)
@@ -367,9 +382,9 @@ sampling_rngs = nnx.Rngs(dropout=sample_key)
 # Generate samples (this is where the magic happens!)
 samples = model.sample(batch_size=batch_size, num_steps=50, rngs=sampling_rngs)
 
-print(f"✅ Generated {batch_size} samples!")
-print(f"   Output shape: {samples.shape}")
-print(f"   Value range: [{samples.min():.3f}, {samples.max():.3f}]")
+echo(f"✅ Generated {batch_size} samples!")
+echo(f"   Output shape: {samples.shape}")
+echo(f"   Value range: [{samples.min():.3f}, {samples.max():.3f}]")
 
 # %% [markdown]
 """
@@ -379,7 +394,7 @@ Let's visualize the generated samples to see what the model created.
 """
 
 # %%
-print("\n📊 Creating visualization...")
+echo("\n📊 Creating visualization...")
 
 # Create figure with subplots
 fig, axes = plt.subplots(1, batch_size, figsize=(12, 3))
@@ -409,7 +424,7 @@ os.makedirs(output_dir, exist_ok=True)
 output_path = os.path.join(output_dir, "diffusion_samples.png")
 plt.savefig(output_path, dpi=150, bbox_inches="tight")
 
-print(f"✅ Visualization saved to: {output_path}")
+echo(f"✅ Visualization saved to: {output_path}")
 
 # %% [markdown]
 """
@@ -462,7 +477,7 @@ Now that you understand the basics, try these modifications:
 
 To learn more about diffusion models, explore:
 
-- **Full DDPM Implementation:** See `ddpm_cifar10.py` for complete training pipeline
+- **DiT Demo:** Compare this standalone walkthrough with a retained diffusion example
 - **Conditional Generation:** Learn to control generation with conditions
 - **Advanced Samplers:** Explore DDIM, DPM-Solver, and other fast samplers
 - **Latent Diffusion:** Understand how Stable Diffusion works in latent space
@@ -472,8 +487,8 @@ To learn more about diffusion models, explore:
 - **Paper:** [Denoising Diffusion Probabilistic Models (Ho et al., 2020)](https://arxiv.org/abs/2006.11239)
 - **Documentation:** [Artifex Diffusion Models Guide](../../../docs/models/diffusion.md)
 - **Related Examples:**
-  - `dit_demo.py` - Diffusion Transformer architecture
-  - `advanced_diffusion.py` - Advanced techniques
+  - DiT Demo walkthrough in `docs/examples/diffusion/dit-demo.md`
+  - Diffusion guide in `docs/user-guide/models/diffusion-guide.md`
 
 ### 🐛 Troubleshooting
 
@@ -497,16 +512,16 @@ Found a bug or have suggestions? Please open an issue on GitHub!
 
 # %%
 if __name__ == "__main__":
-    print("\n" + "=" * 80)
-    print("✨ Simple Diffusion Example Complete! ✨")
-    print("=" * 80)
-    print(f"\n📁 Output saved to: {output_path}")
-    print("\n💡 Key Takeaways:")
-    print("   1. Diffusion models transform noise into structured data")
-    print("   2. Beta schedules control the generation process")
-    print("   3. Iterative denoising reveals patterns from randomness")
-    print("\n🔗 Next Steps:")
-    print("   - Try modifying the beta schedule")
-    print("   - Experiment with different image sizes")
-    print("   - Explore dit_demo.py for advanced diffusion models")
-    print("\n" + "=" * 80)
+    echo("\n" + "=" * 80)
+    echo("✨ Simple Diffusion Example Complete! ✨")
+    echo("=" * 80)
+    echo(f"\n📁 Output saved to: {output_path}")
+    echo("\n💡 Key Takeaways:")
+    echo("   1. Diffusion models transform noise into structured data")
+    echo("   2. Beta schedules control the generation process")
+    echo("   3. Iterative denoising reveals patterns from randomness")
+    echo("\n🔗 Next Steps:")
+    echo("   - Try modifying the beta schedule")
+    echo("   - Experiment with different image sizes")
+    echo("   - Explore the DiT demo walkthrough for retained diffusion owners")
+    echo("\n" + "=" * 80)

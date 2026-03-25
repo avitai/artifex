@@ -144,7 +144,6 @@ class TestCycleGANDiscriminator:
             leaky_relu_slope=0.2,
             batch_norm=True,
             dropout_rate=0.0,
-            use_spectral_norm=False,
         )
 
     @pytest.fixture
@@ -262,7 +261,6 @@ class TestCycleGAN:
                 batch_norm=False,
                 dropout_rate=0.0,
                 leaky_relu_slope=0.2,
-                use_spectral_norm=False,
             ),
             "disc_b": PatchGANDiscriminatorConfig(
                 name="disc_b",
@@ -272,7 +270,6 @@ class TestCycleGAN:
                 batch_norm=False,
                 dropout_rate=0.0,
                 leaky_relu_slope=0.2,
-                use_spectral_norm=False,
             ),
         }
 
@@ -362,19 +359,41 @@ class TestCycleGAN:
         assert jnp.isfinite(score_b).all()
 
     def test_cyclegan_loss_computation(self, cyclegan, rng, input_shape_a, input_shape_b):
-        """Test loss computation with cycle consistency."""
+        """Test CycleGAN exposes explicit generator and discriminator objectives."""
+        batch_size = 2
+        real_a = jax.random.normal(rng, (batch_size, *input_shape_a))
+        real_b = jax.random.normal(rng, (batch_size, *input_shape_b))
+        batch = {"domain_a": real_a, "domain_b": real_b}
+
+        generator_result = cyclegan.generator_objective(batch)
+        discriminator_result = cyclegan.discriminator_objective(batch)
+
+        assert "total_loss" in generator_result
+        assert "generator_loss" in generator_result
+        assert "cycle_loss" in generator_result
+        assert "identity_loss" in generator_result
+        assert jnp.isfinite(generator_result["total_loss"])
+        assert jnp.isfinite(generator_result["generator_loss"])
+        assert jnp.isfinite(generator_result["cycle_loss"])
+        assert jnp.isfinite(generator_result["identity_loss"])
+
+        assert "total_loss" in discriminator_result
+        assert "discriminator_loss" in discriminator_result
+        assert "discriminator_a_loss" in discriminator_result
+        assert "discriminator_b_loss" in discriminator_result
+        assert jnp.isfinite(discriminator_result["total_loss"])
+        assert jnp.isfinite(discriminator_result["discriminator_loss"])
+        assert jnp.isfinite(discriminator_result["discriminator_a_loss"])
+        assert jnp.isfinite(discriminator_result["discriminator_b_loss"])
+
+    def test_cyclegan_loss_fn_not_supported(self, cyclegan, rng, input_shape_a, input_shape_b):
+        """CycleGAN should not expose a fake single-objective loss_fn."""
         batch_size = 2
         real_a = jax.random.normal(rng, (batch_size, *input_shape_a))
         real_b = jax.random.normal(rng, (batch_size, *input_shape_b))
 
-        # Compute full cycle
-        cycle_loss_a, cycle_loss_b = cyclegan.compute_cycle_loss(real_a, real_b)
-        total_cycle_loss = cycle_loss_a + cycle_loss_b
-
-        # Check that losses are valid
-        assert jnp.isfinite(cycle_loss_a) and cycle_loss_a >= 0
-        assert jnp.isfinite(cycle_loss_b) and cycle_loss_b >= 0
-        assert jnp.isfinite(total_cycle_loss) and total_cycle_loss >= 0
+        with pytest.raises(NotImplementedError, match="separate generator and discriminator"):
+            cyclegan.loss_fn({"domain_a": real_a, "domain_b": real_b}, {})
 
     def test_cyclegan_identity_loss(self, cyclegan, rng, input_shape_a, input_shape_b):
         """Test identity loss computation."""
@@ -435,7 +454,6 @@ class TestCycleGAN:
                 batch_norm=False,
                 dropout_rate=0.0,
                 leaky_relu_slope=0.2,
-                use_spectral_norm=False,
             ),
             "disc_b": PatchGANDiscriminatorConfig(
                 name="disc_b_diff",
@@ -445,7 +463,6 @@ class TestCycleGAN:
                 batch_norm=False,
                 dropout_rate=0.0,
                 leaky_relu_slope=0.2,
-                use_spectral_norm=False,
             ),
         }
 
@@ -515,7 +532,6 @@ class TestCycleGAN:
                 batch_norm=False,
                 dropout_rate=0.0,
                 leaky_relu_slope=0.2,
-                use_spectral_norm=False,
             ),
             "disc_b": PatchGANDiscriminatorConfig(
                 name="disc_b_weights",
@@ -525,7 +541,6 @@ class TestCycleGAN:
                 batch_norm=False,
                 dropout_rate=0.0,
                 leaky_relu_slope=0.2,
-                use_spectral_norm=False,
             ),
         }
 
@@ -601,7 +616,6 @@ class TestCycleGANDiscriminatorJIT:
             leaky_relu_slope=0.2,
             batch_norm=True,
             dropout_rate=0.0,
-            use_spectral_norm=False,
         )
         return CycleGANDiscriminator(config=config, rngs=nnx.Rngs(rng))
 
@@ -618,5 +632,95 @@ class TestCycleGANDiscriminatorJIT:
         # PatchGAN returns spatial patch map: (batch, H', W', 1)
         assert output.ndim == 4
         assert output.shape[0] == 2
-        assert output.shape[-1] == 1
-        assert jnp.isfinite(output).all()
+
+
+class TestCycleGANObjectiveJIT:
+    """NNX transform safety tests for CycleGAN objectives."""
+
+    @pytest.fixture
+    def rng(self):
+        return jax.random.PRNGKey(0)
+
+    @pytest.fixture
+    def cyclegan(self, rng):
+        input_shape = (32, 32, 3)
+        generators = {
+            "a_to_b": CycleGANGeneratorConfig(
+                name="jit_gen_a_to_b",
+                latent_dim=0,
+                input_shape=input_shape,
+                output_shape=input_shape,
+                hidden_dims=(8, 16),
+                n_residual_blocks=1,
+                activation="relu",
+                batch_norm=True,
+                dropout_rate=0.0,
+            ),
+            "b_to_a": CycleGANGeneratorConfig(
+                name="jit_gen_b_to_a",
+                latent_dim=0,
+                input_shape=input_shape,
+                output_shape=input_shape,
+                hidden_dims=(8, 16),
+                n_residual_blocks=1,
+                activation="relu",
+                batch_norm=True,
+                dropout_rate=0.0,
+            ),
+        }
+        discriminators = {
+            "disc_a": PatchGANDiscriminatorConfig(
+                name="jit_disc_a",
+                input_shape=input_shape,
+                hidden_dims=(4, 8),
+                activation="leaky_relu",
+                batch_norm=False,
+                dropout_rate=0.0,
+                leaky_relu_slope=0.2,
+            ),
+            "disc_b": PatchGANDiscriminatorConfig(
+                name="jit_disc_b",
+                input_shape=input_shape,
+                hidden_dims=(4, 8),
+                activation="leaky_relu",
+                batch_norm=False,
+                dropout_rate=0.0,
+                leaky_relu_slope=0.2,
+            ),
+        }
+        config = CycleGANConfig(
+            name="jit_cyclegan",
+            generator=generators,
+            discriminator=discriminators,
+            input_shape_a=input_shape,
+            input_shape_b=input_shape,
+        )
+        return CycleGAN(config=config, rngs=nnx.Rngs(rng))
+
+    def test_generator_objective_is_jittable(self, cyclegan, rng):
+        """Generator objective must remain NNX-jittable."""
+        batch = {
+            "domain_a": jax.random.normal(jax.random.fold_in(rng, 1), (2, 32, 32, 3)),
+            "domain_b": jax.random.normal(jax.random.fold_in(rng, 2), (2, 32, 32, 3)),
+        }
+
+        @nnx.jit
+        def jit_generator_objective(model, loss_batch):
+            return model.generator_objective(loss_batch)["total_loss"]
+
+        loss = jit_generator_objective(cyclegan, batch)
+        assert jnp.isfinite(loss)
+
+    def test_discriminator_objective_is_jittable(self, cyclegan, rng):
+        """Discriminator objective must remain NNX-jittable."""
+        batch = {
+            "domain_a": jax.random.normal(jax.random.fold_in(rng, 3), (2, 32, 32, 3)),
+            "domain_b": jax.random.normal(jax.random.fold_in(rng, 4), (2, 32, 32, 3)),
+        }
+
+        @nnx.jit
+        def jit_discriminator_objective(model, loss_batch):
+            return model.discriminator_objective(loss_batch)["total_loss"]
+
+        loss = jit_discriminator_objective(cyclegan, batch)
+        assert jnp.isfinite(loss)

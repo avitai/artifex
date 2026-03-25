@@ -6,7 +6,7 @@ import jax
 import jax.numpy as jnp
 from flax import nnx
 
-from artifex.generative_models.core.base import GenerativeModel
+from artifex.generative_models.core.base import GenerativeModel, get_activation_function
 from artifex.generative_models.core.configuration.gan_config import GANConfig
 from artifex.generative_models.core.configuration.network_configs import (
     DiscriminatorConfig,
@@ -57,8 +57,8 @@ class Generator(nnx.Module):
         self.batch_norm = config.batch_norm
         self.dropout_rate = config.dropout_rate
 
-        # Store activation function from nnx (not jax.nn)
-        self.activation_fn = self._get_activation_fn(config.activation)
+        # Store activation function using canonical resolver
+        self.activation_fn = get_activation_function(config.activation)
 
         # Create the dense layers using nnx.List
         layers_list = []
@@ -84,24 +84,6 @@ class Generator(nnx.Module):
             self.dropout = nnx.Dropout(rate=self.dropout_rate, rngs=rngs)
         else:
             self.dropout = None
-
-    def _get_activation_fn(self, activation: str):
-        """Get activation function from nnx or jax.nn.
-
-        Args:
-            activation: Name of activation function
-
-        Returns:
-            Activation function
-        """
-        # Try nnx first (preferred)
-        if hasattr(nnx, activation):
-            return getattr(nnx, activation)
-        # Fall back to jax.nn if not found in nnx
-        elif hasattr(jax.nn, activation):
-            return getattr(jax.nn, activation)
-        else:
-            raise ValueError(f"Unknown activation function: {activation}")
 
     def __call__(self, z: jax.Array) -> jax.Array:
         """Forward pass through generator.
@@ -182,10 +164,13 @@ class Discriminator(nnx.Module):
         self.leaky_relu_slope = config.leaky_relu_slope
         self.batch_norm = config.batch_norm
         self.dropout_rate = config.dropout_rate
-        self.use_spectral_norm = config.use_spectral_norm
 
-        # Store activation function
-        self.activation_fn = self._get_activation_fn(config.activation, config.leaky_relu_slope)
+        # Store activation function — use custom slope for leaky_relu, canonical resolver otherwise
+        if config.activation == "leaky_relu":
+            slope = config.leaky_relu_slope
+            self.activation_fn = lambda x: nnx.leaky_relu(x, negative_slope=slope)
+        else:
+            self.activation_fn = get_activation_function(config.activation)
 
         # Compute input dimension from shape
         input_dim = int(jnp.prod(jnp.array(config.input_shape[1:])))
@@ -195,10 +180,6 @@ class Discriminator(nnx.Module):
         curr_dim = input_dim
         for dim in hidden_dims:
             layer = nnx.Linear(in_features=curr_dim, out_features=dim, rngs=rngs)
-            if self.use_spectral_norm:
-                # Note: Spectral normalization would be implemented here
-                # but is not currently available in flax.nnx
-                pass
             layers_list.append(layer)
             curr_dim = dim
         self.layers = nnx.List(layers_list)
@@ -217,28 +198,6 @@ class Discriminator(nnx.Module):
             self.dropout = nnx.Dropout(rate=self.dropout_rate, rngs=rngs)
         else:
             self.dropout = None
-
-    def _get_activation_fn(self, activation: str, leaky_relu_slope: float):
-        """Get activation function.
-
-        Args:
-            activation: Name of activation function
-            leaky_relu_slope: Negative slope for leaky ReLU. Must be explicit.
-
-        Returns:
-            Activation function
-        """
-        if activation == "leaky_relu":
-            # Create a closure that captures the slope
-            return lambda x: jax.nn.leaky_relu(x, negative_slope=leaky_relu_slope)
-        # Try nnx first (preferred)
-        elif hasattr(nnx, activation):
-            return getattr(nnx, activation)
-        # Fall back to jax.nn if not found in nnx
-        elif hasattr(jax.nn, activation):
-            return getattr(jax.nn, activation)
-        else:
-            raise ValueError(f"Unknown activation function: {activation}")
 
     def __call__(self, x: jax.Array) -> jax.Array:
         """Forward pass through discriminator.
@@ -272,7 +231,7 @@ class Discriminator(nnx.Module):
 
         # Output layer with sigmoid activation for [0,1] range
         x = self.output_layer(x)
-        return jax.nn.sigmoid(x)
+        return nnx.sigmoid(x)
 
 
 class GAN(GenerativeModel):
@@ -314,7 +273,7 @@ class GAN(GenerativeModel):
         # Store config
         self.config = config
 
-        # Store RNG for dynamic use in generate() and loss_fn()
+        # Store RNG for dynamic use in generation and objective evaluation
         # Validate that 'sample' stream exists
         if "sample" not in rngs:
             raise ValueError(
@@ -323,20 +282,32 @@ class GAN(GenerativeModel):
             )
         self.rngs = rngs
 
+        generator_config = config.generator
+        discriminator_config = config.discriminator
+        if not isinstance(generator_config, GeneratorConfig):
+            raise TypeError(
+                f"config.generator must be GeneratorConfig, got {type(generator_config).__name__}"
+            )
+        if not isinstance(discriminator_config, DiscriminatorConfig):
+            raise TypeError(
+                "config.discriminator must be DiscriminatorConfig, "
+                f"got {type(discriminator_config).__name__}"
+            )
+
         # Extract GAN-level hyperparameters from config
-        self.latent_dim = config.generator.latent_dim
+        self.latent_dim = generator_config.latent_dim
         self.loss_type = config.loss_type
         self.gradient_penalty_weight = config.gradient_penalty_weight
 
         # Create generator using nested GeneratorConfig
         self.generator = Generator(
-            config=config.generator,
+            config=generator_config,
             rngs=rngs,
         )
 
         # Create discriminator using nested DiscriminatorConfig
         self.discriminator = Discriminator(
-            config=config.discriminator,
+            config=discriminator_config,
             rngs=rngs,
         )
 
@@ -357,7 +328,7 @@ class GAN(GenerativeModel):
         real_scores = self.discriminator(x)
 
         # In regular forward pass, we don't generate fake samples
-        # Those are only created in specific methods like generate() or loss_fn()
+        # Those are only created in dedicated objective methods.
         fake_samples = None
         fake_scores = None
 
@@ -399,80 +370,86 @@ class GAN(GenerativeModel):
         # Generate samples through generator network
         return self.generator(z)
 
-    def loss_fn(
-        self,
-        batch: dict[str, Any],
-        model_outputs: dict[str, Any],
-        **kwargs: Any,
-    ) -> dict[str, Any]:
-        """Compute GAN loss for training.
-
-        Note: Uses stored self.rngs for sampling. RNG automatically advances each call.
-
-        Args:
-            batch: Input batch containing real data (dict with 'x' or 'data' key, or raw array)
-            model_outputs: Model outputs (unused for GAN loss computation)
-            **kwargs: Additional keyword arguments
-
-        Returns:
-            Dictionary containing:
-                - loss: Total combined loss (generator + discriminator)
-                - generator_loss: Generator loss component
-                - discriminator_loss: Discriminator loss component
-                - real_scores_mean: Mean discriminator score on real data
-                - fake_scores_mean: Mean discriminator score on fake data
-        """
-        # Extract real data from batch
+    def _extract_real_data(self, batch: dict[str, Any] | jax.Array) -> jax.Array:
+        """Extract real samples from a GAN batch."""
         if isinstance(batch, dict):
             real_data = batch.get("x", batch.get("data"))
             if real_data is None:
                 raise ValueError("Batch must contain 'x' or 'data' key")
         else:
             real_data = batch
+        return real_data
 
-        # Sample RNG for generating latent vectors using stored RNG (validated at init)
-        # RNG automatically advances each call
+    def _sample_latents(self, batch_size: int) -> jax.Array:
+        """Sample latent vectors using the model-managed RNG stream."""
         sample_rng = self.rngs.sample()
+        return jax.random.normal(sample_rng, (batch_size, self.latent_dim))
 
-        # Sample latent vectors from standard normal distribution
-        batch_size = real_data.shape[0]
-        z = jax.random.normal(sample_rng, (batch_size, self.latent_dim))
+    def _compute_generator_loss(self, fake_scores: jax.Array) -> jax.Array:
+        """Compute generator loss for the configured adversarial objective."""
+        return adversarial.generator_loss(fake_scores, loss_type=self.loss_type)
 
-        # Generate fake samples
+    def _compute_discriminator_loss(
+        self,
+        real_scores: jax.Array,
+        fake_scores: jax.Array,
+    ) -> jax.Array:
+        """Compute discriminator loss for the configured adversarial objective."""
+        return adversarial.discriminator_loss(
+            real_scores,
+            fake_scores,
+            loss_type=self.loss_type,
+        )
+
+    def generator_objective(
+        self,
+        batch: dict[str, Any] | jax.Array,
+    ) -> dict[str, jax.Array]:
+        """Compute the generator-only objective.
+
+        GAN training has separate generator and discriminator optimization
+        targets. This method exposes the generator target explicitly.
+        """
+        real_data = self._extract_real_data(batch)
+        z = self._sample_latents(real_data.shape[0])
         fake_samples = self.generator(z)
+        fake_scores = self.discriminator(fake_samples)
+        generator_loss = self._compute_generator_loss(fake_scores)
 
-        # Get discriminator outputs for real and fake samples
+        return {
+            "total_loss": generator_loss,
+            "generator_loss": generator_loss,
+            "fake_scores_mean": jnp.mean(fake_scores),
+        }
+
+    def discriminator_objective(
+        self,
+        batch: dict[str, Any] | jax.Array,
+    ) -> dict[str, jax.Array]:
+        """Compute the discriminator-only objective."""
+        real_data = self._extract_real_data(batch)
+        z = self._sample_latents(real_data.shape[0])
+        fake_samples = jax.lax.stop_gradient(self.generator(z))
         real_scores = self.discriminator(real_data)
         fake_scores = self.discriminator(fake_samples)
+        discriminator_loss = self._compute_discriminator_loss(real_scores, fake_scores)
 
-        # Compute loss based on specified loss type
-        if self.loss_type == "vanilla":
-            generator_loss = adversarial.vanilla_generator_loss(fake_scores)
-            discriminator_loss = adversarial.vanilla_discriminator_loss(real_scores, fake_scores)
-        elif self.loss_type == "least_squares":
-            generator_loss = adversarial.least_squares_generator_loss(fake_scores)
-            discriminator_loss = adversarial.least_squares_discriminator_loss(
-                real_scores, fake_scores
-            )
-        elif self.loss_type == "wasserstein":
-            generator_loss = adversarial.wasserstein_generator_loss(fake_scores)
-            discriminator_loss = adversarial.wasserstein_discriminator_loss(
-                real_scores, fake_scores
-            )
-        elif self.loss_type == "hinge":
-            generator_loss = adversarial.hinge_generator_loss(fake_scores)
-            discriminator_loss = adversarial.hinge_discriminator_loss(real_scores, fake_scores)
-        else:
-            raise ValueError(f"Unsupported loss type: {self.loss_type}")
-
-        # Calculate total combined loss
-        total_loss = generator_loss + discriminator_loss
-
-        # Return metrics dictionary
         return {
-            "loss": total_loss,
-            "generator_loss": generator_loss,
+            "total_loss": discriminator_loss,
             "discriminator_loss": discriminator_loss,
             "real_scores_mean": jnp.mean(real_scores),
             "fake_scores_mean": jnp.mean(fake_scores),
         }
+
+    def loss_fn(
+        self,
+        batch: dict[str, Any],
+        model_outputs: dict[str, Any],
+        **kwargs: Any,
+    ) -> dict[str, Any]:
+        """This class does not expose a combined single-objective loss surface."""
+        del batch, model_outputs, kwargs
+        raise NotImplementedError(
+            "GAN training requires separate generator and discriminator objectives. "
+            "Use generator_objective(), discriminator_objective(), or GANTrainer."
+        )

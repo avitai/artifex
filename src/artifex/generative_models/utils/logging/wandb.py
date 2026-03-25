@@ -5,7 +5,7 @@ This module provides a logger implementation that integrates with Weights & Bias
 for experiment tracking, visualization, and collaboration.
 """
 
-import os
+from pathlib import Path
 from typing import Any, Literal
 
 import numpy as np
@@ -87,8 +87,9 @@ class WandbLogger(Logger):
 
         # Save run ID for potential resuming
         if log_dir is not None:
-            os.makedirs(log_dir, exist_ok=True)
-            with open(os.path.join(log_dir, "wandb_run_id.txt"), "w") as f:
+            log_dir_path = Path(log_dir)
+            log_dir_path.mkdir(parents=True, exist_ok=True)
+            with open(log_dir_path / "wandb_run_id.txt", "w") as f:
                 f.write(self.run.id)
 
     def log_scalar(
@@ -301,7 +302,7 @@ class WandbLogger(Logger):
                     metadata=metadata,
                 )
 
-                if os.path.isdir(model_path):
+                if Path(model_path).is_dir():
                     artifact.add_dir(model_path, **kwargs)
                 else:
                     artifact.add_file(model_path, **kwargs)

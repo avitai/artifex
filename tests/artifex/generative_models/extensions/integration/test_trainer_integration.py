@@ -137,8 +137,19 @@ class TestTrainerExtensionIntegration:
             "target": jnp.zeros((4, 4)),
         }
 
+    @pytest.fixture
+    def explicit_loss_fn(self):
+        """Explicit objective for the generic Trainer contract."""
+
+        def loss_fn(model, batch_data, rng, step):  # noqa: ARG001
+            outputs = model(batch_data["input"])
+            loss = jnp.mean(jnp.square(outputs - batch_data["target"]))
+            return loss, {"base_loss": loss}
+
+        return loss_fn
+
     def test_trainer_accepts_extensions_parameter(
-        self, model, training_config, extension_config, rngs
+        self, model, training_config, extension_config, rngs, explicit_loss_fn
     ):
         """Test that Trainer accepts extensions parameter."""
         from artifex.generative_models.training import Trainer
@@ -149,6 +160,7 @@ class TestTrainerExtensionIntegration:
         trainer = Trainer(
             model=model,
             training_config=training_config,
+            loss_fn=explicit_loss_fn,
             extensions=extensions,
         )
 
@@ -156,13 +168,14 @@ class TestTrainerExtensionIntegration:
         assert "test" in trainer.extensions
         assert trainer.extensions["test"] is extension
 
-    def test_trainer_without_extensions(self, model, training_config):
+    def test_trainer_without_extensions(self, model, training_config, explicit_loss_fn):
         """Test that Trainer works without extensions."""
         from artifex.generative_models.training import Trainer
 
         trainer = Trainer(
             model=model,
             training_config=training_config,
+            loss_fn=explicit_loss_fn,
             extensions=None,
         )
 
@@ -178,7 +191,7 @@ class TestTrainerExtensionIntegration:
         extensions = {"test": extension}
 
         # Define a simple loss function
-        def loss_fn(model, batch_data, rng):  # noqa: ARG001
+        def loss_fn(model, batch_data, rng, step):  # noqa: ARG001
             outputs = model(batch_data["input"])
             loss = jnp.mean(jnp.square(outputs - batch_data["target"]))
             return loss, {"base_loss": loss}
@@ -206,7 +219,7 @@ class TestTrainerExtensionIntegration:
         extension = TestExtension(disabled_config, rngs=rngs)
         extensions = {"disabled": extension}
 
-        def loss_fn(model, batch_data, rng):  # noqa: ARG001
+        def loss_fn(model, batch_data, rng, step):  # noqa: ARG001
             outputs = model(batch_data["input"])
             loss = jnp.mean(jnp.square(outputs))
             return loss, {"base_loss": loss}
@@ -234,7 +247,7 @@ class TestTrainerExtensionIntegration:
         ext_half = TestExtension(config_half, rngs=rngs)
         ext_full = TestExtension(config_full, rngs=rngs)
 
-        def loss_fn(model, batch_data, rng):
+        def loss_fn(model, batch_data, rng, step):  # noqa: ARG001
             return jnp.array(0.0), {}
 
         # Train with half-weight extension
@@ -272,7 +285,7 @@ class TestTrainerExtensionIntegration:
 
         extensions = {"ext1": ext1, "ext2": ext2}
 
-        def loss_fn(model, batch_data, rng):
+        def loss_fn(model, batch_data, rng, step):  # noqa: ARG001
             return jnp.array(1.0), {"base": 1.0}
 
         trainer = Trainer(
@@ -295,7 +308,7 @@ class TestTrainerExtensionIntegration:
         config = ExtensionConfig(name="callback", weight=1.0, enabled=True)
         callback_ext = CountingCallbackExtension(config, rngs=rngs)
 
-        def loss_fn(model, batch_data, rng):
+        def loss_fn(model, batch_data, rng, step):  # noqa: ARG001
             return jnp.array(1.0), {}
 
         trainer = Trainer(

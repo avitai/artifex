@@ -1,5 +1,7 @@
 """Tests for sampling utilities."""
 
+import inspect
+
 import jax
 import jax.numpy as jnp
 import pytest
@@ -9,7 +11,7 @@ from artifex.generative_models.core.distributions import Normal
 
 # Import sampling utilities
 from artifex.generative_models.core.sampling.ancestral import ancestral_sampling
-from artifex.generative_models.core.sampling.mcmc import mcmc_sampling
+from artifex.generative_models.core.sampling.mcmc import mcmc_sampling, metropolis_step
 from artifex.generative_models.core.sampling.ode import ode_sampling
 from artifex.generative_models.core.sampling.sde import sde_sampling
 
@@ -161,7 +163,7 @@ class TestMCMCSampling:
 
         # Define log probability function (unnormalized)
         def log_prob_fn(x):
-            return normal_dist.log_prob(x)
+            return jnp.sum(normal_dist.log_prob(x))
 
         # Initial state
         init_state = jnp.zeros(2)
@@ -189,7 +191,7 @@ class TestMCMCSampling:
 
         # Define log probability function (unnormalized)
         def log_prob_fn(x):
-            return normal_dist.log_prob(x)
+            return jnp.sum(normal_dist.log_prob(x))
 
         # Initial state
         init_state = jnp.zeros(2)
@@ -337,3 +339,27 @@ class TestSDESampling:
         init_norm = jnp.linalg.norm(init_noise, axis=1)
         final_norm = jnp.linalg.norm(samples, axis=1)
         assert jnp.mean(final_norm) < jnp.mean(init_norm)
+
+    def test_metropolis_step_rejects_vector_log_prob(self):
+        """Metropolis step should require one scalar joint log probability."""
+        key = get_rng_key(12)
+        state = jnp.zeros(2)
+
+        def vector_log_prob(x):
+            return -0.5 * x**2
+
+        with pytest.raises(ValueError, match="scalar joint log probability"):
+            metropolis_step(key, state, vector_log_prob)
+
+    def test_mcmc_sampling_distribution_makes_one_acceptance_decision(self, normal_dist):
+        """Distribution-backed MCMC should move whole states, not coordinates independently."""
+        key = get_rng_key(13)
+        state = jnp.array([0.0, 0.0])
+        new_state, _ = metropolis_step(key, state, lambda x: jnp.sum(normal_dist.log_prob(x)))
+
+        changed = new_state != state
+        assert bool(jnp.all(changed) or jnp.all(~changed))
+
+    def test_ode_sampling_signature_has_no_dead_adjoint_flag(self):
+        """ODE sampling should not expose inert adjoint controls."""
+        assert "use_adjoint" not in inspect.signature(ode_sampling).parameters

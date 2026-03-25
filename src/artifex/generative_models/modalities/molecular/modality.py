@@ -5,7 +5,7 @@ generative models to work with 3D molecular structure data, including
 protein-ligand complexes.
 """
 
-from typing import Any, Type
+from typing import Any
 
 from flax import nnx
 
@@ -15,51 +15,12 @@ from artifex.generative_models.core.configuration import (
     ModalityConfig,
 )
 from artifex.generative_models.extensions.base import ModelExtension
+from artifex.generative_models.extensions.chemical.constraints import ChemicalConstraints
 from artifex.generative_models.modalities.base import (
     Modality,
     ModelAdapter,
 )
 from artifex.generative_models.models.base import GenerativeModelProtocol
-
-
-class ChemicalConstraintExtension(ModelExtension):
-    """Extension for chemical constraints in molecular models."""
-
-    def __init__(
-        self,
-        config: ChemicalConstraintConfig | ExtensionConfig,
-        *,
-        rngs: nnx.Rngs,
-    ) -> None:
-        """Initialize chemical constraint extension.
-
-        Args:
-            config: Extension configuration with constraint weights.
-                   Accepts ChemicalConstraintConfig or base ExtensionConfig.
-            rngs: Random number generator keys
-        """
-        if not isinstance(config, ExtensionConfig):
-            raise TypeError(f"config must be ExtensionConfig, got {type(config).__name__}")
-        super().__init__(config, rngs=rngs)
-
-        # Use ChemicalConstraintConfig fields if available, else defaults
-        if isinstance(config, ChemicalConstraintConfig):
-            self.enforce_valence = config.enforce_valence
-            self.enforce_bond_lengths = config.enforce_bond_lengths
-            self.enforce_ring_closure = config.enforce_ring_closure
-            self.max_ring_size = config.max_ring_size
-        else:
-            # Default values for base ExtensionConfig
-            self.enforce_valence = True
-            self.enforce_bond_lengths = True
-            self.enforce_ring_closure = True
-            self.max_ring_size = 8
-
-    def apply(self, model_outputs: Any, batch: Any, **kwargs: Any) -> Any:
-        """Apply chemical constraints to model outputs."""
-        # Placeholder implementation for chemical constraints
-        # In a real implementation, this would compute chemical validity
-        return model_outputs
 
 
 class PharmacophoreExtension(ModelExtension):
@@ -128,9 +89,13 @@ class MolecularModality(Modality):
         extension_configs = config.extensions
 
         if extension_configs.get("chemical") is not None:
-            extensions_dict["chemical"] = ChemicalConstraintExtension(
-                config=extension_configs["chemical"], rngs=rngs
-            )
+            chemical_config = extension_configs["chemical"]
+            if not isinstance(chemical_config, ChemicalConstraintConfig):
+                raise TypeError(
+                    "chemical extension config must be ChemicalConstraintConfig, "
+                    f"got {type(chemical_config).__name__}"
+                )
+            extensions_dict["chemical"] = ChemicalConstraints(config=chemical_config, rngs=rngs)
 
         if extension_configs.get("pharmacophore") is not None:
             extensions_dict["pharmacophore"] = PharmacophoreExtension(
@@ -141,7 +106,7 @@ class MolecularModality(Modality):
         return nnx.Dict(extensions_dict)
 
     def get_adapter(
-        self, adapter_type: str | Type[GenerativeModelProtocol] | None = None
+        self, adapter_type: str | type[GenerativeModelProtocol] | None = None
     ) -> ModelAdapter:
         """Get adapter for molecular data.
 
@@ -168,12 +133,11 @@ class MolecularModality(Modality):
         if isinstance(adapter_type, str):
             if adapter_type == "geometric":
                 return MolecularGeometricAdapter()
-            elif adapter_type == "diffusion":
+            if adapter_type == "diffusion":
                 return MolecularDiffusionAdapter()
-            elif adapter_type == "default":
+            if adapter_type in {"default", "vae", "gan", "flow", "ebm", "autoregressive"}:
                 return MolecularAdapter()
-            else:
-                raise ValueError(f"Unknown adapter type: {adapter_type}")
+            raise ValueError(f"Unknown adapter type: {adapter_type}")
 
         # For model classes, use default adapter for now
         # In a real implementation, this would inspect the model type

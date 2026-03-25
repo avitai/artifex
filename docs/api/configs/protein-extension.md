@@ -1,8 +1,5 @@
 # Protein Extension Configuration
 
-!!! info "Coming Soon"
-    This page is under development. Check back for protein extension configuration documentation.
-
 ## Overview
 
 Configuration options for protein modeling extensions.

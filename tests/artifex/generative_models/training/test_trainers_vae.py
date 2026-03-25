@@ -38,14 +38,19 @@ class SimpleVAE(nnx.Module):
         self.logvar_layer = nnx.Linear(8, 4, rngs=rngs)
         self.decoder = nnx.Linear(4, 16, rngs=rngs)
 
-    def __call__(self, x: jax.Array) -> tuple[jax.Array, jax.Array, jax.Array]:
+    def __call__(self, x: jax.Array) -> dict[str, jax.Array]:
         h = nnx.relu(self.encoder(x))
         mean = self.mean_layer(h)
         logvar = self.logvar_layer(h)
         # Reparameterization (simplified - no stochasticity for testing)
         z = mean
         recon = self.decoder(z)
-        return recon, mean, logvar
+        return {
+            "reconstructed": recon,
+            "mean": mean,
+            "log_var": logvar,
+            "z": z,
+        }
 
 
 @pytest.fixture
@@ -341,10 +346,28 @@ class TestVAELossComputation:
         loss, metrics = trainer.compute_loss(simple_vae, sample_batch, step=100)
 
         assert "loss" in metrics
-        assert "recon_loss" in metrics
+        assert "reconstruction_loss" in metrics
         assert "kl_loss" in metrics
         assert "kl_weight" in metrics
+        assert "recon_loss" not in metrics
         assert isinstance(loss, jax.Array)
+
+    def test_compute_loss_rejects_non_mapping_outputs(self, sample_batch: dict) -> None:
+        """compute_loss should reject legacy tuple outputs."""
+        from artifex.generative_models.training.trainers.vae_trainer import (
+            VAETrainer,
+            VAETrainingConfig,
+        )
+
+        class LegacyTupleVAE(nnx.Module):
+            def __call__(self, x: jax.Array) -> tuple[jax.Array, jax.Array, jax.Array]:
+                zeros = jnp.zeros((x.shape[0], 4))
+                return x, zeros, zeros
+
+        trainer = VAETrainer(VAETrainingConfig())
+
+        with pytest.raises(TypeError, match="canonical dict"):
+            trainer.compute_loss(LegacyTupleVAE(), sample_batch, step=0)
 
     def test_loss_includes_kl_weight(self, simple_vae: SimpleVAE, sample_batch: dict) -> None:
         """Loss should apply KL weight based on annealing schedule."""
@@ -384,14 +407,14 @@ class TestVAETrainStep:
 
         # Get initial params
         initial_params = nnx.state(simple_vae, nnx.Param)
-        initial_encoder_kernel = initial_params["encoder"]["kernel"].value.copy()
+        initial_encoder_kernel = initial_params["encoder"]["kernel"][...].copy()
 
         # Run train step
         trainer.train_step(simple_vae, optimizer, sample_batch, step=0)
 
         # Get updated params
         updated_params = nnx.state(simple_vae, nnx.Param)
-        updated_encoder_kernel = updated_params["encoder"]["kernel"].value
+        updated_encoder_kernel = updated_params["encoder"]["kernel"][...]
 
         # Params should have changed
         assert not jnp.allclose(initial_encoder_kernel, updated_encoder_kernel)
@@ -410,7 +433,7 @@ class TestVAETrainStep:
         loss, metrics = trainer.train_step(simple_vae, optimizer, sample_batch, step=0)
 
         assert isinstance(loss, jax.Array)
-        assert "recon_loss" in metrics
+        assert "reconstruction_loss" in metrics
         assert "kl_loss" in metrics
 
 
@@ -445,6 +468,50 @@ class TestVAELossFunctionIntegration:
 
         assert isinstance(loss, jax.Array)
         assert "kl_loss" in metrics
+
+    def test_create_loss_fn_is_nnx_jittable(self, simple_vae: SimpleVAE) -> None:
+        """The trainer-created loss function should stay NNX-JIT compatible."""
+        from artifex.generative_models.training.trainers.vae_trainer import (
+            VAETrainer,
+            VAETrainingConfig,
+        )
+
+        trainer = VAETrainer(VAETrainingConfig())
+        loss_fn = trainer.create_loss_fn()
+        batch = {"data": jax.random.normal(jax.random.key(0), (8, 16))}
+        rng = jax.random.key(42)
+
+        @nnx.jit
+        def compiled_loss(step: jax.Array) -> tuple[jax.Array, dict[str, jax.Array]]:
+            return loss_fn(simple_vae, batch, rng, step)
+
+        loss, metrics = compiled_loss(jnp.array(100))
+
+        assert jnp.isfinite(loss)
+        assert jnp.isfinite(metrics["reconstruction_loss"])
+        assert jnp.isfinite(metrics["kl_loss"])
+
+    def test_create_loss_fn_supports_gradient_computation(self, simple_vae: SimpleVAE) -> None:
+        """The trainer-created loss function should remain differentiable."""
+        from artifex.generative_models.training.trainers.vae_trainer import (
+            VAETrainer,
+            VAETrainingConfig,
+        )
+
+        trainer = VAETrainer(VAETrainingConfig())
+        loss_fn = trainer.create_loss_fn()
+        batch = {"data": jax.random.normal(jax.random.key(0), (8, 16))}
+        rng = jax.random.key(42)
+        step = jnp.array(100)
+
+        def scalar_loss(model: nnx.Module) -> jax.Array:
+            loss, _ = loss_fn(model, batch, rng, step)
+            return loss
+
+        grads = nnx.grad(scalar_loss)(simple_vae)
+        grad_state = nnx.state(grads)
+
+        assert grad_state is not None
 
 
 # =============================================================================

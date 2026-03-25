@@ -6,7 +6,7 @@ Reference:
     Liu et al., "KAN: Kolmogorov-Arnold Networks" (arXiv:2404.19756)
 """
 
-from typing import Callable
+from collections.abc import Callable
 
 import jax
 import jax.numpy as jnp
@@ -129,7 +129,7 @@ class DenseKANLayer(nnx.Module):
         # Transpose to (n_in*n_out, batch)
         x_ext = x_ext.T
 
-        grid = jnp.expand_dims(self.grid.knots.value, axis=2)
+        grid = jnp.expand_dims(self.grid.knots[...], axis=2)
         x_in = jnp.expand_dims(x_ext, axis=1)
 
         # k=0: indicator functions
@@ -154,7 +154,7 @@ class DenseKANLayer(nnx.Module):
         """
         # Get current activations
         bi = self.basis(x)  # (n_in*n_out, G+k, batch)
-        ci = self.c_basis.value  # (n_in*n_out, G+k)
+        ci = self.c_basis[...]  # (n_in*n_out, G+k)
         ci_bi = jnp.einsum("ij,ijk->ik", ci, bi)  # (n_in*n_out, batch)
 
         # Update grid
@@ -188,13 +188,13 @@ class DenseKANLayer(nnx.Module):
 
         # B-spline activation
         bi = self.basis(x)  # (n_in*n_out, G+k, batch)
-        ci = self.c_basis.value  # (n_in*n_out, G+k)
+        ci = self.c_basis[...]  # (n_in*n_out, G+k)
         spl = jnp.einsum("ij,ijk->ik", ci, bi)  # (n_in*n_out, batch)
         spl = spl.T  # (batch, n_in*n_out)
 
         # Apply external weights
         if self.c_spl is not None:
-            cnst = self.c_spl.value.reshape(1, self.n_in * self.n_out)
+            cnst = self.c_spl[...].reshape(1, self.n_in * self.n_out)
             y = cnst * spl
         else:
             y = spl
@@ -205,14 +205,14 @@ class DenseKANLayer(nnx.Module):
                 (batch, self.n_in * self.n_out)
             )
             res = self.residual(x_ext.T).T  # (batch, n_in*n_out)
-            cnst_res = self.c_res.value.reshape(1, self.n_in * self.n_out)
+            cnst_res = self.c_res[...].reshape(1, self.n_in * self.n_out)
             y = y + cnst_res * res
 
         # Sum over inputs
         y = jnp.sum(y.reshape(batch, self.n_out, self.n_in), axis=2)
 
         if self.bias is not None:
-            y = y + self.bias.value
+            y = y + self.bias[...]
 
         return y
 
@@ -308,7 +308,7 @@ class EfficientKANLayer(nnx.Module):
         Returns:
             Basis values, shape (batch, n_in, G+k).
         """
-        grid = self.grid.knots.value  # (n_in, G+2k+1)
+        grid = self.grid.knots[...]  # (n_in, G+2k+1)
         x_exp = jnp.expand_dims(x, axis=-1)  # (batch, n_in, 1)
 
         basis_splines = ((x_exp >= grid[:, :-1]) & (x_exp < grid[:, 1:])).astype(jnp.float32)
@@ -331,7 +331,7 @@ class EfficientKANLayer(nnx.Module):
             new_intervals: New number of grid intervals.
         """
         bi = self.basis(x).transpose(1, 0, 2)  # (n_in, batch, G+k)
-        ci = self.c_basis.value.transpose(1, 2, 0)  # (n_in, G+k, n_out)
+        ci = self.c_basis[...].transpose(1, 2, 0)  # (n_in, G+k, n_out)
         ci_bi = jnp.einsum("ijk,ikm->ijm", bi, ci)  # (n_in, batch, n_out)
 
         self.grid.update(x, new_intervals)
@@ -361,18 +361,18 @@ class EfficientKANLayer(nnx.Module):
         spl = bi.reshape(batch, -1)  # (batch, n_in*(G+k))
 
         if self.c_spl is not None:
-            spl_w = self.c_basis.value * self.c_spl.value[..., None]
+            spl_w = self.c_basis[...] * self.c_spl[...][..., None]
         else:
-            spl_w = self.c_basis.value
+            spl_w = self.c_basis[...]
 
         spl_w = spl_w.reshape(self.n_out, -1)  # (n_out, n_in*(G+k))
         y = jnp.matmul(spl, spl_w.T)  # (batch, n_out)
 
         if self.residual is not None and self.c_res is not None:
             res = self.residual(x)  # (batch, n_in)
-            y = y + jnp.matmul(res, self.c_res.value.T)
+            y = y + jnp.matmul(res, self.c_res[...].T)
 
         if self.bias is not None:
-            y = y + self.bias.value
+            y = y + self.bias[...]
 
         return y

@@ -1,121 +1,41 @@
-# Hyperparam
+# Hyperparameter Search
 
-**Module:** `configs.schema.hyperparam`
+`HyperparamSearchConfig` defines search strategy and the typed parameter
+distribution objects used in the search space.
 
-**Source:** `configs/schema/hyperparam.py`
-
-## Overview
-
-Configuration schema for hyperparameter search.
-
-## Classes
-
-### CategoricalDistribution
+## Public Imports
 
 ```python
-class CategoricalDistribution
+from artifex.configs import ChoiceDistribution, HyperparamSearchConfig, SearchType
+
+config = HyperparamSearchConfig(
+    name="baseline_search",
+    search_type=SearchType.RANDOM,
+    num_trials=20,
+    search_space={
+        "batch_size": ChoiceDistribution(
+            param_path="training.batch_size",
+            choices=(32, 64, 128),
+        ),
+    },
+)
 ```
 
-### ChoiceDistribution
+## Distribution Types
 
-```python
-class ChoiceDistribution
-```
+- `ParameterDistribution`
+- `CategoricalDistribution`
+- `UniformDistribution`
+- `ChoiceDistribution`
 
-### HyperparamSearchConfig
+The documented top-level convenience surface keeps the public examples on the
+stable imports above. If you need a deeper distribution helper, import it from
+its owning runtime module explicitly instead of assuming it exists on
+`artifex.configs`.
 
-```python
-class HyperparamSearchConfig
-```
+## Search Types
 
-### LogUniformDistribution
-
-```python
-class LogUniformDistribution
-```
-
-### ParameterDistribution
-
-```python
-class ParameterDistribution
-```
-
-### SearchType
-
-```python
-class SearchType
-```
-
-### UniformDistribution
-
-```python
-class UniformDistribution
-```
-
-## Functions
-
-### validate_categories
-
-```python
-def validate_categories()
-```
-
-### validate_choices
-
-```python
-def validate_choices()
-```
-
-### validate_high
-
-```python
-def validate_high()
-```
-
-### validate_low
-
-```python
-def validate_low()
-```
-
-### validate_max_parallel
-
-```python
-def validate_max_parallel()
-```
-
-### validate_positive_int
-
-```python
-def validate_positive_int()
-```
-
-### validate_q
-
-```python
-def validate_q()
-```
-
-### validate_range
-
-```python
-def validate_range()
-```
-
-### validate_search_space
-
-```python
-def validate_search_space()
-```
-
-### validate_weights
-
-```python
-def validate_weights()
-```
-
-## Module Statistics
-
-- **Classes:** 7
-- **Functions:** 10
-- **Imports:** 4
+- `SearchType.GRID`
+- `SearchType.RANDOM`
+- `SearchType.BAYESIAN`
+- `SearchType.POPULATION`

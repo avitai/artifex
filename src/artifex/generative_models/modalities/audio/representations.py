@@ -265,7 +265,9 @@ class SpectrogramProcessor(AudioProcessor):
         ) -> tuple[jax.Array, None]:
             start = frame_idx * hop_length
             windowed_frame = frames[..., frame_idx] * window
-            audio = audio.at[..., start : start + n_fft].add(windowed_frame)
+            audio_segment = jax.lax.dynamic_slice_in_dim(audio, start, n_fft, axis=-1)
+            updated_segment = audio_segment + windowed_frame
+            audio = jax.lax.dynamic_update_slice_in_dim(audio, updated_segment, start, axis=-1)
             return audio, None
 
         audio_init = jnp.zeros((*frames.shape[:-2], audio_length))

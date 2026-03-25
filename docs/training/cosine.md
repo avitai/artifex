@@ -1,11 +1,11 @@
 # Cosine
 
-**Module:** `generative_models.training.schedulers.cosine`
+**Status:** `Coming soon`
 
-**Source:** `generative_models/training/schedulers/cosine.py`
+**Planned module:** `artifex.generative_models.training.schedulers.cosine`
 
-## Module Statistics
+**Current owner:** `artifex.generative_models.training.schedulers.factory`
 
-- **Classes:** 0
-- **Functions:** 0
-- **Imports:** 0
+`artifex.generative_models.training.schedulers.cosine` is not shipped as a standalone runtime module today. Use the current owner above for the supported runtime surface until a dedicated module exists.
+
+See [Training Systems](index.md) for the current shared training docs.

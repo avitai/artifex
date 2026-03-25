@@ -184,6 +184,22 @@ class NormalizingFlow(GenerativeModel):
         else:
             raise ValueError(f"Unsupported base distribution: {self.base_distribution_type}")
 
+    def _get_sampling_key(self, rngs: nnx.Rngs | None = None) -> jax.Array:
+        """Resolve the best available key for flow sampling."""
+        active_rngs = rngs or self.rngs
+        if active_rngs is None:
+            return jax.random.PRNGKey(0)
+
+        for stream_name in ("sample", "default", "params"):
+            try:
+                stream = getattr(active_rngs, stream_name)
+            except AttributeError:
+                continue
+            if callable(stream):
+                return stream()
+
+        return jax.random.PRNGKey(0)
+
     def forward(self, x: jax.Array, *, rngs: nnx.Rngs | None = None) -> tuple[jax.Array, jax.Array]:
         """Forward transformation through all flow layers.
 
@@ -277,7 +293,7 @@ class NormalizingFlow(GenerativeModel):
         Returns:
             Generated samples
         """
-        sample_key = (rngs or self.rngs).sample()
+        sample_key = self._get_sampling_key(rngs)
 
         # Sample from base distribution
         z = self.sample_fn(sample_key, n_samples)
@@ -304,7 +320,7 @@ class NormalizingFlow(GenerativeModel):
             **kwargs: Additional keyword arguments
 
         Returns:
-            dictionary containing loss and metrics
+            Dictionary containing canonical loss terms.
         """
         # Extract data from batch
         if isinstance(batch, dict):
@@ -319,7 +335,7 @@ class NormalizingFlow(GenerativeModel):
         loss = -jnp.mean(log_prob)
 
         return {
-            "loss": loss,
+            "total_loss": loss,
             "nll_loss": loss,
             "log_prob": jnp.mean(log_prob),
             "avg_log_prob": jnp.mean(log_prob),
@@ -337,15 +353,3 @@ class NormalizingFlow(GenerativeModel):
             Generated samples
         """
         return self.generate(n_samples, rngs=rngs, **kwargs)
-
-    def log_likelihood(self, x: jax.Array, *, rngs: nnx.Rngs | None = None) -> jax.Array:
-        """Compute log likelihood of data points (alias for log_prob).
-
-        Args:
-            x: Input data points
-            rngs: Optional random number generators
-
-        Returns:
-            Log likelihood of each data point
-        """
-        return self.log_prob(x, rngs=rngs)

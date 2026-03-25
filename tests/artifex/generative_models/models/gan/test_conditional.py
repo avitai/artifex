@@ -56,7 +56,6 @@ def discriminator_with_dropout(rngs):
         batch_norm=False,
         dropout_rate=0.5,  # High dropout rate to make effect visible
         leaky_relu_slope=0.2,
-        use_spectral_norm=False,
         conditional=ConditionalParams(num_classes=10, embedding_dim=100),
         kernel_size=(3, 3),
         stride_first=(2, 2),
@@ -77,7 +76,6 @@ def discriminator_no_dropout(rngs):
         batch_norm=False,
         dropout_rate=0.0,  # No dropout
         leaky_relu_slope=0.2,
-        use_spectral_norm=False,
         conditional=ConditionalParams(num_classes=10, embedding_dim=100),
         kernel_size=(3, 3),
         stride_first=(2, 2),
@@ -321,7 +319,6 @@ class TestConditionalDiscriminatorJIT:
             batch_norm=False,
             dropout_rate=0.0,
             leaky_relu_slope=0.2,
-            use_spectral_norm=False,
             conditional=ConditionalParams(num_classes=10, embedding_dim=100),
             kernel_size=(3, 3),
             stride_first=(2, 2),
@@ -433,7 +430,6 @@ class TestConditionalGANJIT:
             batch_norm=False,
             dropout_rate=0.0,
             leaky_relu_slope=0.2,
-            use_spectral_norm=False,
             conditional=ConditionalParams(num_classes=10, embedding_dim=100),
             kernel_size=(3, 3),
             stride_first=(2, 2),

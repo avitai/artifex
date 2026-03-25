@@ -1,79 +1,29 @@
 # Templates
 
-**Module:** `configs.utils.templates`
+Configuration templates are exposed through the public `artifex.configs`
+surface and implemented in
+`generative_models.core.configuration.management.templates`.
 
-**Source:** `configs/utils/templates.py`
+**Canonical module:** `generative_models.core.configuration.management.templates`
 
-## Overview
+## Supported built-ins
 
-Configuration template system and testing framework.
+- `simple_training`: Generates a typed `TrainingConfig` dictionary with nested optimizer and scheduler defaults.
+- `distributed_training`: Generates a typed `DistributedConfig` dictionary for multi-process execution.
 
-## Classes
+Additional templates should be introduced only when they map directly to one
+typed configuration class and one stable public API.
 
-### TestConfigurationSystem
-
-```python
-class TestConfigurationSystem
-```
-
-## Functions
-
-### example_usage
+## Example
 
 ```python
-def example_usage()
+from artifex.configs import template_manager
+
+training_config = template_manager.generate_config(
+    "simple_training",
+    batch_size=64,
+    learning_rate=2e-4,
+    scheduler_type="linear",
+    total_steps=5000,
+)
 ```
-
-### test_config_inheritance_and_overrides
-
-```python
-def test_config_inheritance_and_overrides()
-```
-
-### test_distributed_config_validation
-
-```python
-def test_distributed_config_validation()
-```
-
-### test_error_handling_and_suggestions
-
-```python
-def test_error_handling_and_suggestions()
-```
-
-### test_full_experiment_loading
-
-```python
-def test_full_experiment_loading()
-```
-
-### test_performance_optimizations
-
-```python
-def test_performance_optimizations()
-```
-
-### test_point_cloud_diffusion_config_validation
-
-```python
-def test_point_cloud_diffusion_config_validation()
-```
-
-### test_template_system
-
-```python
-def test_template_system()
-```
-
-### test_training_config_validation
-
-```python
-def test_training_config_validation()
-```
-
-## Module Statistics
-
-- **Classes:** 1
-- **Functions:** 9
-- **Imports:** 5

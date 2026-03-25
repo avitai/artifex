@@ -2,8 +2,7 @@
 Global pytest configuration and fixtures.
 
 This file provides the main testing configuration for the artifex package,
-including GPU testing support, nnxX compatibility checks, BlackJAX
-integration controls, and comprehensive test infrastructure.
+including GPU-aware test selection and the shared fixture infrastructure.
 
 The test infrastructure follows a three-tier architecture:
 1. Base fixtures: Common patterns, RNG management, standard configurations
@@ -16,21 +15,20 @@ from pathlib import Path
 
 import pytest
 
-# Import all base fixtures and data generators
-from tests.artifex.fixtures.base import *  # noqa: F403, F401
-from tests.artifex.fixtures.data_generators import (
-    CachedDataManager,
-    FastDataGenerator,
-    SyntheticDataGenerator,
-)
+
+# Register shared fixtures and hooks as pytest plugins.
+pytest_plugins = ["tests.utils.pytest_hooks", "tests.artifex.fixtures.base"]
 
 
-# Note: is_gpu_available is imported lazily in pytest_configure to avoid
-# importing JAX before CUDA environment is set up by root conftest.py
+def _load_data_generators():
+    """Load the heavyweight data-generator module only when a fixture needs it."""
+    from tests.artifex.fixtures.data_generators import (
+        CachedDataManager,
+        FastDataGenerator,
+        SyntheticDataGenerator,
+    )
 
-
-# Import our custom hooks
-pytest_plugins = ["tests.utils.pytest_hooks"]
+    return CachedDataManager, FastDataGenerator, SyntheticDataGenerator
 
 
 def pytest_addoption(parser):
@@ -43,6 +41,12 @@ def pytest_addoption(parser):
         "artifact_dir",
         default="test_artifacts",
         help="Directory for test artifacts",
+    )
+    parser.addoption(
+        "--artifex-probe-jax-runtime",
+        action="store_true",
+        default=False,
+        help="Probe the live JAX runtime for pytest header metadata.",
     )
 
 
@@ -71,8 +75,6 @@ def pytest_configure(config):
         os.environ["TF_CUDNN_DETERMINISTIC"] = "1"
         os.environ["TF_DETERMINISTIC_OPS"] = "1"
 
-        print("✓ Deterministic mode enabled for all tests (XLA flags set before JAX import)")
-
     # Add filters for common warnings that clutter test output
     config.addinivalue_line(
         "filterwarnings",
@@ -95,72 +97,12 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "skip_on_gpu: mark test to be skipped when GPU is available")
     config.addinivalue_line("markers", "blackjax: marks tests that use BlackJAX integration")
 
-    # Register GPU availability with pytest metadata
-    # Lazy import to avoid importing JAX before CUDA environment is set up
-    from tests.utils.gpu_test_utils import is_gpu_available
-
-    is_gpu = is_gpu_available()
-
-    # Store metadata about GPU availability
     if hasattr(config, "_metadata"):
-        config._metadata["GPU available for testing"] = str(is_gpu)
-    elif hasattr(config, "stash"):
-        if "metadata" not in config.stash:
-            config.stash["metadata"] = {}
-        config.stash["metadata"]["GPU available for testing"] = str(is_gpu)
-
-    # Log GPU availability for visibility
-    print(f"GPU available for testing: {is_gpu}")
-
-
-def nnxx_compatible():
-    """Check if JAX and NNX are compatible.
-
-    This function verifies that both JAX and Flax NNX can be imported
-    and are compatible with each other for testing purposes.
-
-    Returns:
-        bool: True if JAX and NNX versions are compatible, False otherwise.
-    """
-    try:
-        import jax
-        from flax import nnx
-
-        # Return True if both imports work
-        return bool(jax) and bool(nnx)
-    except ImportError:
-        return False
-
-
-# Skip marker for tests requiring JAX and NNX compatibility
-skip_if_incompatible = pytest.mark.skipif(
-    not nnxx_compatible(),
-    reason="JAX and NNX versions are incompatible (required dependencies not available)",
-)
-
-
-def should_skip_blackjax_tests():
-    """Determine if BlackJAX tests should be skipped.
-
-    Checks both environment variables and nnxX version compatibility
-    to determine if BlackJAX-related tests should run.
-
-    Returns:
-        bool: True if BlackJAX tests should be skipped, False otherwise.
-    """
-    # Skip if explicitly disabled via environment variable
-    if os.environ.get("ENABLE_BLACKJAX_TESTS", "0") != "1":
-        return True
-
-    # Skip if nnxX versions are incompatible
-    return not nnxx_compatible()
-
-
-# Skip marker for tests that require BlackJAX and compatible nnxX versions
-skip_blackjax_tests = pytest.mark.skipif(
-    should_skip_blackjax_tests(),
-    reason="BlackJAX tests disabled or nnxX versions incompatible",
-)
+        config._metadata["Artifex backend"] = os.environ.get("ARTIFEX_BACKEND", "unset")
+        config._metadata["Deterministic test mode"] = os.environ.get("ARTIFEX_DETERMINISTIC", "0")
+        config._metadata["JAX runtime probe"] = (
+            "enabled" if config.getoption("--artifex-probe-jax-runtime") else "deferred"
+        )
 
 
 @pytest.fixture
@@ -180,7 +122,7 @@ def gpu_test_fixture():
 
 
 def pytest_report_header(config):  # noqa: ARG001
-    """Add GPU availability information to pytest header.
+    """Add lightweight backend information to the pytest header.
 
     Args:
         config: Pytest configuration object
@@ -188,28 +130,41 @@ def pytest_report_header(config):  # noqa: ARG001
     Returns:
         str: Header information about GPU availability
     """
-    from tests.utils.gpu_test_utils import is_gpu_available
+    header_lines = [
+        f"Artifex backend: {os.environ.get('ARTIFEX_BACKEND', 'unset')}",
+        f"Deterministic test mode: {os.environ.get('ARTIFEX_DETERMINISTIC', '0')}",
+    ]
 
-    return f"GPU available for testing: {is_gpu_available()}"
+    if not config.getoption("--artifex-probe-jax-runtime"):
+        if hasattr(config, "_metadata"):
+            config._metadata["Artifex backend"] = os.environ.get("ARTIFEX_BACKEND", "unset")
+            config._metadata["JAX runtime probe"] = "deferred"
+        header_lines.append(
+            "JAX runtime probe: deferred (pass --artifex-probe-jax-runtime to inspect live devices)"
+        )
+        return header_lines
 
+    from tests.utils.gpu_test_utils import get_jax_runtime_summary
 
-def pytest_collection_modifyitems(config, items):  # noqa: ARG001
-    """Modify test items after collection.
+    summary = get_jax_runtime_summary()
+    visible_devices = ", ".join(summary.visible_devices) if summary.visible_devices else "none"
+    header_lines.extend(
+        [
+            f"JAX default backend: {summary.default_backend or 'unavailable'}",
+            f"JAX visible devices: {visible_devices}",
+            f"GPU available for testing: {summary.gpu_available}",
+        ]
+    )
+    if hasattr(config, "_metadata"):
+        config._metadata["GPU available for testing"] = str(summary.gpu_available)
+        config._metadata["JAX default backend"] = summary.default_backend or "unavailable"
+        config._metadata["Artifex backend"] = os.environ.get("ARTIFEX_BACKEND", "unset")
+        config._metadata["JAX runtime probe"] = "enabled"
 
-    This allows us to automatically skip tests marked with @pytest.mark.gpu
-    when no GPU is available, and apply other test modifications.
+    if summary.error:
+        header_lines.append(f"JAX runtime probe error: {summary.error}")
 
-    Args:
-        config: Pytest configuration object
-        items: List of collected test items
-    """
-    from tests.utils.gpu_test_utils import is_gpu_available
-
-    if not is_gpu_available():
-        skip_gpu = pytest.mark.skip(reason="Test requires GPU but none is available")
-        for item in items:
-            if "gpu" in item.keywords or "requires_gpu" in item.keywords:
-                item.add_marker(skip_gpu)
+    return header_lines
 
 
 # =====================================================================================
@@ -220,6 +175,7 @@ def pytest_collection_modifyitems(config, items):  # noqa: ARG001
 @pytest.fixture(scope="session")
 def data_cache_manager():
     """Session-scoped data cache manager for complex test data."""
+    CachedDataManager, _, _ = _load_data_generators()
     return CachedDataManager()
 
 
@@ -240,6 +196,7 @@ def diffusion_test_data(test_data_strategy, standard_shapes):
     This fixture provides the appropriate test data for diffusion models
     based on the current test strategy (fast/realistic/cached).
     """
+    CachedDataManager, FastDataGenerator, SyntheticDataGenerator = _load_data_generators()
     if test_data_strategy == "fast":
         return FastDataGenerator.random_image_batch(standard_shapes["image_2d"], batch_size=8)
     elif test_data_strategy == "realistic":
@@ -262,6 +219,7 @@ def diffusion_test_data(test_data_strategy, standard_shapes):
 @pytest.fixture
 def geometric_test_data(test_data_strategy):
     """Generate geometric test data based on strategy."""
+    CachedDataManager, FastDataGenerator, SyntheticDataGenerator = _load_data_generators()
     if test_data_strategy == "fast":
         return FastDataGenerator.random_point_cloud(num_points=1024, batch_size=8)
     elif test_data_strategy == "realistic":
@@ -290,18 +248,21 @@ def vae_test_data(diffusion_test_data):
 @pytest.fixture
 def fast_image_data(standard_shapes):
     """Fast random image data for smoke tests."""
+    _, FastDataGenerator, _ = _load_data_generators()
     return FastDataGenerator.random_image_batch(standard_shapes["image_2d"], batch_size=4)
 
 
 @pytest.fixture
 def fast_point_cloud_data():
     """Fast random point cloud data for smoke tests."""
+    _, FastDataGenerator, _ = _load_data_generators()
     return FastDataGenerator.random_point_cloud(num_points=512, batch_size=4)
 
 
 @pytest.fixture
 def realistic_image_data(standard_shapes):
     """Realistic synthetic image data for integration tests."""
+    _, _, SyntheticDataGenerator = _load_data_generators()
     return SyntheticDataGenerator.synthetic_images(
         "mnist_like", standard_shapes["image_2d"], batch_size=4
     )
@@ -310,24 +271,28 @@ def realistic_image_data(standard_shapes):
 @pytest.fixture
 def realistic_point_cloud_data():
     """Realistic synthetic point cloud data for integration tests."""
+    _, _, SyntheticDataGenerator = _load_data_generators()
     return SyntheticDataGenerator.synthetic_point_clouds("sphere", num_points=512, batch_size=4)
 
 
 @pytest.fixture
 def test_timesteps():
     """Generate test timesteps for diffusion models."""
+    _, FastDataGenerator, _ = _load_data_generators()
     return FastDataGenerator.random_timesteps(max_timesteps=100, batch_size=8)
 
 
 @pytest.fixture
 def test_noise(standard_shapes):
     """Generate test noise arrays."""
+    _, FastDataGenerator, _ = _load_data_generators()
     return FastDataGenerator.random_noise(standard_shapes["image_2d"], batch_size=8)
 
 
 @pytest.fixture
 def test_labels():
     """Generate test class labels."""
+    _, FastDataGenerator, _ = _load_data_generators()
     return FastDataGenerator.random_labels(num_classes=10, batch_size=8)
 
 
@@ -341,6 +306,7 @@ def cleanup_test_caches():
     """Clean up test caches at the end of test session."""
     yield
     # Clear data caches
+    CachedDataManager, _, _ = _load_data_generators()
     CachedDataManager.clear_cache(disk_cache_only=False)
 
     # Clean up test artifacts directory if it exists

@@ -812,11 +812,11 @@ class TestExtensionStateManagement:
                 return {}
 
         extension1 = StatefulExtension(extension_config, rngs=mock_rngs)
-        extension1.counter.value = jnp.array(5)
+        extension1.counter[...] = jnp.array(5)
 
         extension2 = StatefulExtension(extension_config, rngs=nnx.Rngs(1))
-        assert int(extension2.counter.value) == 0
+        assert int(extension2.counter[...]) == 0
 
         state1 = nnx.state(extension1)
         nnx.update(extension2, state1)
-        assert int(extension2.counter.value) == 5
+        assert int(extension2.counter[...]) == 5

@@ -1,44 +1,36 @@
 """Dataset loaders for benchmark datasets.
 
-This module implements the base dataset class for benchmarks, along with
-utility functions for loading and registering datasets.
+Implements utility functions for loading and registering datasets.
+Structurally conforms to calibrax DatasetProtocol.
 """
 
 import json
-import os
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
 
 import jax.numpy as jnp
 import numpy as np
 
-from artifex.benchmarks.base import DatasetProtocol
+from artifex.benchmarks.datasets.base import DatasetRegistry
 
 
-@dataclass
+@dataclass(frozen=True, slots=True, kw_only=True)
 class BenchmarkDatasetConfig:
-    """Configuration for a benchmark dataset.
-
-    Attributes:
-        name: Name of the dataset.
-        description: Description of the dataset.
-        data_type: Type of data in the dataset (e.g., 'continuous', 'discrete').
-        dimensions: Dimensions of each data point.
-        metadata: Additional metadata for the dataset.
-    """
+    """Configuration for a benchmark dataset."""
 
     name: str
     description: str
     data_type: str
-    dimensions: list[int]
+    dimensions: list[int] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
-class BenchmarkDataset(DatasetProtocol):
-    """Base class for benchmark datasets.
+class BenchmarkDataset:
+    """Benchmark dataset with save/load support.
 
-    This class provides a standardized interface for datasets used in benchmarks.
-    It implements the DatasetProtocol interface.
+    Structurally conforms to calibrax's DatasetProtocol
+    (implements ``__len__`` and ``__getitem__``).
     """
 
     def __init__(
@@ -46,53 +38,22 @@ class BenchmarkDataset(DatasetProtocol):
         config: BenchmarkDatasetConfig,
         data: np.ndarray | jnp.ndarray,
     ) -> None:
-        """Initialize a benchmark dataset.
-
-        Args:
-            config: Configuration for the dataset.
-            data: Data array for the dataset.
-        """
         self.config = config
-        # Convert to jax array if numpy array is provided
-        if isinstance(data, np.ndarray):
-            self.data = jnp.array(data)
-        else:
-            self.data = data
+        self.data = jnp.array(data) if isinstance(data, np.ndarray) else data
 
     def __len__(self) -> int:
-        """Get the number of examples in the dataset.
-
-        Returns:
-            Number of examples.
-        """
         return self.data.shape[0]
 
     def __getitem__(self, idx: int) -> Any:
-        """Get an example from the dataset.
-
-        Args:
-            idx: Index of the example.
-
-        Returns:
-            The example.
-        """
         return self.data[idx]
 
-    def save(self, path: str) -> None:
-        """Save the dataset to a file.
+    def save(self, path: str | Path) -> None:
+        save_path = Path(path)
+        save_path.parent.mkdir(parents=True, exist_ok=True)
 
-        Args:
-            path: Path to save the dataset to.
-        """
-        # Convert jax array to numpy for saving
         data_np = np.array(self.data)
-
-        # Create directory if it doesn't exist
-        os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
-
-        # Save data and config separately
         np.savez(
-            path,
+            save_path,
             data=data_np,
             name=self.config.name,
             description=self.config.description,
@@ -102,18 +63,13 @@ class BenchmarkDataset(DatasetProtocol):
         )
 
     @classmethod
-    def load(cls, path: str) -> "BenchmarkDataset":
+    def load(cls, path: str | Path) -> "BenchmarkDataset":
         """Load a dataset from a file.
 
-        Args:
-            path: Path to load the dataset from.
-
-        Returns:
-            The loaded dataset.
+        Note: Uses np.load with allow_pickle for backward compatibility
+        with existing saved datasets. Only load files from trusted sources.
         """
-        # Load data and config
-        with np.load(path, allow_pickle=True) as data:
-            # Extract config parameters
+        with np.load(str(path), allow_pickle=True) as data:  # noqa: S301
             config = BenchmarkDatasetConfig(
                 name=str(data["name"]),
                 description=str(data["description"]),
@@ -121,71 +77,34 @@ class BenchmarkDataset(DatasetProtocol):
                 dimensions=data["dimensions"].tolist(),
                 metadata=json.loads(str(data["metadata"])),
             )
-
-            # Create dataset
             return cls(config=config, data=jnp.array(data["data"]))
 
 
-# Registry to store datasets
-_dataset_registry: dict[str, BenchmarkDataset] = {}
+_dataset_registry = DatasetRegistry()
 
 
 def register_dataset(name: str, dataset: BenchmarkDataset) -> None:
-    """Register a dataset with the given name.
-
-    Args:
-        name: Name to register the dataset under.
-        dataset: Dataset to register.
-    """
-    _dataset_registry[name] = dataset
+    """Register a dataset with the given name."""
+    _dataset_registry.register_dataset(name, dataset)
 
 
 def get_dataset(name: str) -> BenchmarkDataset:
-    """Get a dataset by name.
-
-    Args:
-        name: Name of the dataset to get.
-
-    Returns:
-        The dataset.
-
-    Raises:
-        KeyError: If the dataset isn't registered.
-    """
-    if name not in _dataset_registry:
-        raise KeyError(f"Dataset '{name}' not found in registry")
-    return _dataset_registry[name]
+    """Get a dataset by name."""
+    return _dataset_registry.get_dataset(name)
 
 
 def list_datasets() -> list[str]:
-    """List all registered datasets.
-
-    Returns:
-        List of dataset names.
-    """
-    return list(_dataset_registry.keys())
+    """List all registered datasets."""
+    return _dataset_registry.list_datasets()
 
 
-def load_dataset(dataset_path_or_name: str) -> BenchmarkDataset:
-    """Load a dataset from a file or get it from the registry.
+def load_benchmark_dataset(dataset_path_or_name: str) -> BenchmarkDataset:
+    """Load a dataset from a file or get it from the registry."""
+    if _dataset_registry.has_dataset(dataset_path_or_name):
+        return _dataset_registry.get_dataset(dataset_path_or_name)
 
-    Args:
-        dataset_path_or_name: Path to a dataset file or name of a registered
-            dataset.
+    file_path = Path(dataset_path_or_name)
+    if file_path.exists():
+        return BenchmarkDataset.load(file_path)
 
-    Returns:
-        The dataset.
-
-    Raises:
-        ValueError: If the dataset can't be found.
-    """
-    # Check if it's a registered dataset
-    if dataset_path_or_name in _dataset_registry:
-        return _dataset_registry[dataset_path_or_name]
-
-    # Check if it's a file path
-    if os.path.exists(dataset_path_or_name):
-        return BenchmarkDataset.load(dataset_path_or_name)
-
-    # Not found
     raise ValueError(f"Dataset '{dataset_path_or_name}' not found in registry or as file")

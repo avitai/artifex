@@ -1,7 +1,7 @@
 """Evaluation configuration using frozen dataclasses.
 
-This module provides a frozen dataclass-based configuration for evaluation
-and metrics, replacing the Pydantic-based EvaluationConfig.
+This module provides the typed runtime configuration for evaluation and
+metrics.
 """
 
 import dataclasses
@@ -12,13 +12,12 @@ from artifex.generative_models.core.configuration.base_dataclass import BaseConf
 from artifex.generative_models.core.configuration.validation import validate_positive_int
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class EvaluationConfig(BaseConfig):
     """Configuration for evaluation and metrics.
 
     This dataclass provides a type-safe, immutable configuration for
-    evaluation settings in generative models. It replaces the Pydantic
-    EvaluationConfig.
+    evaluation settings in generative models.
 
     Attributes:
         metrics: Tuple of metrics to compute (e.g., "fid", "inception_score")
@@ -51,7 +50,7 @@ class EvaluationConfig(BaseConfig):
         Raises:
             ValueError: If any validation fails
         """
-        super().__post_init__()
+        super(EvaluationConfig, self).__post_init__()
 
         # Validate metrics (required field with dummy default)
         if not self.metrics:

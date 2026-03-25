@@ -1,75 +1,47 @@
-# Training
+# Training Configs
 
-**Module:** `configs.schema.training`
+Training uses one top-level dataclass plus nested optimizer and scheduler
+configs.
 
-**Source:** `configs/schema/training.py`
-
-## Classes
-
-### OptimizerConfig
+## Public Imports
 
 ```python
-class OptimizerConfig
+from artifex.configs import OptimizerConfig, SchedulerConfig, TrainingConfig
+
+training_config = TrainingConfig(
+    name="baseline_training",
+    batch_size=64,
+    num_epochs=100,
+    optimizer=OptimizerConfig(
+        name="adamw",
+        optimizer_type="adamw",
+        learning_rate=2e-4,
+    ),
+    scheduler=SchedulerConfig(
+        name="cosine",
+        scheduler_type="cosine",
+        warmup_steps=500,
+    ),
+)
 ```
 
-### SchedulerConfig
+## Available Types
 
-```python
-class SchedulerConfig
-```
+- `TrainingConfig`
+- `OptimizerConfig`
+- `SchedulerConfig`
 
-### TrainingConfig
+## Key Training Fields
 
-```python
-class TrainingConfig
-```
+- `batch_size`
+- `num_epochs`
+- `gradient_clip_norm`
+- `checkpoint_dir`
+- `save_frequency`
+- `max_checkpoints`
+- `log_frequency`
+- `use_wandb`
+- `wandb_project`
 
-## Functions
-
-### validate_beta
-
-```python
-def validate_beta()
-```
-
-### validate_grad_clip_norm
-
-```python
-def validate_grad_clip_norm()
-```
-
-### validate_max_steps
-
-```python
-def validate_max_steps()
-```
-
-### validate_positive_float
-
-```python
-def validate_positive_float()
-```
-
-### validate_positive_int
-
-```python
-def validate_positive_int()
-```
-
-### validate_ratio
-
-```python
-def validate_ratio()
-```
-
-### validate_warmup_steps
-
-```python
-def validate_warmup_steps()
-```
-
-## Module Statistics
-
-- **Classes:** 3
-- **Functions:** 7
-- **Imports:** 3
+The nested optimizer and scheduler configs hold the optimizer-specific and
+scheduler-specific parameters.

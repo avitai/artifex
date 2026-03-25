@@ -16,7 +16,9 @@ from artifex.generative_models.core.configuration import (
     WGANConfig,
 )
 from artifex.generative_models.models.gan import DCGAN, WGAN
-from tests.utils.test_helpers import get_mock_reason, should_run_gan_tests
+
+
+pytestmark = pytest.mark.integration
 
 
 @pytest.fixture
@@ -82,7 +84,6 @@ def wgan_config(generator_config, discriminator_config):
 class TestGANIntegration:
     """Integration tests for GAN models."""
 
-    @pytest.mark.skipif(not should_run_gan_tests(), reason=get_mock_reason("GAN"))
     def test_dcgan_generator_discriminator(self, rng, dcgan_config):
         """Test DCGAN generator and discriminator."""
         # Create model with required RNG streams
@@ -111,7 +112,6 @@ class TestGANIntegration:
         assert jnp.all(disc_output >= 0.0)
         assert jnp.all(disc_output <= 1.0)
 
-    @pytest.mark.skipif(not should_run_gan_tests(), reason=get_mock_reason("GAN"))
     def test_wgan_with_gradient_penalty(self, rng, wgan_config):
         """Test WGAN with gradient penalty."""
         # Create model with required RNG streams
@@ -152,7 +152,6 @@ class TestGANIntegration:
         assert gp.shape == ()
         assert jnp.isfinite(gp)
 
-    @pytest.mark.skipif(not should_run_gan_tests(), reason=get_mock_reason("GAN"))
     def test_conditional_gan(self, rng):
         """Test Conditional GAN with label conditioning."""
         from artifex.generative_models.models.gan.conditional import ConditionalGAN
@@ -243,7 +242,6 @@ class TestGANIntegration:
         assert gen_loss.shape == ()
         assert jnp.isfinite(gen_loss)
 
-    @pytest.mark.skipif(not should_run_gan_tests(), reason=get_mock_reason("GAN"))
     def test_stylegan_style_mixing(self, rng):
         """Test StyleGAN3 with style mixing."""
         from artifex.generative_models.core.configuration.network_configs import (
@@ -286,7 +284,6 @@ class TestGANIntegration:
         # Images should be different
         assert not jnp.allclose(img1, img2, atol=1e-3)
 
-    @pytest.mark.skipif(not should_run_gan_tests(), reason=get_mock_reason("GAN"))
     def test_dcgan_with_convtranspose(self, rng, dcgan_config):
         """Test DCGAN with ConvTranspose layers."""
         # Create DCGAN model
@@ -334,7 +331,6 @@ class TestGANIntegration:
         assert disc_output.shape[0] == batch_size
         assert jnp.all(jnp.isfinite(disc_output))
 
-    @pytest.mark.skipif(not should_run_gan_tests(), reason=get_mock_reason("GAN"))
     def test_gan_sampling(self, rng, dcgan_config):
         """Test sampling from GAN models."""
         # Create DCGAN model

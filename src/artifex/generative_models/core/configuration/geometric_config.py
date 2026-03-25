@@ -13,13 +13,15 @@ from typing import Any
 
 from .base_dataclass import BaseConfig
 from .base_network import BaseNetworkConfig
+from .extension_config import ProteinExtensionsConfig
 from .validation import (
     validate_dropout_rate,
+    validate_non_negative_float,
     validate_positive_int,
 )
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class PointCloudNetworkConfig(BaseNetworkConfig):
     """Configuration for point cloud network architecture.
 
@@ -40,7 +42,7 @@ class PointCloudNetworkConfig(BaseNetworkConfig):
 
     def __post_init__(self) -> None:
         """Validate point cloud network configuration."""
-        super().__post_init__()
+        super(PointCloudNetworkConfig, self).__post_init__()
 
         validate_positive_int(self.embed_dim, "embed_dim")
         validate_positive_int(self.num_heads, "num_heads")
@@ -63,7 +65,7 @@ class PointCloudNetworkConfig(BaseNetworkConfig):
         return cls(**data)
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class GeometricConfig(BaseConfig):
     """Base configuration for geometric models.
 
@@ -79,11 +81,11 @@ class GeometricConfig(BaseConfig):
 
     def __post_init__(self) -> None:
         """Validate geometric configuration."""
-        super().__post_init__()
+        super(GeometricConfig, self).__post_init__()
         validate_dropout_rate(self.dropout_rate)
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class PointCloudConfig(GeometricConfig):
     """Configuration for point cloud models.
 
@@ -109,7 +111,7 @@ class PointCloudConfig(GeometricConfig):
 
     def __post_init__(self) -> None:
         """Validate PointCloud configuration."""
-        super().__post_init__()
+        super(PointCloudConfig, self).__post_init__()
 
         # Validate network is provided
         if self.network is None:
@@ -127,7 +129,7 @@ class PointCloudConfig(GeometricConfig):
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary with nested config handling."""
-        data = super().to_dict()
+        data = GeometricConfig.to_dict(self)
 
         if self.network is not None:
             data["network"] = self.network.to_dict()
@@ -145,7 +147,7 @@ class PointCloudConfig(GeometricConfig):
         return cls(**data)
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class MeshNetworkConfig(BaseNetworkConfig):
     """Configuration for mesh network architecture.
 
@@ -163,7 +165,7 @@ class MeshNetworkConfig(BaseNetworkConfig):
 
     def __post_init__(self) -> None:
         """Validate mesh network configuration."""
-        super().__post_init__()
+        super(MeshNetworkConfig, self).__post_init__()
 
         validate_positive_int(self.embed_dim, "embed_dim")
         validate_positive_int(self.num_heads, "num_heads")
@@ -181,28 +183,26 @@ class MeshNetworkConfig(BaseNetworkConfig):
         return cls(**data)
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class MeshConfig(GeometricConfig):
     """Configuration for mesh models.
 
-    Mesh models generate 3D meshes consisting of vertices and faces.
+    Mesh models generate 3D meshes by deforming a retained sphere template.
 
     Attributes:
         network: Configuration for the mesh network architecture
-        num_vertices: Maximum number of vertices in the mesh
-        num_faces: Maximum number of faces in the mesh
+        num_vertices: Vertex budget for the retained sphere-template topology
         vertex_dim: Dimensionality of each vertex (typically 3 for XYZ)
     """
 
     network: MeshNetworkConfig | None = None
 
     num_vertices: int = 2048
-    num_faces: int = 4096
     vertex_dim: int = 3
 
     def __post_init__(self) -> None:
         """Validate Mesh configuration."""
-        super().__post_init__()
+        super(MeshConfig, self).__post_init__()
 
         if self.network is None:
             raise ValueError("network is required and cannot be None")
@@ -211,12 +211,11 @@ class MeshConfig(GeometricConfig):
             raise TypeError(f"network must be MeshNetworkConfig, got {type(self.network).__name__}")
 
         validate_positive_int(self.num_vertices, "num_vertices")
-        validate_positive_int(self.num_faces, "num_faces")
         validate_positive_int(self.vertex_dim, "vertex_dim")
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary with nested config handling."""
-        data = super().to_dict()
+        data = GeometricConfig.to_dict(self)
 
         if self.network is not None:
             data["network"] = self.network.to_dict()
@@ -234,7 +233,7 @@ class MeshConfig(GeometricConfig):
         return cls(**data)
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class VoxelNetworkConfig(BaseNetworkConfig):
     """Configuration for voxel network architecture.
 
@@ -252,7 +251,7 @@ class VoxelNetworkConfig(BaseNetworkConfig):
 
     def __post_init__(self) -> None:
         """Validate voxel network configuration."""
-        super().__post_init__()
+        super(VoxelNetworkConfig, self).__post_init__()
 
         validate_positive_int(self.base_channels, "base_channels")
         validate_positive_int(self.num_layers, "num_layers")
@@ -273,7 +272,7 @@ class VoxelNetworkConfig(BaseNetworkConfig):
 VALID_VOXEL_LOSS_TYPES = ("bce", "dice", "focal", "mse")
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class VoxelConfig(GeometricConfig):
     """Configuration for voxel models.
 
@@ -298,7 +297,7 @@ class VoxelConfig(GeometricConfig):
 
     def __post_init__(self) -> None:
         """Validate Voxel configuration."""
-        super().__post_init__()
+        super(VoxelConfig, self).__post_init__()
 
         if self.network is None:
             raise ValueError("network is required and cannot be None")
@@ -318,7 +317,7 @@ class VoxelConfig(GeometricConfig):
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary with nested config handling."""
-        data = super().to_dict()
+        data = GeometricConfig.to_dict(self)
 
         if self.network is not None:
             data["network"] = self.network.to_dict()
@@ -336,7 +335,7 @@ class VoxelConfig(GeometricConfig):
         return cls(**data)
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class GraphNetworkConfig(BaseNetworkConfig):
     """Configuration for graph network architecture.
 
@@ -362,7 +361,7 @@ class GraphNetworkConfig(BaseNetworkConfig):
 
     def __post_init__(self) -> None:
         """Validate graph network configuration."""
-        super().__post_init__()
+        super(GraphNetworkConfig, self).__post_init__()
 
         validate_positive_int(self.node_features_dim, "node_features_dim")
         validate_positive_int(self.edge_features_dim, "edge_features_dim")
@@ -386,7 +385,7 @@ class GraphNetworkConfig(BaseNetworkConfig):
         return cls(**data)
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class GraphConfig(GeometricConfig):
     """Configuration for graph models.
 
@@ -408,7 +407,7 @@ class GraphConfig(GeometricConfig):
 
     def __post_init__(self) -> None:
         """Validate Graph configuration."""
-        super().__post_init__()
+        super(GraphConfig, self).__post_init__()
 
         if self.network is None:
             raise ValueError("network is required and cannot be None")
@@ -423,7 +422,7 @@ class GraphConfig(GeometricConfig):
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary with nested config handling."""
-        data = super().to_dict()
+        data = GeometricConfig.to_dict(self)
 
         if self.network is not None:
             data["network"] = self.network.to_dict()
@@ -446,7 +445,7 @@ class GraphConfig(GeometricConfig):
 # ============================================================================
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class ProteinConstraintConfig:
     """Configuration for protein structural constraints.
 
@@ -466,8 +465,17 @@ class ProteinConstraintConfig:
     phi_weight: float = 0.5
     psi_weight: float = 0.5
 
+    def __post_init__(self) -> None:
+        """Validate protein constraint weights."""
+        validate_non_negative_float(self.backbone_weight, "backbone_weight")
+        validate_non_negative_float(self.bond_weight, "bond_weight")
+        validate_non_negative_float(self.angle_weight, "angle_weight")
+        validate_non_negative_float(self.dihedral_weight, "dihedral_weight")
+        validate_non_negative_float(self.phi_weight, "phi_weight")
+        validate_non_negative_float(self.psi_weight, "psi_weight")
 
-@dataclasses.dataclass(frozen=True)
+
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class ProteinPointCloudConfig(PointCloudConfig):
     """Configuration for protein point cloud models.
 
@@ -478,19 +486,17 @@ class ProteinPointCloudConfig(PointCloudConfig):
         num_residues: Number of amino acid residues
         num_atoms_per_residue: Atoms per residue (default 4 for backbone: N, CA, C, O)
         backbone_indices: Indices of backbone atoms in each residue
-        use_constraints: Whether to apply protein structural constraints
-        constraint_config: Configuration for structural constraints
+        extensions: Canonical protein extension bundle for this model
     """
 
     num_residues: int = 10
     num_atoms_per_residue: int = 4
     backbone_indices: tuple[int, ...] = (0, 1, 2, 3)
-    use_constraints: bool = True
-    constraint_config: ProteinConstraintConfig | None = None
+    extensions: ProteinExtensionsConfig | None = None
 
     def __post_init__(self) -> None:
         """Validate protein point cloud configuration."""
-        super().__post_init__()
+        super(ProteinPointCloudConfig, self).__post_init__()
 
         validate_positive_int(self.num_residues, "num_residues")
         validate_positive_int(self.num_atoms_per_residue, "num_atoms_per_residue")
@@ -503,14 +509,32 @@ class ProteinPointCloudConfig(PointCloudConfig):
                 f"backbone_indices ({self.backbone_indices}) contains index >= "
                 f"num_atoms_per_residue ({self.num_atoms_per_residue})"
             )
+        if self.extensions is not None and not isinstance(self.extensions, ProteinExtensionsConfig):
+            raise TypeError(
+                f"extensions must be ProteinExtensionsConfig, got {type(self.extensions).__name__}"
+            )
 
     @property
     def total_atoms(self) -> int:
         """Total number of atoms in the protein."""
         return self.num_residues * self.num_atoms_per_residue
 
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "ProteinPointCloudConfig":
+        """Create config from dictionary with nested protein fields normalized."""
+        data = data.copy()
 
-@dataclasses.dataclass(frozen=True)
+        if "network" in data and isinstance(data["network"], dict):
+            data["network"] = PointCloudNetworkConfig.from_dict(data["network"])
+        if "backbone_indices" in data and isinstance(data["backbone_indices"], list):
+            data["backbone_indices"] = tuple(data["backbone_indices"])
+        if "extensions" in data and isinstance(data["extensions"], dict):
+            data["extensions"] = ProteinExtensionsConfig.from_dict(data["extensions"])
+
+        return cls(**data)
+
+
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class ProteinGraphConfig(GraphConfig):
     """Configuration for protein graph models.
 
@@ -522,8 +546,7 @@ class ProteinGraphConfig(GraphConfig):
         num_residues: Number of amino acid residues
         num_atoms_per_residue: Atoms per residue (default 4 for backbone)
         backbone_indices: Indices of backbone atoms in each residue
-        use_constraints: Whether to apply protein structural constraints
-        constraint_config: Configuration for structural constraints
+        extensions: Canonical protein extension bundle for this model
         node_dim: Dimension of node features (defaults to network.node_features_dim)
         edge_dim: Dimension of edge features (defaults to network.edge_features_dim)
     """
@@ -531,12 +554,11 @@ class ProteinGraphConfig(GraphConfig):
     num_residues: int = 10
     num_atoms_per_residue: int = 4
     backbone_indices: tuple[int, ...] = (0, 1, 2, 3)
-    use_constraints: bool = True
-    constraint_config: ProteinConstraintConfig | None = None
+    extensions: ProteinExtensionsConfig | None = None
 
     def __post_init__(self) -> None:
         """Validate protein graph configuration."""
-        super().__post_init__()
+        super(ProteinGraphConfig, self).__post_init__()
 
         validate_positive_int(self.num_residues, "num_residues")
         validate_positive_int(self.num_atoms_per_residue, "num_atoms_per_residue")
@@ -548,6 +570,10 @@ class ProteinGraphConfig(GraphConfig):
             raise ValueError(
                 f"backbone_indices ({self.backbone_indices}) contains index >= "
                 f"num_atoms_per_residue ({self.num_atoms_per_residue})"
+            )
+        if self.extensions is not None and not isinstance(self.extensions, ProteinExtensionsConfig):
+            raise TypeError(
+                f"extensions must be ProteinExtensionsConfig, got {type(self.extensions).__name__}"
             )
 
     @property
@@ -568,3 +594,17 @@ class ProteinGraphConfig(GraphConfig):
         if self.network is not None:
             return self.network.edge_features_dim
         return 32
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "ProteinGraphConfig":
+        """Create config from dictionary with nested protein fields normalized."""
+        data = data.copy()
+
+        if "network" in data and isinstance(data["network"], dict):
+            data["network"] = GraphNetworkConfig.from_dict(data["network"])
+        if "backbone_indices" in data and isinstance(data["backbone_indices"], list):
+            data["backbone_indices"] = tuple(data["backbone_indices"])
+        if "extensions" in data and isinstance(data["extensions"], dict):
+            data["extensions"] = ProteinExtensionsConfig.from_dict(data["extensions"])
+
+        return cls(**data)

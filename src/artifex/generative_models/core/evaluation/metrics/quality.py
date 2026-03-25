@@ -1,7 +1,16 @@
 """Quality metrics for evaluation across modalities."""
 
+import logging
+
 import jax
 import jax.numpy as jnp
+
+from artifex.generative_models.core.evaluation.metrics.metric_ops import (
+    frechet_distance_from_statistics,
+)
+
+
+logger = logging.getLogger(__name__)
 
 
 def calculate_fid_statistics(features: jax.Array) -> tuple[jax.Array, jax.Array]:
@@ -32,22 +41,7 @@ def calculate_frechet_distance(
     Returns:
         Fréchet distance
     """
-    # Calculate square root of product of covariances
-    # JAX doesn't have sqrtm, so we use scipy through jax.scipy
-    from jax.scipy import linalg
-
-    covmean = linalg.sqrtm(sigma1 @ sigma2)
-
-    # Ensure covmean is real
-    if jnp.iscomplexobj(covmean):
-        covmean = covmean.real
-
-    # Calculate Fréchet distance
-    mean_diff = mu1 - mu2
-    trace_term = jnp.trace(sigma1 + sigma2 - 2 * covmean)
-    fid = mean_diff @ mean_diff + trace_term
-
-    return float(fid)
+    return frechet_distance_from_statistics(mu1, sigma1, mu2, sigma2)
 
 
 def calculate_fid_score(gen_features: jax.Array, real_features: jax.Array) -> float:
@@ -68,8 +62,8 @@ def calculate_fid_score(gen_features: jax.Array, real_features: jax.Array) -> fl
     try:
         fid = calculate_frechet_distance(mu1, sigma1, mu2, sigma2)
         return fid
-    except Exception as e:
-        print(f"Error calculating FID: {e}")
+    except (ValueError, RuntimeError) as e:
+        logger.error("Error calculating FID: %s", e)
         return 100.0  # Return high FID score on error
 
 

@@ -51,8 +51,9 @@ def base_training_config():
     )
 
 
-def simple_loss_fn(model, batch, rng):
+def simple_loss_fn(model, batch, rng, step):
     """Simple loss function for testing."""
+    del rng, step
     x = batch["x"]
     y = model(x)
     loss = jnp.mean(y**2)

@@ -6,16 +6,23 @@ Common questions about Artifex and their answers.
 
 ### Q: How do I install Artifex?
 
-**A**: Using uv (recommended):
+**A**: Package users can install Artifex directly:
 
 ```bash
-uv pip install artifex
+pip install artifex
 ```
 
 For GPU support:
 
 ```bash
-uv sync --extra cuda12  # For CUDA 12
+pip install "artifex[cuda12]"
+```
+
+If you are contributing to the repository instead of installing the published package, use:
+
+```bash
+./setup.sh
+source ./activate.sh
 ```
 
 See the [Installation Guide](../getting-started/installation.md) for more details.
@@ -64,8 +71,13 @@ model, step = load_checkpoint(checkpoint_manager, model_template)
 ```python
 from artifex.generative_models.training.trainer import Trainer
 
-trainer = Trainer(model_config=config, training_config=train_config)
-trainer.train(train_dataset, val_dataset)
+trainer = Trainer(model=model, training_config=train_config, loss_fn=task_loss_fn)
+trainer.train(
+    train_data=train_dataset,
+    num_epochs=train_config.num_epochs,
+    batch_size=train_config.batch_size,
+    val_data=val_dataset,
+)
 ```
 
 See [Training Guide](../user-guide/training/training-guide.md) for complete examples.
@@ -117,18 +129,19 @@ See [Data Guide](../user-guide/data/data-guide.md).
 
 ### Q: How do I use my own dataset?
 
-**A**: Create a custom dataset:
+**A**: Wrap your data in a datarax `MemorySource`:
 
 ```python
-from artifex.generative_models.modalities.base import BaseDataset
+import jax.numpy as jnp
+from datarax.sources import MemorySource, MemorySourceConfig
+from flax import nnx
 
-class MyDataset(BaseDataset):
-    def __len__(self):
-        return len(self.data)
+data = {"features": jnp.ones((100, 32)), "labels": jnp.zeros((100,))}
+config = MemorySourceConfig(shuffle=True)
+dataset = MemorySource(config, data, rngs=nnx.Rngs(0))
 
-    def __iter__(self):
-        for sample in self.data:
-            yield {"data": sample}
+sample = dataset[0]       # Single sample
+batch = dataset.get_batch(16)  # Batched access
 ```
 
 See [Custom Datasets](../user-guide/data/data-guide.md#custom-datasets).
@@ -246,7 +259,7 @@ See [Deployment Guide](../user-guide/integrations/deployment.md).
 3. **Mixed precision**: Use bfloat16
 4. **Model pruning**: Remove unnecessary parameters
 
-See [Optimization](../user-guide/integrations/deployment.md#optimization).
+See [Optimization](../user-guide/integrations/deployment.md#experimental-production-optimization).
 
 ## Troubleshooting
 
@@ -264,19 +277,19 @@ See [Optimization](../user-guide/integrations/deployment.md#optimization).
 
 **A**: Common issues:
 
-1. **Missing dependencies**: Run `uv sync --all-extras`
+1. **Missing dependencies in a source checkout**: Run `uv sync --extra dev --extra test`
 2. **CUDA not available**: Some tests require GPU
 3. **Outdated code**: Pull latest changes
-4. **Environment issues**: Create fresh virtual environment
+4. **Environment issues in a source checkout**: Rebuild with `./setup.sh --force-clean` and `source ./activate.sh`
 
 ### Q: Import errors
 
 **A**: Check:
 
-1. **Installation**: `uv pip list | grep artifex`
+1. **Installation**: `python -c "import artifex; print(artifex.__file__)"`
 2. **Python path**: Verify artifex is installed
-3. **Virtual environment**: Activate correct environment
-4. **Dependencies**: Install with `uv sync`
+3. **Source checkout**: If you are contributing from the repo, activate with `source ./activate.sh`
+4. **Source-checkout dependencies**: Re-sync with `uv sync --extra dev --extra test`
 
 ## Contributing
 

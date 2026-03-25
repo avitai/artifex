@@ -86,8 +86,8 @@ class CliffordBatchNorm(nnx.Module):
             raise ValueError(f"Input has {n_blades} blades, expected {self.n_blades}.")
 
         training = not deterministic
-        rm = self.running_mean.value if self.running_mean is not None else None
-        rc = self.running_cov.value if self.running_cov is not None else None
+        rm = self.running_mean[...] if self.running_mean is not None else None
+        rc = self.running_cov[...] if self.running_cov is not None else None
 
         x_norm, new_rm, new_rc = whiten_data(
             x,
@@ -100,9 +100,9 @@ class CliffordBatchNorm(nnx.Module):
 
         # Update running stats in training mode
         if training and self.running_mean is not None and new_rm is not None:
-            self.running_mean.value = new_rm
+            self.running_mean[...] = new_rm
         if training and self.running_cov is not None and new_rc is not None:
-            self.running_cov.value = new_rc
+            self.running_cov[...] = new_rc
 
         # Affine transform
         if self.weight is not None and self.bias is not None:
@@ -115,11 +115,11 @@ class CliffordBatchNorm(nnx.Module):
         n_spatial = x.ndim - 3  # exclude B, C, I
 
         # weight: (I, I, C) -> (C, I, I) -> (1, 1..., C, I, I)
-        w = jnp.transpose(self.weight.value, (2, 0, 1))
+        w = jnp.transpose(self.weight[...], (2, 0, 1))
         w = w.reshape((1,) * (1 + n_spatial) + (self.channels, self.n_blades, self.n_blades))
 
         # bias: (I, C) -> (C, I) -> (1, 1..., C, I)
-        b = self.bias.value.T
+        b = self.bias[...].T
         b = b.reshape((1,) * (1 + n_spatial) + (self.channels, self.n_blades))
 
         # (..., C, I, I) @ (..., C, I, 1) -> squeeze -> (..., C, I)
@@ -222,8 +222,8 @@ class CliffordGroupNorm(nnx.Module):
         # Affine: per-group weight/bias tiled across groups
         if self.weight is not None and self.bias is not None:
             # Tile to full channel count: (I, I, C_pg) -> (I, I, C)
-            w = jnp.tile(self.weight.value, (1, 1, self.num_groups))
-            b = jnp.tile(self.bias.value, (1, self.num_groups))
+            w = jnp.tile(self.weight[...], (1, 1, self.num_groups))
+            b = jnp.tile(self.bias[...], (1, self.num_groups))
 
             # (I, I, C) -> (C, I, I) -> (1, 1..., C, I, I)
             w = jnp.transpose(w, (2, 0, 1))
@@ -310,12 +310,12 @@ class MultiVectorActivation(nnx.Module):
 
         # Compute gate
         if self.aggregation == "linear":
-            gate = jnp.einsum("...ck,ck->...c", v_kb, self.agg_weight.value) + self.agg_bias.value
-            gate = jax.nn.sigmoid(gate[..., None])  # (..., C, 1)
+            gate = jnp.einsum("...ck,ck->...c", v_kb, self.agg_weight[...]) + self.agg_bias[...]
+            gate = nnx.sigmoid(gate[..., None])  # (..., C, 1)
         elif self.aggregation == "sum":
-            gate = jax.nn.sigmoid(jnp.sum(v_kb, axis=-1, keepdims=True))
+            gate = nnx.sigmoid(jnp.sum(v_kb, axis=-1, keepdims=True))
         elif self.aggregation == "mean":
-            gate = jax.nn.sigmoid(jnp.mean(v_kb, axis=-1, keepdims=True))
+            gate = nnx.sigmoid(jnp.mean(v_kb, axis=-1, keepdims=True))
         else:
             raise ValueError(f"Unknown aggregation: {self.aggregation!r}")
 

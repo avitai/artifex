@@ -528,9 +528,9 @@ Recent work (2023-2024) has proposed improvements including better initializatio
 
 1. **Scalar output**: $E_\theta: \mathcal{X} \to \mathbb{R}$ must map inputs to single energy value
 2. **Sufficient capacity**: Deep networks capture complex dependencies
-3. **Spectral normalization**: Stabilizes training by constraining Lipschitz constant
-4. **Residual connections**: Enable deep architectures (10+ layers)
-5. **Normalization layers**: GroupNorm or LayerNorm (BatchNorm can interfere with MCMC)
+3. **Residual connections**: Enable deep architectures (10+ layers)
+4. **Normalization layers**: GroupNorm or LayerNorm (BatchNorm can interfere with MCMC)
+5. **Stable optimization**: Regularization, gradient clipping, and conservative step sizes keep training tractable
 
 ### MLP Energy Function (Tabular Data)
 
@@ -629,26 +629,26 @@ class EnergyBlock(nnx.Module):
 
 **Use cases**: Image data (MNIST, CIFAR-10, CelebA), spatial data
 
-### Deep Energy Functions with Spectral Normalization
+### Deep Energy Functions with Residual Blocks
 
-For complex distributions, deeper architectures with **spectral normalization** improve stability:
+For complex distributions, deeper architectures with residual blocks and explicit normalization improve stability:
 
 ```python
 class DeepCNNEnergyFunction(nnx.Module):
     def __init__(
         self, hidden_dims, input_channels=3,
-        use_spectral_norm=True, use_residual=True, *, rngs
+        use_residual=True, *, rngs
     ):
         super().__init__(rngs=rngs)
         # Build deeper architecture (8-12 layers)
-        # Apply spectral normalization to conv layers
         # Use residual connections where dimensions match
+        # Normalize intermediate activations for stable MCMC training
         ...
 ```
 
 **Benefits**:
 
-- **Spectral norm**: Constrains Lipschitz constant, prevents gradient explosion
+- **Group normalization**: Keeps intermediate activations well-scaled during sampling
 - **Residual connections**: Enable training of 10+ layer networks
 - **Better sample quality**: Captures finer details in distribution
 
@@ -745,7 +745,7 @@ class SampleBuffer:
 
     **Symptom**: Energy values grow unbounded, NaN losses
 
-    **Solutions**: Add regularization term $\alpha \mathbb{E}[E(x)^2]$, spectral normalization, gradient clipping, smaller learning rate
+    **Solutions**: Add regularization term $\alpha \mathbb{E}[E(x)^2]$, gradient clipping, smaller learning rate, and stronger residual/group-normalized architectures
 
 - :material-alert-circle: **Poor Sample Quality**
 
@@ -761,7 +761,7 @@ class SampleBuffer:
 
     **Symptom**: Oscillating losses, sudden divergence
 
-    **Solutions**: Persistent buffer, KL annealing on regularization, spectral norm, lower learning rate, gradient clipping
+    **Solutions**: Persistent buffer, lower learning rate, gradient clipping, and careful residual/group-normalized architecture scaling
 
 </div>
 
@@ -1084,7 +1084,7 @@ Energy-Based Models provide a principled framework for learning probability dist
 
 :material-web: **NYU Deep Learning Course: Energy-Based Models**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;:material-link: [atcold.github.io/NYU-DLSP20/en/week07/07-1](https://atcold.github.io/NYU-DLSP20/en/week07/07-1/)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Comprehensive lectures by Yann LeCun and Alfredo Canziani
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Complete lectures by Yann LeCun and Alfredo Canziani
 
 :material-web: **UvA Deep Learning Tutorial 8: Deep Energy-Based Generative Models**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;:material-link: [uvadlc-notebooks.readthedocs.io](https://uvadlc-notebooks.readthedocs.io/en/latest/tutorial_notebooks/tutorial8/Deep_Energy_Models.html)<br>
@@ -1100,4 +1100,4 @@ Energy-Based Models provide a principled framework for learning probability dist
 
 ---
 
-**Ready to explore Energy-Based Models?** Start with the [EBM User Guide](../models/ebm-guide.md) for practical implementations, check the [API Reference](../../api/models/ebm.md) for complete documentation, or dive into the [MNIST Tutorial](../../examples/basic/ebm-mnist.md) to train your first EBM!
+**Ready to explore Energy-Based Models?** Start with the [EBM User Guide](../models/ebm-guide.md) for practical implementations, check the [API Reference](../../api/models/ebm.md) for complete documentation, or run the [Simple EBM Example](../../examples/energy/simple-ebm.md) for a retained working walkthrough.

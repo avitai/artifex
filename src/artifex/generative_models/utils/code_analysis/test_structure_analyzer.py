@@ -6,9 +6,14 @@ relationships between test files and source modules.
 """
 
 import ast
+import logging
 import os
 import re
 from dataclasses import dataclass
+from pathlib import Path
+
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -163,7 +168,7 @@ def is_test_file(file_path: str) -> bool:
         r"^.*_test\.py$",
     ]
 
-    file_name = os.path.basename(file_path)
+    file_name = Path(file_path).name
 
     for pattern in patterns:
         if re.match(pattern, file_name):
@@ -198,8 +203,8 @@ def extract_imports(file_path: str) -> list[str]:
                 if node.module:
                     for name in node.names:
                         imports.append(f"{node.module}.{name.name}")
-    except Exception as e:
-        print(f"Error parsing {file_path}: {e}")
+    except (SyntaxError, OSError) as e:
+        logger.warning("Error parsing %s: %s", file_path, e)
 
     return imports
 
@@ -224,20 +229,21 @@ def find_source_module_mappings(
     for root, _, files in os.walk(test_dir):
         for file in files:
             if file.endswith(".py"):
-                file_path = os.path.join(root, file)
+                file_path = str(Path(root) / file)
                 if is_test_file(file_path):
                     test_files.append(file_path)
 
     # Find source modules
     source_modules = []
+    src_path = Path(src_dir)
 
     for root, _, files in os.walk(src_dir):
         for file in files:
             if file.endswith(".py"):
-                file_path = os.path.join(root, file)
-                rel_path = os.path.relpath(file_path, src_dir)
+                file_path = str(Path(root) / file)
+                rel_path = Path(file_path).relative_to(src_path)
                 module_path = (
-                    package_prefix + "." + os.path.splitext(rel_path)[0].replace(os.path.sep, ".")
+                    package_prefix + "." + rel_path.with_suffix("").as_posix().replace("/", ".")
                 )
                 source_modules.append((file_path, module_path))
 
@@ -291,7 +297,7 @@ class TestStructureAnalyzer:
         for root, _, files in os.walk(self.test_dir):
             for file in files:
                 if file.endswith(".py"):
-                    file_path = os.path.join(root, file)
+                    file_path = str(Path(root) / file)
                     if is_test_file(file_path):
                         test_files.append(file_path)
 
@@ -305,16 +311,17 @@ class TestStructureAnalyzer:
             list of tuples (file_path, module_path).
         """
         source_modules: list[tuple[str, str]] = []
+        src_path = Path(self.src_dir)
 
         for root, _, files in os.walk(self.src_dir):
             for file in files:
                 if file.endswith(".py"):
-                    file_path = os.path.join(root, file)
-                    rel_path = os.path.relpath(file_path, self.src_dir)
+                    file_path = str(Path(root) / file)
+                    rel_path = Path(file_path).relative_to(src_path)
                     module_path = (
                         self.package_prefix
                         + "."
-                        + os.path.splitext(rel_path)[0].replace(os.path.sep, ".")
+                        + rel_path.with_suffix("").as_posix().replace("/", ".")
                     )
                     source_modules.append((file_path, module_path))
 

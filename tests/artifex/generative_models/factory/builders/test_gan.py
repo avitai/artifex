@@ -14,6 +14,7 @@ from flax import nnx
 
 from artifex.generative_models.core.configuration.gan_config import (
     DCGANConfig,
+    GANConfig,
     LSGANConfig,
     WGANConfig,
 )
@@ -185,6 +186,20 @@ class TestGANBuilder:
 
         with pytest.raises(TypeError, match="Unsupported config type"):
             builder.build(fake_config, rngs=rngs)
+
+    def test_build_rejects_base_gan_config(
+        self, rngs, conv_generator_config, conv_discriminator_config
+    ):
+        """Base GANConfig should remain explicitly non-instantiable."""
+        builder = GANBuilder()
+        config = GANConfig(
+            name="test_base_gan",
+            generator=conv_generator_config,
+            discriminator=conv_discriminator_config,
+        )
+
+        with pytest.raises(TypeError, match="Cannot build model from base GANConfig"):
+            builder.build(config, rngs=rngs)
 
     def test_config_validation(self):
         """Test that GAN configs properly validate."""

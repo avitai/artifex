@@ -33,15 +33,11 @@ class ProfilingConfig:
         log_dir: Directory to save profiling traces.
         start_step: Step at which to start profiling (skip warmup).
         end_step: Step at which to stop profiling.
-        trace_memory: Whether to include memory usage in traces.
-        trace_python: Whether to trace Python execution (slower but more detail).
     """
 
     log_dir: str = "logs/profiles"
     start_step: int = 10
     end_step: int = 20
-    trace_memory: bool = True
-    trace_python: bool = False
 
 
 class JAXProfiler(BaseCallback):
@@ -80,7 +76,7 @@ class JAXProfiler(BaseCallback):
         memory allocation, and device execution. For best results:
         - Set start_step after warmup (JIT compilation)
         - Keep profiling window small (10-20 steps)
-        - Use trace_python=True only when debugging Python bottlenecks
+        - Keep Python-side debugging separate from profiler configuration
     """
 
     def __init__(self, config: ProfilingConfig) -> None:

@@ -1,4 +1,9 @@
-"""Evaluation metrics for tabular data generation."""
+"""Evaluation metrics for tabular data generation.
+
+The retained public evaluation surface currently reports numerical KS,
+correlation, and privacy metrics. categorical and ordinal helpers remain private implementation
+details until a real mixed-type public contract exists.
+"""
 
 import jax
 import jax.numpy as jnp
@@ -42,8 +47,8 @@ class TabularEvaluationSuite(BaseEvaluationSuite):
 
     def evaluate_batch(
         self,
-        generated_data: jax.Array,
-        reference_data: jax.Array | None = None,
+        generated_data: jax.Array | dict[str, jax.Array],
+        reference_data: jax.Array | dict[str, jax.Array] | None = None,
         **kwargs,
     ) -> dict[str, float]:
         """Evaluate a batch of generated tabular data.
@@ -85,7 +90,11 @@ class TabularEvaluationSuite(BaseEvaluationSuite):
 
         # Correlation preservation
         metrics["correlation_preservation"] = float(
-            compute_correlation_preservation(real_dict, gen_dict, self.config.numerical_features)
+            compute_correlation_preservation(
+                real_dict,
+                gen_dict,
+                list(self.config.numerical_features),
+            )
         )
 
         # Privacy metrics
@@ -223,7 +232,7 @@ class TabularEvaluationSuite(BaseEvaluationSuite):
 
         # Correlation preservation
         corr_preservation = compute_correlation_preservation(
-            real_data, generated_data, self.config.numerical_features
+            real_data, generated_data, list(self.config.numerical_features)
         )
         metrics["correlation_preservation"] = float(corr_preservation)
 
@@ -268,16 +277,20 @@ class TabularEvaluationSuite(BaseEvaluationSuite):
         metrics = {}
 
         # Distance to closest record (DCR)
-        dcr_score = _compute_dcr_score(real_data, generated_data, self.config.numerical_features)
+        dcr_score = _compute_dcr_score(
+            real_data,
+            generated_data,
+            list(self.config.numerical_features),
+        )
         metrics["dcr_score"] = float(dcr_score)
 
         # Memorization score (lower is better)
         memorization_score = _compute_memorization_score(
             real_data,
             generated_data,
-            self.config.categorical_features,
-            self.config.ordinal_features,
-            self.config.binary_features,
+            list(self.config.categorical_features),
+            list(self.config.ordinal_features),
+            list(self.config.binary_features),
         )
         metrics["memorization_score"] = float(memorization_score)
 

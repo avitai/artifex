@@ -6,7 +6,12 @@ interface with different model architectures.
 
 import jax.numpy as jnp
 import pytest
+from flax import nnx
 
+from artifex.generative_models.core.configuration import (
+    PointCloudConfig,
+    PointCloudNetworkConfig,
+)
 from artifex.generative_models.modalities.base import ModelAdapter
 from artifex.generative_models.modalities.protein.adapters import (
     ProteinDiffusionAdapter,
@@ -19,31 +24,20 @@ from artifex.generative_models.modalities.protein.config import (
 from artifex.generative_models.modalities.protein.utils import (
     get_protein_adapter,
 )
-
-# First, clear the registry and register protein modality
-# to prevent duplicate registration
 from artifex.generative_models.modalities.registry import (
     _MODALITY_REGISTRY,
-    clear_modalities,
 )
-
-
-# Clear registry before tests
-clear_modalities()
-
-# Import modality registration function and register
-register_protein_modality(force_register=True)
 
 
 @pytest.fixture(autouse=True)
 def save_registry():
-    """Save and restore the modality registry."""
-    # Save registry state
+    """Isolate protein-modality registry setup per test."""
     saved = dict(_MODALITY_REGISTRY)
+    _MODALITY_REGISTRY.clear()
+    register_protein_modality(force_register=True)
     try:
         yield
     finally:
-        # Restore registry state
         _MODALITY_REGISTRY.clear()
         _MODALITY_REGISTRY.update(saved)
 
@@ -56,6 +50,36 @@ def test_protein_model_adapter_init():
     assert adapter.name == "protein_model"
     assert adapter.modality == "protein"
     assert issubclass(adapter.__class__, ModelAdapter)
+
+
+def test_protein_model_adapter_create_keeps_generic_model_family():
+    """The exported default adapter should preserve the factory-selected model family."""
+    adapter = ProteinModelAdapter()
+    config = PointCloudConfig(
+        name="protein_point_cloud",
+        network=PointCloudNetworkConfig(
+            name="protein_point_cloud_network",
+            hidden_dims=(64,),
+            activation="relu",
+            embed_dim=64,
+            num_heads=4,
+            num_layers=2,
+        ),
+        num_points=32,
+        point_dim=3,
+    )
+
+    model = adapter.create(config, rngs=nnx.Rngs(params=0))
+
+    assert model.__class__.__name__ == "PointCloudModel"
+
+
+def test_protein_geometric_adapter_adapt_is_explicit_no_op():
+    """The protein geometric adapter should currently be an explicit no-op."""
+    adapter = ProteinGeometricAdapter()
+    model = object()
+
+    assert adapter.adapt(model, config={}) is model
 
 
 def test_protein_geometric_adapter_init():

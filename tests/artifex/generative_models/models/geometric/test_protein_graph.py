@@ -7,7 +7,9 @@ import pytest
 from flax import nnx
 
 from artifex.generative_models.core.configuration import (
-    ProteinConstraintConfig,
+    ProteinDihedralConfig,
+    ProteinExtensionConfig,
+    ProteinExtensionsConfig,
     ProteinGraphConfig,
 )
 from artifex.generative_models.core.configuration.geometric_config import (
@@ -37,11 +39,18 @@ def model_config():
         residual=True,
         activation="relu",
     )
-    constraint_config = ProteinConstraintConfig(
-        backbone_weight=1.0,
-        bond_weight=1.0,
-        angle_weight=0.5,
-        dihedral_weight=0.3,
+    extensions = ProteinExtensionsConfig(
+        name="protein_extensions",
+        backbone=ProteinExtensionConfig(
+            name="backbone",
+            weight=1.0,
+            bond_length_weight=1.0,
+            bond_angle_weight=0.5,
+        ),
+        dihedral=ProteinDihedralConfig(
+            name="dihedral",
+            weight=0.3,
+        ),
     )
     return ProteinGraphConfig(
         name="protein_graph_model",
@@ -49,8 +58,7 @@ def model_config():
         num_residues=num_residues,
         num_atoms_per_residue=num_atoms_per_residue,
         backbone_indices=(0, 1, 2, 3),
-        use_constraints=True,
-        constraint_config=constraint_config,
+        extensions=extensions,
     )
 
 
@@ -168,43 +176,36 @@ def test_protein_graph_model_sample(model_config):
     """Test sampling from the protein graph model."""
     # Create RNG keys
     key = jax.random.PRNGKey(0)
-    key, dropout_key = jax.random.split(key)
-    rngs = nnx.Rngs(params=key, dropout=dropout_key)
+    key, dropout_key, sample_key = jax.random.split(key, 3)
+    rngs = nnx.Rngs(params=key, dropout=dropout_key, sample=sample_key)
 
     # Initialize model
     model = ProteinGraphModel(model_config, rngs=rngs)
 
     # First test the base sample method
     n_samples = 3
-    try:
-        coords = model.sample(n_samples, rngs=rngs)
-        # Check shape
-        assert coords.shape == (n_samples, model.total_num_atoms, 3)
-    except Exception as e:
-        pytest.xfail(f"Base sample method failed with: {e}")
+    coords = model.sample(n_samples, rngs=rngs)
+    assert coords.shape == (n_samples, model.total_num_atoms, 3)
 
     # Test the protein_sample method
-    try:
-        samples = model.protein_sample(n_samples, rngs=rngs)
+    samples = model.protein_sample(n_samples, rngs=rngs)
 
-        # Check that protein samples have the expected structure
-        assert "atom_positions" in samples
-        assert "atom_mask" in samples
+    # Check that protein samples have the expected structure
+    assert "atom_positions" in samples
+    assert "atom_mask" in samples
 
-        # Check shapes
-        assert samples["atom_positions"].shape == (
-            n_samples,
-            model.num_residues,
-            model.num_atoms_per_residue,
-            3,
-        )
-        assert samples["atom_mask"].shape == (
-            n_samples,
-            model.num_residues,
-            model.num_atoms_per_residue,
-        )
-    except Exception as e:
-        pytest.xfail(f"Protein sample method failed with: {e}")
+    # Check shapes
+    assert samples["atom_positions"].shape == (
+        n_samples,
+        model.num_residues,
+        model.num_atoms_per_residue,
+        3,
+    )
+    assert samples["atom_mask"].shape == (
+        n_samples,
+        model.num_residues,
+        model.num_atoms_per_residue,
+    )
 
 
 def test_protein_graph_model_loss_fn(model_config, protein_data):
@@ -229,8 +230,10 @@ def test_protein_graph_model_loss_fn(model_config, protein_data):
     # Check that losses have the expected structure
     assert "total_loss" in losses
     assert "coord_loss" in losses
-    assert "feat_loss" in losses
     assert "atom_rmsd" in losses
+    assert "backbone" in losses
+    assert "dihedral" in losses
+    assert "feat_loss" not in losses
 
     # Check that loss values are finite
     for name, loss in losses.items():

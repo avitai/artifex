@@ -267,18 +267,19 @@ class TestRealNVP:
         assert jnp.all(jnp.isfinite(samples))
 
     def test_loss_fn(self, config, rngs, input_data):
-        """Test loss function calculation."""
+        """RealNVP loss must follow the canonical flow loss contract."""
         model = RealNVP(config, rngs=rngs)
 
         # Calculate loss - pass input_data as batch and an empty dict as model_outputs
         metrics = model.loss_fn(input_data, {}, rngs=rngs)
 
         # Check metrics contain expected keys
-        assert "loss" in metrics
+        assert "total_loss" in metrics
+        assert "nll_loss" in metrics
         assert "log_prob" in metrics
 
         # Extract loss
-        loss = metrics["loss"]
+        loss = metrics["total_loss"]
 
         # Check scalar loss
         assert jnp.isscalar(loss) or loss.shape == ()

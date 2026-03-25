@@ -1,69 +1,53 @@
-# Inference
+# Inference Configs
 
-**Module:** `configs.schema.inference`
+Inference uses a small hierarchy of frozen dataclasses.
 
-**Source:** `configs/schema/inference.py`
-
-## Overview
-
-Inference configuration schemas.
-
-This module defines configuration schemas for model inference.
-
-## Classes
-
-### DiffusionInferenceConfig
+## Public Imports
 
 ```python
-class DiffusionInferenceConfig
+from artifex.configs import DiffusionInferenceConfig, InferenceConfig, ProteinDiffusionInferenceConfig
+
+base_config = InferenceConfig(
+    name="base_inference",
+    checkpoint_path="{ARTIFEX_CHECKPOINT_ROOT}/latest",
+    batch_size=4,
+    num_samples=8,
+    device="cpu",
+)
 ```
 
-### InferenceConfig
+## Available Types
 
-```python
-class InferenceConfig
-```
+- `InferenceConfig`
+- `DiffusionInferenceConfig`
+- `ProteinDiffusionInferenceConfig`
 
-### ProteinDiffusionInferenceConfig
+`get_inference_config()` selects the narrowest supported type that matches the
+YAML shape. The retained `protein_diffusion_inference` asset therefore loads as
+`ProteinDiffusionInferenceConfig`.
 
-```python
-class ProteinDiffusionInferenceConfig
-```
+## Key Fields
 
-## Functions
+Base inference:
 
-### validate_device
+- `checkpoint_path`
+- `output_dir`
+- `batch_size`
+- `num_samples`
+- `device`
 
-```python
-def validate_device()
-```
+Diffusion-specific additions:
 
-### validate_positive_float
+- `sampler`
+- `timesteps`
+- `temperature`
+- `guidance_scale`
+- `save_intermediate_steps`
 
-```python
-def validate_positive_float()
-```
+Protein-specific additions:
 
-### validate_positive_int
-
-```python
-def validate_positive_int()
-```
-
-### validate_positive_int
-
-```python
-def validate_positive_int()
-```
-
-### validate_target_seq_length
-
-```python
-def validate_target_seq_length()
-```
-
-## Module Statistics
-
-- **Classes:** 3
-- **Functions:** 5
-- **Imports:** 2
+- `target_seq_length`
+- `backbone_atom_indices`
+- `calculate_metrics`
+- `visualize_structures`
+- `save_as_pdb`

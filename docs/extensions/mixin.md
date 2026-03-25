@@ -1,40 +1,19 @@
 # Mixin
 
-**Module:** `generative_models.extensions.protein.mixin`
+**Status:** `Supported runtime extension owner`
 
-**Source:** `generative_models/extensions/protein/mixin.py`
+**Module:** `artifex.generative_models.extensions.protein.mixin`
 
-## Overview
+**Source:** `src/artifex/generative_models/extensions/protein/mixin.py`
 
-Protein mixin extensions for generative models.
+Protein mixin owner for amino-acid-aware model features.
 
-This module implements protein-specific mixin extensions that add protein
-functionality to models such as amino acid type handling.
+## Top-Level Module Exports
 
-## Classes
+- `ProteinMixinExtension`
 
-### ProteinMixinExtension
+## Class APIs
 
-```python
-class ProteinMixinExtension
-```
+### `ProteinMixinExtension`
 
-## Functions
-
-### **call**
-
-```python
-def __call__()
-```
-
-### **init**
-
-```python
-def __init__()
-```
-
-## Module Statistics
-
-- **Classes:** 1
-- **Functions:** 2
-- **Imports:** 4
+- `__call__()`

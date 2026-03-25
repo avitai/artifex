@@ -1,7 +1,7 @@
 """Latency benchmark for generative models.
 
-This module provides benchmarks for measuring inference latency of generative
-models. It supports both sampling-based and prediction-based inference.
+Provides benchmarks for measuring inference latency of generative
+models, supporting both sampling-based and prediction-based inference.
 """
 
 import time
@@ -12,17 +12,17 @@ import jax.numpy as jnp
 import numpy as np
 from flax import nnx
 
-from artifex.benchmarks.base import (
+from artifex.benchmarks import (
     Benchmark,
     BenchmarkConfig,
+    BenchmarkModelProtocol,
     BenchmarkResult,
     DatasetProtocol,
-    ModelProtocol,
 )
 
 
 def measure_inference_latency(
-    model: ModelProtocol,
+    model: BenchmarkModelProtocol,
     method: Literal["sample", "predict"] = "sample",
     num_runs: int = 100,
     warmup_runs: int = 10,
@@ -66,7 +66,7 @@ def measure_inference_latency(
     # Timed runs
     latencies = []
     for _ in range(num_runs):
-        start_time = time.time()
+        start_time = time.perf_counter()
 
         if method == "sample":
             model.sample(batch_size=batch_size, rngs=rngs)
@@ -74,7 +74,7 @@ def measure_inference_latency(
             if inputs is not None:
                 model.predict(inputs, rngs=rngs)
 
-        end_time = time.time()
+        end_time = time.perf_counter()
         latencies.append(end_time - start_time)
 
     # Calculate statistics
@@ -125,7 +125,11 @@ class LatencyBenchmark(Benchmark):
         self.warmup_runs = warmup_runs
         self.random_seed = random_seed
 
-    def run(self, model: ModelProtocol, dataset: DatasetProtocol | None = None) -> BenchmarkResult:
+    def run(
+        self,
+        model: BenchmarkModelProtocol,
+        dataset: DatasetProtocol | None = None,
+    ) -> BenchmarkResult:
         """Run the latency benchmark.
 
         Args:

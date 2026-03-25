@@ -8,8 +8,9 @@
 
 Residual block implementations for generative models.
 
-This module provides flexible residual block implementations that can be used
-across different model architectures, supporting both 1D and 2D convolutions.
+This module documents the retained shared residual blocks for 1D and 2D
+convolutional models. PixelCNN-specific masked residual composition now lives
+with the PixelCNN model owner instead of the shared core residual package.
 
 ## Classes
 
@@ -31,51 +32,39 @@ class Conv1DResidualBlock
 class Conv2DResidualBlock
 ```
 
-### MaskedConv2DResidualBlock
-
-```python
-class MaskedConv2DResidualBlock
-```
-
 ## Functions
 
-### **call**
+### __call__
 
 ```python
 def __call__()
 ```
 
-### **call**
+### __call__
 
 ```python
 def __call__()
 ```
 
-### **call**
+### __call__
 
 ```python
 def __call__()
 ```
 
-### **init**
+### __init__
 
 ```python
 def __init__()
 ```
 
-### **init**
+### __init__
 
 ```python
 def __init__()
 ```
 
-### **init**
-
-```python
-def __init__()
-```
-
-### **init**
+### __init__
 
 ```python
 def __init__()
@@ -89,6 +78,6 @@ def create_residual_block()
 
 ## Module Statistics
 
-- **Classes:** 4
-- **Functions:** 8
+- **Classes:** 3
+- **Functions:** 7
 - **Imports:** 5

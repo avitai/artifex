@@ -1,24 +1,16 @@
 """Modality registry for the generative models framework."""
 
-from .audio.base import AudioModality
 from .base import Modality
 from .image.base import ImageModality
 from .molecular.modality import MolecularModality
 from .protein.modality import ProteinModality
-from .tabular.base import TabularModality
-from .text.base import TextModality
-from .timeseries.base import TimeseriesModality
 
 
 # Registry of available modalities
 _MODALITY_REGISTRY: dict[str, type] = {
-    "audio": AudioModality,
-    "protein": ProteinModality,
-    "molecular": MolecularModality,
     "image": ImageModality,
-    "text": TextModality,
-    "tabular": TabularModality,
-    "timeseries": TimeseriesModality,
+    "molecular": MolecularModality,
+    "protein": ProteinModality,
 }
 
 # Alias for backward compatibility

@@ -31,51 +31,163 @@ from flax import nnx
 # =============================================================================
 
 
-class SimplePolicy(nnx.Module):
-    """Simple policy network for testing."""
+VOCAB_SIZE = 32
+SEQ_LEN = 6
+PROMPT_LEN = 2
+
+
+def make_token_sequences(
+    batch_size: int,
+    *,
+    seq_len: int = SEQ_LEN,
+    offset: int = 0,
+) -> jax.Array:
+    """Create deterministic token sequences for autoregressive rollout tests."""
+    tokens = jnp.arange(batch_size * seq_len, dtype=jnp.int32).reshape(batch_size, seq_len)
+    return (tokens + offset) % VOCAB_SIZE
+
+
+def make_sequence_mask(
+    batch_size: int,
+    *,
+    seq_len: int = SEQ_LEN,
+    prompt_len: int = PROMPT_LEN,
+) -> jax.Array:
+    """Create a prompt/response split mask with 1s over response tokens."""
+    return jnp.concatenate(
+        [
+            jnp.zeros((batch_size, prompt_len), dtype=jnp.float32),
+            jnp.ones((batch_size, seq_len - prompt_len), dtype=jnp.float32),
+        ],
+        axis=1,
+    )
+
+
+def make_sequence_rollout_batch(
+    batch_size: int,
+    *,
+    seq_len: int = SEQ_LEN,
+    prompt_len: int = PROMPT_LEN,
+    sequence_offset: int = 0,
+    old_log_probs: jax.Array | None = None,
+    token_rewards: jax.Array | None = None,
+    returns: jax.Array | None = None,
+    advantages: jax.Array | None = None,
+    dones: jax.Array | None = None,
+    sequence_rewards: jax.Array | None = None,
+):
+    """Construct a typed sequence rollout batch for policy-gradient trainers."""
+    from artifex.generative_models.training.rl import (
+        GeneratedBatch,
+        GeneratedSequenceBatch,
+        SequenceRolloutBatch,
+    )
+
+    sequences = make_token_sequences(batch_size, seq_len=seq_len, offset=sequence_offset)
+    response_mask = make_sequence_mask(batch_size, seq_len=seq_len, prompt_len=prompt_len)
+    prompt_mask = 1.0 - response_mask
+
+    return SequenceRolloutBatch(
+        sequence_batch=GeneratedSequenceBatch(
+            generation=GeneratedBatch(
+                outputs=sequences,
+                rewards=sequence_rewards,
+            ),
+            prompt_mask=prompt_mask,
+            response_mask=response_mask,
+        ),
+        old_log_probs=old_log_probs,
+        token_rewards=token_rewards,
+        returns=returns,
+        advantages=advantages,
+        dones=dones,
+    )
+
+
+def make_group_rollout_batch(
+    batch_size: int,
+    *,
+    group_size: int,
+    seq_len: int = SEQ_LEN,
+    prompt_len: int = PROMPT_LEN,
+    old_log_probs: jax.Array | None = None,
+    token_rewards: jax.Array | None = None,
+    returns: jax.Array | None = None,
+    advantages: jax.Array | None = None,
+    dones: jax.Array | None = None,
+    sequence_rewards: jax.Array | None = None,
+):
+    """Construct a grouped typed rollout batch for GRPO."""
+    from artifex.generative_models.training.rl import GroupRolloutBatch
+
+    rollout = make_sequence_rollout_batch(
+        batch_size,
+        seq_len=seq_len,
+        prompt_len=prompt_len,
+        old_log_probs=old_log_probs,
+        token_rewards=token_rewards,
+        returns=returns,
+        advantages=advantages,
+        dones=dones,
+        sequence_rewards=sequence_rewards,
+    )
+    return GroupRolloutBatch(rollout=rollout, group_size=group_size)
+
+
+def assert_finite_nnx_grads(grads: nnx.Module) -> None:
+    """Assert that an NNX gradient tree is finite and non-empty."""
+    grad_state = nnx.state(grads)
+    grad_leaves = jax.tree_util.tree_leaves(grad_state)
+
+    assert grad_leaves
+    assert all(jnp.all(jnp.isfinite(leaf)) for leaf in grad_leaves)
+    assert any(not jnp.allclose(leaf, 0.0) for leaf in grad_leaves)
+
+
+class SimpleSequencePolicy(nnx.Module):
+    """Simple autoregressive policy network for sequence RL tests."""
 
     def __init__(
         self,
-        input_dim: int,
+        vocab_size: int,
         hidden_dim: int,
-        action_dim: int,
         *,
         rngs: nnx.Rngs,
     ) -> None:
         super().__init__()
-        self.dense1 = nnx.Linear(input_dim, hidden_dim, rngs=rngs)
-        self.dense2 = nnx.Linear(hidden_dim, action_dim, rngs=rngs)
+        self.embedding = nnx.Embed(vocab_size, hidden_dim, rngs=rngs)
+        self.dense = nnx.Linear(hidden_dim, hidden_dim, rngs=rngs)
+        self.output = nnx.Linear(hidden_dim, vocab_size, rngs=rngs)
 
-    def __call__(self, x: jax.Array) -> jax.Array:
-        """Forward pass returning action logits."""
-        x = nnx.relu(self.dense1(x))
-        return self.dense2(x)
+    def __call__(self, tokens: jax.Array) -> jax.Array:
+        """Forward pass returning per-token logits."""
+        embeddings = self.embedding(tokens)
+        hidden = nnx.relu(self.dense(embeddings))
+        return self.output(hidden)
 
 
-class SimpleActorCritic(nnx.Module):
-    """Actor-Critic network for PPO testing."""
+class SimpleSequenceActorCritic(nnx.Module):
+    """Autoregressive actor-critic network with a per-token value head."""
 
     def __init__(
         self,
-        input_dim: int,
+        vocab_size: int,
         hidden_dim: int,
-        action_dim: int,
         *,
         rngs: nnx.Rngs,
     ) -> None:
         super().__init__()
-        # Shared backbone
-        self.backbone = nnx.Linear(input_dim, hidden_dim, rngs=rngs)
-        # Actor head (policy)
-        self.actor = nnx.Linear(hidden_dim, action_dim, rngs=rngs)
-        # Critic head (value function)
+        self.embedding = nnx.Embed(vocab_size, hidden_dim, rngs=rngs)
+        self.backbone = nnx.Linear(hidden_dim, hidden_dim, rngs=rngs)
+        self.actor = nnx.Linear(hidden_dim, vocab_size, rngs=rngs)
         self.critic = nnx.Linear(hidden_dim, 1, rngs=rngs)
 
-    def __call__(self, x: jax.Array) -> tuple[jax.Array, jax.Array]:
-        """Forward pass returning (action_logits, value)."""
-        features = nnx.relu(self.backbone(x))
+    def __call__(self, tokens: jax.Array) -> tuple[jax.Array, jax.Array]:
+        """Forward pass returning autoregressive logits and per-token values."""
+        embeddings = self.embedding(tokens)
+        features = nnx.relu(self.backbone(embeddings))
         action_logits = self.actor(features)
-        value = self.critic(features)
+        value = self.critic(features).squeeze(-1)
         return action_logits, value
 
 
@@ -105,18 +217,63 @@ class SimplePreferenceModel(nnx.Module):
         return self.output(h)
 
 
-@pytest.fixture
-def policy_model() -> SimplePolicy:
-    """Create a simple policy model for testing."""
-    rngs = nnx.Rngs(0)
-    return SimplePolicy(input_dim=8, hidden_dim=16, action_dim=4, rngs=rngs)
+class DictOutputPreferenceModel(nnx.Module):
+    """Preference model variant returning a dict with ``logits``."""
+
+    def __init__(
+        self,
+        vocab_size: int,
+        hidden_dim: int,
+        *,
+        rngs: nnx.Rngs,
+    ) -> None:
+        super().__init__()
+        self.embedding = nnx.Embed(vocab_size, hidden_dim, rngs=rngs)
+        self.dense = nnx.Linear(hidden_dim, hidden_dim, rngs=rngs)
+        self.output = nnx.Linear(hidden_dim, vocab_size, rngs=rngs)
+
+    def __call__(self, x: jax.Array) -> dict[str, jax.Array]:
+        """Forward pass returning an autoregressive-style output dict."""
+        emb = self.embedding(x)
+        h = nnx.relu(self.dense(emb))
+        return {"logits": self.output(h)}
+
+
+class StrictMaskPreferenceModel(nnx.Module):
+    """Preference model that requires a mask kwarg during forward passes."""
+
+    def __init__(
+        self,
+        vocab_size: int,
+        hidden_dim: int,
+        *,
+        rngs: nnx.Rngs,
+    ) -> None:
+        super().__init__()
+        self.embedding = nnx.Embed(vocab_size, hidden_dim, rngs=rngs)
+        self.dense = nnx.Linear(hidden_dim, hidden_dim, rngs=rngs)
+        self.output = nnx.Linear(hidden_dim, vocab_size, rngs=rngs)
+
+    def __call__(self, x: jax.Array, *, mask: jax.Array) -> dict[str, jax.Array]:
+        """Forward pass requiring mask-aware kwargs from the adapter."""
+        emb = self.embedding(x)
+        h = nnx.relu(self.dense(emb))
+        logits = self.output(h)
+        return {"logits": logits + mask[:, :, None].astype(logits.dtype) * 0.0}
 
 
 @pytest.fixture
-def actor_critic_model() -> SimpleActorCritic:
-    """Create a simple actor-critic model for testing."""
+def policy_model() -> SimpleSequencePolicy:
+    """Create a simple autoregressive policy model for testing."""
     rngs = nnx.Rngs(0)
-    return SimpleActorCritic(input_dim=8, hidden_dim=16, action_dim=4, rngs=rngs)
+    return SimpleSequencePolicy(vocab_size=VOCAB_SIZE, hidden_dim=16, rngs=rngs)
+
+
+@pytest.fixture
+def actor_critic_model() -> SimpleSequenceActorCritic:
+    """Create a simple autoregressive actor-critic model for testing."""
+    rngs = nnx.Rngs(0)
+    return SimpleSequenceActorCritic(vocab_size=VOCAB_SIZE, hidden_dim=16, rngs=rngs)
 
 
 @pytest.fixture
@@ -124,6 +281,13 @@ def preference_model() -> SimplePreferenceModel:
     """Create a simple preference model for DPO testing."""
     rngs = nnx.Rngs(0)
     return SimplePreferenceModel(vocab_size=100, hidden_dim=32, rngs=rngs)
+
+
+@pytest.fixture
+def dict_preference_model() -> DictOutputPreferenceModel:
+    """Create a dict-output preference model for sequence adapter tests."""
+    rngs = nnx.Rngs(2)
+    return DictOutputPreferenceModel(vocab_size=100, hidden_dim=32, rngs=rngs)
 
 
 # =============================================================================
@@ -198,7 +362,7 @@ class TestREINFORCETrainer:
 
         assert REINFORCETrainer is not None
 
-    def test_reinforce_trainer_initialization(self, policy_model: SimplePolicy) -> None:
+    def test_reinforce_trainer_initialization(self, policy_model: SimpleSequencePolicy) -> None:
         """REINFORCETrainer should initialize with model and optimizer."""
         from artifex.generative_models.training.rl import (
             REINFORCEConfig,
@@ -213,7 +377,7 @@ class TestREINFORCETrainer:
         assert trainer.optimizer is optimizer
         assert trainer.config is config
 
-    def test_reinforce_trainer_default_config(self, policy_model: SimplePolicy) -> None:
+    def test_reinforce_trainer_default_config(self, policy_model: SimpleSequencePolicy) -> None:
         """REINFORCETrainer should use default config if not provided."""
         from artifex.generative_models.training.rl import (
             REINFORCEConfig,
@@ -225,7 +389,7 @@ class TestREINFORCETrainer:
 
         assert isinstance(trainer.config, REINFORCEConfig)
 
-    def test_reinforce_compute_returns(self, policy_model: SimplePolicy) -> None:
+    def test_reinforce_compute_returns(self, policy_model: SimpleSequencePolicy) -> None:
         """REINFORCETrainer should compute discounted returns correctly."""
         from artifex.generative_models.training.rl import (
             REINFORCEConfig,
@@ -243,7 +407,7 @@ class TestREINFORCETrainer:
         expected = jnp.array([1 + 0.99 + 0.99**2, 1 + 0.99, 1.0])
         assert jnp.allclose(returns, expected, atol=1e-5)
 
-    def test_reinforce_compute_returns_with_zeros(self, policy_model: SimplePolicy) -> None:
+    def test_reinforce_compute_returns_with_zeros(self, policy_model: SimpleSequencePolicy) -> None:
         """REINFORCETrainer should handle zero rewards."""
         from artifex.generative_models.training.rl import (
             REINFORCEConfig,
@@ -260,7 +424,7 @@ class TestREINFORCETrainer:
         expected = jnp.array([0.99**2, 0.99, 1.0])
         assert jnp.allclose(returns, expected, atol=1e-5)
 
-    def test_reinforce_normalize_returns(self, policy_model: SimplePolicy) -> None:
+    def test_reinforce_normalize_returns(self, policy_model: SimpleSequencePolicy) -> None:
         """REINFORCETrainer should normalize returns when configured."""
         from artifex.generative_models.training.rl import (
             REINFORCEConfig,
@@ -278,8 +442,8 @@ class TestREINFORCETrainer:
         assert jnp.abs(jnp.mean(normalized)) < 0.1
         assert jnp.abs(jnp.std(normalized) - 1.0) < 0.1
 
-    def test_reinforce_policy_loss(self, policy_model: SimplePolicy) -> None:
-        """REINFORCETrainer should compute policy gradient loss."""
+    def test_reinforce_policy_loss(self, policy_model: SimpleSequencePolicy) -> None:
+        """REINFORCETrainer should compute policy loss from typed sequence rollouts."""
         from artifex.generative_models.training.rl import (
             REINFORCEConfig,
             REINFORCETrainer,
@@ -289,19 +453,27 @@ class TestREINFORCETrainer:
         config = REINFORCEConfig()
         trainer = REINFORCETrainer(policy_model, optimizer, config)
 
-        # Create fake trajectory data
-        states = jnp.ones((4, 8))
-        actions = jnp.array([0, 1, 2, 3])
-        returns = jnp.array([1.0, 0.5, 0.25, 0.1])
+        batch = make_sequence_rollout_batch(
+            4,
+            returns=jnp.array(
+                [
+                    [1.0, 0.5, 0.25, 0.1, 0.0],
+                    [0.9, 0.45, 0.2, 0.05, 0.0],
+                    [0.8, 0.4, 0.15, 0.05, 0.0],
+                    [0.7, 0.35, 0.1, 0.05, 0.0],
+                ],
+                dtype=jnp.float32,
+            ),
+        )
 
-        loss, metrics = trainer.compute_loss(states, actions, returns)
+        loss, metrics = trainer.compute_loss(batch)
 
         assert jnp.isfinite(loss)
         assert "policy_loss" in metrics
         assert "entropy" in metrics
 
-    def test_reinforce_train_step(self, policy_model: SimplePolicy) -> None:
-        """REINFORCETrainer should perform a training step."""
+    def test_reinforce_train_step(self, policy_model: SimpleSequencePolicy) -> None:
+        """REINFORCETrainer should perform a training step on sequence rollouts."""
         from artifex.generative_models.training.rl import (
             REINFORCEConfig,
             REINFORCETrainer,
@@ -311,14 +483,20 @@ class TestREINFORCETrainer:
         config = REINFORCEConfig()
         trainer = REINFORCETrainer(policy_model, optimizer, config)
 
-        # Create fake trajectory
-        trajectory = {
-            "states": jnp.ones((4, 8)),
-            "actions": jnp.array([0, 1, 2, 3]),
-            "rewards": jnp.array([1.0, 0.5, 0.25, 0.1]),
-        }
+        batch = make_sequence_rollout_batch(
+            4,
+            token_rewards=jnp.array(
+                [
+                    [0.0, 0.0, 1.0, 0.5, 0.0],
+                    [0.0, 0.0, 0.8, 0.4, 0.0],
+                    [0.0, 0.0, 0.6, 0.3, 0.0],
+                    [0.0, 0.0, 0.4, 0.2, 0.0],
+                ],
+                dtype=jnp.float32,
+            ),
+        )
 
-        loss, metrics = trainer.train_step(trajectory)
+        loss, metrics = trainer.train_step(batch)
 
         assert jnp.isfinite(loss)
         assert "policy_loss" in metrics
@@ -407,7 +585,9 @@ class TestPPOTrainer:
 
         assert PPOTrainer is not None
 
-    def test_ppo_trainer_initialization(self, actor_critic_model: SimpleActorCritic) -> None:
+    def test_ppo_trainer_initialization(
+        self, actor_critic_model: SimpleSequenceActorCritic
+    ) -> None:
         """PPOTrainer should initialize with model and optimizer."""
         from artifex.generative_models.training.rl import PPOConfig, PPOTrainer
 
@@ -419,7 +599,9 @@ class TestPPOTrainer:
         assert trainer.optimizer is optimizer
         assert trainer.config is config
 
-    def test_ppo_trainer_default_config(self, actor_critic_model: SimpleActorCritic) -> None:
+    def test_ppo_trainer_default_config(
+        self, actor_critic_model: SimpleSequenceActorCritic
+    ) -> None:
         """PPOTrainer should use default config if not provided."""
         from artifex.generative_models.training.rl import PPOConfig, PPOTrainer
 
@@ -428,7 +610,7 @@ class TestPPOTrainer:
 
         assert isinstance(trainer.config, PPOConfig)
 
-    def test_ppo_compute_gae(self, actor_critic_model: SimpleActorCritic) -> None:
+    def test_ppo_compute_gae(self, actor_critic_model: SimpleSequenceActorCritic) -> None:
         """PPOTrainer should compute GAE advantages correctly."""
         from artifex.generative_models.training.rl import PPOConfig, PPOTrainer
 
@@ -445,7 +627,9 @@ class TestPPOTrainer:
         assert advantages.shape == (4,)
         assert jnp.all(jnp.isfinite(advantages))
 
-    def test_ppo_clipped_surrogate_loss(self, actor_critic_model: SimpleActorCritic) -> None:
+    def test_ppo_clipped_surrogate_loss(
+        self, actor_critic_model: SimpleSequenceActorCritic
+    ) -> None:
         """PPOTrainer should compute clipped surrogate loss."""
         from artifex.generative_models.training.rl import PPOConfig, PPOTrainer
 
@@ -462,7 +646,7 @@ class TestPPOTrainer:
 
         assert jnp.isfinite(loss)
 
-    def test_ppo_value_loss(self, actor_critic_model: SimpleActorCritic) -> None:
+    def test_ppo_value_loss(self, actor_critic_model: SimpleSequenceActorCritic) -> None:
         """PPOTrainer should compute value function loss."""
         from artifex.generative_models.training.rl import PPOConfig, PPOTrainer
 
@@ -478,7 +662,7 @@ class TestPPOTrainer:
         assert jnp.isfinite(loss)
         assert loss > 0  # MSE loss should be positive
 
-    def test_ppo_entropy_bonus(self, actor_critic_model: SimpleActorCritic) -> None:
+    def test_ppo_entropy_bonus(self, actor_critic_model: SimpleSequenceActorCritic) -> None:
         """PPOTrainer should compute entropy bonus."""
         from artifex.generative_models.training.rl import PPOConfig, PPOTrainer
 
@@ -494,22 +678,28 @@ class TestPPOTrainer:
         assert jnp.isfinite(entropy)
         assert entropy > 0  # Entropy should be positive
 
-    def test_ppo_train_step(self, actor_critic_model: SimpleActorCritic) -> None:
-        """PPOTrainer should perform a training step."""
+    def test_ppo_train_step(self, actor_critic_model: SimpleSequenceActorCritic) -> None:
+        """PPOTrainer should perform a training step on typed sequence rollouts."""
         from artifex.generative_models.training.rl import PPOConfig, PPOTrainer
 
         optimizer = nnx.Optimizer(actor_critic_model, optax.adam(1e-3), wrt=nnx.Param)
         config = PPOConfig()
         trainer = PPOTrainer(actor_critic_model, optimizer, config)
 
-        # Create fake trajectory
-        batch = {
-            "states": jnp.ones((4, 8)),
-            "actions": jnp.array([0, 1, 2, 3]),
-            "old_log_probs": jnp.array([-0.5, -1.0, -1.5, -2.0]),
-            "returns": jnp.array([1.0, 0.5, 0.25, 0.1]),
-            "advantages": jnp.array([0.5, 0.25, 0.1, 0.05]),
-        }
+        batch = make_sequence_rollout_batch(
+            4,
+            old_log_probs=jnp.full((4, SEQ_LEN - 1), -0.75, dtype=jnp.float32),
+            returns=jnp.full((4, SEQ_LEN - 1), 0.5, dtype=jnp.float32),
+            advantages=jnp.array(
+                [
+                    [0.0, 0.0, 0.8, 0.4, 0.1],
+                    [0.0, 0.0, 0.7, 0.35, 0.1],
+                    [0.0, 0.0, 0.6, 0.3, 0.1],
+                    [0.0, 0.0, 0.5, 0.25, 0.1],
+                ],
+                dtype=jnp.float32,
+            ),
+        )
 
         loss, metrics = trainer.train_step(batch)
 
@@ -517,6 +707,68 @@ class TestPPOTrainer:
         assert "policy_loss" in metrics
         assert "value_loss" in metrics
         assert "entropy" in metrics
+
+    def test_ppo_train_step_respects_max_grad_norm(self) -> None:
+        """Smaller clipping thresholds should produce smaller parameter updates."""
+        from artifex.generative_models.training.rl import PPOConfig, PPOTrainer
+
+        clipped_model = SimpleSequenceActorCritic(
+            vocab_size=VOCAB_SIZE, hidden_dim=16, rngs=nnx.Rngs(0)
+        )
+        unclipped_model = SimpleSequenceActorCritic(
+            vocab_size=VOCAB_SIZE,
+            hidden_dim=16,
+            rngs=nnx.Rngs(0),
+        )
+
+        clipped_optimizer = nnx.Optimizer(clipped_model, optax.adam(1e-3), wrt=nnx.Param)
+        unclipped_optimizer = nnx.Optimizer(unclipped_model, optax.adam(1e-3), wrt=nnx.Param)
+
+        clipped_trainer = PPOTrainer(
+            clipped_model,
+            clipped_optimizer,
+            PPOConfig(max_grad_norm=1e-4),
+        )
+        unclipped_trainer = PPOTrainer(
+            unclipped_model,
+            unclipped_optimizer,
+            PPOConfig(max_grad_norm=1e6),
+        )
+
+        batch = make_sequence_rollout_batch(
+            8,
+            old_log_probs=jnp.full((8, SEQ_LEN - 1), -10.0, dtype=jnp.float32),
+            returns=jnp.full((8, SEQ_LEN - 1), 1_000.0, dtype=jnp.float32),
+            advantages=jnp.full((8, SEQ_LEN - 1), 1_000.0, dtype=jnp.float32),
+        )
+
+        clipped_initial = jax.tree.map(
+            lambda x: x.copy() if hasattr(x, "copy") else x,
+            nnx.state(clipped_model, nnx.Param),
+        )
+        unclipped_initial = jax.tree.map(
+            lambda x: x.copy() if hasattr(x, "copy") else x,
+            nnx.state(unclipped_model, nnx.Param),
+        )
+
+        clipped_trainer.train_step(batch)
+        unclipped_trainer.train_step(batch)
+
+        clipped_final = nnx.state(clipped_model, nnx.Param)
+        unclipped_final = nnx.state(unclipped_model, nnx.Param)
+
+        def total_update_norm(initial_state, final_state) -> float:
+            total = 0.0
+            for initial_leaf, final_leaf in zip(
+                jax.tree.leaves(initial_state), jax.tree.leaves(final_state)
+            ):
+                total += float(jnp.linalg.norm(final_leaf - initial_leaf))
+            return total
+
+        clipped_update = total_update_norm(clipped_initial, clipped_final)
+        unclipped_update = total_update_norm(unclipped_initial, unclipped_final)
+
+        assert clipped_update < unclipped_update
 
 
 # =============================================================================
@@ -634,6 +886,93 @@ class TestDPOTrainer:
         assert log_probs.shape == (2,)  # One log prob per sequence
         assert jnp.all(jnp.isfinite(log_probs))
 
+    def test_sequence_policy_adapter_scores_array_output_models(
+        self,
+        preference_model: SimplePreferenceModel,
+    ) -> None:
+        """SequencePolicyAdapter should score models that return logits arrays."""
+        from artifex.generative_models.training.rl import (
+            GeneratedBatch,
+            GeneratedSequenceBatch,
+            SequencePolicyAdapter,
+        )
+
+        batch = GeneratedSequenceBatch(
+            generation=GeneratedBatch(outputs=jnp.array([[1, 2, 3, 4], [5, 6, 7, 8]]))
+        )
+
+        log_probs = SequencePolicyAdapter(preference_model).sequence_log_probs(batch)
+
+        assert log_probs.shape == (2,)
+        assert jnp.all(jnp.isfinite(log_probs))
+
+    def test_sequence_policy_adapter_scores_dict_output_models(
+        self,
+        dict_preference_model: DictOutputPreferenceModel,
+    ) -> None:
+        """SequencePolicyAdapter should score models that return output dicts."""
+        from artifex.generative_models.training.rl import (
+            GeneratedBatch,
+            GeneratedSequenceBatch,
+            SequencePolicyAdapter,
+        )
+
+        batch = GeneratedSequenceBatch(
+            generation=GeneratedBatch(outputs=jnp.array([[1, 2, 3, 4], [5, 6, 7, 8]])),
+            response_mask=jnp.array([[0, 1, 1, 1], [0, 1, 1, 1]], dtype=jnp.float32),
+        )
+
+        log_probs = SequencePolicyAdapter(dict_preference_model).sequence_log_probs(batch)
+
+        assert log_probs.shape == (2,)
+        assert jnp.all(jnp.isfinite(log_probs))
+
+    def test_sequence_policy_adapter_supports_model_kwargs_factory(self) -> None:
+        """SequencePolicyAdapter should support custom model kwargs factories."""
+        from artifex.generative_models.training.rl import (
+            GeneratedBatch,
+            GeneratedSequenceBatch,
+            SequencePolicyAdapter,
+        )
+
+        model = StrictMaskPreferenceModel(vocab_size=100, hidden_dim=32, rngs=nnx.Rngs(3))
+        batch = GeneratedSequenceBatch(
+            generation=GeneratedBatch(outputs=jnp.array([[1, 2, 3, 4]])),
+            prompt_mask=jnp.array([[1, 1, 0, 0]], dtype=jnp.float32),
+            response_mask=jnp.array([[0, 0, 1, 1]], dtype=jnp.float32),
+        )
+
+        adapter = SequencePolicyAdapter(
+            model,
+            model_kwargs_factory=lambda scored_batch: {
+                "mask": (scored_batch.prompt_mask + scored_batch.response_mask).astype(jnp.float32)
+            },
+        )
+
+        log_probs = adapter.sequence_log_probs(batch)
+
+        assert log_probs.shape == (1,)
+        assert jnp.all(jnp.isfinite(log_probs))
+
+    def test_dpo_compute_log_probs_supports_loss_masks(
+        self, preference_model: SimplePreferenceModel
+    ) -> None:
+        """DPO scoring should support masks for padding and prompt exclusion."""
+        from artifex.generative_models.training.rl import DPOConfig, DPOTrainer
+
+        ref_model = SimplePreferenceModel(vocab_size=100, hidden_dim=32, rngs=nnx.Rngs(1))
+        optimizer = nnx.Optimizer(preference_model, optax.adam(1e-4), wrt=nnx.Param)
+        trainer = DPOTrainer(preference_model, ref_model, optimizer, DPOConfig())
+
+        trimmed = jnp.array([[1, 2, 3, 4]])
+        padded = jnp.array([[1, 2, 3, 4, 0, 0]])
+        padded_mask = jnp.array([[0, 1, 1, 1, 0, 0]], dtype=jnp.float32)
+
+        trimmed_score = trainer.compute_log_probs(preference_model, trimmed)
+        padded_score = trainer.compute_log_probs(preference_model, padded, padded_mask)
+
+        assert jnp.allclose(trimmed_score, padded_score, atol=1e-6)
+
     def test_dpo_compute_log_ratios(self, preference_model: SimplePreferenceModel) -> None:
         """DPOTrainer should compute log ratios between policy and reference."""
         from artifex.generative_models.training.rl import DPOConfig, DPOTrainer
@@ -671,6 +1010,61 @@ class TestDPOTrainer:
         assert "dpo_loss" in metrics
         assert "reward_accuracy" in metrics
 
+    def test_dpo_loss_accepts_typed_preference_batch(
+        self,
+        preference_model: SimplePreferenceModel,
+    ) -> None:
+        """DPOTrainer should accept typed preference batches."""
+        from artifex.generative_models.training.rl import (
+            DPOConfig,
+            DPOTrainer,
+            GeneratedBatch,
+            GeneratedSequenceBatch,
+            PreferenceBatch,
+        )
+
+        ref_model = SimplePreferenceModel(vocab_size=100, hidden_dim=32, rngs=nnx.Rngs(1))
+        optimizer = nnx.Optimizer(preference_model, optax.adam(1e-4), wrt=nnx.Param)
+        trainer = DPOTrainer(preference_model, ref_model, optimizer, DPOConfig(beta=0.1))
+
+        batch = PreferenceBatch(
+            chosen=GeneratedSequenceBatch(
+                generation=GeneratedBatch(outputs=jnp.array([[10, 11, 12, 13, 0, 0]])),
+                response_mask=jnp.array([[0, 0, 1, 1, 0, 0]], dtype=jnp.float32),
+            ),
+            rejected=GeneratedSequenceBatch(
+                generation=GeneratedBatch(outputs=jnp.array([[10, 11, 14, 15, 0, 0]])),
+                response_mask=jnp.array([[0, 0, 1, 1, 0, 0]], dtype=jnp.float32),
+            ),
+        )
+
+        loss, metrics = trainer.compute_loss(batch)
+
+        assert jnp.isfinite(loss)
+        assert jnp.isfinite(metrics["margin"])
+
+    def test_dpo_loss_supports_response_masks(
+        self, preference_model: SimplePreferenceModel
+    ) -> None:
+        """DPO loss should accept response-only masks for prompt-conditioned batches."""
+        from artifex.generative_models.training.rl import DPOConfig, DPOTrainer
+
+        ref_model = SimplePreferenceModel(vocab_size=100, hidden_dim=32, rngs=nnx.Rngs(1))
+        optimizer = nnx.Optimizer(preference_model, optax.adam(1e-4), wrt=nnx.Param)
+        trainer = DPOTrainer(preference_model, ref_model, optimizer, DPOConfig(beta=0.1))
+
+        batch = {
+            "chosen": jnp.array([[10, 11, 12, 13, 0, 0]]),
+            "rejected": jnp.array([[10, 11, 14, 15, 0, 0]]),
+            "chosen_loss_mask": jnp.array([[0, 0, 1, 1, 0, 0]], dtype=jnp.float32),
+            "rejected_loss_mask": jnp.array([[0, 0, 1, 1, 0, 0]], dtype=jnp.float32),
+        }
+
+        loss, metrics = trainer.compute_loss(batch)
+
+        assert jnp.isfinite(loss)
+        assert jnp.isfinite(metrics["margin"])
+
     def test_dpo_loss_with_label_smoothing(self, preference_model: SimplePreferenceModel) -> None:
         """DPOTrainer should apply label smoothing when configured."""
         from artifex.generative_models.training.rl import DPOConfig, DPOTrainer
@@ -702,6 +1096,45 @@ class TestDPOTrainer:
             "chosen": jnp.array([[1, 2, 3, 4], [5, 6, 7, 8]]),
             "rejected": jnp.array([[1, 2, 9, 10], [5, 6, 11, 12]]),
         }
+
+        loss, metrics = trainer.train_step(batch)
+
+        assert jnp.isfinite(loss)
+        assert "dpo_loss" in metrics
+
+    def test_dpo_train_step_accepts_typed_preference_batch(
+        self,
+        preference_model: SimplePreferenceModel,
+    ) -> None:
+        """DPOTrainer should update on typed preference batches."""
+        from artifex.generative_models.training.rl import (
+            DPOConfig,
+            DPOTrainer,
+            GeneratedBatch,
+            GeneratedSequenceBatch,
+            PreferenceBatch,
+        )
+
+        ref_model = SimplePreferenceModel(vocab_size=100, hidden_dim=32, rngs=nnx.Rngs(1))
+        optimizer = nnx.Optimizer(preference_model, optax.adam(1e-4), wrt=nnx.Param)
+        trainer = DPOTrainer(preference_model, ref_model, optimizer, DPOConfig())
+
+        batch = PreferenceBatch(
+            chosen=GeneratedSequenceBatch(
+                generation=GeneratedBatch(outputs=jnp.array([[1, 2, 3, 4], [5, 6, 7, 8]])),
+                response_mask=jnp.array(
+                    [[0, 1, 1, 1], [0, 1, 1, 1]],
+                    dtype=jnp.float32,
+                ),
+            ),
+            rejected=GeneratedSequenceBatch(
+                generation=GeneratedBatch(outputs=jnp.array([[1, 2, 9, 10], [5, 6, 11, 12]])),
+                response_mask=jnp.array(
+                    [[0, 1, 1, 1], [0, 1, 1, 1]],
+                    dtype=jnp.float32,
+                ),
+            ),
+        )
 
         loss, metrics = trainer.train_step(batch)
 
@@ -816,16 +1249,23 @@ class TestRLModuleExports:
 
     def test_dpo_exports(self) -> None:
         """DPO components should be exported from rl module."""
-        from artifex.generative_models.training.rl import DPOConfig, DPOTrainer
+        from artifex.generative_models.training.rl import (
+            DPOConfig,
+            DPOTrainer,
+            SequencePolicyAdapter,
+        )
 
         assert DPOConfig is not None
         assert DPOTrainer is not None
+        assert SequencePolicyAdapter is not None
 
     def test_utility_exports(self) -> None:
         """Utility functions should be exported from rl module."""
         from artifex.generative_models.training.rl import (
+            compute_clipped_surrogate_loss,
             compute_discounted_returns,
             compute_gae_advantages,
+            compute_kl_divergence,
             compute_policy_entropy,
             normalize_advantages,
         )
@@ -834,18 +1274,33 @@ class TestRLModuleExports:
         assert compute_gae_advantages is not None
         assert normalize_advantages is not None
         assert compute_policy_entropy is not None
+        assert compute_kl_divergence is not None
+        assert compute_clipped_surrogate_loss is not None
 
     def test_main_training_module_exports(self) -> None:
         """RL components should be exported from main training module."""
         from artifex.generative_models.training import (
+            ClippedReward,
+            CompositeReward,
+            compute_clipped_surrogate_loss,
+            compute_discounted_returns,
+            compute_gae_advantages,
+            compute_kl_divergence,
+            compute_policy_entropy,
+            ConstantReward,
             DPOConfig,
             DPOTrainer,
             GRPOConfig,
             GRPOTrainer,
+            normalize_advantages,
             PPOConfig,
             PPOTrainer,
             REINFORCEConfig,
             REINFORCETrainer,
+            RewardFunction,
+            ScaledReward,
+            SequencePolicyAdapter,
+            ThresholdReward,
         )
 
         assert REINFORCEConfig is not None
@@ -856,6 +1311,19 @@ class TestRLModuleExports:
         assert GRPOTrainer is not None
         assert DPOConfig is not None
         assert DPOTrainer is not None
+        assert SequencePolicyAdapter is not None
+        assert RewardFunction is not None
+        assert ConstantReward is not None
+        assert CompositeReward is not None
+        assert ThresholdReward is not None
+        assert ScaledReward is not None
+        assert ClippedReward is not None
+        assert compute_discounted_returns is not None
+        assert compute_gae_advantages is not None
+        assert normalize_advantages is not None
+        assert compute_policy_entropy is not None
+        assert compute_kl_divergence is not None
+        assert compute_clipped_surrogate_loss is not None
 
 
 # =============================================================================
@@ -933,7 +1401,7 @@ class TestGRPOTrainer:
 
         assert GRPOTrainer is not None
 
-    def test_grpo_trainer_initialization(self, policy_model: SimplePolicy) -> None:
+    def test_grpo_trainer_initialization(self, policy_model: SimpleSequencePolicy) -> None:
         """GRPOTrainer should initialize with model and optimizer."""
         from artifex.generative_models.training.rl import GRPOConfig, GRPOTrainer
 
@@ -945,7 +1413,7 @@ class TestGRPOTrainer:
         assert trainer.optimizer is optimizer
         assert trainer.config is config
 
-    def test_grpo_trainer_default_config(self, policy_model: SimplePolicy) -> None:
+    def test_grpo_trainer_default_config(self, policy_model: SimpleSequencePolicy) -> None:
         """GRPOTrainer should use default config if not provided."""
         from artifex.generative_models.training.rl import GRPOConfig, GRPOTrainer
 
@@ -954,7 +1422,7 @@ class TestGRPOTrainer:
 
         assert isinstance(trainer.config, GRPOConfig)
 
-    def test_grpo_normalize_group_rewards(self, policy_model: SimplePolicy) -> None:
+    def test_grpo_normalize_group_rewards(self, policy_model: SimpleSequencePolicy) -> None:
         """GRPOTrainer should normalize rewards within groups."""
         from artifex.generative_models.training.rl import GRPOConfig, GRPOTrainer
 
@@ -972,52 +1440,53 @@ class TestGRPOTrainer:
         assert jnp.abs(jnp.mean(group1)) < 1e-5
         assert jnp.abs(jnp.mean(group2)) < 1e-5
 
-    def test_grpo_with_reference_model(self, policy_model: SimplePolicy) -> None:
+    def test_grpo_with_reference_model(self, policy_model: SimpleSequencePolicy) -> None:
         """GRPOTrainer should support optional reference model for KL penalty."""
         from artifex.generative_models.training.rl import GRPOConfig, GRPOTrainer
 
-        ref_model = SimplePolicy(input_dim=8, hidden_dim=16, action_dim=4, rngs=nnx.Rngs(1))
+        ref_model = SimpleSequencePolicy(vocab_size=VOCAB_SIZE, hidden_dim=16, rngs=nnx.Rngs(1))
         optimizer = nnx.Optimizer(policy_model, optax.adam(1e-3), wrt=nnx.Param)
         config = GRPOConfig(beta=0.1)
         trainer = GRPOTrainer(policy_model, optimizer, config, reference_model=ref_model)
 
         assert trainer.reference_model is ref_model
 
-    def test_grpo_compute_loss(self, policy_model: SimplePolicy) -> None:
-        """GRPOTrainer should compute loss with group-normalized advantages."""
+    def test_grpo_compute_loss(self, policy_model: SimpleSequencePolicy) -> None:
+        """GRPOTrainer should compute loss from grouped typed sequence rollouts."""
         from artifex.generative_models.training.rl import GRPOConfig, GRPOTrainer
 
         optimizer = nnx.Optimizer(policy_model, optax.adam(1e-3), wrt=nnx.Param)
         config = GRPOConfig(num_generations=2)
         trainer = GRPOTrainer(policy_model, optimizer, config)
 
-        # 2 prompts, 2 generations each = 4 total
-        states = jnp.ones((4, 8))
-        actions = jnp.array([0, 1, 2, 3])
-        old_log_probs = jnp.array([-0.5, -1.0, -1.5, -2.0])
-        rewards = jnp.array([1.0, 2.0, 3.0, 4.0])
+        batch = make_group_rollout_batch(
+            4,
+            group_size=2,
+            old_log_probs=jnp.full((4, SEQ_LEN - 1), -0.5, dtype=jnp.float32),
+            sequence_rewards=jnp.array([1.0, 2.0, 3.0, 4.0], dtype=jnp.float32),
+        )
 
-        loss, metrics = trainer.compute_loss(states, actions, old_log_probs, rewards)
+        loss, metrics = trainer.compute_loss(batch)
 
         assert jnp.isfinite(loss)
         assert "policy_loss" in metrics
         assert "entropy" in metrics
         assert "advantages_mean" in metrics
 
-    def test_grpo_train_step(self, policy_model: SimplePolicy) -> None:
-        """GRPOTrainer should perform a training step."""
+    def test_grpo_train_step(self, policy_model: SimpleSequencePolicy) -> None:
+        """GRPOTrainer should perform a training step on grouped sequence rollouts."""
         from artifex.generative_models.training.rl import GRPOConfig, GRPOTrainer
 
         optimizer = nnx.Optimizer(policy_model, optax.adam(1e-3), wrt=nnx.Param)
         config = GRPOConfig(num_generations=2)
         trainer = GRPOTrainer(policy_model, optimizer, config)
 
-        batch = {
-            "states": jnp.ones((4, 8)),
-            "actions": jnp.array([0, 1, 2, 3]),
-            "old_log_probs": jnp.array([-0.5, -1.0, -1.5, -2.0]),
-            "rewards": jnp.array([1.0, 2.0, 3.0, 4.0]),
-        }
+        batch = make_group_rollout_batch(
+            4,
+            group_size=2,
+            old_log_probs=jnp.full((4, SEQ_LEN - 1), -0.5, dtype=jnp.float32),
+            sequence_rewards=jnp.array([1.0, 2.0, 3.0, 4.0], dtype=jnp.float32),
+        )
 
         loss, metrics = trainer.train_step(batch)
 
@@ -1146,6 +1615,155 @@ class TestRewardFunctions:
 
 
 # =============================================================================
+# Transform Compatibility Tests
+# =============================================================================
+
+
+class TestRLTransformCompatibility:
+    """Tests for the public JAX and NNX transform boundaries in RL training."""
+
+    def test_sequence_policy_adapter_action_log_probs_support_jax_jit(
+        self,
+        policy_model: SimpleSequencePolicy,
+    ) -> None:
+        """SequencePolicyAdapter should expose a JAX-jittable rollout scorer."""
+        from artifex.generative_models.training.rl import SequencePolicyAdapter
+
+        adapter = SequencePolicyAdapter(policy_model)
+        batch = make_sequence_rollout_batch(4)
+
+        compiled = jax.jit(lambda rollout: adapter.action_log_probs(rollout))
+        action_log_probs = compiled(batch)
+
+        assert action_log_probs.shape == (4, SEQ_LEN - 1)
+        assert jnp.all(jnp.isfinite(action_log_probs))
+
+    def test_reinforce_compute_loss_supports_jax_grad_over_returns(
+        self,
+        policy_model: SimpleSequencePolicy,
+    ) -> None:
+        """REINFORCE loss should remain differentiable for JAX-traced rollout tensors."""
+        from artifex.generative_models.training.rl import REINFORCEConfig, REINFORCETrainer
+
+        optimizer = nnx.Optimizer(policy_model, optax.adam(1e-3), wrt=nnx.Param)
+        trainer = REINFORCETrainer(
+            policy_model,
+            optimizer,
+            REINFORCEConfig(normalize_returns=False),
+        )
+        old_log_probs = jnp.full((4, SEQ_LEN - 1), -0.5, dtype=jnp.float32)
+
+        def scalar_loss(returns: jax.Array) -> jax.Array:
+            batch = make_sequence_rollout_batch(
+                4,
+                old_log_probs=old_log_probs,
+                returns=returns,
+            )
+            loss, _ = trainer.compute_loss(batch)
+            return loss
+
+        returns = jnp.ones((4, SEQ_LEN - 1), dtype=jnp.float32)
+        grad_returns = jax.grad(scalar_loss)(returns)
+
+        assert grad_returns.shape == returns.shape
+        assert jnp.all(jnp.isfinite(grad_returns))
+
+    def test_reinforce_create_loss_fn_is_nnx_jittable(
+        self,
+        policy_model: SimpleSequencePolicy,
+    ) -> None:
+        """REINFORCE should expose an NNX-jittable public loss boundary."""
+        from artifex.generative_models.training.rl import REINFORCEConfig, REINFORCETrainer
+
+        optimizer = nnx.Optimizer(policy_model, optax.adam(1e-3), wrt=nnx.Param)
+        trainer = REINFORCETrainer(policy_model, optimizer, REINFORCEConfig())
+        loss_fn = trainer.create_loss_fn()
+        batch = make_sequence_rollout_batch(
+            4,
+            token_rewards=jnp.full((4, SEQ_LEN - 1), 0.5, dtype=jnp.float32),
+        )
+
+        compiled_loss = nnx.jit(loss_fn)
+        loss, metrics = compiled_loss(policy_model, batch)
+
+        assert jnp.isfinite(loss)
+        assert jnp.isfinite(metrics["policy_loss"])
+        assert jnp.isfinite(metrics["entropy"])
+
+    def test_ppo_create_loss_fn_supports_nnx_grad(
+        self,
+        actor_critic_model: SimpleSequenceActorCritic,
+    ) -> None:
+        """PPO loss should remain differentiable with respect to model parameters."""
+        from artifex.generative_models.training.rl import PPOConfig, PPOTrainer
+
+        optimizer = nnx.Optimizer(actor_critic_model, optax.adam(1e-3), wrt=nnx.Param)
+        trainer = PPOTrainer(actor_critic_model, optimizer, PPOConfig())
+        loss_fn = trainer.create_loss_fn()
+        batch = make_sequence_rollout_batch(
+            4,
+            old_log_probs=jnp.full((4, SEQ_LEN - 1), -0.75, dtype=jnp.float32),
+            returns=jnp.full((4, SEQ_LEN - 1), 0.5, dtype=jnp.float32),
+            advantages=jnp.full((4, SEQ_LEN - 1), 1.0, dtype=jnp.float32),
+        )
+
+        def scalar_loss(model: nnx.Module) -> jax.Array:
+            loss, _ = loss_fn(model, batch)
+            return loss
+
+        grads = nnx.grad(scalar_loss)(actor_critic_model)
+
+        assert_finite_nnx_grads(grads)
+
+    def test_grpo_create_loss_fn_supports_nnx_value_and_grad(
+        self,
+        policy_model: SimpleSequencePolicy,
+    ) -> None:
+        """GRPO should expose a value-and-grad compatible public loss boundary."""
+        from artifex.generative_models.training.rl import GRPOConfig, GRPOTrainer
+
+        optimizer = nnx.Optimizer(policy_model, optax.adam(1e-3), wrt=nnx.Param)
+        trainer = GRPOTrainer(policy_model, optimizer, GRPOConfig(num_generations=2))
+        loss_fn = trainer.create_loss_fn()
+        batch = make_group_rollout_batch(
+            4,
+            group_size=2,
+            old_log_probs=jnp.full((4, SEQ_LEN - 1), -0.25, dtype=jnp.float32),
+            sequence_rewards=jnp.array([0.0, 1.0, 0.5, 1.5], dtype=jnp.float32),
+        )
+
+        (loss, metrics), grads = nnx.value_and_grad(loss_fn, has_aux=True)(policy_model, batch)
+
+        assert jnp.isfinite(loss)
+        assert jnp.isfinite(metrics["policy_loss"])
+        assert jnp.isfinite(metrics["entropy"])
+        assert_finite_nnx_grads(grads)
+
+    def test_dpo_create_loss_fn_is_nnx_jittable(
+        self,
+        preference_model: SimplePreferenceModel,
+    ) -> None:
+        """DPO should expose an NNX-jittable public loss boundary."""
+        from artifex.generative_models.training.rl import DPOConfig, DPOTrainer
+
+        ref_model = SimplePreferenceModel(vocab_size=100, hidden_dim=32, rngs=nnx.Rngs(1))
+        optimizer = nnx.Optimizer(preference_model, optax.adam(1e-4), wrt=nnx.Param)
+        trainer = DPOTrainer(preference_model, ref_model, optimizer, DPOConfig(beta=0.1))
+        loss_fn = trainer.create_loss_fn()
+        batch = {
+            "chosen": jnp.array([[1, 2, 3, 4], [5, 6, 7, 8]], dtype=jnp.int32),
+            "rejected": jnp.array([[1, 2, 2, 4], [5, 6, 6, 8]], dtype=jnp.int32),
+        }
+
+        compiled_loss = nnx.jit(loss_fn)
+        loss, metrics = compiled_loss(preference_model, batch)
+
+        assert jnp.isfinite(loss)
+        assert jnp.isfinite(metrics["dpo_loss"])
+        assert jnp.isfinite(metrics["reward_accuracy"])
+
+
+# =============================================================================
 # Integration Tests - Multi-Step Training
 # =============================================================================
 
@@ -1153,7 +1771,7 @@ class TestRewardFunctions:
 class TestMultiStepTrainingIntegration:
     """Integration tests for multi-step training scenarios."""
 
-    def test_reinforce_multiple_training_steps(self, policy_model: SimplePolicy) -> None:
+    def test_reinforce_multiple_training_steps(self, policy_model: SimpleSequencePolicy) -> None:
         """REINFORCE should support multiple consecutive training steps."""
         from artifex.generative_models.training.rl import REINFORCEConfig, REINFORCETrainer
 
@@ -1164,12 +1782,11 @@ class TestMultiStepTrainingIntegration:
         # Run multiple training steps
         losses = []
         for step in range(5):
-            trajectory = {
-                "states": jax.random.normal(jax.random.key(step), (8, 8)),
-                "actions": jnp.array([0, 1, 2, 3, 0, 1, 2, 3]),
-                "rewards": jax.random.uniform(jax.random.key(step + 100), (8,)),
-            }
-            loss, metrics = trainer.train_step(trajectory)
+            token_rewards = jax.random.uniform(jax.random.key(step + 100), (8, SEQ_LEN - 1))
+            rollout = make_sequence_rollout_batch(
+                8, sequence_offset=step, token_rewards=token_rewards
+            )
+            loss, metrics = trainer.train_step(rollout)
             losses.append(float(loss))
 
         # All losses should be finite
@@ -1177,7 +1794,9 @@ class TestMultiStepTrainingIntegration:
         # Losses should vary (not stuck)
         assert len(set(losses)) > 1
 
-    def test_ppo_multiple_training_steps(self, actor_critic_model: SimpleActorCritic) -> None:
+    def test_ppo_multiple_training_steps(
+        self, actor_critic_model: SimpleSequenceActorCritic
+    ) -> None:
         """PPO should support multiple consecutive training steps."""
         from artifex.generative_models.training.rl import PPOConfig, PPOTrainer
 
@@ -1187,13 +1806,13 @@ class TestMultiStepTrainingIntegration:
 
         losses = []
         for step in range(5):
-            batch = {
-                "states": jax.random.normal(jax.random.key(step), (8, 8)),
-                "actions": jnp.array([0, 1, 2, 3, 0, 1, 2, 3]),
-                "old_log_probs": jax.random.uniform(jax.random.key(step), (8,)) * -2,
-                "returns": jax.random.uniform(jax.random.key(step + 50), (8,)),
-                "advantages": jax.random.normal(jax.random.key(step + 100), (8,)),
-            }
+            batch = make_sequence_rollout_batch(
+                8,
+                sequence_offset=step,
+                old_log_probs=jax.random.uniform(jax.random.key(step), (8, SEQ_LEN - 1)) * -2,
+                returns=jax.random.uniform(jax.random.key(step + 50), (8, SEQ_LEN - 1)),
+                advantages=jax.random.normal(jax.random.key(step + 100), (8, SEQ_LEN - 1)),
+            )
             loss, metrics = trainer.train_step(batch)
             losses.append(float(loss))
 
@@ -1201,7 +1820,7 @@ class TestMultiStepTrainingIntegration:
         assert "policy_loss" in metrics
         assert "value_loss" in metrics
 
-    def test_grpo_multiple_training_steps(self, policy_model: SimplePolicy) -> None:
+    def test_grpo_multiple_training_steps(self, policy_model: SimpleSequencePolicy) -> None:
         """GRPO should support multiple consecutive training steps."""
         from artifex.generative_models.training.rl import GRPOConfig, GRPOTrainer
 
@@ -1211,13 +1830,13 @@ class TestMultiStepTrainingIntegration:
 
         losses = []
         for step in range(5):
-            # 2 prompts, 2 generations each = 4 total
-            batch = {
-                "states": jax.random.normal(jax.random.key(step), (4, 8)),
-                "actions": jnp.array([0, 1, 2, 3]),
-                "old_log_probs": jax.random.uniform(jax.random.key(step), (4,)) * -2,
-                "rewards": jax.random.uniform(jax.random.key(step + 50), (4,)),
-            }
+            batch = make_group_rollout_batch(
+                4,
+                group_size=2,
+                seq_len=SEQ_LEN,
+                old_log_probs=jax.random.uniform(jax.random.key(step), (4, SEQ_LEN - 1)) * -2,
+                sequence_rewards=jax.random.uniform(jax.random.key(step + 50), (4,)),
+            )
             loss, metrics = trainer.train_step(batch)
             losses.append(float(loss))
 
@@ -1243,7 +1862,7 @@ class TestMultiStepTrainingIntegration:
 
         assert all(jnp.isfinite(l) for l in losses)
 
-    def test_model_parameters_update(self, policy_model: SimplePolicy) -> None:
+    def test_model_parameters_update(self, policy_model: SimpleSequencePolicy) -> None:
         """Training should update model parameters."""
         from artifex.generative_models.training.rl import REINFORCEConfig, REINFORCETrainer
 
@@ -1255,12 +1874,12 @@ class TestMultiStepTrainingIntegration:
 
         # Train for several steps
         for step in range(10):
-            trajectory = {
-                "states": jax.random.normal(jax.random.key(step), (8, 8)),
-                "actions": jnp.array([0, 1, 2, 3, 0, 1, 2, 3]),
-                "rewards": jnp.ones((8,)),
-            }
-            trainer.train_step(trajectory)
+            rollout = make_sequence_rollout_batch(
+                8,
+                sequence_offset=step,
+                token_rewards=jnp.ones((8, SEQ_LEN - 1), dtype=jnp.float32),
+            )
+            trainer.train_step(rollout)
 
         # Get final parameters
         final_params = nnx.state(policy_model)
@@ -1285,7 +1904,7 @@ class TestMultiStepTrainingIntegration:
 class TestGradientAccumulationIntegration:
     """Integration tests for RL trainers with gradient accumulation."""
 
-    def test_reinforce_with_gradient_accumulation(self, policy_model: SimplePolicy) -> None:
+    def test_reinforce_with_gradient_accumulation(self, policy_model: SimpleSequencePolicy) -> None:
         """REINFORCE should work with gradient accumulation."""
         from artifex.generative_models.training import (
             GradientAccumulator,
@@ -1303,11 +1922,14 @@ class TestGradientAccumulationIntegration:
         # Simulate gradient accumulation workflow
         accumulated_losses = []
         for micro_step in range(8):  # 2 full accumulation cycles
-            trajectory = {
-                "states": jax.random.normal(jax.random.key(micro_step), (4, 8)),
-                "actions": jnp.array([0, 1, 2, 3]),
-                "rewards": jax.random.uniform(jax.random.key(micro_step), (4,)),
-            }
+            trajectory = make_sequence_rollout_batch(
+                4,
+                sequence_offset=micro_step,
+                token_rewards=jax.random.uniform(
+                    jax.random.key(micro_step),
+                    (4, SEQ_LEN - 1),
+                ),
+            )
 
             # Compute loss and metrics (without updating)
             loss, metrics = trainer.train_step(trajectory)
@@ -1320,7 +1942,9 @@ class TestGradientAccumulationIntegration:
         assert len(accumulated_losses) == 8
         assert all(jnp.isfinite(l) for l in accumulated_losses)
 
-    def test_ppo_with_gradient_accumulation(self, actor_critic_model: SimpleActorCritic) -> None:
+    def test_ppo_with_gradient_accumulation(
+        self, actor_critic_model: SimpleSequenceActorCritic
+    ) -> None:
         """PPO should work with gradient accumulation."""
         from artifex.generative_models.training import (
             GradientAccumulator,
@@ -1337,13 +1961,20 @@ class TestGradientAccumulationIntegration:
 
         metrics_history = []
         for micro_step in range(4):
-            batch = {
-                "states": jax.random.normal(jax.random.key(micro_step), (4, 8)),
-                "actions": jnp.array([0, 1, 2, 3]),
-                "old_log_probs": jax.random.uniform(jax.random.key(micro_step), (4,)) * -2,
-                "returns": jax.random.uniform(jax.random.key(micro_step + 50), (4,)),
-                "advantages": jax.random.normal(jax.random.key(micro_step + 100), (4,)),
-            }
+            batch = make_sequence_rollout_batch(
+                4,
+                sequence_offset=micro_step,
+                old_log_probs=jax.random.uniform(
+                    jax.random.key(micro_step),
+                    (4, SEQ_LEN - 1),
+                )
+                * -2,
+                returns=jax.random.uniform(jax.random.key(micro_step + 50), (4, SEQ_LEN - 1)),
+                advantages=jax.random.normal(
+                    jax.random.key(micro_step + 100),
+                    (4, SEQ_LEN - 1),
+                ),
+            )
 
             loss, metrics = trainer.train_step(batch)
             metrics_history.append(metrics)
@@ -1362,7 +1993,7 @@ class TestGradientAccumulationIntegration:
 class TestCallbackIntegration:
     """Integration tests for RL trainers with callbacks."""
 
-    def test_training_with_early_stopping_check(self, policy_model: SimplePolicy) -> None:
+    def test_training_with_early_stopping_check(self, policy_model: SimpleSequencePolicy) -> None:
         """RL trainers should produce metrics compatible with early stopping."""
         from artifex.generative_models.training.callbacks import (
             EarlyStopping,
@@ -1386,11 +2017,14 @@ class TestCallbackIntegration:
         for epoch in range(10):
             epoch_losses = []
             for step in range(5):
-                trajectory = {
-                    "states": jax.random.normal(jax.random.key(epoch * 5 + step), (4, 8)),
-                    "actions": jnp.array([0, 1, 2, 3]),
-                    "rewards": jax.random.uniform(jax.random.key(epoch * 5 + step + 100), (4,)),
-                }
+                trajectory = make_sequence_rollout_batch(
+                    4,
+                    sequence_offset=epoch * 5 + step,
+                    token_rewards=jax.random.uniform(
+                        jax.random.key(epoch * 5 + step + 100),
+                        (4, SEQ_LEN - 1),
+                    ),
+                )
                 loss, metrics = trainer.train_step(trajectory)
                 epoch_losses.append(float(metrics["policy_loss"]))
 
@@ -1404,20 +2038,21 @@ class TestCallbackIntegration:
             assert "policy_loss" in epoch_metrics
             assert jnp.isfinite(epoch_metrics["policy_loss"])
 
-    def test_training_metrics_for_logging(self, actor_critic_model: SimpleActorCritic) -> None:
-        """PPO should produce comprehensive metrics suitable for logging."""
+    def test_training_metrics_for_logging(
+        self, actor_critic_model: SimpleSequenceActorCritic
+    ) -> None:
+        """PPO should produce complete metrics suitable for logging."""
         from artifex.generative_models.training.rl import PPOConfig, PPOTrainer
 
         optimizer = nnx.Optimizer(actor_critic_model, optax.adam(1e-3), wrt=nnx.Param)
         trainer = PPOTrainer(actor_critic_model, optimizer, PPOConfig())
 
-        batch = {
-            "states": jax.random.normal(jax.random.key(0), (8, 8)),
-            "actions": jnp.array([0, 1, 2, 3, 0, 1, 2, 3]),
-            "old_log_probs": jax.random.uniform(jax.random.key(0), (8,)) * -2,
-            "returns": jax.random.uniform(jax.random.key(50), (8,)),
-            "advantages": jax.random.normal(jax.random.key(100), (8,)),
-        }
+        batch = make_sequence_rollout_batch(
+            8,
+            old_log_probs=jax.random.uniform(jax.random.key(0), (8, SEQ_LEN - 1)) * -2,
+            returns=jax.random.uniform(jax.random.key(50), (8, SEQ_LEN - 1)),
+            advantages=jax.random.normal(jax.random.key(100), (8, SEQ_LEN - 1)),
+        )
 
         loss, metrics = trainer.train_step(batch)
 
@@ -1427,19 +2062,19 @@ class TestCallbackIntegration:
             assert metric in metrics, f"Missing metric: {metric}"
             assert jnp.isfinite(metrics[metric]), f"Non-finite metric: {metric}"
 
-    def test_grpo_metrics_for_monitoring(self, policy_model: SimplePolicy) -> None:
+    def test_grpo_metrics_for_monitoring(self, policy_model: SimpleSequencePolicy) -> None:
         """GRPO should produce metrics suitable for monitoring."""
         from artifex.generative_models.training.rl import GRPOConfig, GRPOTrainer
 
         optimizer = nnx.Optimizer(policy_model, optax.adam(1e-3), wrt=nnx.Param)
         trainer = GRPOTrainer(policy_model, optimizer, GRPOConfig(num_generations=2))
 
-        batch = {
-            "states": jax.random.normal(jax.random.key(0), (4, 8)),
-            "actions": jnp.array([0, 1, 2, 3]),
-            "old_log_probs": jax.random.uniform(jax.random.key(0), (4,)) * -2,
-            "rewards": jax.random.uniform(jax.random.key(50), (4,)),
-        }
+        batch = make_group_rollout_batch(
+            4,
+            group_size=2,
+            old_log_probs=jax.random.uniform(jax.random.key(0), (4, SEQ_LEN - 1)) * -2,
+            sequence_rewards=jax.random.uniform(jax.random.key(50), (4,)),
+        )
 
         loss, metrics = trainer.train_step(batch)
 
@@ -1458,7 +2093,7 @@ class TestCallbackIntegration:
 class TestCrossComponentIntegration:
     """Integration tests for interactions between RL components."""
 
-    def test_reward_functions_with_grpo(self, policy_model: SimplePolicy) -> None:
+    def test_reward_functions_with_grpo(self, policy_model: SimpleSequencePolicy) -> None:
         """Reward functions should integrate with GRPO trainer."""
         from artifex.generative_models.training.rl import (
             CompositeReward,
@@ -1485,12 +2120,12 @@ class TestCrossComponentIntegration:
         rewards = reward_fn(samples)
 
         # Use rewards in training
-        batch = {
-            "states": jax.random.normal(jax.random.key(1), (4, 8)),
-            "actions": jnp.array([0, 1, 2, 3]),
-            "old_log_probs": jax.random.uniform(jax.random.key(2), (4,)) * -2,
-            "rewards": rewards,
-        }
+        batch = make_group_rollout_batch(
+            4,
+            group_size=2,
+            old_log_probs=jax.random.uniform(jax.random.key(2), (4, SEQ_LEN - 1)) * -2,
+            sequence_rewards=rewards,
+        )
 
         loss, metrics = trainer.train_step(batch)
         assert jnp.isfinite(loss)
@@ -1532,31 +2167,30 @@ class TestCrossComponentIntegration:
 
         # Create models
         rngs = nnx.Rngs(0)
-        model1 = SimplePolicy(input_dim=8, hidden_dim=16, action_dim=4, rngs=rngs)
+        model1 = SimpleSequencePolicy(vocab_size=VOCAB_SIZE, hidden_dim=16, rngs=rngs)
         rngs2 = nnx.Rngs(1)
-        model2 = SimplePolicy(input_dim=8, hidden_dim=16, action_dim=4, rngs=rngs2)
+        model2 = SimpleSequencePolicy(vocab_size=VOCAB_SIZE, hidden_dim=16, rngs=rngs2)
 
         # Train with REINFORCE
         opt1 = nnx.Optimizer(model1, optax.adam(1e-3), wrt=nnx.Param)
         reinforce_trainer = REINFORCETrainer(model1, opt1, REINFORCEConfig())
 
-        trajectory = {
-            "states": jax.random.normal(jax.random.key(0), (4, 8)),
-            "actions": jnp.array([0, 1, 2, 3]),
-            "rewards": jnp.ones((4,)),
-        }
+        trajectory = make_sequence_rollout_batch(
+            4,
+            token_rewards=jnp.ones((4, SEQ_LEN - 1), dtype=jnp.float32),
+        )
         loss1, _ = reinforce_trainer.train_step(trajectory)
 
         # Train with GRPO
         opt2 = nnx.Optimizer(model2, optax.adam(1e-3), wrt=nnx.Param)
         grpo_trainer = GRPOTrainer(model2, opt2, GRPOConfig(num_generations=2))
 
-        batch = {
-            "states": jax.random.normal(jax.random.key(1), (4, 8)),
-            "actions": jnp.array([0, 1, 2, 3]),
-            "old_log_probs": jnp.array([-0.5, -1.0, -1.5, -2.0]),
-            "rewards": jnp.ones((4,)),
-        }
+        batch = make_group_rollout_batch(
+            4,
+            group_size=2,
+            old_log_probs=jnp.full((4, SEQ_LEN - 1), -0.5, dtype=jnp.float32),
+            sequence_rewards=jnp.ones((4,), dtype=jnp.float32),
+        )
         loss2, _ = grpo_trainer.train_step(batch)
 
         # Both should produce valid losses
@@ -1572,7 +2206,7 @@ class TestCrossComponentIntegration:
 class TestEndToEndWorkflows:
     """End-to-end workflow integration tests."""
 
-    def test_complete_reinforce_training_loop(self, policy_model: SimplePolicy) -> None:
+    def test_complete_reinforce_training_loop(self, policy_model: SimpleSequencePolicy) -> None:
         """Complete REINFORCE training workflow from start to finish."""
         from artifex.generative_models.training.rl import REINFORCEConfig, REINFORCETrainer
 
@@ -1589,13 +2223,14 @@ class TestEndToEndWorkflows:
         for epoch in range(num_epochs):
             epoch_metrics = []
             for step in range(steps_per_epoch):
-                # Generate trajectory
-                key = jax.random.key(epoch * steps_per_epoch + step)
-                trajectory = {
-                    "states": jax.random.normal(key, (8, 8)),
-                    "actions": jax.random.randint(jax.random.key(step), (8,), 0, 4),
-                    "rewards": jax.random.uniform(jax.random.key(step + 1000), (8,)),
-                }
+                trajectory = make_sequence_rollout_batch(
+                    8,
+                    sequence_offset=epoch * steps_per_epoch + step,
+                    token_rewards=jax.random.uniform(
+                        jax.random.key(step + 1000),
+                        (8, SEQ_LEN - 1),
+                    ),
+                )
 
                 # Train step
                 loss, metrics = trainer.train_step(trajectory)
@@ -1607,7 +2242,9 @@ class TestEndToEndWorkflows:
         assert len(all_metrics) == num_epochs
         assert all(len(em) == steps_per_epoch for em in all_metrics)
 
-    def test_complete_ppo_training_loop(self, actor_critic_model: SimpleActorCritic) -> None:
+    def test_complete_ppo_training_loop(
+        self, actor_critic_model: SimpleSequenceActorCritic
+    ) -> None:
         """Complete PPO training workflow with GAE computation."""
         from artifex.generative_models.training.rl import PPOConfig, PPOTrainer
 
@@ -1620,39 +2257,46 @@ class TestEndToEndWorkflows:
 
         # Collect trajectory and train
         for iteration in range(3):
-            # Collect experience
-            states = jax.random.normal(jax.random.key(iteration), (16, 8))
-            actions = jax.random.randint(jax.random.key(iteration + 100), (16,), 0, 4)
-            rewards = jax.random.uniform(jax.random.key(iteration + 200), (16,))
+            sequences = make_token_sequences(16, offset=iteration)
+            token_rewards = jax.random.uniform(
+                jax.random.key(iteration + 200),
+                (16, SEQ_LEN - 1),
+            )
 
             # Get values from model
-            logits, values = actor_critic_model(states)
-            values = values.squeeze()
+            logits, values = actor_critic_model(sequences)
 
             # Compute log probs
-            log_probs = jax.nn.log_softmax(logits)
-            old_log_probs = log_probs[jnp.arange(16), actions]
+            log_probs = jax.nn.log_softmax(logits, axis=-1)
+            old_log_probs = jnp.take_along_axis(
+                log_probs[:, :-1, :],
+                sequences[:, 1:, None],
+                axis=-1,
+            ).squeeze(-1)
 
             # Compute returns and advantages using GAE
-            dones = jnp.zeros(16, dtype=bool).at[15].set(True)
-            values_with_next = jnp.concatenate([values, jnp.array([0.0])])
-            advantages = trainer.compute_gae(rewards, values_with_next, dones)
-            returns = advantages + values
+            dones = jnp.zeros((16, SEQ_LEN - 1), dtype=bool).at[:, -1].set(True)
+            values_with_next = jnp.concatenate(
+                [values[:, :-1], jnp.zeros((16, 1), dtype=values.dtype)],
+                axis=1,
+            )
+            advantages = trainer.compute_gae(token_rewards, values_with_next, dones)
+            returns = advantages + values[:, :-1]
 
             # Train
-            batch = {
-                "states": states,
-                "actions": actions,
-                "old_log_probs": old_log_probs,
-                "returns": returns,
-                "advantages": advantages,
-            }
+            batch = make_sequence_rollout_batch(
+                16,
+                sequence_offset=iteration,
+                old_log_probs=old_log_probs,
+                returns=returns,
+                advantages=advantages,
+            )
             loss, metrics = trainer.train_step(batch)
 
             assert jnp.isfinite(loss)
             assert all(jnp.isfinite(v) for v in metrics.values())
 
-    def test_complete_grpo_training_loop(self, policy_model: SimplePolicy) -> None:
+    def test_complete_grpo_training_loop(self, policy_model: SimpleSequencePolicy) -> None:
         """Complete GRPO training workflow with group normalization."""
         from artifex.generative_models.training.rl import (
             ConstantReward,
@@ -1675,31 +2319,21 @@ class TestEndToEndWorkflows:
         batch_size = num_prompts * num_generations
 
         for iteration in range(3):
-            # Generate samples for all prompts
-            key = jax.random.key(iteration)
-            states = jax.random.normal(key, (batch_size, 8))
-
-            # Get policy outputs
-            logits = policy_model(states)
-            jax.nn.softmax(logits)
-
-            # Sample actions
-            actions = jax.random.categorical(jax.random.key(iteration + 500), logits)
-
-            # Compute log probs
-            log_probs = jax.nn.log_softmax(logits)
-            old_log_probs = log_probs[jnp.arange(batch_size), actions]
-
-            # Compute rewards (simulating reward function evaluation)
+            sequences = make_token_sequences(batch_size, offset=iteration)
+            logits = policy_model(sequences)
+            log_probs = jax.nn.log_softmax(logits, axis=-1)
+            old_log_probs = jnp.take_along_axis(
+                log_probs[:, :-1, :],
+                sequences[:, 1:, None],
+                axis=-1,
+            ).squeeze(-1)
             rewards = jax.random.uniform(jax.random.key(iteration + 1000), (batch_size,))
-
-            # Train with group normalization
-            batch = {
-                "states": states,
-                "actions": actions,
-                "old_log_probs": old_log_probs,
-                "rewards": rewards,
-            }
+            batch = make_group_rollout_batch(
+                batch_size,
+                group_size=num_generations,
+                old_log_probs=old_log_probs,
+                sequence_rewards=rewards,
+            )
             loss, metrics = trainer.train_step(batch)
 
             assert jnp.isfinite(loss)
@@ -1765,7 +2399,7 @@ class TestEndToEndWorkflows:
 class TestDynamicLossScalingIntegration:
     """Integration tests for RL trainers with dynamic loss scaling."""
 
-    def test_reinforce_with_loss_scaling(self, policy_model: SimplePolicy) -> None:
+    def test_reinforce_with_loss_scaling(self, policy_model: SimpleSequencePolicy) -> None:
         """REINFORCE losses should be compatible with loss scaling."""
         from artifex.generative_models.training import (
             DynamicLossScaler,
@@ -1782,11 +2416,14 @@ class TestDynamicLossScalingIntegration:
 
         # Training loop with loss scaling
         for step in range(5):
-            trajectory = {
-                "states": jax.random.normal(jax.random.key(step), (4, 8)),
-                "actions": jnp.array([0, 1, 2, 3]),
-                "rewards": jax.random.uniform(jax.random.key(step + 100), (4,)),
-            }
+            trajectory = make_sequence_rollout_batch(
+                4,
+                sequence_offset=step,
+                token_rewards=jax.random.uniform(
+                    jax.random.key(step + 100),
+                    (4, SEQ_LEN - 1),
+                ),
+            )
 
             loss, metrics = trainer.train_step(trajectory)
 

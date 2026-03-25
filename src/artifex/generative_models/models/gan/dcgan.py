@@ -194,10 +194,6 @@ class DCGANDiscriminator(Discriminator):
                 rngs=rngs,
             )
 
-            # Spectral norm placeholder (not yet implemented in Flax NNX)
-            if config.use_spectral_norm:
-                pass
-
             self.conv_layers.append(conv)
 
             # Apply batch norm to all layers except the first (following DCGAN paper)
@@ -254,7 +250,7 @@ class DCGANDiscriminator(Discriminator):
         x = self.final_linear(x)
 
         # Apply sigmoid activation for [0,1] range
-        x = jax.nn.sigmoid(x)
+        x = nnx.sigmoid(x)
 
         return x
 
@@ -305,20 +301,33 @@ class DCGAN(GAN):
             )
         self.rngs = rngs
 
+        generator_config = config.generator
+        discriminator_config = config.discriminator
+        if not isinstance(generator_config, ConvGeneratorConfig):
+            raise TypeError(
+                "config.generator must be ConvGeneratorConfig, "
+                f"got {type(generator_config).__name__}"
+            )
+        if not isinstance(discriminator_config, ConvDiscriminatorConfig):
+            raise TypeError(
+                "config.discriminator must be ConvDiscriminatorConfig, "
+                f"got {type(discriminator_config).__name__}"
+            )
+
         # Create generator from nested ConvGeneratorConfig
         self.generator = DCGANGenerator(
-            config=config.generator,
+            config=generator_config,
             rngs=rngs,
         )
 
         # Create discriminator from nested ConvDiscriminatorConfig
         self.discriminator = DCGANDiscriminator(
-            config=config.discriminator,
+            config=discriminator_config,
             rngs=rngs,
         )
 
         # Store hyperparameters for training (extracted from nested configs)
-        self.latent_dim = config.generator.latent_dim
+        self.latent_dim = generator_config.latent_dim
         self.loss_type = config.loss_type
         self.gradient_penalty_weight = config.gradient_penalty_weight
         self.generator_lr = config.generator_lr

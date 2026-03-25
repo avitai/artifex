@@ -1,14 +1,13 @@
-"""
-Flash Attention implementation for Flax NNX with kvax optimizations.
+"""Segment-aware flash-attention-style helpers for Flax NNX.
 
-This module provides a production-ready Flash Attention implementation that serves
-as a drop-in replacement for Flax NNX's MultiHeadAttention with significant
-performance improvements and additional features.
+This module retains a single JAX attention helper plus `FlashMultiHeadAttention`
+for sequence attention with optional padding, causal masking, and grouped-query
+handling. It does not publish multiple backend families or Triton-specific
+runtime guarantees.
 
 Based on:
 - Flash Attention paper: https://arxiv.org/abs/2205.14135
 - Flash Attention 2: https://arxiv.org/abs/2307.08691
-- kvax implementation: https://github.com/nebius/kvax
 """
 
 from __future__ import annotations
@@ -18,8 +17,7 @@ import math
 import platform
 from collections.abc import Callable
 from dataclasses import dataclass
-from enum import Enum
-from typing import Optional, Tuple, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 import jax
 import jax.numpy as jnp
@@ -93,15 +91,6 @@ class FlashAttentionConfig:
         ]:
             if size & (size - 1) != 0:
                 raise ValueError(f"{name} must be a power of 2, got {size}")
-
-
-class AttentionBackend(Enum):
-    """Available attention backends."""
-
-    FLASH_TRITON = "flash_triton"
-    FLASH_CUDNN = "flash_cudnn"
-    JAX_NATIVE = "jax_native"
-    FALLBACK = "fallback"
 
 
 class AttentionMask:
@@ -384,7 +373,7 @@ def create_attention_mask(
 # ============================================================================
 
 
-def flash_attention_triton(
+def flash_attention(
     query: Array,
     key: Array,
     value: Array,
@@ -400,7 +389,7 @@ def flash_attention_triton(
     mesh: Optional[Mesh] = None,
 ) -> Array:
     """
-    Flash Attention implementation using Triton kernels.
+    Segment-aware JAX attention helper.
 
     Args:
         query: Query tensor [batch, seq_len, num_heads, head_dim]
@@ -471,8 +460,7 @@ def flash_attention_triton(
         batch_size * num_heads, kv_seq_len, head_dim
     )
 
-    # Call implementation (would use jax_triton in practice)
-    # For now, fallback to standard attention
+    # Run the shared JAX attention path.
     output_reshaped = _fallback_attention(
         query_reshaped,
         key_reshaped,
@@ -579,12 +567,7 @@ def _fallback_attention(
 
 
 class FlashMultiHeadAttention(Module):
-    """
-    Flash Attention implementation as a drop-in replacement for Flax NNX MultiHeadAttention.
-
-    This module provides all the functionality of the standard MultiHeadAttention
-    with significant performance improvements through Flash Attention algorithms.
-    """
+    """Multi-head attention with a Triton-first path and a JAX fallback."""
 
     def __init__(
         self,
@@ -608,7 +591,6 @@ class FlashMultiHeadAttention(Module):
         attention_fn: Optional[Callable[..., Array]] = None,
         decode: Optional[bool] = None,
         normalize_qk: bool = False,
-        backend: AttentionBackend = AttentionBackend.FLASH_TRITON,
         flash_config: Optional[FlashAttentionConfig] = None,
         use_segment_ids: bool = True,
         causal: bool = False,  # Default to False for standard attention
@@ -634,10 +616,9 @@ class FlashMultiHeadAttention(Module):
         self.bias_init = bias_init
         self.out_bias_init = out_bias_init
         self.use_bias = use_bias
-        self.attention_fn = attention_fn if attention_fn else flash_attention_triton
+        self.attention_fn = attention_fn if attention_fn else flash_attention
         self.decode = decode if decode is not None else False
         self.normalize_qk = normalize_qk
-        self.backend = backend
         self.flash_config = flash_config if flash_config else FlashAttentionConfig()
         self.use_segment_ids = use_segment_ids
         self.causal = causal
@@ -799,90 +780,47 @@ class FlashMultiHeadAttention(Module):
         else:
             deterministic = True
 
-        # Apply attention based on backend
-        if self.backend == AttentionBackend.FLASH_TRITON:
-            # Check if we can use standard JAX attention
-            # directly (no masks, no special requirements)
-            use_standard_attention = (
-                mask is None
-                and query_segment_ids is None
-                and kv_segment_ids is None
-                and query_positions is None
-                and kv_positions is None
-                and not self.causal
+        # Use standard JAX attention directly when no auxiliary masks are active.
+        use_standard_attention = (
+            mask is None
+            and query_segment_ids is None
+            and kv_segment_ids is None
+            and query_positions is None
+            and kv_positions is None
+            and not self.causal
+        )
+
+        if use_standard_attention:
+            x = jax.nn.dot_product_attention(
+                query, key, value, mask=None, scale=1.0 / math.sqrt(query.shape[-1])
+            )
+        elif mask is not None and query_segment_ids is None:
+            batch_size = query.shape[0]
+            seq_len = query.shape[1]
+            num_heads = query.shape[2]
+            head_dim = query.shape[3]
+
+            query_reshaped = query.transpose(0, 2, 1, 3).reshape(
+                batch_size * num_heads, seq_len, head_dim
+            )
+            key_reshaped = key.transpose(0, 2, 1, 3).reshape(
+                batch_size * num_heads, key.shape[1], head_dim
+            )
+            value_reshaped = value.transpose(0, 2, 1, 3).reshape(
+                batch_size * num_heads, value.shape[1], head_dim
             )
 
-            if use_standard_attention:
-                # Use standard JAX attention - this should match Flax NNX exactly
-                x = jax.nn.dot_product_attention(
-                    query, key, value, mask=None, scale=1.0 / math.sqrt(query.shape[-1])
-                )
-            elif mask is not None and query_segment_ids is None:
-                # Handle standard mask format if provided
-                # Mask is in standard Flax format: [batch, num_heads, q_len, kv_len]
-                # We need to handle this directly in the attention computation
-                # For now, use fallback when standard mask is provided
-                batch_size = query.shape[0]
-                seq_len = query.shape[1]
-                num_heads = query.shape[2]
-                head_dim = query.shape[3]
+            scale = 1.0 / math.sqrt(head_dim)
+            scores = jnp.einsum("bqd,bkd->bqk", query_reshaped, key_reshaped) * scale
 
-                query_reshaped = query.transpose(0, 2, 1, 3).reshape(
-                    batch_size * num_heads, seq_len, head_dim
-                )
-                key_reshaped = key.transpose(0, 2, 1, 3).reshape(
-                    batch_size * num_heads, key.shape[1], head_dim
-                )
-                value_reshaped = value.transpose(0, 2, 1, 3).reshape(
-                    batch_size * num_heads, value.shape[1], head_dim
-                )
+            mask_reshaped = mask.reshape(batch_size * num_heads, mask.shape[-2], mask.shape[-1])
+            scores = jnp.where(mask_reshaped, scores, -1e9)
 
-                # Apply standard attention with mask
-                scale = 1.0 / math.sqrt(head_dim)
-                scores = jnp.einsum("bqd,bkd->bqk", query_reshaped, key_reshaped) * scale
-
-                # Reshape mask for batch*heads dimension
-                mask_reshaped = mask.reshape(batch_size * num_heads, mask.shape[-2], mask.shape[-1])
-                scores = jnp.where(mask_reshaped, scores, -1e9)
-
-                weights = jax.nn.softmax(scores, axis=-1)
-                x_reshaped = jnp.einsum("bqk,bkd->bqd", weights, value_reshaped)
-                x = x_reshaped.reshape(batch_size, num_heads, seq_len, head_dim).transpose(
-                    0, 2, 1, 3
-                )
-            else:
-                # Use Flash attention with segment-based masks
-                x = flash_attention_triton(
-                    query,
-                    key,
-                    value,
-                    query_positions=query_positions,
-                    query_segment_ids=query_segment_ids,
-                    kv_positions=kv_positions,
-                    kv_segment_ids=kv_segment_ids,
-                    scale=None,  # Will be computed internally
-                    config=self.flash_config,
-                    causal=self.causal,
-                    assume_sequential_positions=self.assume_sequential_positions,
-                )
-        elif self.backend == AttentionBackend.FALLBACK:
-            # Use direct fallback attention
-            x = flash_attention_triton(
-                query,
-                key,
-                value,
-                query_positions=query_positions,
-                query_segment_ids=query_segment_ids,
-                kv_positions=kv_positions,
-                kv_segment_ids=kv_segment_ids,
-                scale=None,
-                config=self.flash_config,
-                causal=self.causal,
-                assume_sequential_positions=self.assume_sequential_positions,
-            )
+            weights = nnx.softmax(scores, axis=-1)
+            x_reshaped = jnp.einsum("bqk,bkd->bqd", weights, value_reshaped)
+            x = x_reshaped.reshape(batch_size, num_heads, seq_len, head_dim).transpose(0, 2, 1, 3)
         else:
-            # Other backends not yet implemented
-            x = flash_attention_triton(
+            x = self.attention_fn(
                 query,
                 key,
                 value,
@@ -919,22 +857,22 @@ class FlashMultiHeadAttention(Module):
         self.cached_value = nnx.Cache(jnp.zeros(cache_shape, dtype))
         self.cache_index = nnx.Cache(jnp.array(0, dtype=jnp.int32))
 
-    def _update_cache(self, key: Array, value: Array) -> Tuple[Array, Array]:
+    def _update_cache(self, key: Array, value: Array) -> tuple[Array, Array]:
         """Update cache for autoregressive decoding."""
-        cur_index = self.cache_index.value
+        cur_index = self.cache_index[...]
 
         # key and value should be [batch, 1, num_heads, head_dim] for single token
         # Update the cache at the current index
-        cached_key = self.cached_key.value
-        cached_value = self.cached_value.value
+        cached_key = self.cached_key[...]
+        cached_value = self.cached_value[...]
 
         # Update slice at current position
         cached_key = cached_key.at[:, cur_index : cur_index + 1, :, :].set(key)
         cached_value = cached_value.at[:, cur_index : cur_index + 1, :, :].set(value)
 
-        self.cached_key.value = cached_key
-        self.cached_value.value = cached_value
-        self.cache_index.value = self.cache_index.value + 1
+        self.cached_key[...] = cached_key
+        self.cached_value[...] = cached_value
+        self.cache_index[...] = self.cache_index[...] + 1
 
         # Return the full cached sequences up to current index
         return cached_key[:, : cur_index + 1], cached_value[:, : cur_index + 1]

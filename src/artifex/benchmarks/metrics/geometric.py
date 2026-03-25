@@ -4,14 +4,14 @@ import flax.nnx as nnx
 import jax
 import jax.numpy as jnp
 
-from artifex.benchmarks.metrics.core import MetricBase
+from artifex.benchmarks.metrics.core import _init_metric_from_config, MetricBase
 from artifex.generative_models.core.configuration import EvaluationConfig
 
 
 class PointCloudMetrics(MetricBase):
     """Point cloud metrics including 1-NN accuracy, coverage, and Chamfer distance.
 
-    This class implements comprehensive evaluation metrics for point cloud
+    This class implements complete evaluation metrics for point cloud
     generation models following the MetricProtocol interface.
     """
 
@@ -22,16 +22,17 @@ class PointCloudMetrics(MetricBase):
             rngs: NNX Rngs for stochastic operations
             config: Evaluation configuration (must be EvaluationConfig)
         """
-        if not isinstance(config, EvaluationConfig):
-            raise TypeError(f"config must be an EvaluationConfig, got {type(config).__name__}")
-
-        # Initialize base class with the EvaluationConfig
-        super().__init__(config=config, rngs=rngs)
-        self.eval_batch_size = config.eval_batch_size
+        pc_params = _init_metric_from_config(
+            self,
+            config=config,
+            rngs=rngs,
+            metric_key="point_cloud",
+            modality="geometric",
+            higher_is_better=True,
+        )
         self.metric_name = "point_cloud_metrics"
 
         # Point cloud parameters from config
-        pc_params = config.metric_params.get("point_cloud", {})
         self.coverage_threshold = pc_params.get("coverage_threshold", 0.1)
         self.metric_weights = pc_params.get(
             "metric_weights",
@@ -58,32 +59,25 @@ class PointCloudMetrics(MetricBase):
         """
         return self.compute_metrics(generated_data, real_data, **kwargs)
 
-    def validate_inputs(self, real_data: jax.Array, generated_data: jax.Array) -> bool:
+    def validate_inputs(self, real_data: jax.Array, generated_data: jax.Array) -> None:
         """Validate input data compatibility.
 
         Args:
             real_data: Real point clouds
             generated_data: Generated point clouds
 
-        Returns:
-            True if inputs are valid
+        Raises:
+            ValueError: If inputs are invalid
         """
-        # Check that both inputs are arrays
         if not isinstance(real_data, jax.Array) or not isinstance(generated_data, jax.Array):
-            return False
-
-        # Check that both have same number of dimensions (should be 3D: batch x points x coords)
+            raise ValueError("Both inputs must be jax.Array")
         if len(real_data.shape) != 3 or len(generated_data.shape) != 3:
-            return False
-
-        # Check that last dimension is 3 (for 3D coordinates)
+            raise ValueError("Point clouds must be 3D (batch, points, coords)")
         if real_data.shape[-1] != 3 or generated_data.shape[-1] != 3:
-            return False
-
-        return True
+            raise ValueError("Point clouds must have 3D coordinates")
 
     def compute_metric(self, generated: jax.Array, real: jax.Array, **kwargs) -> float:
-        """Compute comprehensive point cloud metrics.
+        """Compute complete point cloud metrics.
 
         Args:
             generated: Generated point clouds [batch_size, num_points, 3]

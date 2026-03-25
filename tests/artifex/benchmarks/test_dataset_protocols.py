@@ -11,8 +11,6 @@ import jax.numpy as jnp
 import pytest
 
 from artifex.benchmarks.datasets.base import (
-    DatasetLoader,
-    DatasetProtocol,
     DatasetRegistry,
     DatasetValidator,
 )
@@ -56,17 +54,31 @@ def sample_dataset_config():
     )
 
 
-class MockDataset(DatasetProtocol):
+class MockDataset:
     """Mock dataset implementation for testing."""
 
-    def _validate_dataset_path(self):
+    def __init__(
+        self,
+        data_path: str,
+        config: DataConfig,
+        *,
+        rngs: nnx.Rngs,
+    ) -> None:
+        """Initialize mock dataset."""
+        self.data_path = Path(data_path)
+        self.config = config
+        self.rngs = rngs
+
+        self._validate_dataset_path()
+        self._load_dataset()
+
+    def _validate_dataset_path(self) -> None:
         """Validate dataset path and structure."""
         if not self.data_path.exists():
             raise FileNotFoundError(f"Dataset path {self.data_path} does not exist")
 
-    def _load_dataset(self):
+    def _load_dataset(self) -> None:
         """Load the dataset."""
-        # Create mock data
         n_samples = self.config.metadata.get("n_samples", 1000)
         point_dim = self.config.metadata.get("point_dim", 3)
         n_points = self.config.metadata.get("n_points", 512)
@@ -85,7 +97,6 @@ class MockDataset(DatasetProtocol):
         batch_size = batch_size or self.config.metadata.get("batch_size", 32)
         n_samples = self.data["metadata"]["n_samples"]
 
-        # Simple random sampling
         key = self.rngs.default() if "default" in self.rngs else jax.random.key(0)
         indices = jax.random.choice(key, n_samples, (batch_size,), replace=False)
 
@@ -102,6 +113,10 @@ class MockDataset(DatasetProtocol):
                 "labels": self.data["labels"].shape,
             },
         }
+
+    def get_sample_count(self) -> int:
+        """Get total number of samples."""
+        return self.data["metadata"]["n_samples"]
 
 
 class TestDatasetProtocol:
@@ -224,7 +239,7 @@ class TestDatasetRegistry:
         registry = DatasetRegistry()
 
         # Clear registry for clean test
-        registry.datasets.clear()
+        registry.clear_registry()
 
         temp_dataset_dir.mkdir(exist_ok=True)
         dataset = MockDataset(
@@ -233,13 +248,13 @@ class TestDatasetRegistry:
 
         registry.register_dataset("test_dataset", dataset)
 
-        assert "test_dataset" in registry.datasets
-        assert registry.datasets["test_dataset"] is dataset
+        assert "test_dataset" in registry.list_datasets()
+        assert registry.get_dataset("test_dataset") is dataset
 
     def test_get_dataset(self, temp_dataset_dir, sample_dataset_config, rngs):
         """Test dataset retrieval."""
         registry = DatasetRegistry()
-        registry.datasets.clear()
+        registry.clear_registry()
 
         temp_dataset_dir.mkdir(exist_ok=True)
         dataset = MockDataset(
@@ -258,7 +273,7 @@ class TestDatasetRegistry:
     def test_list_datasets(self, temp_dataset_dir, sample_dataset_config, rngs):
         """Test listing available datasets."""
         registry = DatasetRegistry()
-        registry.datasets.clear()
+        registry.clear_registry()
 
         # No datasets initially
         available = registry.list_datasets()
@@ -289,7 +304,7 @@ class TestDatasetRegistry:
     def test_dataset_metadata(self, temp_dataset_dir, sample_dataset_config, rngs):
         """Test dataset metadata retrieval."""
         registry = DatasetRegistry()
-        registry.datasets.clear()
+        registry.clear_registry()
 
         temp_dataset_dir.mkdir(exist_ok=True)
         dataset = MockDataset(
@@ -384,67 +399,6 @@ class TestDatasetValidator:
         assert has_enough_small is False
 
 
-class TestDatasetLoader:
-    """Test DatasetLoader functionality."""
-
-    def test_loader_initialization(self):
-        """Test dataset loader initialization."""
-        loader = DatasetLoader()
-
-        assert hasattr(loader, "supported_formats")
-        assert isinstance(loader.supported_formats, list)
-
-    def test_load_from_config(self, temp_dataset_dir, sample_dataset_config, rngs):
-        """Test loading dataset from configuration."""
-        import dataclasses
-
-        loader = DatasetLoader()
-
-        # Register mock dataset type
-        loader.register_dataset_type("mock", MockDataset)
-
-        # Create new config with the temp_dataset_dir (frozen dataclass)
-        config = dataclasses.replace(sample_dataset_config, data_dir=temp_dataset_dir)
-
-        temp_dataset_dir.mkdir(exist_ok=True)
-
-        dataset = loader.load_from_config(config, rngs=rngs)
-
-        assert isinstance(dataset, MockDataset)
-        assert dataset.config.dataset_name == config.dataset_name
-        assert dataset.data_path == temp_dataset_dir
-
-    def test_register_dataset_type(self):
-        """Test dataset type registration."""
-        loader = DatasetLoader()
-
-        # Clear existing registrations
-        loader.dataset_types = {}
-
-        loader.register_dataset_type("mock", MockDataset)
-
-        assert "mock" in loader.dataset_types
-        assert loader.dataset_types["mock"] is MockDataset
-
-    def test_list_supported_types(self):
-        """Test listing supported dataset types."""
-        loader = DatasetLoader()
-        loader.dataset_types = {}
-
-        # No types initially
-        types = loader.list_supported_types()
-        assert len(types) == 0
-
-        # Register some types
-        loader.register_dataset_type("mock", MockDataset)
-        loader.register_dataset_type("test", MockDataset)
-
-        types = loader.list_supported_types()
-        assert len(types) == 2
-        assert "mock" in types
-        assert "test" in types
-
-
 class TestDatasetIntegration:
     """Integration tests for dataset system."""
 
@@ -459,7 +413,7 @@ class TestDatasetIntegration:
 
         # 2. Register dataset
         registry = DatasetRegistry()
-        registry.datasets.clear()
+        registry.clear_registry()
         registry.register_dataset("test_dataset", dataset)
 
         # 3. Validate dataset

@@ -1,100 +1,20 @@
-# Mlflow
+# MLflow
 
-**Module:** `generative_models.utils.logging.mlflow`
+**Status:** `Supported runtime utility`
+**Module:** `artifex.generative_models.utils.logging.mlflow`
+**Source:** `src/artifex/generative_models/utils/logging/mlflow.py`
 
-**Source:** `generative_models/utils/logging/mlflow.py`
+This page documents the retained MLflow logger integration used by generative-model
+training and evaluation workflows.
 
-## Overview
+## Key Symbols
 
-MLflow logger implementation for the Artifex library.
+- `MLFlowLogger`
+- `log_scalars(...)`
+- `log_artifact(...)`
+- `log_model(...)`
 
-This module provides a logger implementation that integrates with MLflow
-for experiment tracking, including metrics, parameters, artifacts, and models.
+## Current Scope
 
-## Classes
-
-### MLFlowLogger
-
-```python
-class MLFlowLogger
-```
-
-## Functions
-
-### **init**
-
-```python
-def __init__()
-```
-
-### close
-
-```python
-def close()
-```
-
-### end_run
-
-```python
-def end_run()
-```
-
-### log_artifact
-
-```python
-def log_artifact()
-```
-
-### log_artifacts
-
-```python
-def log_artifacts()
-```
-
-### log_histogram
-
-```python
-def log_histogram()
-```
-
-### log_hyperparams
-
-```python
-def log_hyperparams()
-```
-
-### log_image
-
-```python
-def log_image()
-```
-
-### log_model
-
-```python
-def log_model()
-```
-
-### log_scalar
-
-```python
-def log_scalar()
-```
-
-### log_scalars
-
-```python
-def log_scalars()
-```
-
-### log_text
-
-```python
-def log_text()
-```
-
-## Module Statistics
-
-- **Classes:** 1
-- **Functions:** 12
-- **Imports:** 11
+The runtime ships this module as a package-local logging integration. It does not
+create a broader top-level `artifex.utils.logging` namespace.

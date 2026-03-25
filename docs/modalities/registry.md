@@ -1,41 +1,21 @@
-# Registry
+# Modality Registry
 
-**Module:** `generative_models.modalities.registry`
+**Status:** `Supported modality registry owner`
 
-**Source:** `generative_models/modalities/registry.py`
+**Scope:** `Shared registry owner`
 
-## Overview
+**Module:** `artifex.generative_models.modalities.registry`
 
-Modality registry for the generative models framework.
+**Source:** `src/artifex/generative_models/modalities/registry.py`
 
-## Functions
+Shared registry surface for the retained runtime-backed modalities.
 
-### clear_modalities
+Current registry-backed modalities: `image`, `molecular`, and `protein`.
 
-```python
-def clear_modalities()
-```
+## Top-Level Module Exports
 
-### get_modality
-
-```python
-def get_modality()
-```
-
-### list_modalities
-
-```python
-def list_modalities()
-```
-
-### register_modality
-
-```python
-def register_modality()
-```
-
-## Module Statistics
-
-- **Classes:** 0
-- **Functions:** 4
-- **Imports:** 8
+- `MODALITY_REGISTRY`
+- `register_modality()`
+- `get_modality()`
+- `list_modalities()`
+- `clear_modalities()`

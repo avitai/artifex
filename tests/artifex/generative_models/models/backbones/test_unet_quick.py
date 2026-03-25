@@ -266,7 +266,3 @@ def main():
     except Exception as e:
         print(f"\n❌ Test failed with error: {e}")
         raise
-
-
-if __name__ == "__main__":
-    main()

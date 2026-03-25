@@ -41,14 +41,14 @@ class TestNormal:
     def test_initialization(self, normal_fixed, normal_learnable):
         """Test initialization of Normal distribution."""
         # Test fixed parameters
-        assert normal_fixed.loc.value == 0.0
-        assert normal_fixed.scale.value == 1.0
+        assert normal_fixed.loc[...] == 0.0
+        assert normal_fixed.scale[...] == 1.0
 
         # Test learnable parameters
         assert isinstance(normal_learnable.loc, nnx.Param)
         assert isinstance(normal_learnable.scale, nnx.Param)
-        assert normal_learnable.loc.value.shape == ()
-        assert normal_learnable.scale.value.shape == ()
+        assert normal_learnable.loc.shape == ()
+        assert normal_learnable.scale.shape == ()
 
     def test_sample(self, rngs, normal_fixed):
         """Test sampling from Normal distribution."""
@@ -116,8 +116,8 @@ class TestBeta:
         # Test learnable parameters
         assert isinstance(beta_learnable.concentration0, nnx.Param)
         assert isinstance(beta_learnable.concentration1, nnx.Param)
-        assert beta_learnable.concentration0.value.shape == ()
-        assert beta_learnable.concentration1.value.shape == ()
+        assert beta_learnable.concentration0.shape == ()
+        assert beta_learnable.concentration1.shape == ()
 
     def test_sample(self, rngs, beta_fixed):
         """Test sampling from Beta distribution."""
@@ -263,8 +263,7 @@ class TestJITCompatibility:
         assert samples1.shape == (3,)
         assert jnp.isfinite(samples1).all()
 
-        # Test with no RNGs (should use fallback)
-        samples2 = jit_sample(normal, sample_shape=(3,))
+        samples2 = normal.sample(sample_shape=(3,))
         assert samples2.shape == (3,)
         assert jnp.isfinite(samples2).all()
 
@@ -295,6 +294,29 @@ class TestJITCompatibility:
         batch_log_probs = jit_batch_log_prob(batch_normal, x_batch)
         assert batch_log_probs.shape == (2, 3)  # (input_batch, dist_batch)
         assert jnp.isfinite(batch_log_probs).all()
+
+
+class TestDistributionCaching:
+    """Tests for cache behavior in the shared distribution base."""
+
+    def test_cached_entropy_and_kl_do_not_use_deprecated_value_access(self):
+        """Entropy/KL cache paths should not trigger NNX .value deprecation warnings."""
+        normal = Normal(loc=jnp.array(0.0), scale=jnp.array(1.0))
+        other = Normal(loc=jnp.array(1.0), scale=jnp.array(2.0))
+
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always", DeprecationWarning)
+            first_entropy = normal.entropy()
+            second_entropy = normal.entropy()
+            first_kl = normal.kl_divergence(other)
+            second_kl = normal.kl_divergence(other)
+
+        messages = [str(item.message) for item in caught]
+        assert all(".value" not in message for message in messages)
+        assert jnp.isfinite(first_entropy)
+        assert jnp.isfinite(second_entropy)
+        assert jnp.isfinite(first_kl)
+        assert jnp.isfinite(second_kl)
 
 
 class TestOptimizations:
@@ -494,3 +516,25 @@ class TestOptimizations:
         # Should be different due to scale parameter change
         # Normal entropy = 0.5 * log(2π * σ²), so changing σ changes entropy
         assert not jnp.allclose(entropy1, entropy2, rtol=1e-6)
+
+
+class TestDistributionValidation:
+    """Validation should reject non-finite inputs and parameters."""
+
+    def test_sample_requires_explicit_rng_when_distribution_has_no_internal_rng(self):
+        normal = Normal(loc=jnp.array(0.0), scale=jnp.array(1.0), rngs=None)
+
+        with pytest.raises(ValueError, match="rngs must be provided"):
+            normal.sample()
+
+    def test_log_prob_rejects_non_finite_inputs(self):
+        normal = Normal(loc=jnp.array(0.0), scale=jnp.array(1.0))
+
+        with pytest.raises(ValueError, match="input contains non-finite"):
+            normal.log_prob(jnp.array(jnp.nan))
+
+    def test_log_prob_rejects_non_finite_parameters(self):
+        normal = Normal(loc=jnp.array(jnp.nan), scale=jnp.array(1.0))
+
+        with pytest.raises(ValueError, match="location parameter contains non-finite"):
+            normal.log_prob(jnp.array(0.0))

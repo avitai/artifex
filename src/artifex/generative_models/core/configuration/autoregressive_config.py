@@ -23,7 +23,7 @@ from .validation import (
 VALID_POSITIONAL_ENCODING_TYPES = ("sinusoidal", "learned", "rotary", "none")
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class TransformerNetworkConfig(BaseNetworkConfig):
     """Configuration for transformer network architecture.
 
@@ -51,7 +51,7 @@ class TransformerNetworkConfig(BaseNetworkConfig):
 
     def __post_init__(self) -> None:
         """Validate transformer network configuration."""
-        super().__post_init__()
+        super(TransformerNetworkConfig, self).__post_init__()
 
         # Validate embed_dim
         validate_positive_int(self.embed_dim, "embed_dim")
@@ -98,7 +98,7 @@ class TransformerNetworkConfig(BaseNetworkConfig):
         return cls(**data)
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class AutoregressiveConfig(BaseConfig):
     """Base configuration for autoregressive models.
 
@@ -121,7 +121,7 @@ class AutoregressiveConfig(BaseConfig):
 
     def __post_init__(self) -> None:
         """Validate autoregressive configuration."""
-        super().__post_init__()
+        super(AutoregressiveConfig, self).__post_init__()
 
         # Validate vocab_size
         if self.vocab_size <= 0:
@@ -135,7 +135,7 @@ class AutoregressiveConfig(BaseConfig):
         validate_dropout_rate(self.dropout_rate)
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class TransformerConfig(AutoregressiveConfig):
     """Configuration for Transformer autoregressive models.
 
@@ -157,7 +157,7 @@ class TransformerConfig(AutoregressiveConfig):
 
     def __post_init__(self) -> None:
         """Validate Transformer configuration."""
-        super().__post_init__()
+        super(TransformerConfig, self).__post_init__()
 
         # Validate network is provided
         if self.network is None:
@@ -174,7 +174,7 @@ class TransformerConfig(AutoregressiveConfig):
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary with nested config handling."""
-        data = super().to_dict()
+        data = AutoregressiveConfig.to_dict(self)
 
         # Convert nested config to dict
         if self.network is not None:
@@ -194,7 +194,7 @@ class TransformerConfig(AutoregressiveConfig):
         return cls(**data)
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class PixelCNNConfig(BaseConfig):
     """Configuration for PixelCNN autoregressive image models.
 
@@ -225,7 +225,7 @@ class PixelCNNConfig(BaseConfig):
 
     def __post_init__(self) -> None:
         """Validate PixelCNN configuration."""
-        super().__post_init__()
+        super(PixelCNNConfig, self).__post_init__()
 
         # Validate image_shape is provided
         if self.image_shape is None:
@@ -280,7 +280,7 @@ class PixelCNNConfig(BaseConfig):
         return cls(**data)
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
 class WaveNetConfig(AutoregressiveConfig):
     """Configuration for WaveNet autoregressive audio models.
 
@@ -308,7 +308,7 @@ class WaveNetConfig(AutoregressiveConfig):
 
     def __post_init__(self) -> None:
         """Validate WaveNet configuration."""
-        super().__post_init__()
+        super(WaveNetConfig, self).__post_init__()
 
         # Validate channel counts
         validate_positive_int(self.residual_channels, "residual_channels")

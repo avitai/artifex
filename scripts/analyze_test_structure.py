@@ -1,62 +1,63 @@
 #!/usr/bin/env python3
-"""
-Script to analyze the test structure of the artifex package.
+# ruff: noqa: T201
+"""Analyze test-to-source coverage without writing into curated docs."""
 
-This script uses the TestStructureAnalyzer to analyze the relationship between
-test files and source modules, generate reports, and identify areas for
-improvement.
-"""
+from __future__ import annotations
 
 import argparse
-import os
-import sys
+import json
 from pathlib import Path
-
-
-# Add src to Python path
-sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from artifex.generative_models.utils.code_analysis.test_structure_analyzer import (
     TestStructureAnalyzer,
 )
 
 
-def main():
-    """Main entry point for the script."""
-    parser = argparse.ArgumentParser(description="Analyze test structure of the artifex package.")
-    parser.add_argument(
-        "--test-dir",
-        default="tests",
-        help="Path to the test directory",
+DEFAULT_OUTPUT_DIR = Path("test_artifacts/code_analysis/test_structure")
+
+
+def _write_text(path: Path, contents: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(contents, encoding="utf-8")
+
+
+def _write_json(path: Path, payload: dict[str, object]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(f"{json.dumps(payload, indent=2)}\n", encoding="utf-8")
+
+
+def build_parser() -> argparse.ArgumentParser:
+    """Create the CLI parser."""
+    parser = argparse.ArgumentParser(
+        description="Analyze repo-local test structure against the current source tree."
     )
-    parser.add_argument(
-        "--src-dir",
-        default="src/artifex",
-        help="Path to the source directory",
-    )
+    parser.add_argument("--test-dir", default="tests", help="Path to the test directory")
+    parser.add_argument("--src-dir", default="src/artifex", help="Path to the source directory")
     parser.add_argument(
         "--package-prefix",
         default="artifex",
-        help="Package prefix for source modules",
+        help="Package prefix used for source-module imports",
     )
     parser.add_argument(
         "--output-file",
-        default="docs/test_structure.md",
-        help="Path to save the analysis report",
+        default=str(DEFAULT_OUTPUT_DIR / "test_structure.md"),
+        help="Ignored repo-local path for the markdown analysis report",
     )
     parser.add_argument(
         "--json-output",
-        default="docs/test_analysis.json",
-        help="Path to save the raw analysis data in JSON format",
+        default=str(DEFAULT_OUTPUT_DIR / "test_analysis.json"),
+        help="Ignored repo-local path for the JSON analysis payload",
     )
-    args = parser.parse_args()
+    return parser
 
-    # Create output directory if it doesn't exist
-    os.makedirs(os.path.dirname(args.output_file), exist_ok=True)
 
-    # Initialize analyzer
+def main() -> int:
+    """Run the test-structure analysis CLI."""
+    args = build_parser().parse_args()
     analyzer = TestStructureAnalyzer(
-        test_dir=args.test_dir, src_dir=args.src_dir, package_prefix=args.package_prefix
+        test_dir=args.test_dir,
+        src_dir=args.src_dir,
+        package_prefix=args.package_prefix,
     )
 
     print("Analyzing test structure...")
@@ -64,16 +65,12 @@ def main():
     print(f"Source directory: {args.src_dir}")
     print(f"Package prefix: {args.package_prefix}")
 
-    # Discover test files and source modules
     test_files = analyzer.discover_test_files()
     source_modules = analyzer.discover_source_modules()
-
     print(f"Found {len(test_files)} test files")
     print(f"Found {len(source_modules)} source modules")
 
-    # Analyze test structure
     analysis = analyzer.analyze()
-
     print("\nAnalysis results:")
     print(f"Total test files: {analysis.total_test_files}")
     print(f"Total source modules: {analysis.total_source_modules}")
@@ -81,39 +78,31 @@ def main():
     print(f"Coverage percentage: {analysis.calculate_coverage_percentage():.1f}%")
     print(f"Test files without source imports: {len(analysis.test_files_without_source_imports)}")
 
-    # Generate report
-    report = analysis.generate_report()
+    report_path = Path(args.output_file)
+    _write_text(report_path, analysis.generate_report())
+    print(f"\nSaved report to {report_path}")
 
-    with open(args.output_file, "w") as f:
-        f.write(report)
-
-    print(f"\nSaved report to {args.output_file}")
-
-    # Save raw analysis data as JSON
     if args.json_output:
-        import json
+        json_path = Path(args.json_output)
+        _write_json(
+            json_path,
+            {
+                "total_test_files": analysis.total_test_files,
+                "total_source_modules": analysis.total_source_modules,
+                "source_modules_with_tests": analysis.source_modules_with_tests,
+                "test_files_without_imports": analysis.test_files_without_imports,
+                "module_test_mapping": analysis.module_test_mapping,
+                "untested_modules": analysis.untested_modules,
+                "test_files_without_source_imports": analysis.test_files_without_source_imports,
+            },
+        )
+        print(f"Saved raw analysis data to {json_path}")
 
-        # Convert analysis to dict
-        analysis_dict = {
-            "total_test_files": analysis.total_test_files,
-            "total_source_modules": analysis.total_source_modules,
-            "source_modules_with_tests": analysis.source_modules_with_tests,
-            "test_files_without_imports": analysis.test_files_without_imports,
-            "module_test_mapping": analysis.module_test_mapping,
-            "untested_modules": analysis.untested_modules,
-            "test_files_without_source_imports": analysis.test_files_without_source_imports,
-        }
-
-        with open(args.json_output, "w") as f:
-            json.dump(analysis_dict, f, indent=2)
-
-        print(f"Saved raw analysis data to {args.json_output}")
-
-    # Print recommendations
     print("\nRecommendations:")
-    for i, recommendation in enumerate(analysis.generate_recommendations(), 1):
-        print(f"{i}. {recommendation}")
+    for index, recommendation in enumerate(analysis.generate_recommendations(), start=1):
+        print(f"{index}. {recommendation}")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

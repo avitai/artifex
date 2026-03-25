@@ -1,11 +1,9 @@
 # Memory
 
-**Module:** `generative_models.utils.profiling.memory`
+**Status:** `Coming soon`
+**Planned module target:** `artifex.generative_models.utils.profiling.memory`
 
-**Source:** `generative_models/utils/profiling/memory.py`
+`artifex.generative_models.utils.profiling.memory` is still relevant to the roadmap, but it is not shipped yet.
 
-## Module Statistics
-
-- **Classes:** 0
-- **Functions:** 0
-- **Imports:** 0
+See [Utilities](index.md) for the current utility docs.
+See [Planned Modules Roadmap](../roadmap/planned-modules.md#utilities) for status and scope.

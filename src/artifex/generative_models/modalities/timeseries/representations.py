@@ -155,7 +155,7 @@ class FourierProcessor(nnx.Module):
         t = t[None, :, None]  # Shape: (1, sequence, 1)
 
         # Compute Fourier features for each frequency
-        frequencies = self.frequencies.value[:, None, None]  # Shape: (num_freq, 1, 1)
+        frequencies = self.frequencies[...][:, None, None]  # Shape: (num_freq, 1, 1)
         phase = 2 * jnp.pi * frequencies * t / seq_len  # Broadcasting
 
         # Compute sine and cosine features

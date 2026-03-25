@@ -13,11 +13,13 @@ Note: Dataset classes don't inherit from nnx.Module because they're data
 containers, not neural network modules.
 """
 
-from typing import Iterator
+from collections.abc import Iterator
 
 import flax.nnx as nnx
 import jax
 import jax.numpy as jnp
+
+from artifex.benchmarks.runtime_guards import require_demo_mode
 
 
 class FFHQDataset:
@@ -31,6 +33,7 @@ class FFHQDataset:
         channels: int = 3,
         num_samples: int = 70000,
         few_shot_samples: int | None = None,
+        demo_mode: bool = False,
         *,
         rngs: nnx.Rngs,
     ):
@@ -51,6 +54,16 @@ class FFHQDataset:
         self.channels = channels
         self.num_samples = few_shot_samples or num_samples
         self.rngs = rngs
+        self.demo_mode = demo_mode
+
+        require_demo_mode(
+            enabled=self.demo_mode,
+            component="FFHQDataset",
+            detail=(
+                "This retained FFHQ dataset path still generates mock face images instead of "
+                "loading benchmark-grade FFHQ assets."
+            ),
+        )
 
         # Dataset statistics for normalization
         self.mean = jnp.array([0.485, 0.456, 0.406])
@@ -137,6 +150,25 @@ class FFHQDataset:
         image = jnp.clip(image + noise, 0.0, 1.0)
 
         return image
+
+    def __len__(self) -> int:
+        """Return the number of samples in the current split."""
+        return len(self.indices)
+
+    def __getitem__(self, idx: int) -> dict[str, jnp.ndarray]:
+        """Get a single sample by index.
+
+        Args:
+            idx: Sample index within the current split
+
+        Returns:
+            Dictionary with 'image' and 'index' keys
+        """
+        if idx < 0 or idx >= len(self.indices):
+            raise IndexError(f"Index {idx} out of range for split with {len(self.indices)} samples")
+        actual_idx = self.indices[idx]
+        image = self._generate_mock_face_image(actual_idx)
+        return {"image": image, "index": actual_idx}
 
     def _preprocess_image(self, image: jnp.ndarray) -> jnp.ndarray:
         """Preprocess image for training.

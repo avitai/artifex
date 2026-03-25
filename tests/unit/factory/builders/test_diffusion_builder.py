@@ -8,7 +8,7 @@ The signature should be:
     DiffusionBuilder.build(config: DiffusionConfig | DDPMConfig | ..., rngs: nnx.Rngs) -> DiffusionModel
 
 NOT:
-    DiffusionBuilder.build(config: ModelConfig, rngs: nnx.Rngs) -> DiffusionModel
+    DiffusionBuilder.build(config: generic model_class-driven config, rngs: nnx.Rngs)
 
 Following Principle #4: Methods Take Configs, NOT Individual Parameters
 """
@@ -276,10 +276,9 @@ class TestPolymorphicBackbone:
 
         dit_config = DiTBackboneConfig(
             name="test_dit",
-            hidden_dims=(128,),  # Required by BaseNetworkConfig
-            activation="gelu",
             img_size=8,
             patch_size=2,
+            in_channels=3,
             hidden_size=128,
             depth=2,
             num_heads=4,

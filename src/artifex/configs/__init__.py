@@ -1,73 +1,99 @@
-"""Configuration system for generative models."""
+"""Public convenience surface for the typed configuration runtime."""
 
-# Base configs; Data configs; Model configs;
-# Inference configs; Training configs
-from artifex.configs.schema import (
-    BaseConfig,
-    DataConfig,
-    DatasetConfig,
-    DiffusionInferenceConfig,
-    ExperimentConfig,
-    InferenceConfig,
-    OptimizerConfig,
-    ProteinDatasetConfig,
-    ProteinDiffusionInferenceConfig,
-    SchedulerConfig,
-    TrainingConfig,
-)
+from importlib import import_module
+from typing import Any
 
-# Import the new schema modules
-from artifex.configs.schema.distributed import (
-    DistributedBackend,
-    DistributedConfig,
-)
-from artifex.configs.schema.hyperparam import (
-    CategoricalDistribution,
-    ChoiceDistribution,
-    HyperparamSearchConfig,
-    ParameterDistribution,
-    SearchType,
-    UniformDistribution,
-)
 
-# Environment-specific configs; Configuration versioning; Config loading
-from artifex.configs.utils import (
-    apply_env_overrides,
-    compute_config_hash,
-    ConfigTemplate,
-    ConfigTemplateManager,
-    ConfigVersion,
-    ConfigVersionRegistry,
-    create_config_from_yaml,
-    DISTRIBUTED_TEMPLATE,
-    get_config_path,
-    get_data_config,
-    get_env_config_path,
-    get_env_name,
-    get_inference_config,
-    get_model_config,
-    get_training_config,
-    load_env_config,
-    load_experiment_config,
-    load_yaml_config,
-    PROTEIN_DIFFUSION_TEMPLATE,
-    SIMPLE_TRAINING_TEMPLATE,
-    template_manager,
-)
+_CONFIGURATION_EXPORTS = {
+    "ArchitectureExtensionConfig",
+    "BaseConfig",
+    "CategoricalDistribution",
+    "ChoiceDistribution",
+    "ConstraintExtensionConfig",
+    "DataConfig",
+    "DiffusionInferenceConfig",
+    "DistributedBackend",
+    "DistributedConfig",
+    "EvaluationExtensionConfig",
+    "ExperimentConfig",
+    "ExperimentTemplateConfig",
+    "ExperimentTemplateOverrides",
+    "ExtensionConfig",
+    "HyperparamSearchConfig",
+    "InferenceConfig",
+    "LossExtensionConfig",
+    "ModalityExtensionConfig",
+    "OptimizerConfig",
+    "ParameterDistribution",
+    "ProteinDiffusionInferenceConfig",
+    "ProteinExtensionConfig",
+    "ProteinExtensionsConfig",
+    "ProteinMixinConfig",
+    "SamplingExtensionConfig",
+    "SchedulerConfig",
+    "SearchType",
+    "TrainingConfig",
+    "UniformDistribution",
+}
 
+_CONFIG_LOADER_EXPORTS = {
+    "get_config_path",
+    "get_data_config",
+    "get_inference_config",
+    "get_protein_extensions_config",
+    "get_training_config",
+    "load_experiment_config",
+}
+
+_TEMPLATE_EXPORTS = {
+    "ConfigTemplateManager",
+    "DISTRIBUTED_TEMPLATE",
+    "SIMPLE_TRAINING_TEMPLATE",
+    "template_manager",
+}
+
+_VERSIONING_EXPORTS = {
+    "compute_config_hash",
+    "ConfigVersion",
+    "ConfigVersionRegistry",
+}
+
+_MODULE_BY_EXPORT = {
+    **{name: "artifex.generative_models.core.configuration" for name in _CONFIGURATION_EXPORTS},
+    **{name: "artifex.configs.utils.config_loader" for name in _CONFIG_LOADER_EXPORTS},
+    **{
+        name: "artifex.generative_models.core.configuration.management.templates"
+        for name in _TEMPLATE_EXPORTS
+    },
+    **{
+        name: "artifex.generative_models.core.configuration.management.versioning"
+        for name in _VERSIONING_EXPORTS
+    },
+}
 
 __all__ = [
     # Base configs
     "BaseConfig",
     "ExperimentConfig",
+    "ExperimentTemplateConfig",
+    "ExperimentTemplateOverrides",
     # Data configs
     "DataConfig",
-    "DatasetConfig",
-    "ProteinDatasetConfig",
     # Training configs
     "TrainingConfig",
     "OptimizerConfig",
     "SchedulerConfig",
+    # Extension configs
+    "ExtensionConfig",
+    "ConstraintExtensionConfig",
+    "ProteinExtensionConfig",
+    "ProteinExtensionsConfig",
+    "ProteinMixinConfig",
+    "ArchitectureExtensionConfig",
+    "SamplingExtensionConfig",
+    "LossExtensionConfig",
+    "EvaluationExtensionConfig",
+    "ModalityExtensionConfig",
     # Inference configs
     "InferenceConfig",
     "DiffusionInferenceConfig",
@@ -83,28 +109,33 @@ __all__ = [
     "ChoiceDistribution",
     "HyperparamSearchConfig",
     # Utility functions
-    "create_config_from_yaml",
     "get_config_path",
     "get_data_config",
     "get_inference_config",
-    "get_model_config",
+    "get_protein_extensions_config",
     "get_training_config",
     "load_experiment_config",
-    "load_yaml_config",
-    # Environment-specific configs
-    "apply_env_overrides",
-    "get_env_config_path",
-    "get_env_name",
-    "load_env_config",
     # Configuration versioning
     "ConfigVersion",
     "ConfigVersionRegistry",
     "compute_config_hash",
     # Configuration templates
-    "ConfigTemplate",
     "ConfigTemplateManager",
     "template_manager",
-    "PROTEIN_DIFFUSION_TEMPLATE",
     "SIMPLE_TRAINING_TEMPLATE",
     "DISTRIBUTED_TEMPLATE",
 ]
+
+
+def __getattr__(name: str) -> Any:
+    """Load exported config symbols lazily on first attribute access."""
+    try:
+        module_path = _MODULE_BY_EXPORT[name]
+    except KeyError as exc:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}") from exc
+    return getattr(import_module(module_path), name)
+
+
+def __dir__() -> list[str]:
+    """Keep introspection aligned with the documented export surface."""
+    return sorted(__all__)
