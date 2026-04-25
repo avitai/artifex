@@ -66,7 +66,6 @@ def create_rmsd_loss() -> ProteinLossFunction:
 
 def create_backbone_loss() -> ProteinLossFunction:
     """Build backbone geometry loss for protein coordinates."""
-
     ideal_lengths = {
         name: jnp.asarray(value)
         for name, value in BOND_LENGTHS.items()
@@ -98,13 +97,21 @@ def create_backbone_loss() -> ProteinLossFunction:
                 ca_mask[..., :-1] * c_mask[..., :-1] * n_mask[..., 1:]
             )
 
+        n_ca_mask = None if n_mask is None or ca_mask is None else n_mask * ca_mask
+        ca_c_mask = None if ca_mask is None or c_mask is None else ca_mask * c_mask
+        n_ca_c_mask = (
+            None
+            if n_mask is None or ca_mask is None or c_mask is None
+            else n_mask * ca_mask * c_mask
+        )
+
         n_ca_loss = _mean_over_valid(
             jnp.square(bond_lengths["N-CA"] - ideal_lengths["N-CA"]),
-            None if n_mask is None else n_mask * ca_mask,
+            n_ca_mask,
         )
         ca_c_loss = _mean_over_valid(
             jnp.square(bond_lengths["CA-C"] - ideal_lengths["CA-C"]),
-            None if ca_mask is None else ca_mask * c_mask,
+            ca_c_mask,
         )
         c_n_loss = _mean_over_valid(
             jnp.square(bond_lengths["C-N"] - ideal_lengths["C-N"]),
@@ -112,7 +119,7 @@ def create_backbone_loss() -> ProteinLossFunction:
         )
         n_ca_c_loss = _mean_over_valid(
             jnp.square(bond_angles["N-CA-C"] - ideal_angles["N-CA-C"]),
-            None if n_mask is None else n_mask * ca_mask * c_mask,
+            n_ca_c_mask,
         )
         ca_c_n_loss = _mean_over_valid(
             jnp.square(bond_angles["CA-C-N"] - ideal_angles["CA-C-N"]),

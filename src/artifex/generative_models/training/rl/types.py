@@ -96,6 +96,9 @@ def prepare_autoregressive_token_mask(
         return jnp.ones(sequences[:, 1:].shape, dtype=jnp.float32)
 
     sequence_mask = canonicalize_response_mask(sequences, response_mask)
+    if sequence_mask is None:
+        msg = "canonicalize_response_mask returned None for a non-null response_mask"
+        raise TypeError(msg)
     return sequence_mask[:, 1:].astype(jnp.float32)
 
 
@@ -112,6 +115,7 @@ class TrajectoryBatch(nnx.Pytree):
     dones: jax.Array | None = nnx.data(default=None)
 
     def __post_init__(self) -> None:
+        """Validate transition batch invariants."""
         batch_size = self.batch_size
         if self.actions.shape[0] != batch_size:
             msg = (
@@ -141,6 +145,7 @@ class GenerationRequest(nnx.Pytree):
     generation_metadata: Any | None = nnx.data(default=None)
 
     def __post_init__(self) -> None:
+        """Validate generation request invariants."""
         if self.num_samples <= 0:
             msg = "num_samples must be positive"
             raise ValueError(msg)
@@ -172,6 +177,7 @@ class SequenceGenerationRequest(nnx.Pytree):
     top_p: float | None = nnx.static(default=None)
 
     def __post_init__(self) -> None:
+        """Validate grouped generation request invariants."""
         if self.num_generations <= 0:
             msg = "num_generations must be positive"
             raise ValueError(msg)
@@ -232,6 +238,7 @@ class IterativeGenerationRequest(nnx.Pytree):
     trajectory_mask: jax.Array | None = nnx.data(default=None)
 
     def __post_init__(self) -> None:
+        """Validate trajectory batch invariants."""
         if self.step_indices.ndim != 2:
             msg = "step_indices must have shape (batch, num_steps)"
             raise ValueError(msg)
@@ -278,6 +285,7 @@ class GeneratedBatch(nnx.Pytree):
     rewards: jax.Array | None = nnx.data(default=None)
 
     def __post_init__(self) -> None:
+        """Validate generated sample batch invariants."""
         if self.outputs.ndim < 1:
             msg = "outputs must have at least a leading batch dimension"
             raise ValueError(msg)
@@ -310,6 +318,7 @@ class GeneratedSequenceBatch(nnx.Pytree):
     response_mask: jax.Array | None = nnx.data(default=None)
 
     def __post_init__(self) -> None:
+        """Validate generated sequence batch invariants."""
         if self.sequences.ndim < 2:
             msg = "sequences must be at least 2D with shape (batch, seq_len, ...)"
             raise ValueError(msg)
@@ -394,6 +403,7 @@ class SequenceRolloutBatch(nnx.Pytree):
     dones: jax.Array | None = nnx.data(default=None)
 
     def __post_init__(self) -> None:
+        """Validate sequence rollout batch invariants."""
         if self.sequences.ndim != 2:
             msg = "SequenceRolloutBatch expects 2D token sequences with shape (batch, seq_len)"
             raise ValueError(msg)
@@ -433,7 +443,8 @@ class SequenceRolloutBatch(nnx.Pytree):
     @property
     def action_shape(self) -> tuple[int, int]:
         """Shape aligned with autoregressive next-token actions."""
-        return self.sequences[:, 1:].shape
+        shape = self.sequences[:, 1:].shape
+        return int(shape[0]), int(shape[1])
 
     @property
     def num_action_tokens(self) -> int:
@@ -457,6 +468,7 @@ class IterativeGenerationBatch(nnx.Pytree):
     trajectory_mask: jax.Array | None = nnx.data(default=None)
 
     def __post_init__(self) -> None:
+        """Validate grouped rollout batch invariants."""
         if self.step_indices.ndim != 2:
             msg = "step_indices must have shape (batch, num_steps)"
             raise ValueError(msg)
@@ -499,6 +511,7 @@ class PreferenceBatch(nnx.Pytree, Generic[GenerationBatchT]):
     rejected: GenerationBatchT = nnx.data()
 
     def __post_init__(self) -> None:
+        """Validate preference batch invariants."""
         chosen_batch_size = _resolve_batch_size("chosen", self.chosen)
         rejected_batch_size = _resolve_batch_size("rejected", self.rejected)
         if chosen_batch_size != rejected_batch_size:
@@ -522,6 +535,7 @@ class GroupRolloutBatch(nnx.Pytree, Generic[RolloutBatchT]):
     group_size: int = nnx.static()
 
     def __post_init__(self) -> None:
+        """Validate grouped preference batch invariants."""
         if self.group_size <= 0:
             msg = "group_size must be positive"
             raise ValueError(msg)

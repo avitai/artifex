@@ -29,9 +29,9 @@ class SimpleEncoder(nnx.Module):
 
     def __init__(
         self,
-        input_dim: tuple[int, ...],
+        input_dim: int | tuple[int, ...],
         latent_dim: int,
-        hidden_dims: list | None = None,
+        hidden_dims: list[int] | None = None,
         *,
         rngs: nnx.Rngs,
     ):
@@ -47,22 +47,30 @@ class SimpleEncoder(nnx.Module):
         self.input_dim = input_dim
         self.latent_dim = latent_dim
         self.hidden_dims = hidden_dims or [32, 64]
+        input_shape = input_dim if isinstance(input_dim, tuple) else None
 
         # Determine if input is image or vector
-        self.is_image = isinstance(input_dim, (tuple, list)) and len(input_dim) >= 2
+        self.is_image = input_shape is not None and len(input_shape) >= 2
 
         # Calculate flattened dimension
         if self.is_image:
             # Image input: calculate flattened dimension
-            if len(input_dim) == 3:  # (H, W, C)
-                self.flat_dim = input_dim[0] * input_dim[1] * input_dim[2]
-            elif len(input_dim) == 2:  # (H, W) - grayscale
-                self.flat_dim = input_dim[0] * input_dim[1]
+            if input_shape is None:
+                raise ValueError("Image inputs must provide tuple dimensions")
+            if len(input_shape) == 3:  # (H, W, C)
+                self.flat_dim = input_shape[0] * input_shape[1] * input_shape[2]
+            elif len(input_shape) == 2:  # (H, W) - grayscale
+                self.flat_dim = input_shape[0] * input_shape[1]
             else:
                 raise ValueError(f"Unsupported input_dim shape: {input_dim}")
         else:
             # Vector input
-            self.flat_dim = input_dim if isinstance(input_dim, int) else input_dim[0]
+            if isinstance(input_dim, int):
+                self.flat_dim = input_dim
+            elif input_shape is not None and len(input_shape) == 1:
+                self.flat_dim = input_shape[0]
+            else:
+                raise ValueError(f"Vector input_dim must be int or length-1 tuple, got {input_dim}")
 
         # Create encoder layers
         self.layers = nnx.List([])
@@ -107,8 +115,8 @@ class SimpleDecoder(nnx.Module):
     def __init__(
         self,
         latent_dim: int,
-        output_dim: tuple[int, ...],
-        hidden_dims: list | None = None,
+        output_dim: int | tuple[int, ...],
+        hidden_dims: list[int] | None = None,
         *,
         rngs: nnx.Rngs | None = None,
     ):
@@ -127,20 +135,31 @@ class SimpleDecoder(nnx.Module):
         self.latent_dim = latent_dim
         self.output_dim = output_dim
         self.hidden_dims = hidden_dims or [64, 32]
+        output_shape = output_dim if isinstance(output_dim, tuple) else None
+        self.output_shape = output_shape
 
         # Determine if output is image or vector
-        self.is_image = isinstance(output_dim, (tuple, list)) and len(output_dim) >= 2
+        self.is_image = output_shape is not None and len(output_shape) >= 2
 
         # Calculate flattened dimension
         if self.is_image:
-            if len(output_dim) == 3:  # (H, W, C)
-                self.flat_dim = output_dim[0] * output_dim[1] * output_dim[2]
-            elif len(output_dim) == 2:  # (H, W) - grayscale
-                self.flat_dim = output_dim[0] * output_dim[1]
+            if output_shape is None:
+                raise ValueError("Image outputs must provide tuple dimensions")
+            if len(output_shape) == 3:  # (H, W, C)
+                self.flat_dim = output_shape[0] * output_shape[1] * output_shape[2]
+            elif len(output_shape) == 2:  # (H, W) - grayscale
+                self.flat_dim = output_shape[0] * output_shape[1]
             else:
                 raise ValueError(f"Unsupported output_dim shape: {output_dim}")
         else:
-            self.flat_dim = output_dim if isinstance(output_dim, int) else output_dim[0]
+            if isinstance(output_dim, int):
+                self.flat_dim = output_dim
+            elif output_shape is not None and len(output_shape) == 1:
+                self.flat_dim = output_shape[0]
+            else:
+                raise ValueError(
+                    f"Vector output_dim must be int or length-1 tuple, got {output_dim}"
+                )
 
         # Create decoder layers
         self.layers = nnx.List([])
@@ -172,7 +191,9 @@ class SimpleDecoder(nnx.Module):
         # Reshape to image if needed
         if self.is_image:
             batch_size = output.shape[0]
-            output = output.reshape(batch_size, *self.output_dim)
+            if self.output_shape is None:
+                raise ValueError("Image decoder output requires tuple dimensions")
+            output = output.reshape(batch_size, *self.output_shape)
 
         return output
 
@@ -482,7 +503,7 @@ class LDMModel(DDPMModel):
         # Get number of timesteps
         num_timesteps = self.noise_schedule.num_timesteps
 
-        trajectory = [] if return_trajectory else None
+        trajectory: list[jax.Array] = []
 
         # Reverse diffusion loop in latent space
         for t in range(num_timesteps - 1, -1, -1):

@@ -1,5 +1,4 @@
-"""
-Perceptual losses module.
+"""Perceptual losses module.
 
 This module provides loss functions that compare features extracted from
 neural networks, rather than direct pixel-wise comparisons. These losses
@@ -23,8 +22,7 @@ def feature_reconstruction_loss(
     reduction: str = "mean",
     distance_fn: Callable = mse_loss,
 ) -> jax.Array:
-    """
-    Feature reconstruction loss between predicted and target features.
+    """Feature reconstruction loss between predicted and target features.
 
     Computes the distance between features extracted from generated and target images,
     typically using a pre-trained network as a feature extractor.
@@ -103,8 +101,7 @@ def style_loss(
     weights: list[float] | dict[str, float] | None = None,
     reduction: str = "mean",
 ) -> jax.Array:
-    """
-    Style loss based on Gram matrices.
+    """Style loss based on Gram matrices.
 
     Computes the distance between Gram matrices of features extracted from
     predicted and target images, capturing style/texture information.
@@ -202,8 +199,7 @@ def contextual_loss(
     weights: jax.Array | None = None,
     max_samples: int = 1024,  # Limit samples to avoid memory issues
 ) -> jax.Array:
-    """
-    Contextual loss for feature similarity that is robust to misalignments.
+    """Contextual loss for feature similarity that is robust to misalignments.
 
     This implementation is memory-efficient and fully vectorized for JAX compatibility.
     Measures the similarity between feature distributions rather than
@@ -289,8 +285,7 @@ def contextual_loss(
 
 
 class PerceptualLoss(nnx.Module):
-    """
-    Perceptual loss module that combines feature reconstruction and style losses.
+    """Perceptual loss module that combines feature reconstruction and style losses.
 
     This module can be used as a standalone loss or combined with other losses.
     """
@@ -388,6 +383,8 @@ class PerceptualLoss(nnx.Module):
                 feat_target = features_target
                 feat_pred = features_pred
 
+            if not isinstance(feat_pred, jax.Array) or not isinstance(feat_target, jax.Array):
+                raise TypeError("contextual loss requires array features")
             contextual_loss_value = contextual_loss(
                 feat_pred, feat_target, max_samples=self.max_contextual_samples
             )

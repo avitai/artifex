@@ -20,6 +20,9 @@ class DiffusionSampler(SamplingAlgorithm):
         beta_start: float = 1e-4,
         beta_end: float = 0.02,
     ):
+        """Initialize diffusion sampling helpers."""
+        if model is None and predict_noise_fn is None:
+            raise ValueError("DiffusionSampler requires a model or predict_noise_fn")
         if model is not None:
             self.predict_noise_fn = lambda x, t, **kwargs: model(x, t, **kwargs)
         else:
@@ -46,6 +49,7 @@ class DiffusionSampler(SamplingAlgorithm):
         )
 
     def init(self, x: jax.Array, key: jax.Array) -> dict:
+        """Initialize sampler state."""
         return {
             "x": x,
             "key": key,
@@ -53,8 +57,12 @@ class DiffusionSampler(SamplingAlgorithm):
         }
 
     def step(self, state: dict) -> tuple[dict, dict]:
+        """Advance the sampler by one step."""
         x, key, t = state["x"], state["key"], state["t"]
-        predicted_noise = self.predict_noise_fn(x, t)
+        predict_noise_fn = self.predict_noise_fn
+        if predict_noise_fn is None:
+            raise RuntimeError("DiffusionSampler is missing a predict_noise_fn")
+        predicted_noise = predict_noise_fn(x, t)
 
         alpha_t = self.alphas[t]
         alpha_cumprod_t = self.alphas_cumprod[t]
@@ -88,6 +96,7 @@ class DiffusionSampler(SamplingAlgorithm):
         return next_state, aux_info
 
     def sample(self, n_samples, scheduler="ddpm", steps=None, *, rngs=None):
+        """Generate samples with the configured diffusion model."""
         if self.model is not None and hasattr(self.model, "sample"):
             kwargs = {"scheduler": scheduler}
             if steps is not None:

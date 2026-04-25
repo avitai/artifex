@@ -46,7 +46,7 @@ class KMeansModule(nnx.Module):
         # Store RNG key for initialization
         self.init_key = rngs.params() if rngs is not None else jax.random.PRNGKey(0)
 
-    def fit(self, data):
+    def fit(self, data: jax.Array) -> tuple[jax.Array, jax.Array]:
         """Fit K-means to the data.
 
         Args:
@@ -100,7 +100,7 @@ class KMeansModule(nnx.Module):
             new_centroids = jnp.zeros_like(centroids)
 
             # For logging centroid movement
-            centroid_movement = 0.0
+            centroid_movement = jnp.array(0.0)
 
             # Update each centroid
             for k in range(self.num_clusters):
@@ -114,7 +114,7 @@ class KMeansModule(nnx.Module):
                 if count > 0:
                     # Sum all points in this cluster and divide by count
                     masked_data = jnp.where(mask[:, None], flat_data, 0.0)
-                    cluster_sum = jnp.sum(masked_data, axis=0)
+                    cluster_sum = jnp.asarray(jnp.sum(masked_data, axis=0))
                     new_centroid = cluster_sum / count
 
                     # Calculate movement of this centroid
@@ -335,7 +335,7 @@ def compute_distance_based_metrics(
     # Compute recall as fraction of real samples close to generated data
     recall = float(jnp.mean((min_real_to_gen <= recall_threshold)))
 
-    return precision, recall
+    return float(precision), recall
 
 
 def is_well_separated_clusters(

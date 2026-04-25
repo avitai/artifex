@@ -5,6 +5,7 @@ Uses a single stacked ``nnx.Param`` instead of ``nn.ParameterList``.
 """
 
 import math
+from collections.abc import Callable
 
 import jax
 import jax.numpy as jnp
@@ -17,7 +18,10 @@ from artifex.generative_models.core.layers.clifford.kernels import (
 )
 
 
-_KERNEL_DISPATCH: dict[int, type] = {
+_KernelFn = Callable[[jax.Array, jax.Array], tuple[int, jax.Array]]
+
+
+_KERNEL_DISPATCH: dict[int, _KernelFn] = {
     1: get_1d_clifford_kernel,
     2: get_2d_clifford_kernel,
     3: get_3d_clifford_kernel,

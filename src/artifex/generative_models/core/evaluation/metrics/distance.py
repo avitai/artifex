@@ -130,4 +130,4 @@ def _calculate_rmsd(
     squared_diffs = jnp.sum((c1_centered - c2_centered) ** 2, axis=1)
     rmsd = jnp.sqrt(jnp.mean(squared_diffs))
 
-    return rmsd
+    return float(rmsd)

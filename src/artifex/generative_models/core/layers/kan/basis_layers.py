@@ -219,7 +219,7 @@ def _standard_update_grid(
 
     bj = basis_fn(x).transpose(1, 0, 2)
     cj = _solve_full_lstsq(bj, ci_bi)
-    layer.c_basis = nnx.Param(cj.transpose(2, 0, 1))
+    setattr(layer, "c_basis", nnx.Param(cj.transpose(2, 0, 1)))
 
 
 class ChebyshevKANLayer(nnx.Module):

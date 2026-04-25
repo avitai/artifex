@@ -112,6 +112,8 @@ class CliffordBatchNorm(nnx.Module):
 
     def _apply_affine(self, x: jax.Array) -> jax.Array:
         """Apply learnable ``(I, I)`` matrix multiply + bias per channel."""
+        if self.weight is None or self.bias is None:
+            raise ValueError("Affine parameters are required when _apply_affine is used")
         n_spatial = x.ndim - 3  # exclude B, C, I
 
         # weight: (I, I, C) -> (C, I, I) -> (1, 1..., C, I, I)

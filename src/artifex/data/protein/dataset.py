@@ -92,7 +92,8 @@ AA_TYPES = [
 AA_TYPE_TO_IDX = {aa: i for i, aa in enumerate(AA_TYPES)}
 
 # Type aliases
-NpExampleType = dict[str, np.ndarray]
+NpExampleValue = np.ndarray | int | str
+NpExampleType = dict[str, NpExampleValue]
 BatchType = dict[str, jax.Array]
 
 
@@ -195,14 +196,11 @@ class ProteinDataset(DataSourceModule):
 
         With datarax pipeline::
 
-            from datarax import from_source, BatchNode
-            from datarax.batching import DefaultBatcher, DefaultBatcherConfig
+            from datarax import build_source_pipeline
 
-            pipe = from_source(dataset) >> BatchNode(
-                DefaultBatcher(DefaultBatcherConfig(), collate_fn=protein_collate_fn)
-            )
-            for batch in pipe:
-                train_step(batch)
+            pipeline = build_source_pipeline(dataset, batch_size=8)
+            for batch_view in pipeline:
+                train_step(batch_view.get_data())
     """
 
     # Narrow config type for pyright

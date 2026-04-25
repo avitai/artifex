@@ -92,6 +92,7 @@ class EvaluationPipeline(nnx.Module):
     """Explicit multi-modality evaluation pipeline."""
 
     def __init__(self, config: EvaluationConfig, *, rngs: nnx.Rngs):
+        """Initialize the evaluation pipeline."""
         super().__init__()
         if not isinstance(config, EvaluationConfig):
             raise TypeError(f"config must be EvaluationConfig, got {type(config).__name__}")

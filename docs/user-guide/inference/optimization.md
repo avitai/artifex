@@ -278,7 +278,7 @@ class QuantizedLinear(nnx.Module):
         kernel = self.kernel_quant.astype(jnp.float32) * self.scale / 127
 
         # Compute
-        output = jnp.dot(x, kernel) + self.bias.value
+        output = jnp.dot(x, kernel) + self.bias[...]
 
         return output
 ```

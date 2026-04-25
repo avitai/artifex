@@ -22,6 +22,7 @@ class MetricBase(nnx.Module):
         modality: str = "unknown",
         higher_is_better: bool = True,
     ) -> None:
+        """Initialize metric protocol state."""
         super().__init__()
 
         if name is None:
@@ -37,6 +38,8 @@ class MetricBase(nnx.Module):
 
         self._name = name
         self.batch_size = batch_size
+        self.eval_batch_size = batch_size
+        self.config: object | None = None
         self.rngs = rngs
         self.modality = modality
         self._higher_is_better = higher_is_better

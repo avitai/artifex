@@ -189,8 +189,7 @@ class TimeseriesModality(BaseModalityImplementation):
         """
         extensions = {}
 
-        # For now, return empty dict as extensions don't exist yet
-        # TODO: Implement temporal extensions
+        # Timeseries extension implementations are registered through the extension registry.
         return extensions
 
     def get_adapter(self, model_cls: type) -> Any:

@@ -1,5 +1,4 @@
-"""
-Module for analyzing test structure and relationships to source modules.
+"""Module for analyzing test structure and relationships to source modules.
 
 This module provides tools for discovering, analyzing, and reporting
 relationships between test files and source modules.
@@ -18,9 +17,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class TestFileAnalysis:
-    """
-    Analysis results for test files and their relationships to source modules.
-    """
+    """Analysis results for test files and their relationships to source modules."""
 
     total_test_files: int
     """Total number of test files discovered."""
@@ -47,8 +44,7 @@ class TestFileAnalysis:
     """list of test files that don't import any source modules."""
 
     def calculate_coverage_percentage(self) -> float:
-        """
-        Calculate the percentage of source modules that have tests.
+        """Calculate the percentage of source modules that have tests.
 
         Returns:
             Percentage of source modules with tests.
@@ -59,8 +55,7 @@ class TestFileAnalysis:
         return (self.source_modules_with_tests / self.total_source_modules) * 100.0
 
     def generate_recommendations(self) -> list[str]:
-        """
-        Generate recommendations based on the analysis.
+        """Generate recommendations based on the analysis.
 
         Returns:
             list of recommendations.
@@ -95,8 +90,7 @@ class TestFileAnalysis:
         return recommendations
 
     def generate_report(self) -> str:
-        """
-        Generate a report of the test structure analysis.
+        """Generate a report of the test structure analysis.
 
         Returns:
             Formatted text report.
@@ -154,8 +148,7 @@ class TestFileAnalysis:
 
 
 def is_test_file(file_path: str) -> bool:
-    """
-    Check if a file is a test file based on naming patterns.
+    """Check if a file is a test file based on naming patterns.
 
     Args:
         file_path: Path to the file.
@@ -178,8 +171,7 @@ def is_test_file(file_path: str) -> bool:
 
 
 def extract_imports(file_path: str) -> list[str]:
-    """
-    Extract imports from a Python file.
+    """Extract imports from a Python file.
 
     Args:
         file_path: Path to the Python file.
@@ -190,7 +182,7 @@ def extract_imports(file_path: str) -> list[str]:
     imports = []
 
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
 
         tree = ast.parse(content)
@@ -212,8 +204,7 @@ def extract_imports(file_path: str) -> list[str]:
 def find_source_module_mappings(
     test_dir: str, src_dir: str, package_prefix: str
 ) -> dict[str, list[str]]:
-    """
-    Find mappings between test files and source modules.
+    """Find mappings between test files and source modules.
 
     Args:
         test_dir: Path to the test directory.
@@ -268,13 +259,10 @@ def find_source_module_mappings(
 
 
 class TestStructureAnalyzer:
-    """
-    Analyzes the structure of test files and their relationships to source modules.
-    """
+    """Analyzes the structure of test files and their relationships to source modules."""
 
     def __init__(self, test_dir: str, src_dir: str, package_prefix: str):
-        """
-        Initialize the analyzer.
+        """Initialize the analyzer.
 
         Args:
             test_dir: Path to the test directory.
@@ -286,8 +274,7 @@ class TestStructureAnalyzer:
         self.package_prefix = package_prefix
 
     def discover_test_files(self) -> list[str]:
-        """
-        Discover all test files in the test directory.
+        """Discover all test files in the test directory.
 
         Returns:
             list of paths to test files.
@@ -304,8 +291,7 @@ class TestStructureAnalyzer:
         return test_files
 
     def discover_source_modules(self) -> list[tuple[str, str]]:
-        """
-        Discover all source modules in the source directory.
+        """Discover all source modules in the source directory.
 
         Returns:
             list of tuples (file_path, module_path).
@@ -328,8 +314,7 @@ class TestStructureAnalyzer:
         return source_modules
 
     def analyze(self) -> TestFileAnalysis:
-        """
-        Analyze the test structure.
+        """Analyze the test structure.
 
         Returns:
             TestFileAnalysis object with the analysis results.

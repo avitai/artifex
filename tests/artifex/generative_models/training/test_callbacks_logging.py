@@ -286,16 +286,6 @@ class TestWandbLoggerCallback:
 # =============================================================================
 
 
-# Check if TensorBoard is available
-try:
-    from torch.utils.tensorboard import SummaryWriter  # noqa: F401
-
-    HAS_TENSORBOARD = True
-except ImportError:
-    HAS_TENSORBOARD = False
-
-
-@pytest.mark.skipif(not HAS_TENSORBOARD, reason="TensorBoard not installed")
 class TestTensorBoardLoggerCallback:
     """Tests for TensorBoardLoggerCallback."""
 
@@ -321,7 +311,9 @@ class TestTensorBoardLoggerCallback:
 
         config = TensorBoardLoggerConfig(log_dir=str(tmp_path), log_every_n_steps=1)
 
-        with patch("torch.utils.tensorboard.SummaryWriter") as MockWriter:
+        with patch(
+            "artifex.generative_models.training.callbacks.logging._TensorBoardScalarWriter"
+        ) as MockWriter:
             mock_writer_instance = MagicMock()
             MockWriter.return_value = mock_writer_instance
 
@@ -345,7 +337,9 @@ class TestTensorBoardLoggerCallback:
 
         config = TensorBoardLoggerConfig(log_dir=str(tmp_path))
 
-        with patch("torch.utils.tensorboard.SummaryWriter") as MockWriter:
+        with patch(
+            "artifex.generative_models.training.callbacks.logging._TensorBoardScalarWriter"
+        ) as MockWriter:
             mock_writer_instance = MagicMock()
             MockWriter.return_value = mock_writer_instance
 
@@ -366,7 +360,9 @@ class TestTensorBoardLoggerCallback:
 
         config = TensorBoardLoggerConfig(log_dir=str(tmp_path), flush_secs=60)
 
-        with patch("torch.utils.tensorboard.SummaryWriter") as MockWriter:
+        with patch(
+            "artifex.generative_models.training.callbacks.logging._TensorBoardScalarWriter"
+        ) as MockWriter:
             callback = TensorBoardLoggerCallback(config=config)
             callback.on_train_begin(simple_trainer)
 

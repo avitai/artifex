@@ -10,7 +10,7 @@
 # ---
 
 # %%
-r"""Diffusion Model on MNIST - DDPM Training and Generation Example
+r"""Diffusion Model on MNIST - DDPM Training and Generation Example.
 
 ## Overview
 
@@ -126,8 +126,7 @@ Artifex Team
 """
 
 # %% [markdown]
-r"""
-# Diffusion Model on MNIST
+r"""# Diffusion Model on MNIST.
 
 This notebook demonstrates DDPM (Denoising Diffusion Probabilistic Models) on MNIST
 using Artifex's modular diffusion components.
@@ -144,8 +143,8 @@ By the end of this example, you will understand:
 
 # %%
 # Cell 1: Import Dependencies
-r"""
-Import Artifex components:
+r"""Import Artifex components:.
+
 - DDPMModel: Artifex's DDPM implementation
 - DDPMConfig: Frozen dataclass configuration for DDPM
 - NoiseScheduleConfig: Noise schedule configuration
@@ -170,8 +169,7 @@ from artifex.generative_models.models.diffusion.ddpm import DDPMModel
 
 
 # %% [markdown]
-r"""
-## Setup
+r"""## Setup.
 
 Initialize the environment, device, and random number generators.
 
@@ -213,16 +211,17 @@ rngs = nnx.Rngs(
 )
 
 # %% [markdown]
-r"""
-## Data Loading
+r"""## Data Loading.
 
 For this demonstration, we create synthetic MNIST-like data. This allows the example
 to run quickly without requiring data downloads.
 
-**In production**, you would load real MNIST:
+**For real datasets**, use an input pipeline that returns JAX arrays:
 ```python
-import tensorflow as tf
-(train_images, _), (test_images, _) = tf.keras.datasets.mnist.load_data()
+train_images = load_images_as_jax_array("train")
+test_images = load_images_as_jax_array("test")
+train_images = (train_images / 127.5) - 1.0
+test_images = (test_images / 127.5) - 1.0
 ```
 
 **Data Format:**
@@ -244,14 +243,15 @@ def load_mnist_data():
         Tuple of (train_images, test_images) in [-1, 1] range
 
     Note:
-        Real MNIST loading:
+        Real MNIST loading should return JAX arrays:
         ```python
-        import tensorflow as tf
-        (train_images, _), (test_images, _) = tf.keras.datasets.mnist.load_data()
+        train_images = load_images_as_jax_array("train")
+        test_images = load_images_as_jax_array("test")
         train_images = (train_images / 127.5) - 1.0  # Normalize to [-1, 1]
         ```
     """
-    # Create synthetic MNIST-like data
+    # Create synthetic MNIST-like data.
+
     print("📊 Loading data...")
     key = jax.random.key(42)
     train_key, test_key = jax.random.split(key)
@@ -273,8 +273,7 @@ def load_mnist_data():
 train_images, test_images = load_mnist_data()
 
 # %% [markdown]
-r"""
-## Model Creation
+r"""## Model Creation.
 
 Now we'll create Artifex's DDPMModel with proper configuration.
 
@@ -346,8 +345,7 @@ print(f"  - Input channels: {model.in_channels}")
 print()
 
 # %% [markdown]
-r"""
-## Forward Diffusion Process
+r"""## Forward Diffusion Process.
 
 The forward diffusion process gradually adds noise to data. At step t=0, we have
 clean data; at t=T (noise_steps), we have pure noise.
@@ -389,8 +387,7 @@ for t in timesteps_to_show:
 print()
 
 # %% [markdown]
-r"""
-## Visualize Forward Diffusion
+r"""## Visualize Forward Diffusion.
 
 Let's see how the image progressively becomes noisier.
 """
@@ -408,6 +405,7 @@ def visualize_diffusion_process(original, noisy_images, timesteps, title="Forwar
         title: Plot title
     """
     n_images = len(noisy_images) + 1
+
     fig, axes = plt.subplots(1, n_images, figsize=(n_images * 2, 2))
 
     # Plot original
@@ -440,8 +438,7 @@ print(f"  ✅ Saved to {output_path}")
 print()
 
 # %% [markdown]
-r"""
-## Model Forward Pass (Noise Prediction)
+r"""## Model Forward Pass (Noise Prediction).
 
 During training, the model learns to predict the noise that was added at each timestep.
 Let's test the model's forward pass to see how it predicts noise.
@@ -485,8 +482,7 @@ print(f"  - Output keys: {list(outputs.keys())}")
 print()
 
 # %% [markdown]
-r"""
-## Sampling with DDPM (Slow but High Quality)
+r"""## Sampling with DDPM (Slow but High Quality).
 
 Now comes the exciting part: generating new images from pure noise!
 
@@ -520,8 +516,7 @@ print(f"  - Value range: [{samples_ddpm.min():.2f}, {samples_ddpm.max():.2f}]")
 print()
 
 # %% [markdown]
-r"""
-## Sampling with DDIM (Fast and Good Quality)
+r"""## Sampling with DDIM (Fast and Good Quality).
 
 DDIM (Denoising Diffusion Implicit Models) enables **much faster sampling**!
 
@@ -556,8 +551,7 @@ print("  - Speedup: ~20x faster than DDPM!")
 print()
 
 # %% [markdown]
-r"""
-## Visualize Generated Samples
+r"""## Visualize Generated Samples.
 
 Let's compare samples from DDPM and DDIM side by side.
 """
@@ -577,6 +571,7 @@ def visualize_samples(samples, title="Generated Samples", n_cols=4):
         matplotlib figure
     """
     n_samples = len(samples)
+
     n_rows = (n_samples + n_cols - 1) // n_cols
 
     fig, axes = plt.subplots(n_rows, n_cols, figsize=(n_cols * 2, n_rows * 2))
@@ -615,8 +610,7 @@ print(f"  ✅ DDIM samples saved to {output_path_ddim}")
 print()
 
 # %% [markdown]
-r"""
-## Progressive Denoising Visualization
+r"""## Progressive Denoising Visualization.
 
 Let's visualize the denoising process step-by-step to see how the model transforms
 noise into a clean image.
@@ -638,7 +632,8 @@ def generate_with_trajectory(model, n_samples=1, save_every=100):
     Returns:
         List of intermediate images during denoising
     """
-    # Start from pure noise
+    # Start from pure noise.
+
     shape = (n_samples, 28, 28, 1)
     x = jax.random.normal(rngs.sample(), shape)
 
@@ -680,8 +675,7 @@ print(f"✅ Captured {len(trajectory)} snapshots")
 print()
 
 # %% [markdown]
-r"""
-## Visualize Progressive Denoising
+r"""## Visualize Progressive Denoising.
 
 Watch how the model transforms pure noise into a digit!
 """
@@ -700,6 +694,7 @@ def plot_trajectory(trajectory, title="Progressive Denoising"):
         matplotlib figure
     """
     n_steps = len(trajectory)
+
     fig, axes = plt.subplots(1, n_steps, figsize=(n_steps * 2, 2))
 
     for i, img in enumerate(trajectory):
@@ -734,8 +729,7 @@ print(f"  ✅ Saved to {output_path_traj}")
 print()
 
 # %% [markdown]
-r"""
-## Summary and Key Takeaways
+r"""## Summary and Key Takeaways.
 
 ✅ **What We Learned:**
 - How to configure and use Artifex's DDPMModel

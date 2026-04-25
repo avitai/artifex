@@ -105,11 +105,11 @@ class CustomLinear(nnx.Module):
             Output tensor (..., out_features)
         """
         # Matrix multiplication
-        output = x @ self.weight.value
+        output = x @ self.weight[...]
 
         # Add bias
         if self.use_bias:
-            output = output + self.bias.value
+            output = output + self.bias[...]
 
         return output
 
@@ -189,14 +189,14 @@ class RegularizedLinear(nnx.Module):
             Output tensor
         """
         # Get weight
-        weight = self.weight.value
+        weight = self.weight[...]
 
         # Apply spectral normalization
         if self.spectral_norm:
             weight = self._apply_spectral_norm(weight)
 
         # Linear transformation
-        output = x @ weight + self.bias.value
+        output = x @ weight + self.bias[...]
 
         # Apply dropout
         if self.dropout is not None and not deterministic:
@@ -208,7 +208,7 @@ class RegularizedLinear(nnx.Module):
         """Compute regularization loss for this layer."""
         if self.weight_decay > 0:
             # L2 regularization
-            return self.weight_decay * jnp.sum(self.weight.value ** 2)
+            return self.weight_decay * jnp.sum(self.weight[...] ** 2)
         return 0.0
 
 

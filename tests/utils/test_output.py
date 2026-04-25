@@ -207,12 +207,12 @@ class WSArtifactManager:
 
         # Load the artifact based on its extension
         if artifact_path.endswith(".json"):
-            with open(artifact_path, "r") as f:
+            with open(artifact_path) as f:
                 return json.load(f)
         else:
             # Try to load as text, fall back to binary if it fails
             try:
-                with open(artifact_path, "r") as f:
+                with open(artifact_path) as f:
                     return f.read()
             except UnicodeDecodeError:
                 with open(artifact_path, "rb") as f:

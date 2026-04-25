@@ -58,6 +58,7 @@ class SimpleAudioGenerator(nnx.Module):
             rngs: Random number generators
         """
         super().__init__()
+
         self.sample_rate = sample_rate
         self.duration = duration
         self.latent_dim = latent_dim
@@ -85,7 +86,8 @@ class SimpleAudioGenerator(nnx.Module):
         Returns:
             Generated audio waveforms
         """
-        # Sample from latent space
+        # Sample from latent space.
+
         z = jax.random.normal(rngs.sample(), (batch_size, self.latent_dim))
 
         # Generate waveforms
@@ -108,6 +110,7 @@ class SimpleAudioGenerator(nnx.Module):
             Array of waveform variations
         """
         variations = []
+
         key = rngs.sample()
 
         for i in range(num_variations):
@@ -130,6 +133,7 @@ def visualize_waveforms(waveforms, sample_rate, title="Generated Audio Waveforms
         title: Plot title
     """
     batch_size = waveforms.shape[0]
+
     num_samples = waveforms.shape[1]
     time = np.linspace(0, num_samples / sample_rate, num_samples)
 

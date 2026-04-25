@@ -11,6 +11,13 @@ import jax
 import jax.numpy as jnp
 from calibrax.core import AdapterRegistry, NNXBenchmarkAdapter
 
+from artifex.benchmarks.protocols.model_surfaces import (
+    CallablePredictorProtocol,
+    GeneratorProtocol,
+    PredictMethodProtocol,
+    SamplerProtocol,
+)
+
 
 class NNXGenerativeModelAdapter(NNXBenchmarkAdapter):
     """Adapter for NNX generative models.
@@ -60,9 +67,9 @@ class NNXGenerativeModelAdapter(NNXBenchmarkAdapter):
         Raises:
             ValueError: If model has no predict or __call__ method.
         """
-        if hasattr(self.model, "__call__") and callable(self.model.__call__):
+        if isinstance(self.model, CallablePredictorProtocol):
             result = self.model(x, rngs=rngs)
-        elif hasattr(self.model, "predict") and callable(self.model.predict):
+        elif isinstance(self.model, PredictMethodProtocol):
             result = self.model.predict(x, rngs=rngs)
         else:
             model_type = type(self.model).__name__
@@ -85,9 +92,9 @@ class NNXGenerativeModelAdapter(NNXBenchmarkAdapter):
         Raises:
             ValueError: If model has no sample or generate method.
         """
-        if hasattr(self.model, "sample") and callable(self.model.sample):
+        if isinstance(self.model, SamplerProtocol):
             result = self.model.sample(batch_size=batch_size, rngs=rngs)
-        elif hasattr(self.model, "generate") and callable(self.model.generate):
+        elif isinstance(self.model, GeneratorProtocol):
             result = self.model.generate(batch_size=batch_size, rngs=rngs)
         else:
             model_type = type(self.model).__name__

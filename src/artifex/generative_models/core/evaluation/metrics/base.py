@@ -28,6 +28,7 @@ class FeatureBasedMetric(MetricBase):
         modality: str = "unknown",
         higher_is_better: bool = True,
     ) -> None:
+        """Initialize feature extraction metric state."""
         super().__init__(
             name=name,
             batch_size=batch_size,

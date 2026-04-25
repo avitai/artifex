@@ -300,7 +300,8 @@ class RotaryPositionalEncoding(PositionalEncoding):
 
     def _rotate_half(self, x: jax.Array) -> jax.Array:
         """Helper function to apply rotation to one half of the features.
-        x_even, x_odd -> -x_odd, x_even
+
+        Maps x_even, x_odd to -x_odd, x_even.
         """
         x_part1 = x[..., : x.shape[-1] // 2]
         x_part2 = x[..., x.shape[-1] // 2 :]

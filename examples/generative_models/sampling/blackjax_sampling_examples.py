@@ -1,6 +1,5 @@
 # %% [markdown]
-"""
-# BlackJAX Sampling Examples for Generative Models
+"""# BlackJAX Sampling Examples for Generative Models.
 
 This example demonstrates complete usage of BlackJAX samplers integrated with Artifex's
 generative modeling framework.
@@ -91,8 +90,7 @@ EXAMPLES_DIR = Path(__file__).parent.parent.parent.parent / "examples_output"
 key = jax.random.key(0)
 
 # %% [markdown]
-"""
-## Helper Functions
+"""## Helper Functions.
 
 We define helper functions to create target distributions and visualize sampling results.
 """
@@ -108,7 +106,8 @@ def create_mixture_logprob():
     Returns:
         A function that computes the log probability of a point.
     """
-    # Define two Gaussian components for the mixture
+    # Define two Gaussian components for the mixture.
+
     mean1 = jnp.array([3.0, 3.0])
     mean2 = jnp.array([-3.0, -3.0])
 
@@ -137,7 +136,8 @@ def create_normal_logprob():
     Returns:
         A function that computes the log probability of a point.
     """
-    # Just a single normal distribution
+    # Just a single normal distribution.
+
     mean = jnp.array([0.0, 0.0])
     scale = jnp.array([1.0, 1.0])
 
@@ -161,6 +161,7 @@ def plot_samples(samples, title="MCMC Samples", filename="mcmc_samples.png"):
         filename: Filename to save the plot
     """
     plt.figure(figsize=(10, 6))
+
     plt.scatter(samples[:, 0], samples[:, 1], alpha=0.5, s=5)
     plt.title(title)
     plt.xlabel("x")
@@ -183,8 +184,7 @@ def plot_samples(samples, title="MCMC Samples", filename="mcmc_samples.png"):
 
 
 # %% [markdown]
-"""
-## Example 1: Artifex HMC Sampling
+"""## Example 1: Artifex HMC Sampling.
 
 This example demonstrates using Artifex's HMC wrapper to sample from a bimodal mixture
 of Gaussians. HMC uses Hamiltonian dynamics to propose moves, making it efficient for
@@ -228,8 +228,7 @@ def example_hmc_artifex():
 
 
 # %% [markdown]
-"""
-## Example 2: Artifex MALA Sampling
+"""## Example 2: Artifex MALA Sampling.
 
 MALA (Metropolis-Adjusted Langevin Algorithm) is a gradient-based sampler that uses
 Langevin dynamics for proposals. It's faster than HMC per iteration but may require
@@ -271,8 +270,7 @@ def example_mala_artifex():
 
 
 # %% [markdown]
-"""
-## Example 3: Artifex NUTS Sampling
+"""## Example 3: Artifex NUTS Sampling.
 
 NUTS (No-U-Turn Sampler) automatically tunes the HMC trajectory length, eliminating the
 need to manually set the number of integration steps. This makes it particularly useful
@@ -291,6 +289,7 @@ def example_nuts_artifex():
     Note: This example uses a simpler distribution to avoid memory issues.
     """
     print()
+
     print("===== Example: Artifex NUTS Sampling =====")
 
     # Create log probability function (using simpler distribution)
@@ -324,8 +323,7 @@ def example_nuts_artifex():
 
 
 # %% [markdown]
-"""
-## Example 4: Direct BlackJAX HMC
+"""## Example 4: Direct BlackJAX HMC.
 
 This example demonstrates using BlackJAX's HMC API directly, without Artifex's wrapper.
 This is useful when you need more fine-grained control over the sampling process or want
@@ -391,8 +389,7 @@ def example_direct_blackjax_hmc():
 
 
 # %% [markdown]
-"""
-## Running All Examples
+"""## Running All Examples.
 
 Now let's run all four examples to compare different sampling approaches.
 """
@@ -418,8 +415,7 @@ if __name__ == "__main__":
     run_all_examples()
 
 # %% [markdown]
-"""
-## Key Takeaways
+"""## Key Takeaways.
 
 After running this example, you should understand:
 

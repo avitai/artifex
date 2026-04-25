@@ -19,6 +19,7 @@ class BenchmarkBase(nnx.Module, ABC):
     """NNX benchmark base class for Artifex-specific implementations."""
 
     def __init__(self, config: EvaluationConfig, *, rngs: nnx.Rngs):
+        """Initialize the NNX benchmark with config and RNGs."""
         super().__init__()
         if not isinstance(config, EvaluationConfig):
             raise TypeError(f"config must be EvaluationConfig, got {type(config).__name__}")

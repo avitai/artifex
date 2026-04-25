@@ -15,6 +15,7 @@ class PerformanceTracker:
     """Track performance metrics during benchmark execution."""
 
     def __init__(self, config: EvaluationConfig):
+        """Initialize performance tracking for a benchmark run."""
         if not isinstance(config, EvaluationConfig):
             raise TypeError(f"config must be EvaluationConfig, got {type(config).__name__}")
         self.config = config
@@ -79,6 +80,7 @@ class BenchmarkRunner:
     """Orchestrate benchmark execution and results management."""
 
     def __init__(self, benchmark: BenchmarkBase) -> None:
+        """Initialize the runner for a benchmark."""
         self.benchmark = benchmark
         self.results_history: list[dict[str, Any]] = []
 

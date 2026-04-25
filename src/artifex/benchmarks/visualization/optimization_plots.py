@@ -2,6 +2,7 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.figure import Figure
 
 from artifex.benchmarks import BenchmarkResult
 from artifex.utils.file_utils import ensure_valid_output_path
@@ -15,7 +16,7 @@ def plot_training_curve(
     xlabel: str = "Iterations",
     ylabel: str | None = None,
     save_path: str | None = None,
-) -> plt.Figure:
+) -> Figure:
     """Plot a training curve from benchmark results.
 
     Args:
@@ -34,7 +35,7 @@ def plot_training_curve(
         TypeError: If the result is not a BenchmarkResult instance.
         ValueError: If the result does not contain training curve data or
             if the specified metric is not found in training data.
-        IOError: If saving the figure fails.
+        OSError: If saving the figure fails.
     """
     # Validate input
     if not isinstance(result, BenchmarkResult):
@@ -106,7 +107,7 @@ def plot_training_curve(
         try:
             plt.savefig(save_path, bbox_inches="tight", dpi=300)
         except Exception as e:
-            raise IOError(
+            raise OSError(
                 f"Error saving figure to {save_path}: {e}. "
                 f"Make sure the directory exists and you have write permissions."
             ) from e
@@ -120,7 +121,7 @@ def plot_optimizer_comparison(
     title: str | None = None,
     figsize: tuple[int, int] = (12, 6),
     save_path: str | None = None,
-) -> plt.Figure:
+) -> Figure:
     """Plot a comparison of optimizer performance.
 
     Args:
@@ -137,7 +138,7 @@ def plot_optimizer_comparison(
         TypeError: If the result is not a BenchmarkResult instance.
         ValueError: If the result does not contain optimizer comparison data or
             if the specified metric is not found in optimizer data.
-        IOError: If saving the figure fails.
+        OSError: If saving the figure fails.
     """
     # Validate input
     if not isinstance(result, BenchmarkResult):
@@ -231,7 +232,7 @@ def plot_optimizer_comparison(
             valid_save_path = ensure_valid_output_path(save_path, "benchmark_results")
             plt.savefig(valid_save_path, bbox_inches="tight", dpi=300)
         except Exception as e:
-            raise IOError(f"Error saving figure to {save_path}: {e}") from e
+            raise OSError(f"Error saving figure to {save_path}: {e}") from e
 
     return fig
 
@@ -245,7 +246,7 @@ def plot_convergence_speed(
     highlight_convergence: bool = True,
     time_based: bool = False,
     save_path: str | None = None,
-) -> plt.Figure:
+) -> Figure:
     """Plot convergence speed from benchmark results.
 
     Args:
@@ -266,7 +267,7 @@ def plot_convergence_speed(
         TypeError: If the result is not a BenchmarkResult instance.
         ValueError: If the result does not contain training curve data or
             if the specified metric is not found in training data.
-        IOError: If saving the figure fails.
+        OSError: If saving the figure fails.
     """
     # Validate input
     if not isinstance(result, BenchmarkResult):
@@ -396,6 +397,6 @@ def plot_convergence_speed(
             valid_save_path = ensure_valid_output_path(save_path, "benchmark_results")
             plt.savefig(valid_save_path, bbox_inches="tight", dpi=300)
         except Exception as e:
-            raise IOError(f"Error saving figure to {save_path}: {e}") from e
+            raise OSError(f"Error saving figure to {save_path}: {e}") from e
 
     return fig

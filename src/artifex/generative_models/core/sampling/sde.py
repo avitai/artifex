@@ -6,7 +6,7 @@ models and stochastic processes like Brownian motion.
 """
 
 from collections.abc import Callable
-from typing import Literal
+from typing import cast, Literal
 
 import jax
 import jax.numpy as jnp
@@ -167,6 +167,7 @@ def sde_sampling(
                 if not k.startswith("_") and callable(getattr(key, k)):
                     key = getattr(key, k)()
                     break
+    rng_key: jax.Array = cast(jax.Array, key)
 
     # Unpack the time span
     t_start, t_end = t_span
@@ -195,7 +196,7 @@ def sde_sampling(
     # Integrate
     for i in range(n_steps):
         # Get a new key for this step
-        key, subkey = jax.random.split(key)
+        rng_key, subkey = jax.random.split(rng_key)
 
         # Take an integration step
         state = step_fn(state, t, dt, subkey, drift_fn, diffusion_fn, diffusion_grad_fn)

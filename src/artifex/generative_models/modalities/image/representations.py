@@ -137,7 +137,7 @@ class AugmentationProcessor(nnx.Module):
         def flip_image(img, should_flip):
             return jnp.where(should_flip, jnp.fliplr(img), img)
 
-        return jax.vmap(flip_image)(images, flip_mask)
+        return jnp.asarray(jax.vmap(flip_image)(images, flip_mask))
 
     def random_brightness(self, images: jax.Array, key: jax.Array) -> jax.Array:
         """Randomly adjust image brightness.
@@ -232,7 +232,7 @@ class MultiScaleProcessor(nnx.Module):
         y_grid, x_grid = jnp.meshgrid(y_coords, x_coords, indexing="ij")
 
         # Stack coordinates for map_coordinates
-        coords = jnp.stack([y_grid, x_grid], axis=0)
+        coords = (y_grid, x_grid)
 
         # Interpolate each channel separately
         if image.ndim == 3:

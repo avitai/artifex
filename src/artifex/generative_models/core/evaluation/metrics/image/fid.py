@@ -24,6 +24,7 @@ class FrechetInceptionDistance(FeatureBasedMetric, DistributionMetric):
         *,
         rngs: nnx.Rngs | None = None,
     ):
+        """Initialize FID with a feature extractor."""
         if feature_extractor is None:
             raise ValueError(
                 "FrechetInceptionDistance requires an explicit callable "

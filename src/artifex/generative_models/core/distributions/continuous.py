@@ -1,3 +1,5 @@
+"""Continuous probability distributions backed by Distrax."""
+
 import distrax
 import jax
 import jax.numpy as jnp
@@ -56,8 +58,12 @@ class Normal(Distribution):
         self._trainable_loc = nnx.Cache(trainable_loc)
         self._trainable_scale = nnx.Cache(trainable_scale)
 
-        # Create the underlying distribution and wrap with nnx.data for NNX compatibility
-        self._dist = nnx.data(distrax.Normal(loc=self.loc, scale=self.scale))
+    def _distribution(self) -> distrax.Normal:
+        """Construct the current Distrax Normal from NNX parameters."""
+        return distrax.Normal(
+            loc=self._materialize_array(self.loc),
+            scale=self._materialize_array(self.scale),
+        )
 
     def kl_divergence(self, other: Distribution) -> jax.Array:
         """Compute KL divergence between this Normal and another.
@@ -72,9 +78,13 @@ class Normal(Distribution):
             return super().kl_divergence(other)
 
         # For two Normal distributions, we can compute KL divergence analytically
+        self_loc = self._materialize_array(self.loc)
+        self_scale = self._materialize_array(self.scale)
+        other_loc = self._materialize_array(other.loc)
+        other_scale = self._materialize_array(other.scale)
         return 0.5 * (
-            jnp.log(other.scale**2 / self.scale**2)
-            + (self.scale**2 + (self.loc - other.loc) ** 2) / other.scale**2
+            jnp.log(other_scale**2 / self_scale**2)
+            + (self_scale**2 + (self_loc - other_loc) ** 2) / other_scale**2
             - 1
         )
 
@@ -105,15 +115,19 @@ class Beta(Distribution):
         super().__init__(rngs=rngs)
 
         # Initialize parameters
-        self.concentration0 = (
-            concentration0 if concentration0 is not None else nnx.Param(jnp.ones(()))
+        self.concentration0 = nnx.Param(
+            concentration0 if concentration0 is not None else jnp.ones(())
         )
-        self.concentration1 = (
-            concentration1 if concentration1 is not None else nnx.Param(jnp.ones(()))
+        self.concentration1 = nnx.Param(
+            concentration1 if concentration1 is not None else jnp.ones(())
         )
 
-        # Create the underlying distribution and wrap with nnx.data for NNX compatibility
-        self._dist = nnx.data(distrax.Beta(alpha=self.concentration0, beta=self.concentration1))
+    def _distribution(self) -> distrax.Beta:
+        """Construct the current Distrax Beta from NNX parameters."""
+        return distrax.Beta(
+            alpha=self._materialize_array(self.concentration0),
+            beta=self._materialize_array(self.concentration1),
+        )
 
     def kl_divergence(self, other: Distribution) -> jax.Array:
         """Compute KL divergence between this Beta and another.
@@ -128,18 +142,12 @@ class Beta(Distribution):
 
     def mean(self) -> jax.Array:
         """Compute the mean of the distribution."""
-        if self._dist is None:
-            raise ValueError("Distribution not initialized.")
-        return self._dist.mean()
+        return jnp.asarray(self._distribution().mean())
 
     def variance(self) -> jax.Array:
         """Compute the variance of the distribution."""
-        if self._dist is None:
-            raise ValueError("Distribution not initialized.")
-        return self._dist.variance()
+        return jnp.asarray(self._distribution().variance())
 
     def mode(self) -> jax.Array:
         """Compute the mode of the distribution."""
-        if self._dist is None:
-            raise ValueError("Distribution not initialized.")
-        return self._dist.mode()
+        return jnp.asarray(self._distribution().mode())

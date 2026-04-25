@@ -114,7 +114,7 @@ class QM9Dataset:
         forces = jnp.zeros((self.batch_size, self.max_atoms, 3))
 
         for mol_idx in range(self.batch_size):
-            n_atoms = num_atoms_per_mol[mol_idx]
+            n_atoms = int(num_atoms_per_mol[mol_idx])
 
             # Generate realistic molecular coordinates
             mol_coords, mol_types = self._generate_realistic_molecule(n_atoms)

@@ -51,6 +51,7 @@ class ProteinLigandCoDesignBenchmark(Benchmark):
             dataset: CrossDocked dataset for evaluation
             num_samples: Number of samples to evaluate
             batch_size: Batch size for evaluation
+            demo_mode: Whether to allow retained synthetic/demo benchmark paths
             rngs: Random number generator keys
         """
         config = BenchmarkConfig(
@@ -123,7 +124,7 @@ class ProteinLigandCoDesignBenchmark(Benchmark):
         """
         logger.info("Running protein-ligand co-design benchmark with %d samples", self.num_samples)
 
-        all_metrics: dict[str, list[float]] = {}
+        all_metrics: dict[str, list[Any]] = {}
 
         # Process samples in batches
         num_batches = (self.num_samples + self.batch_size - 1) // self.batch_size
@@ -301,7 +302,7 @@ class ProteinLigandCoDesignBenchmark(Benchmark):
             "ligand_types": generated_ligand_types,
         }
 
-    def _aggregate_nested_metrics(self, nested_values: list[dict]) -> dict[str, float]:
+    def _aggregate_nested_metrics(self, nested_values: list[dict[str, float]]) -> dict[str, float]:
         """Aggregate nested metric dictionaries.
 
         Args:
@@ -345,6 +346,7 @@ class ProteinLigandBenchmarkSuite(BenchmarkSuite):
         Args:
             dataset_config: Configuration for CrossDocked dataset
             benchmark_config: Configuration for benchmarks
+            demo_mode: Whether to allow retained synthetic/demo benchmark paths
             rngs: Random number generator keys
         """
         super().__init__(
@@ -401,7 +403,6 @@ class ProteinLigandBenchmarkSuite(BenchmarkSuite):
 
     def _setup_benchmarks(self) -> None:
         """Set up all benchmarks in the suite."""
-
         # Main co-design benchmark
         codesign_benchmark = ProteinLigandCoDesignBenchmark(
             dataset=self.dataset, demo_mode=self.demo_mode, **self.benchmark_config, rngs=self.rngs

@@ -1,7 +1,7 @@
 """Protein-specific graph model implementation."""
 
 import logging
-from typing import Any
+from typing import Any, cast
 
 import jax
 import jax.numpy as jnp
@@ -58,7 +58,7 @@ class ProteinGraphModel(GraphModel):
         if config.extensions is not None:
             built_extensions = create_protein_extensions(config.extensions, rngs=rngs)
             if len(built_extensions):
-                extensions_dict = built_extensions
+                extensions_dict = cast(dict[str, nnx.Module], built_extensions)
 
         # Initialize base GraphModel with extensions (wrap in nnx.Dict for Flax 0.12.0+)
         super().__init__(config, extensions=extensions_dict, rngs=rngs)
@@ -132,6 +132,8 @@ class ProteinGraphModel(GraphModel):
                 # Continue with protein conversion
 
         # Convert protein format to graph format
+        if not isinstance(x, dict):
+            raise TypeError("ProteinGraphModel expects dict inputs when x is provided")
         graph_inputs = self._protein_to_graph(x)
 
         # Process through the base graph model

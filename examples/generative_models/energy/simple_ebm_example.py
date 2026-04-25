@@ -14,8 +14,7 @@
 # ---
 
 # %% [markdown]
-r"""
-# Energy-Based Models (EBM) Example
+r"""# Energy-Based Models (EBM) Example.
 
 **Duration:** 15 minutes | **Level:** Intermediate | **GPU Required:** No
 (recommended for faster sampling)
@@ -117,8 +116,7 @@ MIT
 """
 
 # %% [markdown]
-"""
-## 1. Import Dependencies and Setup
+"""## 1. Import Dependencies and Setup.
 
 We'll use:
 - **JAX:** For high-performance numerical computing and automatic differentiation
@@ -157,8 +155,7 @@ echo(f"🔧 Devices: {jax.devices()}")
 echo("=" * 80)
 
 # %% [markdown]
-"""
-## 2. Create a Simple EBM for MNIST
+"""## 2. Create a Simple EBM for MNIST.
 
 Let's start by creating a basic EBM designed for MNIST-like data (28×28 grayscale images).
 
@@ -186,8 +183,7 @@ echo("   Input shape: (28, 28, 1)")
 echo("   Output: Scalar energy values")
 
 # %% [markdown]
-"""
-## 3. Compute Energy Values
+"""## 3. Compute Energy Values.
 
 The core of an EBM is the energy function E(x). Let's compute energies for test images.
 
@@ -217,8 +213,7 @@ echo("   - Lower energy = model thinks it's more likely")
 echo("   - Score shows direction to move in MCMC sampling")
 
 # %% [markdown]
-"""
-## 4. Generate Samples Using MCMC
+"""## 4. Generate Samples Using MCMC.
 
 EBMs generate samples using Markov Chain Monte Carlo (MCMC):
 1. Start from random noise
@@ -253,8 +248,7 @@ echo("   3. Add noise to avoid getting stuck")
 echo("   4. Result: samples from the learned distribution")
 
 # %% [markdown]
-"""
-## 5. Using the Configuration System
+"""## 5. Using the Configuration System.
 
 Artifex provides a flexible configuration system for creating models.
 This allows you to:
@@ -320,8 +314,7 @@ echo(f"   Activation: {energy_network_config.activation}")
 echo(f"   MCMC steps: {mcmc_config.n_steps}")
 
 # %% [markdown]
-r"""
-## 6. Contrastive Divergence Loss
+r"""## 6. Contrastive Divergence Loss.
 
 EBMs are trained using **Contrastive Divergence** (CD):
 - Maximize probability of real data (lower their energy)
@@ -360,8 +353,7 @@ echo("   - Push fake energy UP")
 echo("   - Maximize energy difference between real and fake")
 
 # %% [markdown]
-"""
-## 7. Persistent Contrastive Divergence
+"""## 7. Persistent Contrastive Divergence.
 
 **Problem with standard CD:** Starting MCMC from random noise every iteration is slow.
 
@@ -414,8 +406,7 @@ echo("   - Much faster than starting from scratch")
 echo("   - Essential for training on complex data")
 
 # %% [markdown]
-"""
-## 8. Deep EBM with Residual Connections
+"""## 8. Deep EBM with Residual Connections.
 
 For more complex data (e.g., CIFAR-10, ImageNet), we need deeper architectures.
 
@@ -482,8 +473,7 @@ echo(f"   Deep EBM energy shape: {deep_output['energy'].shape}")
 echo(f"   Energy values: {deep_output['energy']}")
 
 # %% [markdown]
-"""
-## 9. Summary and Key Takeaways
+"""## 9. Summary and Key Takeaways.
 
 ### 🎓 What You Learned
 
@@ -585,7 +575,8 @@ Found a bug or have suggestions? Please open an issue on GitHub!
 
 # %%
 if __name__ == "__main__":
-    echo("\n" + "=" * 80)
+    echo()
+    echo("=" * 80)
     echo("✨ Energy-Based Model Example Complete! ✨")
     echo("=" * 80)
     echo("\n💡 Key Takeaways:")
@@ -599,4 +590,5 @@ if __name__ == "__main__":
     echo("   - Experiment with model architectures")
     echo("   - Explore persistent CD with different buffer sizes")
     echo("   - Learn about score matching as an alternative to CD")
-    echo("\n" + "=" * 80)
+    echo()
+    echo("=" * 80)

@@ -167,7 +167,7 @@ def create_synthetic_tabular_dataset(
     *,
     rngs: nnx.Rngs,
     shuffle: bool = False,
-) -> tuple[MemorySource, TabularModalityConfig]:
+) -> tuple[Any, TabularModalityConfig]:
     """Create a synthetic tabular dataset with mixed feature types.
 
     Args:
@@ -258,7 +258,7 @@ def create_simple_tabular_dataset(
     *,
     rngs: nnx.Rngs,
     shuffle: bool = False,
-) -> tuple[MemorySource, TabularModalityConfig]:
+) -> tuple[Any, TabularModalityConfig]:
     """Create a simple tabular dataset for testing.
 
     Args:

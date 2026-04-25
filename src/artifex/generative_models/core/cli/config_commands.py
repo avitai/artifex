@@ -422,7 +422,7 @@ def list_configs(args) -> int:
                 print(f"    {description}")
 
         return 0
-    except (FileNotFoundError, IOError) as e:
+    except OSError as e:
         print(f"Error accessing registry directory: {e}", file=sys.stderr)
         return 1
     except (ValueError, KeyError, TypeError, yaml.YAMLError) as e:
@@ -469,7 +469,7 @@ def get_config(args) -> int:
             print(output)
 
         return 0
-    except (FileNotFoundError, IOError) as e:
+    except OSError as e:
         print(f"Error accessing registry or output file: {e}", file=sys.stderr)
         return 1
     except (ValueError, KeyError, TypeError) as e:
@@ -479,5 +479,4 @@ def get_config(args) -> int:
 
 def get_config_registry(registry_path="./config_registry"):
     """Get configuration registry (alias for ConfigVersionRegistry)."""
-
     return ConfigVersionRegistry(registry_path)

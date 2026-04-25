@@ -129,7 +129,7 @@ class ConvBlock(GenerativeModule):
         # Time embedding projection (if provided)
         # Use static boolean flag for JIT compatibility
         self.use_time_emb = time_embedding_dim is not None
-        if self.use_time_emb:
+        if time_embedding_dim is not None:
             self.time_emb = nnx.Linear(
                 in_features=time_embedding_dim, out_features=out_channels, rngs=rngs
             )
@@ -163,6 +163,8 @@ class ConvBlock(GenerativeModule):
         # Add time embedding if module supports it
         # NOTE: If use_time_emb is True, time_emb MUST be provided by caller
         if self.use_time_emb:
+            if time_emb is None:
+                raise ValueError("time_emb must be provided when the block uses time embeddings")
             # Project and reshape time embedding
             time_signal = self.time_emb(nnx.silu(time_emb))
             h = h + time_signal[:, None, None, :]

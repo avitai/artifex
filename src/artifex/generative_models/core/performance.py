@@ -99,7 +99,7 @@ class HardwareDetector:
 
         return self._hardware_specs
 
-    def _detect_gpu_specs(self, devices: list[jax.Device]) -> HardwareSpecs:
+    def _detect_gpu_specs(self, devices: list[Any]) -> HardwareSpecs:
         """Detect GPU specifications."""
         primary_device = devices[0]
 
@@ -137,7 +137,7 @@ class HardwareDetector:
             memory_bandwidth_source="estimated",
         )
 
-    def _detect_tpu_specs(self, devices: list[jax.Device]) -> HardwareSpecs:
+    def _detect_tpu_specs(self, devices: list[Any]) -> HardwareSpecs:
         """Detect TPU specifications."""
         device_count = len(devices)
 
@@ -157,7 +157,7 @@ class HardwareDetector:
             memory_bandwidth_source="estimated",
         )
 
-    def _detect_cpu_specs(self, devices: list[jax.Device]) -> HardwareSpecs:
+    def _detect_cpu_specs(self, devices: list[Any]) -> HardwareSpecs:
         """Detect CPU specifications."""
         # Conservative CPU estimates
         memory_gb = 32.0
@@ -436,6 +436,8 @@ class PerformanceEstimator:
 
         peak_flops = hardware_specs.peak_flops_per_second
         peak_bandwidth = hardware_specs.memory_bandwidth_gb_per_second
+        if peak_flops is None or peak_bandwidth is None:
+            raise ValueError("hardware peak estimates must be available for roofline analysis")
 
         # Convert bandwidth from GB/s to bytes/s for consistent units
         peak_bandwidth_bytes_per_second = peak_bandwidth * 1024**3

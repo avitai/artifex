@@ -1,6 +1,5 @@
 # %% [markdown]
-"""
-# BlackJAX Integration Example
+"""# BlackJAX Integration Example.
 
 This example demonstrates how to use BlackJAX samplers with Artifex's distribution framework.
 
@@ -67,8 +66,7 @@ from artifex.generative_models.core.sampling import (
 
 
 # %% [markdown]
-"""
-## Multimodal Distribution Example
+"""## Multimodal Distribution Example.
 
 This example demonstrates sampling from a bimodal distribution using different MCMC methods.
 We'll compare the performance of:
@@ -176,8 +174,7 @@ def multimodal_distribution_example():
 
 
 # %% [markdown]
-"""
-## Bayesian Regression Example
+"""## Bayesian Regression Example.
 
 This example demonstrates using NUTS to perform Bayesian linear regression.
 We'll:
@@ -286,8 +283,7 @@ def bayesian_regression_example():
 
 
 # %% [markdown]
-"""
-## Running the Examples
+"""## Running the Examples.
 
 Now let's run both examples to see the different sampling methods in action.
 """
@@ -308,8 +304,7 @@ if __name__ == "__main__":
     main()
 
 # %% [markdown]
-"""
-## Key Takeaways
+"""## Key Takeaways.
 
 After running this example, you should understand:
 

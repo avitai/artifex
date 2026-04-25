@@ -4,11 +4,9 @@ This module provides predefined benchmark suites for evaluating different
 aspects of generative models.
 """
 
-from artifex.benchmarks import (
-    Benchmark,
-    LatencyBenchmark,
-    PrecisionRecallBenchmark,
-)
+from artifex.benchmarks.core import Benchmark
+from artifex.benchmarks.metrics.precision_recall import PrecisionRecallBenchmark
+from artifex.benchmarks.performance.latency import LatencyBenchmark
 from artifex.benchmarks.suites.registry import register_suite
 
 
@@ -24,9 +22,6 @@ def get_quality_suite() -> list[Benchmark]:
             num_samples=1000,
             random_seed=42,
         ),
-        # TODO: Add more quality benchmarks as they are implemented
-        # FIDMetric(),
-        # DiversityMetric(),
     ]
 
 
@@ -61,9 +56,6 @@ def get_performance_suite() -> list[Benchmark]:
             num_runs=100,
             warmup_runs=10,
         ),
-        # TODO: Add more performance benchmarks as they are implemented
-        # MemoryBenchmark(),
-        # ThroughputBenchmark(),
     ]
 
 

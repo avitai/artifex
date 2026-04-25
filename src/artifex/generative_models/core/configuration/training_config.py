@@ -41,7 +41,7 @@ class TrainingConfig(BaseConfig):
     """
 
     # Required nested config (has dummy default for dataclass field ordering)
-    optimizer: OptimizerConfig = None  # Will validate in __post_init__
+    optimizer: OptimizerConfig | None = None  # Will validate in __post_init__
 
     # Optional nested config
     scheduler: SchedulerConfig | None = None

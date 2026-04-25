@@ -119,12 +119,12 @@ class CrossDockedDataset:
         keys = jax.random.split(key, 6)
 
         # Generate protein structure
-        n_protein = jax.random.randint(keys[0], (), minval=50, maxval=self.max_protein_atoms)
+        n_protein = int(jax.random.randint(keys[0], (), minval=50, maxval=self.max_protein_atoms))
         protein_coords = jax.random.normal(keys[1], (n_protein, 3)) * 5.0
         protein_types = jax.random.choice(keys[2], self.protein_atom_types, (n_protein,))
 
         # Generate ligand structure (positioned near protein center)
-        n_ligand = jax.random.randint(keys[3], (), minval=5, maxval=self.max_ligand_atoms)
+        n_ligand = int(jax.random.randint(keys[3], (), minval=5, maxval=self.max_ligand_atoms))
         # Center ligand near protein center with some offset
         protein_center = jnp.mean(protein_coords, axis=0)
         ligand_offset = jax.random.normal(keys[4], (3,)) * 2.0

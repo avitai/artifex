@@ -9,7 +9,7 @@ multi-β VAE controllable generation models, targeting the v0.9-v0.12 objectives
 """
 
 import logging
-from typing import Any
+from typing import Any, cast
 
 import numpy as np
 from flax import nnx
@@ -60,6 +60,7 @@ class MultiBetaVAEBenchmark(Benchmark):
             dataset: CelebA dataset for evaluation
             num_samples: Number of samples to evaluate
             batch_size: Batch size for evaluation
+            demo_mode: Whether to allow retained synthetic/demo benchmark paths
             rngs: Random number generator keys
         """
         config = BenchmarkConfig(
@@ -186,6 +187,7 @@ class MultiBetaVAEBenchmark(Benchmark):
             raise ValueError(
                 "Dataset must implement the BatchableDatasetProtocol with a get_batch method."
             )
+        dataset_to_use = cast(BatchableDatasetProtocol, dataset_to_use)
 
         all_metrics: dict[str, list[Any]] = {}
 
@@ -403,6 +405,7 @@ class MultiBetaVAEBenchmarkSuite(BenchmarkSuite):
         Args:
             dataset_config: Configuration for CelebA dataset
             benchmark_config: Configuration for benchmarks
+            demo_mode: Whether to allow retained synthetic/demo benchmark paths
             rngs: Random number generator keys
         """
         super().__init__(
@@ -433,7 +436,6 @@ class MultiBetaVAEBenchmarkSuite(BenchmarkSuite):
 
     def _setup_benchmarks(self):
         """Set up all benchmarks in the suite."""
-
         # Main controllable generation benchmark
         vae_benchmark = MultiBetaVAEBenchmark(
             dataset=self.dataset, demo_mode=self.demo_mode, **self.benchmark_config, rngs=self.rngs

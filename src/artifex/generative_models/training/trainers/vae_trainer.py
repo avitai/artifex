@@ -211,7 +211,7 @@ class VAETrainer:
         self,
         model: nnx.Module,
         batch: dict[str, Any],
-        step: int,
+        step: int | jax.Array,
         loss_type: Literal["mse", "mae", "bce"] = "mse",
     ) -> tuple[jax.Array, dict[str, Any]]:
         """Compute VAE loss with KL annealing.

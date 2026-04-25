@@ -34,6 +34,7 @@ class MockProteinModel(nnx.Module):
             rngs: Random number generators
         """
         super().__init__()
+
         self.num_residues = config.get("num_residues", 10)
         self.num_atoms = config.get("num_atoms", 4)
         self.model_name = config.get("model_variant", "mock")
@@ -41,7 +42,7 @@ class MockProteinModel(nnx.Module):
         # Store RNG key for reproducibility (wrapped for Flax NNX compatibility)
         init_key_value = jax.random.key(0)  # Default
         if rngs is not None and "params" in rngs:
-            init_key_value = rngs.params()  # Use method call, not .key.value
+            init_key_value = rngs.params()
         self.init_key = nnx.Variable(init_key_value)
 
     def sample(self, batch_size=1, *, rngs=None):
@@ -55,12 +56,13 @@ class MockProteinModel(nnx.Module):
             Randomly generated protein structures of shape:
             [batch_size, num_residues, num_atoms, 3]
         """
-        # Get RNG key
+        # Get RNG key.
+
         key = jax.random.key(0)  # Default fallback
         if rngs is not None and "sample" in rngs:
-            key = rngs.sample()  # Use method call, not .key.value
+            key = rngs.sample()
         elif hasattr(self, "init_key"):
-            key = self.init_key.value  # Access wrapped value
+            key = self.init_key[...]  # Access wrapped value through the current NNX API
 
         # Generate full 4D coordinates for protein structures
         # Shape: [batch_size, num_residues, num_atoms, 3]
@@ -81,12 +83,13 @@ class MockProteinModel(nnx.Module):
         Returns:
             Dictionary with model outputs.
         """
-        # Get RNG key
+        # Get RNG key.
+
         key = jax.random.key(0)  # Default fallback
         if rngs is not None and "sample" in rngs:
-            key = rngs.sample()  # Use method call, not .key.value
+            key = rngs.sample()
         elif hasattr(self, "init_key"):
-            key = self.init_key.value  # Access wrapped value
+            key = self.init_key[...]  # Access wrapped value through the current NNX API
 
         # Add slight variations to the input
         # Preserving the original shape

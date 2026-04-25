@@ -10,8 +10,7 @@
 # ---
 
 # %% [markdown]
-r"""
-# Training a GAN on 2D Data with Artifex's GANTrainer
+r"""# Training a GAN on 2D Data with Artifex's GANTrainer.
 
 ## Overview
 
@@ -75,8 +74,7 @@ print("Using: GANTrainer, Generator, Discriminator, nnx.jit")
 print("=" * 70)
 
 # %% [markdown]
-r"""
-## Step 1: Configuration
+r"""## Step 1: Configuration.
 
 Training configuration based on the official WGAN-GP implementation.
 """
@@ -101,8 +99,7 @@ print(f"  Learning rate: {LR}")
 print(f"  Gradient penalty: {GP_WEIGHT}")
 
 # %% [markdown]
-r"""
-## Step 2: Data Generation
+r"""## Step 2: Data Generation.
 
 We use a simple circular distribution for visualization. The goal is for the
 generator to learn to produce points that form a circle.
@@ -126,8 +123,7 @@ print(f"\n📊 Test data shape: {test_data.shape}")
 print(f"   Range: x=[{test_data[:, 0].min():.2f}, {test_data[:, 0].max():.2f}]")
 
 # %% [markdown]
-r"""
-## Step 3: Create Models Using Artifex's API
+r"""## Step 3: Create Models Using Artifex's API.
 
 Use Artifex's `Generator` and `Discriminator` classes with configuration objects.
 """
@@ -170,8 +166,7 @@ print(f"   Generator: {gen_config.hidden_dims}, latent_dim={LATENT_DIM}")
 print(f"   Discriminator: {disc_config.hidden_dims}")
 
 # %% [markdown]
-r"""
-## Step 4: Create Optimizers and GANTrainer
+r"""## Step 4: Create Optimizers and GANTrainer.
 
 Use Artifex's `GANTrainer` with WGAN-GP configuration for stable training.
 """
@@ -212,8 +207,7 @@ print(f"   GP weight: {gan_config.gp_weight}")
 print("   Training steps JIT-compiled")
 
 # %% [markdown]
-r"""
-## Step 5: Training Loop
+r"""## Step 5: Training Loop.
 
 The training loop uses Artifex's `GANTrainer` methods:
 - `trainer.discriminator_step()` - Updates critic with gradient penalty
@@ -263,8 +257,7 @@ print("-" * 60)
 print("Training complete!")
 
 # %% [markdown]
-r"""
-## Step 6: Generate Samples and Evaluate
+r"""## Step 6: Generate Samples and Evaluate.
 """
 
 # %%
@@ -284,8 +277,7 @@ print(f"   Real: mean_radius = {jnp.mean(real_radius):.4f} ± {jnp.std(real_radi
 print(f"   Fake: mean_radius = {jnp.mean(fake_radius):.4f} ± {jnp.std(fake_radius):.4f}")
 
 # %% [markdown]
-r"""
-## Step 7: Visualizations
+r"""## Step 7: Visualizations.
 """
 
 # %%

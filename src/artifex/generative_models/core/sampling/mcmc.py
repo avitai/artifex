@@ -28,6 +28,7 @@ def metropolis_step(
     log_prob_fn: Callable[[jax.Array], jax.Array],
     step_size: float = 0.1,
 ) -> tuple[jax.Array, jax.Array]:
+    """Perform one Metropolis-Hastings transition."""
     key_proposal, key_accept = jax.random.split(key)
     proposal = state + step_size * jax.random.normal(key_proposal, state.shape)
 
@@ -51,6 +52,7 @@ def mcmc_sampling(
     step_size: float = 0.1,
     thinning: int = 1,
 ) -> jax.Array:
+    """Run MCMC sampling for a fixed number of steps."""
     actual_key = extract_rng_key(key, streams=("sample", "default"), context="MCMC sampling")
 
     if isinstance(log_prob_fn, Distribution):

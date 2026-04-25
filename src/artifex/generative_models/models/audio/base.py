@@ -188,6 +188,7 @@ class BaseAudioModel(GenerativeModel):
         Args:
             batch: Training batch
             model_outputs: Model predictions
+            rngs: Optional random number generators
             **kwargs: Additional loss parameters
 
         Returns:

@@ -1,5 +1,4 @@
-"""
-MLflow logger implementation for the Artifex library.
+"""MLflow logger implementation for the Artifex library.
 
 This module provides a logger implementation that integrates with MLflow
 for experiment tracking, including metrics, parameters, artifacts, and models.
@@ -14,8 +13,7 @@ from artifex.generative_models.utils.logging.logger import Logger
 
 
 class MLFlowLogger(Logger):
-    """
-    Logger implementation that integrates with MLflow.
+    """Logger implementation that integrates with MLflow.
 
     This logger logs metrics and artifacts to MLflow, enabling experiment
     tracking and comparison.
@@ -33,8 +31,7 @@ class MLFlowLogger(Logger):
         level: int = 20,  # INFO level
         console_log: bool = True,
     ):
-        """
-        Initialize the MLflow logger.
+        """Initialize the MLflow logger.
 
         Args:
             name: Name of the logger.
@@ -113,8 +110,7 @@ class MLFlowLogger(Logger):
         step: int | None = None,
         **kwargs,
     ) -> None:
-        """
-        Log a scalar value to MLflow.
+        """Log a scalar value to MLflow.
 
         Args:
             name: Name of the scalar.
@@ -133,8 +129,7 @@ class MLFlowLogger(Logger):
         step: int | None = None,
         **kwargs,
     ) -> None:
-        """
-        Log multiple scalar values to MLflow.
+        """Log multiple scalar values to MLflow.
 
         Args:
             scalars: Dictionary of scalar names to values.
@@ -142,7 +137,7 @@ class MLFlowLogger(Logger):
             **kwargs: Additional keyword arguments.
         """
         metrics = {
-            name: value for name, value in scalars.items() if isinstance(value, (int, float))
+            name: float(value) for name, value in scalars.items() if isinstance(value, (int, float))
         }
         self.mlflow.log_metrics(metrics, step=step)
 
@@ -157,8 +152,7 @@ class MLFlowLogger(Logger):
         step: int | None = None,
         **kwargs,
     ) -> None:
-        """
-        Log an image or list of images to MLflow.
+        """Log an image or list of images to MLflow.
 
         Args:
             name: Name of the image.
@@ -168,6 +162,7 @@ class MLFlowLogger(Logger):
         """
         step_str = f"_step{step}" if step is not None else ""
         log_step_str = f"[Step {step}] " if step is not None else ""
+        images_dir: Path | None = None
 
         try:
             import matplotlib.pyplot as plt
@@ -195,6 +190,8 @@ class MLFlowLogger(Logger):
 
                 # Save and log the figure
                 if self.artifact_dir:
+                    if images_dir is None:
+                        raise RuntimeError("artifact_dir requires an initialized images_dir")
                     filename = f"{name}{step_str}.png"
                     filepath = str(images_dir / filename)
                     fig.savefig(filepath, bbox_inches="tight")
@@ -228,6 +225,8 @@ class MLFlowLogger(Logger):
 
                 # Save and log the figure
                 if self.artifact_dir:
+                    if images_dir is None:
+                        raise RuntimeError("artifact_dir requires an initialized images_dir")
                     filename = f"{name}{step_str}.png"
                     filepath = str(images_dir / filename)
                     fig.savefig(filepath, bbox_inches="tight")
@@ -256,8 +255,7 @@ class MLFlowLogger(Logger):
         step: int | None = None,
         **kwargs,
     ) -> None:
-        """
-        Log a histogram of values to MLflow.
+        """Log a histogram of values to MLflow.
 
         Args:
             name: Name of the histogram.
@@ -319,8 +317,7 @@ class MLFlowLogger(Logger):
         step: int | None = None,
         **kwargs,
     ) -> None:
-        """
-        Log text to MLflow.
+        """Log text to MLflow.
 
         Args:
             name: Name of the text entry.
@@ -352,8 +349,7 @@ class MLFlowLogger(Logger):
         self.info(f"{log_step_str}Logged text for {name}")
 
     def log_hyperparams(self, params: dict[str, Any], **kwargs) -> None:
-        """
-        Log hyperparameters to MLflow.
+        """Log hyperparameters to MLflow.
 
         Args:
             params: Dictionary of hyperparameter names to values.
@@ -382,8 +378,7 @@ class MLFlowLogger(Logger):
         artifact_path: str,
         **kwargs,
     ) -> None:
-        """
-        Log a model to MLflow.
+        """Log a model to MLflow.
 
         Args:
             model: The model to log.
@@ -398,8 +393,7 @@ class MLFlowLogger(Logger):
         self.info(f"Logged model to MLflow at {artifact_path}")
 
     def log_artifact(self, local_path: str, artifact_path: str | None = None) -> None:
-        """
-        Log an artifact to MLflow.
+        """Log an artifact to MLflow.
 
         Args:
             local_path: Path to the file to log.
@@ -409,8 +403,7 @@ class MLFlowLogger(Logger):
         self.info(f"Logged artifact from {local_path} to MLflow")
 
     def log_artifacts(self, local_dir: str, artifact_path: str | None = None) -> None:
-        """
-        Log all artifacts in a directory to MLflow.
+        """Log all artifacts in a directory to MLflow.
 
         Args:
             local_dir: Path to the directory containing artifacts to log.

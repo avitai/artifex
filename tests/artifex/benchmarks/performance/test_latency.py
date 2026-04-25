@@ -5,8 +5,10 @@ import time
 import jax
 import jax.numpy as jnp
 import numpy as np
+import pytest
 from flax import nnx
 
+import artifex.benchmarks.performance.latency as latency_module
 from artifex.benchmarks import BenchmarkResult
 from artifex.benchmarks.performance.latency import (
     LatencyBenchmark,
@@ -75,10 +77,19 @@ class TestLatencyMeasurement:
         assert latency > 0
         assert std_dev >= 0
 
-    def test_measure_latency_with_longer_sleep(self):
+    def test_measure_latency_with_longer_sleep(self, monkeypatch):
         """Test with a longer sleep time to ensure accuracy."""
         model = MockModel(sleep_time=0.01)
         rngs = nnx.Rngs(sample=jax.random.key(42))
+        current_time = 0.0
+
+        def fake_perf_counter():
+            nonlocal current_time
+            value = current_time
+            current_time += model.sleep_time
+            return value
+
+        monkeypatch.setattr(latency_module.time, "perf_counter", fake_perf_counter)
 
         latency, _ = measure_inference_latency(
             model=model,
@@ -88,10 +99,8 @@ class TestLatencyMeasurement:
             rngs=rngs,
         )
 
-        # The measured latency should stay in the same order of magnitude as
-        # the injected sleep time even on slower CI runners.
-        assert latency > model.sleep_time * 0.75
-        assert latency < model.sleep_time + 0.04
+        assert model.sample_called
+        assert latency == pytest.approx(model.sleep_time)
 
 
 class TestLatencyBenchmark:

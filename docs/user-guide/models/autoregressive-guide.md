@@ -942,10 +942,9 @@ from artifex.generative_models.core.configuration.autoregressive_config import (
     TransformerNetworkConfig,
 )
 from artifex.generative_models.models.autoregressive import TransformerAutoregressiveModel
-import tensorflow_datasets as tfds
 
-# Load dataset (e.g., WikiText)
-train_ds = tfds.load('wiki40b/en', split='train')
+# Load token batches from an Artifex or Grain pipeline
+train_batches = load_token_batches("wiki40b/en", split="train")
 
 # Configure and create model
 network_config = TransformerNetworkConfig(

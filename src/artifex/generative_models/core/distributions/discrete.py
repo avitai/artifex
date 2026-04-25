@@ -1,3 +1,5 @@
+"""Discrete probability distributions backed by Distrax."""
+
 import distrax
 import jax
 import jax.numpy as jnp
@@ -38,13 +40,16 @@ class Bernoulli(Distribution):
         if probs is None and logits is None:
             # Initialize with logits = 0 (probs = 0.5)
             self.logits = nnx.Param(jnp.zeros(()))
-            self._dist = nnx.data(distrax.Bernoulli(logits=self.logits))
         elif probs is not None:
-            self.probs = probs
-            self._dist = nnx.data(distrax.Bernoulli(probs=self.probs))
+            self.probs = nnx.Param(probs)
         else:
-            self.logits = nnx.Param(logits) if not isinstance(logits, nnx.Param) else logits
-            self._dist = nnx.data(distrax.Bernoulli(logits=self.logits))
+            self.logits = nnx.Param(logits)
+
+    def _distribution(self) -> distrax.Bernoulli:
+        """Construct the current Distrax Bernoulli from NNX parameters."""
+        if hasattr(self, "probs"):
+            return distrax.Bernoulli(probs=self._materialize_array(self.probs))
+        return distrax.Bernoulli(logits=self._materialize_array(self.logits))
 
     def kl_divergence(self, other: "Bernoulli") -> jax.Array:
         """Compute KL divergence between this Bernoulli and another.
@@ -103,13 +108,16 @@ class Categorical(Distribution):
         if probs is None and logits is None:
             # Initialize with uniform logits (equal probabilities)
             self.logits = nnx.Param(jnp.zeros((self.num_classes,)))
-            self._dist = nnx.data(distrax.Categorical(logits=self.logits))
         elif probs is not None:
-            self.probs = nnx.Param(probs) if not isinstance(probs, nnx.Param) else probs
-            self._dist = nnx.data(distrax.Categorical(probs=self.probs))
+            self.probs = nnx.Param(probs)
         else:
-            self.logits = nnx.Param(logits) if not isinstance(logits, nnx.Param) else logits
-            self._dist = nnx.data(distrax.Categorical(logits=self.logits))
+            self.logits = nnx.Param(logits)
+
+    def _distribution(self) -> distrax.Categorical:
+        """Construct the current Distrax Categorical from NNX parameters."""
+        if hasattr(self, "probs"):
+            return distrax.Categorical(probs=self._materialize_array(self.probs))
+        return distrax.Categorical(logits=self._materialize_array(self.logits))
 
     def kl_divergence(self, other: "Categorical") -> jax.Array:
         """Compute KL divergence between this Categorical and another.
@@ -130,9 +138,9 @@ class Categorical(Distribution):
         """
         # Get the index of highest probability
         if hasattr(self, "probs"):
-            return jnp.argmax(self.probs)
+            return jnp.argmax(self._materialize_array(self.probs))
         elif hasattr(self, "logits"):
-            return jnp.argmax(self.logits)
+            return jnp.argmax(self._materialize_array(self.logits))
         else:
             raise ValueError("Cannot compute mode: no probs or logits available")
 
@@ -223,8 +231,9 @@ class OneHotCategorical(Distribution):
         indices = self.categorical.sample(sample_shape=sample_shape, rngs=rngs)
 
         # Create a one-hot representation
-        num_classes = self.num_classes if self.num_classes is not None else indices.max() + 1
-        return jax.nn.one_hot(indices, num_classes)
+        if self.num_classes is None:
+            raise ValueError("num_classes must be known for one-hot sampling")
+        return jax.nn.one_hot(indices, self.num_classes)
 
     def log_prob(self, x: jax.Array) -> jax.Array:
         """Compute log probability of x.
@@ -271,11 +280,15 @@ class OneHotCategorical(Distribution):
         """
         # Get the categorical mode (index of highest probability)
         if hasattr(self.categorical, "probs"):
-            mode_index = jnp.argmax(self.categorical.probs, axis=-1)
+            probs = self.categorical._materialize_array(self.categorical.probs)
+            mode_index = jnp.argmax(probs, axis=-1)
         elif hasattr(self.categorical, "logits"):
-            mode_index = jnp.argmax(self.categorical.logits, axis=-1)
+            mode_index = jnp.argmax(
+                self.categorical._materialize_array(self.categorical.logits), axis=-1
+            )
         else:
             raise ValueError("Cannot compute mode: no probs or logits available")
 
-        num_classes = self.num_classes if self.num_classes is not None else mode_index.max() + 1
-        return jax.nn.one_hot(mode_index, num_classes)
+        if self.num_classes is None:
+            raise ValueError("num_classes must be known for one-hot modes")
+        return jax.nn.one_hot(mode_index, self.num_classes)

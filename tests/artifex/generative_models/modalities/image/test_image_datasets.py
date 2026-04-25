@@ -2,7 +2,7 @@
 
 import jax.numpy as jnp
 import pytest
-from datarax import from_source
+from datarax import build_source_pipeline
 from datarax.core.data_source import DataSourceModule
 from datarax.sources import MemorySource
 from flax import nnx
@@ -175,11 +175,11 @@ class TestCreateImageDataset:
 class TestImagePipeline:
     """Test datarax pipeline integration."""
 
-    def test_from_source_pipeline(self, rngs) -> None:
+    def test_batched_pipeline(self, rngs) -> None:
         source = create_image_dataset(
             "synthetic", rngs=rngs, dataset_size=6, height=8, width=8, channels=1
         )
-        pipeline = from_source(source, batch_size=3)
-        batch = next(iter(pipeline))
+        pipeline = build_source_pipeline(source, batch_size=3)
+        batch = next(iter(pipeline)).get_data()
         assert "images" in batch
         assert batch["images"].shape[0] == 3

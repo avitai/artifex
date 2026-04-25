@@ -81,6 +81,7 @@ def create_test_model(config, seed=42):
         Initialized protein model
     """
     key = jax.random.PRNGKey(seed)
+
     rngs = nnx.Rngs(params=key, dropout=key, sample=key)
 
     # Create network config for the point cloud model

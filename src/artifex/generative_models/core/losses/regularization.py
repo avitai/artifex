@@ -1,5 +1,4 @@
-"""
-Regularization losses module.
+"""Regularization losses module.
 
 This module provides regularization terms that can be added to other losses
 to improve model stability, generalization, and prevent overfitting.
@@ -21,8 +20,7 @@ def l1_regularization(
     reduction: str = "sum",
     predicate: Callable[[str, jax.Array], bool] | None = None,
 ) -> jax.Array:
-    """
-    L1 regularization for model parameters.
+    """L1 regularization for model parameters.
 
     Applies L1 regularization (Lasso) to the parameters:
     loss = scale * sum(|params|)
@@ -72,11 +70,11 @@ def l1_regularization(
     if reduction == "mean":
         # For mean, we need parameter count
         param_count = _count_params(params)
-        return scale * (l1_norm / param_count)
+        return jnp.asarray(scale) * jnp.asarray(l1_norm / param_count)
     elif reduction == "sum":
-        return scale * l1_norm
+        return jnp.asarray(scale) * jnp.asarray(l1_norm)
     else:  # "none" - doesn't make much sense for regularization, but return as-is
-        return scale * l1_norm
+        return jnp.asarray(scale) * jnp.asarray(l1_norm)
 
 
 def l2_regularization(
@@ -85,8 +83,7 @@ def l2_regularization(
     reduction: str = "sum",
     predicate: Callable[[str, jax.Array], bool] | None = None,
 ) -> jax.Array:
-    """
-    L2 regularization for model parameters.
+    """L2 regularization for model parameters.
 
     Applies L2 regularization (Ridge) to the parameters:
     loss = scale * sum(params²)
@@ -132,11 +129,11 @@ def l2_regularization(
     if reduction == "mean":
         # For mean, we need parameter count
         param_count = _count_params(params)
-        return scale * (l2_norm / param_count)
+        return jnp.asarray(scale) * jnp.asarray(l2_norm / param_count)
     elif reduction == "sum":
-        return scale * l2_norm
+        return jnp.asarray(scale) * jnp.asarray(l2_norm)
     else:  # "none"
-        return scale * l2_norm
+        return jnp.asarray(scale) * jnp.asarray(l2_norm)
 
 
 class SpectralNormRegularization(nnx.Module):
@@ -204,8 +201,7 @@ def spectral_norm_regularization(
     scale: float = 1.0,
     u_vector: jax.Array | None = None,
 ) -> tuple[jax.Array, jax.Array]:
-    """
-    Spectral norm regularization for weight matrices (functional version).
+    """Spectral norm regularization for weight matrices (functional version).
 
     Computes an approximation of the spectral norm (largest singular value)
     using power iteration. Returns both the loss and updated u vector.
@@ -252,8 +248,7 @@ def orthogonal_regularization(
     scale: float = 1.0,
     mode: str = "symmetric",
 ) -> jax.Array:
-    """
-    Orthogonal regularization for weight matrices.
+    """Orthogonal regularization for weight matrices.
 
     Penalizes the difference between W^T W and the identity matrix,
     encouraging orthogonal weight matrices.
@@ -302,8 +297,7 @@ def total_variation_loss(
     weights: jax.Array | None = None,
     norm_type: str = "l2",
 ) -> jax.Array:
-    """
-    Total Variation (TV) loss for images.
+    """Total Variation (TV) loss for images.
 
     Penalizes large differences between adjacent pixels, encouraging
     spatial smoothness in images.
@@ -355,8 +349,7 @@ def gradient_penalty(
     interpolation_mode: str = "random",
     key: jax.Array | None = None,
 ) -> jax.Array:
-    """
-    Gradient penalty for WGAN-GP.
+    """Gradient penalty for WGAN-GP.
 
     Penalizes the gradient norm of the critic to enforce Lipschitz constraint.
 

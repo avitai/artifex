@@ -23,6 +23,9 @@ def setup_checkpoint_manager(
 
     Args:
         base_dir: Base directory for storing checkpoints.
+        max_to_keep: Maximum number of checkpoints to retain.
+        best_fn: Optional metric selector for best-checkpoint tracking.
+        best_mode: Direction for best-checkpoint tracking, either max or min.
 
     Returns:
         A tuple of (checkpoint_manager, absolute_path_string).
@@ -75,6 +78,7 @@ def save_checkpoint(
         checkpoint_manager: The Orbax CheckpointManager instance.
         model: The NNX model whose state will be saved.
         step: The training step number for this checkpoint.
+        metrics: Optional scalar metrics to associate with the checkpoint.
 
     Returns:
         The checkpoint manager (for chaining).
@@ -110,7 +114,7 @@ def save_checkpoint(
             checkpoint_manager.directory,
         )
 
-    except (OSError, IOError, FileNotFoundError, PermissionError) as e:
+    except (OSError, OSError, FileNotFoundError, PermissionError) as e:
         logger.exception("Error writing checkpoint to disk: %s", e)
         raise
     except (ValueError, TypeError, AttributeError) as e:
@@ -194,7 +198,7 @@ def load_checkpoint(
             return None, step
         return restored_data["model"], step
 
-    except (FileNotFoundError, IOError, OSError, PermissionError) as e:
+    except OSError as e:
         logger.exception("Error accessing checkpoint files: %s", e)
         raise
     except (ValueError, TypeError, KeyError, AttributeError) as e:
@@ -236,7 +240,7 @@ def save_checkpoint_with_optimizer(
         logger.info("Successfully saved checkpoint with optimizer at step %d", step)
         return checkpoint_manager
 
-    except (OSError, IOError, FileNotFoundError, PermissionError) as e:
+    except (OSError, OSError, FileNotFoundError, PermissionError) as e:
         logger.exception("Error writing checkpoint to disk: %s", e)
         raise
     except (ValueError, TypeError, AttributeError) as e:
@@ -292,7 +296,7 @@ def load_checkpoint_with_optimizer(
         logger.info("Successfully loaded checkpoint with optimizer from step %d", step)
         return model_template, optimizer_template, step
 
-    except (FileNotFoundError, IOError, OSError, PermissionError) as e:
+    except OSError as e:
         logger.exception("Error accessing checkpoint files: %s", e)
         raise
     except (ValueError, TypeError, KeyError, AttributeError) as e:

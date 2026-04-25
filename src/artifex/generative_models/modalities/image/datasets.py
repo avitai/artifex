@@ -245,7 +245,7 @@ def create_image_dataset(
     rngs: nnx.Rngs,
     shuffle: bool = False,
     **kwargs: Any,
-) -> MemorySource:
+) -> Any:
     """Create an image dataset as a MemorySource.
 
     Args:

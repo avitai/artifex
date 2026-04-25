@@ -1,5 +1,7 @@
 """Canonical public factory surface for model creation."""
 
+# pyright: reportUnsupportedDunderAll=false
+
 from importlib import import_module
 from typing import Any
 

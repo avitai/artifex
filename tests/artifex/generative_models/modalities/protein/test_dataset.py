@@ -204,8 +204,8 @@ def test_dataset_iteration():
 
 
 def test_pipeline_from_source():
-    """Test datarax pipeline: from_source(protein_ds) >> BatchNode(...)."""
-    from datarax import from_source
+    """Test the datarax batched pipeline over a protein dataset."""
+    from datarax import build_source_pipeline
 
     dataset = create_synthetic_protein_dataset(
         num_proteins=6,
@@ -214,18 +214,16 @@ def test_pipeline_from_source():
         random_seed=42,
     )
 
-    pipeline = from_source(dataset, batch_size=3)
-    batches = list(pipeline)
+    pipeline = build_source_pipeline(dataset, batch_size=3)
+    batches = [batch_view.get_data() for batch_view in pipeline]
 
     # 6 proteins / batch_size 3 = 2 batches
     assert len(batches) == 2
 
     for batch in batches:
-        # Batch wraps Element data — access via .data dict or direct key
-        batch_data = batch.data if hasattr(batch, "data") else batch
-        assert "atom_positions" in batch_data
-        assert "atom_mask" in batch_data
-        assert "aatype" in batch_data
+        assert "atom_positions" in batch
+        assert "atom_mask" in batch
+        assert "aatype" in batch
 
 
 @pytest.fixture

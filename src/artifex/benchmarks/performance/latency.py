@@ -5,7 +5,7 @@ models, supporting both sampling-based and prediction-based inference.
 """
 
 import time
-from typing import Literal
+from typing import Any, Literal
 
 import jax
 import jax.numpy as jnp
@@ -28,7 +28,7 @@ def measure_inference_latency(
     warmup_runs: int = 10,
     batch_size: int = 1,
     rngs: nnx.Rngs | None = None,
-    inputs: np.ndarray | jax.Array | None = None,
+    inputs: jax.Array | None = None,
 ) -> tuple[float, float]:
     """Measure the inference latency of a model.
 
@@ -51,17 +51,15 @@ def measure_inference_latency(
     if method == "predict" and inputs is None:
         raise ValueError("Inputs are required for prediction method")
 
-    # Prepare rngs for sampling
-    if method == "sample" and rngs is None:
-        rngs = nnx.Rngs(sample=jax.random.PRNGKey(0))
+    resolved_rngs = rngs if rngs is not None else nnx.Rngs(sample=jax.random.PRNGKey(0))
+    resolved_inputs = jnp.asarray(inputs) if inputs is not None else None
 
     # Warmup runs
     for _ in range(warmup_runs):
         if method == "sample":
-            model.sample(batch_size=batch_size, rngs=rngs)
-        else:
-            if inputs is not None:
-                model.predict(inputs, rngs=rngs)
+            model.sample(batch_size=batch_size, rngs=resolved_rngs)
+        elif resolved_inputs is not None:
+            model.predict(resolved_inputs, rngs=resolved_rngs)
 
     # Timed runs
     latencies = []
@@ -69,10 +67,9 @@ def measure_inference_latency(
         start_time = time.perf_counter()
 
         if method == "sample":
-            model.sample(batch_size=batch_size, rngs=rngs)
-        else:
-            if inputs is not None:
-                model.predict(inputs, rngs=rngs)
+            model.sample(batch_size=batch_size, rngs=resolved_rngs)
+        elif resolved_inputs is not None:
+            model.predict(resolved_inputs, rngs=resolved_rngs)
 
         end_time = time.perf_counter()
         latencies.append(end_time - start_time)
@@ -82,6 +79,17 @@ def measure_inference_latency(
     std_dev = float(np.std(latencies))
 
     return avg_latency, std_dev
+
+
+def _coerce_prediction_input(item: Any) -> jax.Array:
+    """Normalize dataset items into array inputs for prediction latency."""
+    if isinstance(item, dict):
+        for key in ("images", "image", "inputs", "input", "data", "x"):
+            value = item.get(key)
+            if value is not None:
+                return jnp.asarray(value)
+        raise TypeError("Dataset item mapping does not expose a known prediction input key")
+    return jnp.asarray(item)
 
 
 class LatencyBenchmark(Benchmark):
@@ -119,7 +127,7 @@ class LatencyBenchmark(Benchmark):
         )
         super().__init__(config=config)
 
-        self.method = method
+        self.method: Literal["sample", "predict"] = method
         self.batch_size = batch_size
         self.num_runs = num_runs
         self.warmup_runs = warmup_runs
@@ -140,19 +148,18 @@ class LatencyBenchmark(Benchmark):
             Benchmark result with latency metrics.
         """
         # Prepare inputs for prediction
-        inputs = None
+        inputs: jax.Array | None = None
         if self.method == "predict":
             if dataset is None:
                 raise ValueError("Dataset is required for latency benchmark with predict method")
 
-            # Take the first batch_size examples as inputs
-            if hasattr(dataset, "__array__"):
-                inputs = dataset[: self.batch_size]
-            else:
-                inputs = jnp.stack([dataset[i] for i in range(min(self.batch_size, len(dataset)))])
+            input_items = [
+                _coerce_prediction_input(dataset[i])
+                for i in range(min(self.batch_size, len(dataset)))
+            ]
+            inputs = jnp.stack(input_items)
 
         # Prepare random key for sampling
-        key = None
         if self.random_seed is not None:
             key = jax.random.PRNGKey(self.random_seed)
         else:

@@ -5,10 +5,12 @@ import logging
 import os
 import tempfile
 from pathlib import Path
-from typing import Literal
+from typing import cast, Literal
 
 
 logger = logging.getLogger(__name__)
+
+MatmulPrecision = Literal["float32", "bfloat16", "float16"]
 
 
 @contextlib.contextmanager
@@ -31,7 +33,7 @@ def _get_jax():
 
 
 def configure_jax(
-    precision: Literal["float32", "bfloat16", "float16"] = "bfloat16",
+    precision: MatmulPrecision = "bfloat16",
     cache_dir: str | None = None,
     enable_x64: bool = False,
     memory_fraction: float = 0.75,
@@ -113,9 +115,10 @@ _deterministic_mode = os.environ.get("ARTIFEX_DETERMINISTIC", "0") == "1"
 
 # Allow overriding precision via environment variable (useful for testing)
 # Default to bfloat16 for performance, but tests may need float32 for tight tolerances
-_default_precision = os.environ.get("ARTIFEX_MATMUL_PRECISION", "bfloat16")
-if _default_precision not in ("float32", "bfloat16", "float16"):
-    _default_precision = "bfloat16"
+_env_precision = os.environ.get("ARTIFEX_MATMUL_PRECISION", "bfloat16")
+if _env_precision not in ("float32", "bfloat16", "float16"):
+    _env_precision = "bfloat16"
+_default_precision: MatmulPrecision = cast(MatmulPrecision, _env_precision)
 
 _configured = False
 

@@ -95,12 +95,18 @@ class NumericalProcessor(nnx.Module):
         X = jnp.stack(feature_arrays, axis=-1)
 
         if self.normalization_type == "standard":
+            if self.mean is None or self.std is None:
+                raise RuntimeError("standard normalization statistics are unavailable")
             return (X - self.mean) / self.std
 
         elif self.normalization_type == "minmax":
+            if self.min_vals is None or self.max_vals is None:
+                raise RuntimeError("minmax normalization statistics are unavailable")
             return (X - self.min_vals) / (self.max_vals - self.min_vals)
 
         elif self.normalization_type == "robust":
+            if self.median is None or self.iqr is None:
+                raise RuntimeError("robust normalization statistics are unavailable")
             return (X - self.median) / self.iqr
 
         else:
@@ -119,12 +125,18 @@ class NumericalProcessor(nnx.Module):
             raise RuntimeError("Processor must be fitted before inverse transform")
 
         if self.normalization_type == "standard":
+            if self.mean is None or self.std is None:
+                raise RuntimeError("standard normalization statistics are unavailable")
             return normalized_data * self.std + self.mean
 
         elif self.normalization_type == "minmax":
+            if self.min_vals is None or self.max_vals is None:
+                raise RuntimeError("minmax normalization statistics are unavailable")
             return normalized_data * (self.max_vals - self.min_vals) + self.min_vals
 
         elif self.normalization_type == "robust":
+            if self.median is None or self.iqr is None:
+                raise RuntimeError("robust normalization statistics are unavailable")
             return normalized_data * self.iqr + self.median
 
         else:
@@ -227,13 +239,13 @@ class TabularProcessor(nnx.Module):
 
         # Initialize feature processors
         self.numerical_processor = NumericalProcessor(
-            features=config.numerical_features,
+            features=list(config.numerical_features),
             normalization_type=config.normalization_type,
             rngs=rngs,
         )
 
         self.categorical_encoder = CategoricalEncoder(
-            features=config.categorical_features,
+            features=list(config.categorical_features),
             vocab_sizes=config.categorical_vocab_sizes,
             rngs=rngs,
         )

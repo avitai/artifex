@@ -46,6 +46,7 @@ class SmokeTester:
     """Simple runner for root examples contract smoke checks."""
 
     def __init__(self) -> None:
+        """Initialize smoke-test counters."""
         self.passed = 0
         self.failed = 0
         self.results: list[tuple[str, bool, str]] = []

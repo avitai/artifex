@@ -10,8 +10,7 @@
 # ---
 
 # %% [markdown]
-r"""
-# Protein Diffusion Example
+r"""# Protein Diffusion Example.
 
 **Status:** Exploratory workflow
 
@@ -78,8 +77,7 @@ def show(message: str) -> None:
 
 
 # %% [markdown]
-"""
-## Build Direct Protein Owners
+"""## Build Direct Protein Owners.
 
 The current retained path in this file is deliberately direct: create
 `ProteinPointCloudModel` or `ProteinGraphModel` from their live configuration
@@ -173,8 +171,7 @@ def create_protein_model(
 
 
 # %% [markdown]
-"""
-## Load Retained Protein Data
+"""## Load Retained Protein Data.
 
 This example keeps the data contract on retained Artifex owners. It uses the
 current `ProteinDataset` surface and batches examples with `protein_collate_fn`
@@ -234,8 +231,7 @@ def add_noise_to_batch(
 
 
 # %% [markdown]
-"""
-## Summarize Outputs
+"""## Summarize Outputs.
 
 The example keeps visualization optional. The core retained contract is that the
 point-cloud owner runs on the padded batch, returns protein-shaped outputs, and
@@ -284,8 +280,7 @@ def summarize_outputs(
 
 
 # %% [markdown]
-"""
-## Run The Exploratory Workflow
+"""## Run The Exploratory Workflow.
 """
 
 

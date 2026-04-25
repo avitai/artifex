@@ -41,6 +41,7 @@ class ProteinStructureBenchmark(Benchmark):
         Args:
             num_samples: Number of samples to generate for evaluation.
             random_seed: Random seed for sampling and evaluation.
+            demo_mode: Whether to allow retained placeholder/demo metrics.
         """
         config = BenchmarkConfig(
             name="protein_structure_quality",
@@ -95,9 +96,7 @@ class ProteinStructureBenchmark(Benchmark):
             key = jax.random.PRNGKey(self.random_seed)
 
         # Get model name if available
-        model_name = getattr(model, "model_name", None)
-        if model_name is None:
-            model_name = getattr(model.model, "model_name", "unknown")
+        model_name = getattr(model, "model_name", "unknown")
 
         # Run precision-recall benchmark to evaluate distribution matching
         pr_result = self.pr_benchmark.run(model, dataset)
@@ -258,6 +257,7 @@ class ProteinBenchmarkSuite:
         Args:
             num_samples: Number of samples to generate for evaluation.
             random_seed: Random seed for deterministic evaluation.
+            demo_mode: Whether to allow retained placeholder/demo metrics.
         """
         require_demo_mode(
             enabled=demo_mode,
@@ -283,9 +283,9 @@ class ProteinBenchmarkSuite:
         ]
 
         # Store results
-        self.results: dict[str, BenchmarkResult | None] = {}
+        self.results: dict[str, dict[str, BenchmarkResult]] = {}
 
-    def run_all(self, model: Any, dataset: DatasetProtocol) -> dict[str, BenchmarkResult | None]:
+    def run_all(self, model: Any, dataset: DatasetProtocol) -> dict[str, BenchmarkResult]:
         """Run all benchmarks for a protein model.
 
         Args:
@@ -296,12 +296,14 @@ class ProteinBenchmarkSuite:
             dictionary of benchmark results.
         """
         # Adapt model if necessary
-        if not isinstance(model, BenchmarkModelProtocol):
-            model = adapt_model(model)
+        if isinstance(model, BenchmarkModelProtocol):
+            adapted_model = model
+        else:
+            adapted_model = adapt_model(model)
 
-        results: dict[str, BenchmarkResult | None] = {}
+        results: dict[str, BenchmarkResult] = {}
         for benchmark in self.benchmarks:
-            result = benchmark.timed_run(model, dataset)
+            result = benchmark.timed_run(adapted_model, dataset)
             results[benchmark.config.name] = result
 
         # Store results

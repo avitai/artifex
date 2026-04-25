@@ -29,7 +29,10 @@ from artifex.generative_models.core.configuration.network_configs import (
     StyleGAN3GeneratorConfig,
 )
 from artifex.generative_models.models.gan.base import Discriminator
-from artifex.generative_models.models.gan.stylegan3 import StyleGAN3Generator
+from artifex.generative_models.models.gan.stylegan3 import (
+    StyleGAN3Discriminator,
+    StyleGAN3Generator,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -114,6 +117,9 @@ class StyleGAN3BenchmarkConfig(BenchmarkConfig):
 
 class StyleGAN3Benchmark(BenchmarkBase):
     """StyleGAN3 benchmark for high-resolution face generation."""
+
+    generator: StyleGAN3Generator
+    discriminator: Discriminator | StyleGAN3Discriminator
 
     def __init__(
         self,
@@ -341,9 +347,15 @@ class StyleGAN3Benchmark(BenchmarkBase):
         # This method is kept for compatibility with existing code
         if model is not None:
             # Handle tuple of (generator, discriminator)
-            if isinstance(model, tuple) and len(model) == 2:
-                self.generator, self.discriminator = model
-            else:
+            if (
+                isinstance(model, tuple)
+                and len(model) == 2
+                and isinstance(model[0], StyleGAN3Generator)
+                and isinstance(model[1], (Discriminator, StyleGAN3Discriminator))
+            ):
+                self.generator = model[0]
+                self.discriminator = model[1]
+            elif isinstance(model, StyleGAN3Generator):
                 # Handle single model (generator only)
                 self.generator = model
 

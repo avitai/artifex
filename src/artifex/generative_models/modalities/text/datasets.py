@@ -237,7 +237,7 @@ def create_text_dataset(
     rngs: nnx.Rngs,
     shuffle: bool = False,
     **kwargs: Any,
-) -> MemorySource:
+) -> Any:
     """Create a text dataset as a MemorySource.
 
     Args:

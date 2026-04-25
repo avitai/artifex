@@ -10,8 +10,7 @@
 # ---
 
 # %% [markdown]
-"""
-# Complete Geometric Benchmark Demo
+"""# Complete Geometric Benchmark Demo.
 
 **Level:** Advanced | **Runtime:** ~10-15 minutes (with training)
 **Format:** Python + Jupyter
@@ -129,8 +128,7 @@ Artifex Team
 """
 
 # %% [markdown]
-"""
-## Section 1: Imports and Setup
+"""## Section 1: Imports and Setup.
 
 We import complete components for geometric model training:
 - JAX/Flax NNX for neural networks
@@ -184,8 +182,7 @@ from artifex.generative_models.training.trainer import Trainer
 
 
 # %% [markdown]
-"""
-## Section 2: Geometric Demo Trainer Class
+"""## Section 2: Geometric Demo Trainer Class.
 
 This complete trainer class orchestrates the complete training pipeline:
 - Dataset setup with PyTorch3D-style loading
@@ -208,6 +205,7 @@ class GeometricDemoTrainer:
             rngs: Random number generators
         """
         self.config = config
+
         self.rngs = rngs
         self.workdir = config.get("workdir", "./examples_output/geometric_demo")
 
@@ -972,8 +970,7 @@ class GeometricDemoTrainer:
 
 
 # %% [markdown]
-"""
-## Section 3: Main Demo Execution
+"""## Section 3: Main Demo Execution.
 
 This section orchestrates the complete demonstration:
 1. Configuration setup for dataset, model, and training
@@ -1204,8 +1201,7 @@ if __name__ == "__main__":
     main()
 
 # %% [markdown]
-"""
-## Summary and Key Takeaways
+"""## Summary and Key Takeaways.
 
 ### What You Learned
 

@@ -4,7 +4,7 @@ This module implements various guidance methods including classifier-free guidan
 classifier guidance, and other conditional generation techniques.
 """
 
-from typing import Any
+from typing import Any, cast
 
 import jax
 import jax.numpy as jnp
@@ -267,13 +267,21 @@ class GuidedDiffusionModel(DiffusionModel):
         """
         # Determine shape of samples
         if shape is None:
-            shape = getattr(self.config, "data_shape", (32, 32, 3))
+            config_shape = getattr(self.config, "data_shape", None)
+            sample_shape = (
+                (32, 32, 3) if config_shape is None else tuple(int(dim) for dim in config_shape)
+            )
+        else:
+            sample_shape = shape
 
-        # Initialize noise
-        sample_key = (rngs or self.rngs).sample()
+        # Thread the sampling key locally to keep the denoising loop compatible
+        # with traced execution instead of mutating model-owned RNG state each step.
+        active_rngs = self.rngs if rngs is None else rngs
+        sample_key = active_rngs.sample()
+        sample_key, init_key = jax.random.split(sample_key)
 
         # Generate initial noise
-        img = jax.random.normal(sample_key, (n_samples, *shape))
+        img = jax.random.normal(init_key, (n_samples, *sample_shape))
 
         # Get number of timesteps
         num_timesteps = getattr(self.config, "num_timesteps", 1000)
@@ -288,10 +296,19 @@ class GuidedDiffusionModel(DiffusionModel):
                 img, timesteps, conditioning, rngs=rngs, **kwargs
             )
 
-            # Sample from p(x_{t-1} | x_t) using guided prediction
-            img = self.p_sample(
-                guided_noise, img, timesteps, rngs=rngs, clip_denoised=clip_denoised
+            # Sample from p(x_{t-1} | x_t) using the guided prediction and an
+            # explicitly threaded key rather than self.rngs mutation.
+            sample_key, step_key = jax.random.split(sample_key)
+            out = self.p_mean_variance(
+                guided_noise,
+                img,
+                timesteps,
+                clip_denoised=clip_denoised,
             )
+            noise = jax.random.normal(step_key, img.shape)
+            nonzero_mask = (timesteps != 0).reshape((-1,) + (1,) * (len(img.shape) - 1))
+            nonzero_mask = jnp.broadcast_to(nonzero_mask, img.shape)
+            img = out["mean"] + nonzero_mask * jnp.exp(0.5 * out["log_variance"]) * noise
 
         return img
 
@@ -312,13 +329,15 @@ class ConditionalDiffusionMixin:
             config: Configuration with conditioning_dim field (e.g., ConditionalDiffusionConfig)
             rngs: Random number generators
         """
-        super().__init__(config, rngs=rngs)
-        self.conditioning_dim = config.conditioning_dim
+        parent_init = cast(Any, super().__init__)
+        parent_init(config, rngs=rngs)
+        self.conditioning_dim = getattr(config, "conditioning_dim", None)
 
         # Initialize conditioning projection if needed
-        if self.conditioning_dim is not None and hasattr(self, "backbone"):
+        backbone = getattr(self, "backbone", None)
+        if self.conditioning_dim is not None and backbone is not None:
             # Add conditioning projection to backbone if it doesn't have one
-            if not hasattr(self.backbone, "conditioning_proj"):
+            if not hasattr(backbone, "conditioning_proj"):
                 # This would need to be adapted based on the specific backbone
                 pass
 
@@ -344,7 +363,8 @@ class ConditionalDiffusionMixin:
         Returns:
             Model outputs
         """
-        return super().__call__(x, timesteps, conditioning=conditioning, **kwargs)
+        parent_call = cast(Any, getattr(super(), "__call__"))
+        return cast(dict[str, Any], parent_call(x, timesteps, conditioning=conditioning, **kwargs))
 
 
 def apply_guidance(
@@ -365,7 +385,7 @@ def apply_guidance(
 
 def linear_guidance_schedule(
     step: int, total_steps: int, start_scale: float = 1.0, end_scale: float = 7.5
-) -> float:
+) -> jax.Array:
     """Linear guidance scale schedule.
 
     Args:
@@ -377,13 +397,15 @@ def linear_guidance_schedule(
     Returns:
         Guidance scale for current step
     """
-    alpha = step / total_steps
-    return start_scale + alpha * (end_scale - start_scale)
+    alpha = jnp.asarray(step, dtype=jnp.float32) / jnp.asarray(total_steps, dtype=jnp.float32)
+    return jnp.asarray(start_scale, dtype=jnp.float32) + alpha * (
+        jnp.asarray(end_scale, dtype=jnp.float32) - jnp.asarray(start_scale, dtype=jnp.float32)
+    )
 
 
 def cosine_guidance_schedule(
     step: int, total_steps: int, start_scale: float = 1.0, end_scale: float = 7.5
-) -> float:
+) -> jax.Array:
     """Cosine guidance scale schedule.
 
     Args:
@@ -395,5 +417,14 @@ def cosine_guidance_schedule(
     Returns:
         Guidance scale for current step
     """
-    alpha = 0.5 * (1 + jnp.cos(jnp.pi * step / total_steps))
-    return end_scale + alpha * (start_scale - end_scale)
+    alpha = 0.5 * (
+        1
+        + jnp.cos(
+            jnp.pi
+            * jnp.asarray(step, dtype=jnp.float32)
+            / jnp.asarray(total_steps, dtype=jnp.float32)
+        )
+    )
+    return jnp.asarray(end_scale, dtype=jnp.float32) + alpha * (
+        jnp.asarray(start_scale, dtype=jnp.float32) - jnp.asarray(end_scale, dtype=jnp.float32)
+    )

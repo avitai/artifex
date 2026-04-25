@@ -46,6 +46,7 @@ class FFHQDataset:
             channels: Number of image channels (3 for RGB)
             num_samples: Total number of samples in dataset
             few_shot_samples: Number of samples for few-shot learning
+            demo_mode: Whether to use synthetic demo data instead of the real dataset
             rngs: Random number generators
         """
         self.data_path = data_path
@@ -155,7 +156,7 @@ class FFHQDataset:
         """Return the number of samples in the current split."""
         return len(self.indices)
 
-    def __getitem__(self, idx: int) -> dict[str, jnp.ndarray]:
+    def __getitem__(self, idx: int) -> dict[str, jax.Array | int]:
         """Get a single sample by index.
 
         Args:
@@ -217,7 +218,7 @@ class FFHQDataset:
                 "indices": jnp.array(batch_indices),
             }
 
-    def get_few_shot_batch(self, num_samples: int = 100) -> dict[str, jnp.ndarray]:
+    def get_few_shot_batch(self, num_samples: int = 100) -> dict[str, jax.Array | int]:
         """Get a few-shot batch for domain adaptation.
 
         Args:

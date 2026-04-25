@@ -9,7 +9,6 @@ from typing import Any, cast, TYPE_CHECKING
 import jax
 import jax.numpy as jnp
 import optax
-from datarax import from_source
 from datarax.sources import MemorySource, MemorySourceConfig
 from flax import nnx
 
@@ -18,6 +17,7 @@ from artifex.generative_models.core.configuration import (
     TrainingConfig,
 )
 from artifex.generative_models.training.callbacks import CallbackList
+from artifex.generative_models.training.loops.streaming import create_data_pipeline
 from artifex.generative_models.training.optimizers import create_optimizer
 from artifex.generative_models.training.schedulers import create_scheduler
 from artifex.generative_models.utils.logging import Logger, MetricsLogger
@@ -459,7 +459,7 @@ class Trainer:
                     train_data,
                     rngs=nnx.Rngs(epoch_seed),
                 )
-                pipeline = from_source(source, batch_size=batch_size)
+                pipeline = create_data_pipeline(source, batch_size=batch_size)
 
                 for batch_view in pipeline:
                     batch = batch_view.get_data()
@@ -544,7 +544,7 @@ class Trainer:
             data,
             rngs=nnx.Rngs(0),
         )
-        pipeline = from_source(source, batch_size=batch_size)
+        pipeline = create_data_pipeline(source, batch_size=batch_size)
         all_metrics: list[dict[str, Any]] = []
 
         for batch_view in pipeline:

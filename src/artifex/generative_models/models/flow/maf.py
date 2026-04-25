@@ -181,6 +181,7 @@ class MAF(NormalizingFlow):
 
         Args:
             x: Input tensor
+            *args: Additional positional arguments for interface compatibility
             rngs: Optional random number generators
             training: Whether in training mode
             **kwargs: Additional keyword arguments
@@ -250,6 +251,7 @@ class MAF(NormalizingFlow):
         Args:
             n_samples: Number of samples to generate
             rngs: Optional random number generators
+            **kwargs: Additional sampling options for interface compatibility
 
         Returns:
             Generated samples
@@ -276,6 +278,7 @@ class MAF(NormalizingFlow):
         Args:
             x: Input data
             rngs: Optional random number generators
+            **kwargs: Additional log-probability options for interface compatibility
 
         Returns:
             Log probabilities

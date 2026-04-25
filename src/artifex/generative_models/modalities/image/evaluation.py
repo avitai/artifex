@@ -357,6 +357,8 @@ class ImageEvaluationSuite(nnx.Module):
         results = {}
 
         for metric_name, metric_instance in self.metrics.items():
+            if not isinstance(metric_instance, ImageMetrics):
+                raise TypeError(f"metric {metric_name} must be an ImageMetrics instance")
             try:
                 metric_results = metric_instance.compute_metric(generated_images, reference_images)
                 results.update(metric_results)

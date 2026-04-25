@@ -1,7 +1,7 @@
 """Protein-specific point cloud model implementation."""
 
 import logging
-from typing import Any
+from typing import Any, cast
 
 import jax
 from flax import nnx
@@ -54,7 +54,7 @@ class ProteinPointCloudModel(PointCloudModel):
         if config.extensions is not None:
             built_extensions = create_protein_extensions(config.extensions, rngs=rngs)
             if len(built_extensions):
-                extensions_dict = built_extensions
+                extensions_dict = cast(dict[str, nnx.Module], built_extensions)
 
         # Initialize base PointCloudModel with extensions (wrap in nnx.Dict for Flax 0.12.0+)
         super().__init__(config, extensions=extensions_dict, rngs=rngs)

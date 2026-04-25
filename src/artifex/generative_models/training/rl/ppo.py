@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 
 import jax
 import jax.numpy as jnp
@@ -42,6 +42,7 @@ class PPOTrainer:
         policy_adapter: SequenceRolloutPolicyAdapter | None = None,
         value_adapter: SequenceRolloutValueAdapter | None = None,
     ) -> None:
+        """Initialize the PPO trainer."""
         self.model = model
         self.optimizer = optimizer
         self.config = config if config is not None else PPOConfig()
@@ -59,7 +60,7 @@ class PPOTrainer:
 
         bind = getattr(adapter, "bind", None)
         if callable(bind):
-            return bind(model)
+            return cast(SequenceRolloutPolicyAdapter, bind(model))
 
         if hasattr(adapter, "model"):
             msg = (
@@ -80,7 +81,7 @@ class PPOTrainer:
 
         bind = getattr(adapter, "bind", None)
         if callable(bind):
-            return bind(model)
+            return cast(SequenceRolloutValueAdapter, bind(model))
 
         if hasattr(adapter, "model"):
             msg = (

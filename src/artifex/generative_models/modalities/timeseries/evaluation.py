@@ -423,7 +423,6 @@ def compute_timeseries_metrics(
     Returns:
         Dictionary of evaluation metrics
     """
-
     # Extract dimensions from data
     sequence_length = real_data.shape[1]
     num_features = real_data.shape[2] if real_data.ndim > 2 else 1

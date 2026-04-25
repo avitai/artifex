@@ -148,7 +148,7 @@ class TestTrainingWorkflows:
         assert "kl_loss" in loss_dict
 
         samples = model.sample(n_samples=num_samples)
-        assert samples.shape == (num_samples,) + image_size
+        assert samples.shape == (num_samples, *image_size)
         assert jnp.all(jnp.isfinite(reconstruction))
         assert jnp.all(jnp.isfinite(samples))
 
@@ -207,7 +207,7 @@ class TestTrainingWorkflows:
         assert jnp.all(jnp.isfinite(pred_noise))
 
         samples = model.sample(e2e_config["num_samples"])
-        assert samples.shape == (e2e_config["num_samples"],) + tuple(image_size)
+        assert samples.shape == (e2e_config["num_samples"], *tuple(image_size))
         assert jnp.all(jnp.isfinite(samples))
 
     def test_dcgan_complete_workflow(self, e2e_config, sample_dataset):

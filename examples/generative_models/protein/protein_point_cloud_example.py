@@ -11,8 +11,7 @@
 # ---
 
 # %% [markdown]
-"""
-# Protein Point Cloud Model Example
+"""# Protein Point Cloud Model Example.
 
 This example demonstrates the ProteinPointCloudModel, a specialized geometric model
 designed for protein structure generation and refinement. The model combines point
@@ -76,8 +75,7 @@ from artifex.generative_models.models.geometric.protein_point_cloud import (
 
 
 # %% [markdown]
-"""
-## Setup and Initialization
+"""## Setup and Initialization.
 
 First, we'll set up our environment and initialize the random number generator.
 Artifex uses Flax NNX's `Rngs` class for managing random state.
@@ -325,8 +323,7 @@ print("\nExample completed successfully!")
 
 
 # %% [markdown]
-"""
-## Summary and Key Takeaways
+"""## Summary and Key Takeaways.
 
 In this example, you learned:
 

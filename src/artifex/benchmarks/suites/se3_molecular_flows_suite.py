@@ -1,8 +1,9 @@
 """SE(3)-Equivariant Molecular Flows benchmark suite."""
 
 import logging
+import time
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import jax.numpy as jnp
 from flax import nnx
@@ -135,16 +136,16 @@ class SE3MolecularFlowsBenchmark(Benchmark):
 
         # Warmup run to trigger JIT compilation (discard results)
         if warmup:
-            _ = model.sample(
+            _ = cast(Any, model.sample)(
                 atom_types=atom_types[:2],
                 atom_mask=atom_mask[:2],
                 num_samples=2,
                 rngs=self.rngs,
             )
-            _ = model.log_prob(coordinates[:2], atom_types[:2], atom_mask[:2])
+            _ = cast(Any, model.log_prob)(coordinates[:2], atom_types[:2], atom_mask[:2])
 
         # Sample molecular conformations
-        generated_coords = model.sample(
+        generated_coords = cast(Any, model.sample)(
             atom_types=atom_types, atom_mask=atom_mask, num_samples=num_samples, rngs=self.rngs
         )
 
@@ -163,14 +164,16 @@ class SE3MolecularFlowsBenchmark(Benchmark):
         }
 
         # Compute molecular flow metrics
-        results = self.metrics.compute(
-            real_data=real_data,
-            generated_data=generated_data,
-            reference_energies=reference_energies,
+        results: dict[str, Any] = dict(
+            self.metrics.compute(
+                real_data=real_data,
+                generated_data=generated_data,
+                reference_energies=reference_energies,
+            )
         )
 
         # Evaluate likelihood on real data
-        log_probs = model.log_prob(coordinates, atom_types, atom_mask)
+        log_probs = cast(Any, model.log_prob)(coordinates, atom_types, atom_mask)
         results["average_log_likelihood"] = float(jnp.mean(log_probs))
         results["log_likelihood_std"] = float(jnp.std(log_probs))
 
@@ -245,20 +248,28 @@ class SE3MolecularFlowsBenchmark(Benchmark):
             dataset = self.dataset
 
         # Evaluate model performance
+        start_time = time.perf_counter()
         results = self.evaluate_model(model, num_samples=100)
+        execution_time = time.perf_counter() - start_time
 
         # Check if performance targets are met
         meets_targets = self.meets_performance_targets(results)
 
         # Create benchmark result
+        numeric_metrics = {
+            key: float(value) for key, value in results.items() if isinstance(value, (int, float))
+        }
+
         return BenchmarkResult(
             benchmark_name="SE3MolecularFlows",
             model_name=getattr(model, "name", "SE3MolecularFlow"),
-            metrics=results,
+            metrics=numeric_metrics,
             metadata={
                 "config": self.config.metadata,
                 "passed": meets_targets,
-                "execution_time": 0.0,  # TODO: Add timing
+                "execution_time": execution_time,
+                "model_name": results.get("model_name", "se3_molecular_flow"),
+                "num_evaluated_samples": results.get("num_evaluated_samples", 0),
             },
         )
 
@@ -286,9 +297,11 @@ class SE3MolecularFlowsSuite(BenchmarkSuite):
         self.benchmark_configs = self._create_benchmark_configs()
 
         # Initialize benchmarks
-        self.benchmarks = {}
+        self.benchmark_map: dict[str, SE3MolecularFlowsBenchmark] = {}
         for name, config in self.benchmark_configs.items():
-            self.benchmarks[name] = SE3MolecularFlowsBenchmark(rngs=rngs, config=config)
+            benchmark = SE3MolecularFlowsBenchmark(rngs=rngs, config=config)
+            self.benchmark_map[name] = benchmark
+            self.add_benchmark(benchmark)
 
     def _create_benchmark_configs(self) -> dict[str, EvaluationConfig]:
         """Create benchmark configurations for different model sizes."""
@@ -362,7 +375,7 @@ class SE3MolecularFlowsSuite(BenchmarkSuite):
         for model_name, model in models.items():
             model_results = {}
 
-            for benchmark_name, benchmark in self.benchmarks.items():
+            for benchmark_name, benchmark in self.benchmark_map.items():
                 logger.info("Running %s on %s...", benchmark_name, model_name)
 
                 try:
@@ -465,9 +478,10 @@ class SE3MolecularFlowsSuite(BenchmarkSuite):
             "name": "SE(3) Molecular Flows Suite",
             "description": "Complete evaluation of SE(3)-equivariant molecular flows",
             "benchmarks": {
-                name: benchmark.get_benchmark_info() for name, benchmark in self.benchmarks.items()
+                name: benchmark.get_benchmark_info()
+                for name, benchmark in self.benchmark_map.items()
             },
-            "num_benchmarks": len(self.benchmarks),
+            "num_benchmarks": len(self.benchmark_map),
             "supported_models": ["SE3MolecularFlow"],
         }
 

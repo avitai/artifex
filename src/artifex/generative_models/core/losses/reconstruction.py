@@ -1,5 +1,4 @@
-"""
-Reconstruction losses module.
+"""Reconstruction losses module.
 
 This module provides loss functions for direct comparison between model outputs
 and target values, typically used for reconstruction tasks in autoencoders,
@@ -24,8 +23,7 @@ def mse_loss(
     weights: jax.Array | None = None,
     axis: int | tuple[int, ...] | None = None,
 ) -> jax.Array:
-    """
-    Mean Squared Error loss (L2 loss).
+    """Mean Squared Error loss (L2 loss).
 
     Calculates the squared error between predictions and targets:
     MSE = mean((predictions - targets)**2)
@@ -59,8 +57,7 @@ def mae_loss(
     weights: jax.Array | None = None,
     axis: int | tuple[int, ...] | None = None,
 ) -> jax.Array:
-    """
-    Mean Absolute Error loss (L1 loss).
+    """Mean Absolute Error loss (L1 loss).
 
     Calculates the absolute error between predictions and targets:
     MAE = mean(abs(predictions - targets))
@@ -95,8 +92,7 @@ def huber_loss(
     weights: jax.Array | None = None,
     axis: int | tuple[int, ...] | None = None,
 ) -> jax.Array:
-    """
-    Huber loss (smooth L1 loss).
+    """Huber loss (smooth L1 loss).
 
     A loss function that is less sensitive to outliers than MSE:
     - For |predictions - targets| <= delta:
@@ -147,8 +143,7 @@ def charbonnier_loss(
     weights: jax.Array | None = None,
     axis: int | tuple[int, ...] | None = None,
 ) -> jax.Array:
-    """
-    Charbonnier loss (generalized robust L1 loss).
+    """Charbonnier loss (generalized robust L1 loss).
 
     A differentiable variant of L1 loss, defined as:
     sqrt((predictions - targets)**2 + epsilon**2)**alpha
@@ -184,8 +179,7 @@ def psnr_loss(
     weights: jax.Array | None = None,
     axis: int | tuple[int, ...] | None = None,
 ) -> jax.Array:
-    """
-    Peak Signal-to-Noise Ratio (PSNR) expressed as a loss.
+    """Peak Signal-to-Noise Ratio (PSNR) expressed as a loss.
 
     PSNR is a quality metric for images, converted to a loss:
     loss = -20 * log10(max_value / sqrt(mse))

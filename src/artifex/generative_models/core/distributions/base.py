@@ -5,10 +5,13 @@ It is intentionally a concrete distribution foundation, not an abstract
 interface layer.
 """
 
+from typing import Any, cast
+
 import jax
 import jax.numpy as jnp
 import numpy as np
 from flax import nnx
+from jax import core as jax_core
 
 from artifex.generative_models.core.rng import extract_rng_key
 
@@ -17,51 +20,60 @@ class Distribution(nnx.Module):
     """Base class for all probability distributions."""
 
     def __init__(self, *, rngs: nnx.Rngs | None = None):
+        """Initialize distribution state and caches."""
         super().__init__()
-        self._dist = None
+        self._dist: Any | None = None
         self._rngs = rngs
 
         self._enable_caching = True
-        self._entropy_cache = nnx.Cache(None)
-        self._kl_cache = nnx.Cache({})
-        self._param_hash_cache = nnx.Cache(None)
+        self._entropy_cache = cast(Any, nnx.Cache(None))
+        self._kl_cache = cast(Any, nnx.Cache({}))
+        self._param_hash_cache = cast(Any, nnx.Cache(None))
+
+    def _distribution(self) -> Any:
+        """Return the concrete runtime distribution for this module."""
+        if self._dist is None:
+            raise ValueError("Distribution not initialized.")
+        return self._dist
 
     def __call__(
         self, x: jax.Array | None = None, *, rngs: nnx.Rngs | None = None
     ) -> jax.Array | tuple[jax.Array, jax.Array]:
+        """Evaluate or sample from the distribution."""
         if x is None:
             return self.sample(sample_shape=(), rngs=rngs)
         return self.log_prob(x)
 
     def sample(self, sample_shape: tuple = (), *, rngs: nnx.Rngs | None = None) -> jax.Array:
-        if self._dist is None:
-            raise ValueError("Distribution not initialized.")
-
+        """Draw samples from the distribution."""
+        dist = self._distribution()
         sample_key = self._get_rng_key(rngs)
-        return self._dist.sample(seed=sample_key, sample_shape=sample_shape)
+        return dist.sample(seed=sample_key, sample_shape=sample_shape)
 
     def _get_param_hash(self) -> int:
-        if self._dist is None:
+        try:
+            dist = self._distribution()
+        except ValueError:
             return hash(None)
 
         try:
             params = []
-            if hasattr(self._dist, "concentration"):
-                params.append(self._dist.concentration)
-            if hasattr(self._dist, "rate"):
-                params.append(self._dist.rate)
-            if hasattr(self._dist, "loc"):
-                params.append(self._dist.loc)
-            if hasattr(self._dist, "scale"):
-                params.append(self._dist.scale)
-            if hasattr(self._dist, "logits"):
-                params.append(self._dist.logits)
-            if hasattr(self._dist, "probs"):
-                params.append(self._dist.probs)
-            if hasattr(self._dist, "concentration0"):
-                params.append(self._dist.concentration0)
-            if hasattr(self._dist, "concentration1"):
-                params.append(self._dist.concentration1)
+            if hasattr(dist, "concentration"):
+                params.append(dist.concentration)
+            if hasattr(dist, "rate"):
+                params.append(dist.rate)
+            if hasattr(dist, "loc"):
+                params.append(dist.loc)
+            if hasattr(dist, "scale"):
+                params.append(dist.scale)
+            if hasattr(dist, "logits"):
+                params.append(dist.logits)
+            if hasattr(dist, "probs"):
+                params.append(dist.probs)
+            if hasattr(dist, "concentration0"):
+                params.append(dist.concentration0)
+            if hasattr(dist, "concentration1"):
+                params.append(dist.concentration1)
 
             param_values = []
             for param in params:
@@ -70,27 +82,31 @@ class Distribution(nnx.Module):
 
             return hash(tuple(param_values))
         except (AttributeError, TypeError):
-            return id(self._dist)
+            return id(dist)
 
     def _should_use_cache(self) -> bool:
-        return self._enable_caching and self._dist is not None
+        if not self._enable_caching:
+            return False
+        try:
+            self._distribution()
+        except ValueError:
+            return False
+        return True
 
     def log_prob(self, x: jax.Array) -> jax.Array:
-        if self._dist is None:
-            raise ValueError("Distribution not initialized.")
-
+        """Compute log probability for inputs."""
+        dist = self._distribution()
         self._check_finite(x, "input")
-        self._validate_parameters()
-        log_prob_value = self._dist.log_prob(x)
+        self._validate_parameters(dist)
+        log_prob_value = dist.log_prob(x)
         self._check_finite(log_prob_value, "log probability")
         return log_prob_value
 
     def entropy(self, *, use_cache: bool = True) -> jax.Array:
-        if self._dist is None:
-            raise ValueError("Distribution not initialized.")
-
+        """Compute distribution entropy."""
+        dist = self._distribution()
         if not use_cache or not self._should_use_cache():
-            return self._dist.entropy()
+            return dist.entropy()
 
         current_param_hash = self._get_param_hash()
         cached_param_hash = self._param_hash_cache.get_value()
@@ -103,18 +119,17 @@ class Distribution(nnx.Module):
         if cached_entropy is not None:
             return cached_entropy
 
-        entropy_value = self._dist.entropy()
+        entropy_value = dist.entropy()
         self._entropy_cache.set_value(entropy_value)
         return entropy_value
 
     def kl_divergence(self, other: "Distribution", *, use_cache: bool = True) -> jax.Array:
-        if self._dist is None:
-            raise ValueError("Distribution not initialized.")
-        if other._dist is None:
-            raise ValueError("Other distribution not initialized.")
+        """Compute KL divergence against another distribution."""
+        dist = self._distribution()
+        other_dist = other._distribution()
 
         if not use_cache or not self._should_use_cache():
-            return self._dist.kl_divergence(other._dist)
+            return dist.kl_divergence(other_dist)
 
         current_param_hash = self._get_param_hash()
         cached_param_hash = self._param_hash_cache.get_value()
@@ -129,7 +144,7 @@ class Distribution(nnx.Module):
         if cache_key in kl_cache:
             return kl_cache[cache_key]
 
-        kl_value = self._dist.kl_divergence(other._dist)
+        kl_value = dist.kl_divergence(other_dist)
         new_cache = dict(kl_cache)
         new_cache[cache_key] = kl_value
         self._kl_cache.set_value(new_cache)
@@ -137,30 +152,32 @@ class Distribution(nnx.Module):
 
     @staticmethod
     def _safe_log(x: jax.Array, eps: float | None = None) -> jax.Array:
-        if eps is None:
-            eps = jnp.finfo(x.dtype).eps
-        return jnp.log(jnp.maximum(x, eps))
+        eps_value = float(jnp.finfo(x.dtype).eps) if eps is None else eps
+        return jnp.log(jnp.maximum(x, eps_value))
 
     @staticmethod
     def _safe_div(
         numerator: jax.Array, denominator: jax.Array, eps: float | None = None
     ) -> jax.Array:
-        if eps is None:
-            eps = jnp.finfo(denominator.dtype).eps
-        return numerator / jnp.maximum(denominator, eps)
+        eps_value = float(jnp.finfo(denominator.dtype).eps) if eps is None else eps
+        return numerator / jnp.maximum(denominator, eps_value)
 
     @staticmethod
-    def _materialize_leaf(value):
+    def _materialize_leaf(value: Any) -> Any:
         if hasattr(value, "get_value"):
             return value.get_value()
         return value
 
     @staticmethod
-    def _is_concrete_value(value) -> bool:
-        if isinstance(value, jax.core.Tracer):
+    def _materialize_array(value: Any) -> jax.Array:
+        return jnp.asarray(Distribution._materialize_leaf(value))
+
+    @staticmethod
+    def _is_concrete_value(value: Any) -> bool:
+        if isinstance(value, jax_core.Tracer):
             return False
         try:
-            return bool(jax.core.is_concrete(value))
+            return bool(jax_core.is_concrete(value))
         except TypeError:
             return True
 
@@ -183,23 +200,29 @@ class Distribution(nnx.Module):
     def _check_finite_debug(cls, x: jax.Array, name: str = "value") -> jax.Array:
         return cls._check_finite(x, name)
 
-    def _validate_parameters(self) -> None:
-        if self._dist is None:
+    def _validate_parameters(self, dist: Any | None = None) -> None:
+        dist_value = dist
+        if dist_value is None:
+            try:
+                dist_value = self._distribution()
+            except ValueError:
+                return
+        if dist_value is None:
             return
 
         try:
-            if hasattr(self._dist, "loc"):
-                self._check_finite(self._dist.loc, "location parameter")
-            if hasattr(self._dist, "scale"):
-                self._check_finite(self._dist.scale, "scale parameter")
-            if hasattr(self._dist, "concentration"):
-                self._check_finite(self._dist.concentration, "concentration parameter")
-            if hasattr(self._dist, "concentration0"):
-                self._check_finite(self._dist.concentration0, "concentration0 parameter")
-            if hasattr(self._dist, "concentration1"):
-                self._check_finite(self._dist.concentration1, "concentration1 parameter")
-            if hasattr(self._dist, "probs"):
-                self._check_finite(self._dist.probs, "probability parameter")
+            if hasattr(dist_value, "loc"):
+                self._check_finite(dist_value.loc, "location parameter")
+            if hasattr(dist_value, "scale"):
+                self._check_finite(dist_value.scale, "scale parameter")
+            if hasattr(dist_value, "concentration"):
+                self._check_finite(dist_value.concentration, "concentration parameter")
+            if hasattr(dist_value, "concentration0"):
+                self._check_finite(dist_value.concentration0, "concentration0 parameter")
+            if hasattr(dist_value, "concentration1"):
+                self._check_finite(dist_value.concentration1, "concentration1 parameter")
+            if hasattr(dist_value, "probs"):
+                self._check_finite(dist_value.probs, "probability parameter")
         except AttributeError:
             pass
 
@@ -216,7 +239,7 @@ class Distribution(nnx.Module):
     def _split_rng_key(self, key: jax.Array, num_splits: int) -> list[jax.Array]:
         if num_splits <= 1:
             return [key]
-        return jax.random.split(key, num_splits)
+        return list(jax.random.split(key, num_splits))
 
     def _create_parallel_rngs(
         self, base_rngs: nnx.Rngs | None, num_parallel: int

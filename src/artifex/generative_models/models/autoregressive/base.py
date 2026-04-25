@@ -7,6 +7,7 @@ import jax.numpy as jnp
 from flax import nnx
 
 from artifex.generative_models.core.base import GenerativeModel
+from artifex.generative_models.core.rng import extract_rng_key
 
 
 class AutoregressiveModel(GenerativeModel):
@@ -107,7 +108,7 @@ class AutoregressiveModel(GenerativeModel):
         for pos in range(max_length):
             # Get logits for current position
             outputs = self(sequences, rngs=rngs, **kwargs)
-            logits = outputs["logits"]
+            logits = jnp.asarray(outputs["logits"])
 
             # Extract logits for current position
             current_logits = logits[:, pos, :]  # [n_samples, vocab_size]
@@ -136,7 +137,7 @@ class AutoregressiveModel(GenerativeModel):
             if top_p is not None:
                 sorted_indices = jnp.argsort(-current_logits, axis=-1)
                 sorted_logits = jnp.take_along_axis(current_logits, sorted_indices, axis=-1)
-                sorted_probs = nnx.softmax(sorted_logits, axis=-1)
+                sorted_probs = jax.nn.softmax(sorted_logits, axis=-1)
                 cumulative_probs = jnp.cumsum(sorted_probs, axis=-1)
 
                 # Find cutoff
@@ -180,7 +181,7 @@ class AutoregressiveModel(GenerativeModel):
 
         # Compute cross-entropy loss
         loss = jnp.sum(
-            -nnx.log_softmax(shifted_logits) * nnx.one_hot(shifted_targets, self.vocab_size),
+            -jax.nn.log_softmax(shifted_logits) * jax.nn.one_hot(shifted_targets, self.vocab_size),
             axis=-1,
         )  # [batch_size, sequence_length-1]
 
@@ -230,7 +231,7 @@ class AutoregressiveModel(GenerativeModel):
             mask = None
 
         # Extract logits from model outputs
-        logits = model_outputs["logits"]
+        logits = jnp.asarray(model_outputs["logits"])
 
         # Compute autoregressive loss
         loss = self.compute_loss(logits, x, mask)
@@ -271,10 +272,10 @@ class AutoregressiveModel(GenerativeModel):
         """
         # Get model outputs
         outputs = self(x, rngs=rngs, **kwargs)
-        logits = outputs["logits"]
+        logits = jnp.asarray(outputs["logits"])
 
         # Compute log probabilities
-        log_probs = nnx.log_softmax(logits, axis=-1)
+        log_probs = jax.nn.log_softmax(logits, axis=-1)
 
         # Extract probabilities for actual tokens (shifted for autoregressive)
         shifted_targets = x[:, 1:]  # Remove first token
@@ -363,18 +364,11 @@ class AutoregressiveModel(GenerativeModel):
             JAX random key
         """
         if rngs is not None:
-            # Try to get the specific key, then fallback to sample, then params
-            try:
-                # Split from the available RNG stream
-                if hasattr(rngs, key_name):
-                    return rngs.fork(key_name)
-                elif hasattr(rngs, "sample"):
-                    return rngs.fork("sample")
-                elif hasattr(rngs, "params"):
-                    return rngs.fork("params")
-            except (AttributeError, TypeError):
-                # Fallback to direct JAX key generation
-                pass
+            return extract_rng_key(
+                rngs,
+                streams=(key_name, "sample", "params"),
+                context="autoregressive generation",
+            )
 
         # Ensure we return a proper JAX PRNG key with correct shape
         return jax.random.key(default_seed)

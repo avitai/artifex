@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 import jax
 
@@ -42,6 +42,15 @@ class SequenceGenerationBackend(Protocol):
 
     def generate_sequences(self, request: SequenceGenerationRequest) -> GeneratedSequenceBatch:
         """Return generated sequences plus prompt/response masks."""
+        ...
+
+
+@runtime_checkable
+class SequenceGeneratingModule(Protocol):
+    """Protocol for local modules that generate token sequences."""
+
+    def generate(self, total_samples: int, **kwargs: Any) -> jax.Array:
+        """Generate ``total_samples`` sequences from keyword generation controls."""
         ...
 
 

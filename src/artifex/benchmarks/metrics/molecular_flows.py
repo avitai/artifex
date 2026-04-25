@@ -120,7 +120,7 @@ class MolecularFlowsMetrics(MetricBase):
 
                     # Get atom types
                     type_i, type_j = int(atom_types[i]), int(atom_types[j])
-                    bond_type = tuple(sorted([type_i, type_j]))
+                    bond_type = (type_i, type_j) if type_i <= type_j else (type_j, type_i)
 
                     # Check against known bond length constraints
                     if bond_type in self.bond_length_thresholds:
@@ -314,7 +314,10 @@ class MolecularFlowsMetrics(MetricBase):
                     total_energy += energy_contribution
 
         # Add small random component to simulate quantum effects
-        quantum_noise = jax.random.normal(self.rngs.params()) * 0.1
+        resolved_rngs = (
+            self.rngs if self.rngs is not None else nnx.Rngs(params=jax.random.PRNGKey(0))
+        )
+        quantum_noise = jax.random.normal(resolved_rngs.params()) * 0.1
 
         return float(total_energy + quantum_noise)
 

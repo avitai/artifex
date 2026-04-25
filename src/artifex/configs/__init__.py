@@ -1,5 +1,7 @@
 """Public convenience surface for the typed configuration runtime."""
 
+# pyright: reportUnsupportedDunderAll=false
+
 from importlib import import_module
 from typing import Any
 

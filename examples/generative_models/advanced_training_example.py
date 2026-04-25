@@ -10,8 +10,7 @@
 # ---
 
 # %% [markdown]
-r"""
-# Advanced Training Example
+r"""# Advanced Training Example.
 
 **Author:** Artifex Team
 **Last Updated:** 2025-10-22
@@ -97,8 +96,7 @@ uv run jupyter notebook examples/generative_models/advanced_training_example.ipy
 """
 
 # %% [markdown]
-"""
-## Imports and Setup
+"""## Imports and Setup.
 
 Import required modules from JAX, Flax NNX, and Artifex.
 """
@@ -144,8 +142,7 @@ class ClassifierConfig:
 
 
 # %% [markdown]
-"""
-## Data Utilities
+"""## Data Utilities.
 
 Create synthetic datasets and data loaders for demonstration purposes.
 """
@@ -164,6 +161,7 @@ def create_synthetic_dataset(num_samples=1000, input_dim=784, num_classes=10):
         Tuple of (train_data, val_data, test_data)
     """
     key = jax.random.key(42)
+
     keys = jax.random.split(key, 6)
 
     # Create train/val/test splits
@@ -192,6 +190,7 @@ def create_data_loader(data, batch_size=32, shuffle=True):
         Batches of data
     """
     x, y = data
+
     num_samples = len(x)
     indices = jnp.arange(num_samples)
 
@@ -205,8 +204,7 @@ def create_data_loader(data, batch_size=32, shuffle=True):
 
 
 # %% [markdown]
-"""
-## Metrics Tracker
+"""## Metrics Tracker.
 
 Track and visualize training and validation metrics over time.
 """
@@ -266,8 +264,7 @@ class TrainingMetrics:
 
 
 # %% [markdown]
-"""
-## Model Definition
+"""## Model Definition.
 
 Define a simple classifier using Flax NNX for demonstration.
 """
@@ -313,13 +310,13 @@ class SimpleClassifier(nnx.Module):
         Returns:
             Logits for each class.
         """
-        # Note: In real code, you'd properly handle dropout training mode
+        # Note: In real code, you'd properly handle dropout training mode.
+
         return self.net(x)
 
 
 # %% [markdown]
-"""
-## Optimizer and Scheduler Creation
+"""## Optimizer and Scheduler Creation.
 
 Create optimizers and learning rate schedulers from configuration objects.
 """
@@ -386,8 +383,7 @@ def create_scheduler(base_optimizer, scheduler_config: SchedulerConfig):
 
 
 # %% [markdown]
-"""
-## Training and Evaluation Functions
+"""## Training and Evaluation Functions.
 
 Implement the core training step and evaluation logic.
 """
@@ -439,6 +435,7 @@ def evaluate(model, data_loader):
         Tuple of (average_loss, average_accuracy)
     """
     total_loss = 0
+
     total_acc = 0
     num_batches = 0
 
@@ -461,8 +458,7 @@ def evaluate(model, data_loader):
 
 
 # %% [markdown]
-"""
-## Checkpointing
+"""## Checkpointing.
 
 Save model checkpoints during training for recovery and deployment.
 """
@@ -479,6 +475,7 @@ def save_checkpoint(model, optimizer, epoch, checkpoint_dir):
         checkpoint_dir: Directory to save checkpoint
     """
     checkpoint_dir = Path(checkpoint_dir)
+
     checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
     # In real implementation, you'd use orbax or similar
@@ -486,8 +483,7 @@ def save_checkpoint(model, optimizer, epoch, checkpoint_dir):
 
 
 # %% [markdown]
-"""
-## Main Training Loop
+"""## Main Training Loop.
 
 Execute the complete training pipeline with all components integrated.
 """
@@ -667,8 +663,7 @@ def main():
 
 
 # %% [markdown]
-"""
-## Summary and Next Steps
+"""## Summary and Next Steps.
 
 ### Key Takeaways
 

@@ -44,17 +44,20 @@ class GraphModel(GeometricModel):
             TypeError: If config is not a GraphConfig
         """
         super().__init__(config, extensions=extensions, rngs=rngs)
+        network_config = config.network
+        if network_config is None:
+            raise ValueError("GraphConfig.network must be provided")
 
         # Extract configuration parameters from dataclass config
-        self.node_dim = config.network.node_features_dim
-        self.edge_dim = config.network.edge_features_dim
-        self.hidden_dim = config.network.hidden_dims[0]
-        self.num_layers = config.network.num_layers
-        self.num_mlp_layers = config.network.num_mlp_layers
+        self.node_dim = network_config.node_features_dim
+        self.edge_dim = network_config.edge_features_dim
+        self.hidden_dim = network_config.hidden_dims[0]
+        self.num_layers = network_config.num_layers
+        self.num_mlp_layers = network_config.num_mlp_layers
         self.dropout = config.dropout_rate
-        self.use_attention = config.network.use_attention
-        self.norm_coordinates = config.network.norm_coordinates
-        self.residual = config.network.residual
+        self.use_attention = network_config.use_attention
+        self.norm_coordinates = network_config.norm_coordinates
+        self.residual = network_config.residual
 
         # Ensure we have all required RNG keys
         if not hasattr(rngs, "dropout") and hasattr(rngs, "params"):
@@ -113,7 +116,7 @@ class GraphModel(GeometricModel):
         rngs: nnx.Rngs | None = None,
         deterministic: bool = False,
         batch_size: int = 1,
-    ) -> dict[str, jax.Array]:
+    ) -> dict[str, Any]:
         """Forward pass through the model.
 
         Args:
@@ -154,7 +157,7 @@ class GraphModel(GeometricModel):
         rngs: nnx.Rngs | None = None,
         deterministic: bool = False,
         batch_size: int = 1,
-    ) -> dict[str, jax.Array]:
+    ) -> dict[str, Any]:
         """Run the graph backbone without applying extensions."""
         if rngs is None and hasattr(self, "rngs"):
             rngs = self.rngs
@@ -163,7 +166,7 @@ class GraphModel(GeometricModel):
         if x is None:
             # Create dummy inputs for sampling
             # Use max_nodes from the config
-            num_nodes = self.config.max_nodes
+            num_nodes = int(getattr(self.config, "max_nodes"))
 
             # Generate random initial positions
             if rngs is not None and hasattr(rngs, "params"):
@@ -214,6 +217,13 @@ class GraphModel(GeometricModel):
             edge_features = jnp.zeros((batch_size, num_nodes, num_nodes, self.edge_dim))
             # No mask (all nodes are valid)
             mask = jnp.ones((batch_size, num_nodes))
+
+        if node_features is None:
+            raise ValueError("node_features are required for GraphModel")
+        if coordinates is None:
+            raise ValueError("coordinates are required for GraphModel")
+        if adjacency is None:
+            raise ValueError("adjacency is required for GraphModel")
 
         # Apply node feature embedding
         h = self.node_embedding(node_features)

@@ -9,7 +9,9 @@ from `artifex.generative_models.utils.logging`.
 
 from __future__ import annotations
 
+import time
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Literal
 
 from artifex.generative_models.training.callbacks.base import BaseCallback, TrainerLike
@@ -423,14 +425,7 @@ class TensorBoardLoggerCallback(BaseCallback):
             _trainer: The trainer instance (unused).
         """
         try:
-            import os
-
-            from torch.utils.tensorboard import SummaryWriter
-
-            # Create log directory
-            os.makedirs(self.config.log_dir, exist_ok=True)
-
-            self._writer = SummaryWriter(
+            self._writer = _TensorBoardScalarWriter(
                 log_dir=self.config.log_dir,
                 flush_secs=self.config.flush_secs,
                 max_queue=self.config.max_queue,
@@ -511,6 +506,46 @@ class TensorBoardLoggerCallback(BaseCallback):
         """
         if self._initialized and self._writer is not None:
             self._writer.close()
+
+
+class _TensorBoardScalarWriter:
+    """Minimal TensorBoard scalar event writer without TensorFlow or PyTorch."""
+
+    def __init__(self, *, log_dir: str, flush_secs: int, max_queue: int) -> None:
+        try:
+            from tensorboard.compat.proto import event_pb2, summary_pb2
+            from tensorboard.summary.writer.event_file_writer import EventFileWriter
+        except ImportError as err:
+            raise ImportError(
+                "TensorBoard is required for TensorBoardLoggerCallback. "
+                "Install with `pip install tensorboard`."
+            ) from err
+
+        Path(log_dir).mkdir(parents=True, exist_ok=True)
+        self._event_cls: Any = event_pb2.Event
+        self._summary_cls: Any = summary_pb2.Summary
+        self._writer: Any = EventFileWriter(
+            log_dir,
+            max_queue_size=max_queue,
+            flush_secs=flush_secs,
+        )
+
+    def add_scalar(self, name: str, value: float, step: int) -> None:
+        """Write one scalar TensorBoard summary event."""
+        summary = self._summary_cls()
+        scalar_value = summary.value.add()
+        scalar_value.tag = name
+        scalar_value.simple_value = float(value)
+
+        event = self._event_cls()
+        event.wall_time = time.time()
+        event.step = int(step)
+        event.summary.CopyFrom(summary)
+        self._writer.add_event(event)
+
+    def close(self) -> None:
+        """Flush and close the underlying TensorBoard event writer."""
+        self._writer.close()
 
 
 # =============================================================================

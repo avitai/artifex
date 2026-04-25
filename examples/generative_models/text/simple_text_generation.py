@@ -9,8 +9,7 @@
 # ---
 
 # %% [markdown]
-r"""
-# Simple Text Generation with Character-Level Models
+r"""# Simple Text Generation with Character-Level Models.
 
 **Status:** Standalone pedagogy
 
@@ -88,8 +87,7 @@ def echo(message: object = "") -> None:
 
 
 # %% [markdown]
-"""
-## Model Architecture
+"""## Model Architecture.
 
 The `SimpleTextGenerator` implements a character-level language model with:
 
@@ -125,6 +123,7 @@ class SimpleTextGenerator(nnx.Module):
             rngs: Random number generators
         """
         super().__init__()
+
         self.vocab_size = vocab_size
         self.embed_dim = embed_dim
         self.hidden_dim = hidden_dim
@@ -154,7 +153,8 @@ class SimpleTextGenerator(nnx.Module):
         Returns:
             Logits for next token prediction [batch, seq_len, vocab_size]
         """
-        # Embed input tokens
+        # Embed input tokens.
+
         x = self.embedding(input_ids)  # [batch, seq_len, embed_dim]
 
         # Process through RNN-like network
@@ -188,7 +188,8 @@ class SimpleTextGenerator(nnx.Module):
         Returns:
             Generated text string
         """
-        # Convert prompt to token IDs (simple ASCII encoding)
+        # Convert prompt to token IDs (simple ASCII encoding).
+
         if prompt:
             input_ids = jnp.array([ord(c) % self.vocab_size for c in prompt])
         else:
@@ -226,8 +227,7 @@ class SimpleTextGenerator(nnx.Module):
 
 
 # %% [markdown]
-"""
-## Training Data Creation
+"""## Training Data Creation.
 
 For demonstration purposes, create simple repetitive text patterns
 that allow the model to learn basic character relationships quickly.
@@ -256,8 +256,7 @@ def create_training_data():
 
 
 # %% [markdown]
-"""
-## Text Generation Demonstration
+"""## Text Generation Demonstration.
 
 This section demonstrates the text generation capabilities including:
 
@@ -375,8 +374,7 @@ def demonstrate_text_generation():
 
 
 # %% [markdown]
-"""
-## Summary and Key Takeaways
+"""## Summary and Key Takeaways.
 
 This example demonstrated fundamental text generation concepts:
 

@@ -9,6 +9,8 @@
 #       format_version: '1.3'
 # ---
 
+"""MNIST diffusion training entry point."""
+
 # %%
 # IMPORTANT: Set memory env vars BEFORE importing TensorFlow or JAX
 import os
@@ -30,7 +32,7 @@ os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = "0.8"  # JAX: use 80% of GPU memo
 # ---
 
 # %%
-r"""Training a Diffusion Model on MNIST - Complete End-to-End Tutorial
+r"""Training a Diffusion Model on MNIST - Complete End-to-End Tutorial.
 
 ## Overview
 
@@ -118,8 +120,7 @@ echo("Using: DiffusionTrainer, DDPMModel, nnx.jit")
 echo_rule()
 
 # %% [markdown]
-r"""
-## 1. Configuration
+r"""## 1. Configuration.
 
 Training configuration based on research best practices for diffusion models.
 """
@@ -145,8 +146,7 @@ echo(f"  Timesteps: {NUM_TIMESTEPS}")
 echo(f"  Learning rate: {BASE_LR} (with {WARMUP_STEPS} warmup steps)")
 
 # %% [markdown]
-r"""
-## 2. Data Loading and Preprocessing
+r"""## 2. Data Loading and Preprocessing.
 
 Use DataRax to load MNIST and create a batched data pipeline.
 Pad to 32x32 for optimal UNet downsampling (32 -> 16 -> 8 -> 4).
@@ -217,8 +217,7 @@ for raw_batch in train_pipeline:
     break
 
 # %% [markdown]
-r"""
-## 3. Model Creation
+r"""## 3. Model Creation.
 
 Configure the DDPM model with cosine noise schedule and Huber loss.
 """
@@ -282,8 +281,7 @@ echo(f"   JAX backend: {jax.default_backend()}")
 echo(f"   Devices: {jax.devices()}")
 
 # %% [markdown]
-r"""
-## 4. Training Setup
+r"""## 4. Training Setup.
 
 Configure optimizer with warmup + cosine decay learning rate schedule.
 """
@@ -318,8 +316,7 @@ optimizer = nnx.Optimizer(
 echo(f"   Optimizer: AdamW with warmup ({WARMUP_STEPS} steps) + cosine decay")
 
 # %% [markdown]
-r"""
-## 5. Initialize Trainer
+r"""## 5. Initialize Trainer.
 
 Use Artifex's DiffusionTrainer with uniform timestep sampling for stability.
 """
@@ -346,8 +343,7 @@ echo(f"   Loss weighting: {diffusion_config.loss_weighting}")
 echo("   Training step JIT-compiled")
 
 # %% [markdown]
-r"""
-## 6. Training Loop
+r"""## 6. Training Loop.
 
 Train the model with progress tracking and learning rate monitoring.
 """
@@ -401,8 +397,7 @@ echo_rule(60, char="-")
 echo("Training complete!")
 
 # %% [markdown]
-r"""
-## 7. Generate Samples
+r"""## 7. Generate Samples.
 
 Use DDIM for fast sampling with good quality.
 """
@@ -422,8 +417,7 @@ samples = model.sample(
 echo(f"Generated {n_samples} samples")
 
 # %% [markdown]
-r"""
-## 8. Visualization
+r"""## 8. Visualization.
 
 Save training curves and generated samples.
 """
@@ -513,8 +507,7 @@ echo("Saved: examples_output/diffusion_training_curve.png")
 plt.close()
 
 # %% [markdown]
-r"""
-## 9. Summary
+r"""## 9. Summary.
 
 ### Training Results
 

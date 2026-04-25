@@ -14,8 +14,7 @@
 # ---
 
 # %% [markdown]
-"""
-# Simple Diffusion Model Example
+"""# Simple Diffusion Model Example.
 
 **Status:** Standalone pedagogy
 **Duration:** 10 minutes | **Level:** Beginner | **GPU Required:** No
@@ -103,8 +102,7 @@ MIT
 """
 
 # %% [markdown]
-"""
-## 1. Import Dependencies
+"""## 1. Import Dependencies.
 
 We'll use:
 - **JAX:** For high-performance numerical computing
@@ -139,8 +137,7 @@ echo(f"JAX version: {jax.__version__}")
 echo(f"JAX backend: {jax.default_backend()}")
 
 # %% [markdown]
-"""
-## 2. Define the SimpleDiffusionModel
+"""## 2. Define the SimpleDiffusionModel.
 
 This class implements a minimal diffusion-like model that demonstrates the core concepts
 without requiring extensive training or complex architectures.
@@ -185,7 +182,8 @@ class SimpleDiffusionModel(GenerativeModel):
             rngs: Random number generators for reproducibility
             precision: Numerical precision for computations
         """
-        # CRITICAL: Always call super().__init__() in NNX modules
+        # CRITICAL: Always call super().__init__() in NNX modules.
+
         super().__init__(
             rngs=rngs,
             precision=precision,
@@ -224,7 +222,8 @@ class SimpleDiffusionModel(GenerativeModel):
         Returns:
             Generated samples of shape (batch_size, H, W, C) in range [-1, 1]
         """
-        # Use provided RNGs or fall back to stored ones
+        # Use provided RNGs or fall back to stored ones.
+
         if rngs is None:
             rngs = self.rngs
 
@@ -289,8 +288,7 @@ class SimpleDiffusionModel(GenerativeModel):
 echo("✅ SimpleDiffusionModel class defined!")
 
 # %% [markdown]
-"""
-## 3. Configure the Model
+"""## 3. Configure the Model.
 
 Now we'll set up the model parameters and create an instance.
 
@@ -341,8 +339,7 @@ echo(f"📉 Beta range: [{config['beta_start']:.6f}, {config['beta_end']:.6f}]")
 echo("=" * 80)
 
 # %% [markdown]
-"""
-## 4. Create and Inspect the Model
+"""## 4. Create and Inspect the Model.
 
 Let's instantiate the model and examine its properties.
 """
@@ -361,8 +358,7 @@ echo(f"  - Alpha min: {model.alpha_cumprod.min():.6f}")
 echo(f"  - Alpha max: {model.alpha_cumprod.max():.6f}")
 
 # %% [markdown]
-"""
-## 5. Generate Samples
+"""## 5. Generate Samples.
 
 Now comes the exciting part - generating images from random noise!
 
@@ -387,8 +383,7 @@ echo(f"   Output shape: {samples.shape}")
 echo(f"   Value range: [{samples.min():.3f}, {samples.max():.3f}]")
 
 # %% [markdown]
-"""
-## 6. Visualize Results
+"""## 6. Visualize Results.
 
 Let's visualize the generated samples to see what the model created.
 """
@@ -427,8 +422,7 @@ plt.savefig(output_path, dpi=150, bbox_inches="tight")
 echo(f"✅ Visualization saved to: {output_path}")
 
 # %% [markdown]
-"""
-## 7. Summary and Key Takeaways
+"""## 7. Summary and Key Takeaways.
 
 ### 🎓 What You Learned
 
@@ -512,7 +506,8 @@ Found a bug or have suggestions? Please open an issue on GitHub!
 
 # %%
 if __name__ == "__main__":
-    echo("\n" + "=" * 80)
+    echo()
+    echo("=" * 80)
     echo("✨ Simple Diffusion Example Complete! ✨")
     echo("=" * 80)
     echo(f"\n📁 Output saved to: {output_path}")
@@ -524,4 +519,5 @@ if __name__ == "__main__":
     echo("   - Try modifying the beta schedule")
     echo("   - Experiment with different image sizes")
     echo("   - Explore the DiT demo walkthrough for retained diffusion owners")
-    echo("\n" + "=" * 80)
+    echo()
+    echo("=" * 80)

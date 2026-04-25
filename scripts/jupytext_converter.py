@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # ruff: noqa: T201
-r"""Jupytext Conversion & Synchronization Utility
+r"""Jupytext Conversion & Synchronization Utility.
 
 A complete tool for converting and synchronizing between Python scripts (.py)
 and Jupyter notebooks (.ipynb) using Jupytext's py:percent format.

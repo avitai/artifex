@@ -3,6 +3,7 @@
 import logging
 import shutil
 import urllib.error
+import urllib.parse
 import urllib.request
 import zipfile
 from pathlib import Path
@@ -16,7 +17,6 @@ import trimesh
 
 from artifex.benchmarks.runtime_guards import demo_mode_from_mapping, require_demo_mode
 from artifex.generative_models.core.configuration import DataConfig
-from artifex.generative_models.core.protocols.evaluation import DatasetProtocol
 from artifex.utils.file_utils import ensure_valid_output_path
 
 
@@ -341,7 +341,6 @@ class ShapeNetDataset:
             snapshot_download(  # nosec B615
                 repo_id="princeton-vl/ModelNet40",
                 local_dir=str(temp_path),
-                local_dir_use_symlinks=False,
                 repo_type="dataset",
                 revision="main",  # Pin to specific revision for security
             )
@@ -683,12 +682,12 @@ class ShapeNetDataset:
             mesh = trimesh.load(str(model_file), force="mesh")
 
             # Convert to point cloud
-            if hasattr(mesh, "vertices") and hasattr(mesh, "faces") and len(mesh.faces) > 0:
+            if isinstance(mesh, trimesh.Trimesh) and len(mesh.faces) > 0:
                 # Sample from surface
-                points, _ = trimesh.sample.sample_surface(mesh, self.num_points)
+                points = trimesh.sample.sample_surface(mesh, self.num_points)[0]
             elif hasattr(mesh, "vertices"):
                 # Sample from vertices
-                vertices = np.array(mesh.vertices)
+                vertices = np.asarray(getattr(mesh, "vertices"))
                 if len(vertices) >= self.num_points:
                     indices = np.random.choice(len(vertices), self.num_points, replace=False)
                     points = vertices[indices]
@@ -782,7 +781,7 @@ class ShapeNetDataset:
             len(test_items),
         )
 
-    def _items_to_arrays(self, items: list[dict[str, Any]]) -> dict[str, jax.Array]:
+    def _items_to_arrays(self, items: list[dict[str, Any]]) -> dict[str, Any]:
         """Convert list of items to JAX arrays."""
         if not items:
             return {
@@ -862,7 +861,7 @@ class ShapeNetDataset:
         if split is None:
             split = self.config.split or self.config.metadata.get("split", "train")
         if batch_size is None:
-            batch_size = self.config.metadata.get("batch_size", 32)
+            batch_size = int(self.config.metadata.get("batch_size", 32))
 
         if split not in self.data:
             raise ValueError(f"Split '{split}' not available. Available: {list(self.data.keys())}")
@@ -940,17 +939,19 @@ class ShapeNetDataset:
 class GeometricDatasetRegistry:
     """Registry for geometric datasets used in benchmarks."""
 
-    _datasets: dict[str, type[DatasetProtocol]] = {
+    _datasets: dict[str, type[ShapeNetDataset]] = {
         "shapenet": ShapeNetDataset,
     }
 
     @classmethod
-    def register_dataset(cls, name: str, dataset_class: type[DatasetProtocol]):
+    def register_dataset(cls, name: str, dataset_class: type[ShapeNetDataset]):
         """Register a new dataset class."""
         cls._datasets[name] = dataset_class
 
     @classmethod
-    def get_dataset(cls, name: str, data_path: str, config, *, rngs: nnx.Rngs) -> DatasetProtocol:
+    def get_dataset(
+        cls, name: str, data_path: str, config: DataConfig, *, rngs: nnx.Rngs
+    ) -> ShapeNetDataset:
         """Get a dataset instance by name."""
         if name not in cls._datasets:
             raise ValueError(
@@ -958,10 +959,6 @@ class GeometricDatasetRegistry:
             )
 
         dataset_class = cls._datasets[name]
-
-        # Enforce unified configuration system - only accept DataConfig
-        if not isinstance(config, DataConfig):
-            raise TypeError(f"config must be DataConfig, got {type(config).__name__}")
 
         return dataset_class(data_path, config, rngs=rngs)
 

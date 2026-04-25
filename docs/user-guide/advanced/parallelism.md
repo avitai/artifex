@@ -98,12 +98,12 @@ class ColumnParallelLinear(nnx.Module):
 
         # Shard along columns (output dimension)
         weight_sharding = NamedSharding(mesh, P(None, "model"))
-        self.weight.value = jax.device_put(self.weight.value, weight_sharding)
+        self.weight[...] = jax.device_put(self.weight[...], weight_sharding)
 
         # Bias sharded same way
         self.bias = nnx.Param(jnp.zeros(out_features))
         bias_sharding = NamedSharding(mesh, P("model"))
-        self.bias.value = jax.device_put(self.bias.value, bias_sharding)
+        self.bias[...] = jax.device_put(self.bias[...], bias_sharding)
 
     def __call__(self, x: jax.Array) -> jax.Array:
         """Forward pass with column parallelism.
@@ -118,7 +118,7 @@ class ColumnParallelLinear(nnx.Module):
         # Output is sharded along out_features dimension
 
         # Matrix multiplication (automatically parallelized)
-        output = x @ self.weight.value + self.bias.value
+        output = x @ self.weight[...] + self.bias[...]
 
         if self.gather_output:
             # Gather output across model parallel devices
@@ -162,12 +162,12 @@ class RowParallelLinear(nnx.Module):
 
         # Shard along rows (input dimension)
         weight_sharding = NamedSharding(mesh, P("model", None))
-        self.weight.value = jax.device_put(self.weight.value, weight_sharding)
+        self.weight[...] = jax.device_put(self.weight[...], weight_sharding)
 
         # Bias replicated (only added once after reduce)
         self.bias = nnx.Param(jnp.zeros(out_features))
         bias_sharding = NamedSharding(mesh, P())
-        self.bias.value = jax.device_put(self.bias.value, bias_sharding)
+        self.bias[...] = jax.device_put(self.bias[...], bias_sharding)
 
     def __call__(self, x: jax.Array) -> jax.Array:
         """Forward pass with row parallelism.
@@ -184,13 +184,13 @@ class RowParallelLinear(nnx.Module):
             x = jax.lax.all_split(x, axis_name="model", split_axis=1)
 
         # Matrix multiplication (each device has partial result)
-        partial_output = x @ self.weight.value
+        partial_output = x @ self.weight[...]
 
         # All-reduce to sum partial results
         output = jax.lax.psum(partial_output, axis_name="model")
 
         # Add bias (only once after reduction)
-        output = output + self.bias.value
+        output = output + self.bias[...]
 
         return output
 ```

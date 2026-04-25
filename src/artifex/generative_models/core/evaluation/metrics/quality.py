@@ -133,7 +133,7 @@ def compute_spectral_convergence(real_mag: jax.Array, gen_mag: jax.Array) -> flo
     )
 
     # Average across batch
-    avg_spectral_convergence = float(jnp.mean(spectral_convergence))
+    avg_spectral_convergence = float(jnp.mean(jnp.asarray(spectral_convergence)))
 
     return avg_spectral_convergence
 

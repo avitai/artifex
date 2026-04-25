@@ -14,8 +14,7 @@
 # ---
 
 # %% [markdown]
-"""
-# Diffusion Transformer (DiT) Demo
+"""# Diffusion Transformer (DiT) Demo.
 
 **Duration:** 20 minutes | **Level:** Advanced | **GPU Required:** Recommended
 (CPU will work but slower)
@@ -121,8 +120,7 @@ MIT
 """
 
 # %% [markdown]
-"""
-## 1. Import Dependencies and Setup
+"""## 1. Import Dependencies and Setup.
 
 We'll use:
 - **JAX:** For high-performance numerical computing
@@ -156,8 +154,7 @@ print(f"🔧 Devices: {jax.device_count()} device(s)")  # noqa: T201
 print("=" * 80)  # noqa: T201
 
 # %% [markdown]
-"""
-## 2. Test DiT Components
+"""## 2. Test DiT Components.
 
 Let's start by testing the individual components of the DiT architecture:
 1. **DiffusionTransformer Backbone:** The core transformer that processes image patches
@@ -241,8 +238,7 @@ print("   Model processes images through transformer blocks")  # noqa: T201
 print("\n✅ All component tests passed!")  # noqa: T201
 
 # %% [markdown]
-"""
-## 3. Test Different DiT Model Sizes
+"""## 3. Test Different DiT Model Sizes.
 
 DiT comes in different sizes, similar to GPT or BERT models:
 - **DiT-S (Small):** 384 hidden dim, 12 blocks, 6 heads
@@ -323,8 +319,7 @@ print("\n✅ All model sizes tested successfully!")  # noqa: T201
 print("\n💡 Takeaway: Larger models are slower but produce better quality")  # noqa: T201
 
 # %% [markdown]
-r"""
-## 4. Conditional Generation with Classifier-Free Guidance
+r"""## 4. Conditional Generation with Classifier-Free Guidance.
 
 One of DiT's strengths is native support for conditional generation.
 
@@ -412,8 +407,7 @@ print("\n💡 Each sample corresponds to a different class label")  # noqa: T201
 print("\n✅ Conditional generation test passed!")  # noqa: T201
 
 # %% [markdown]
-"""
-## 5. Visualize Generated Samples
+"""## 5. Visualize Generated Samples.
 
 Let's visualize the samples we just generated to see what the model produces.
 
@@ -450,8 +444,7 @@ print(f"\n✓ Visualization saved to {output_path}")  # noqa: T201
 print("💡 With a trained model, you would see class-specific images")  # noqa: T201
 
 # %% [markdown]
-"""
-## 6. Performance Benchmark
+"""## 6. Performance Benchmark.
 
 Let's benchmark DiT performance to understand computational costs.
 
@@ -526,8 +519,7 @@ print("\n✅ Benchmark completed!")  # noqa: T201
 print("\n💡 This is for a single denoising step. Full generation requires ~50-1000 steps")  # noqa: T201
 
 # %% [markdown]
-"""
-## 7. Summary and Key Takeaways
+"""## 7. Summary and Key Takeaways.
 
 ### 🎓 What You Learned
 
@@ -622,7 +614,8 @@ Found a bug or have suggestions? Please open an issue on GitHub!
 """
 
 # %%
-print("\n" + "=" * 80)  # noqa: T201
+print()
+print("=" * 80)
 print("✨ DiT (Diffusion Transformer) Demo Complete! ✨")  # noqa: T201
 print("=" * 80)  # noqa: T201
 print("\n💡 Key Takeaways:")  # noqa: T201
@@ -636,6 +629,7 @@ print("   - Train DiT on your dataset")  # noqa: T201
 print("   - Experiment with different model sizes")  # noqa: T201
 print("   - Try various guidance scales")  # noqa: T201
 print("   - Combine with VAE for latent diffusion")  # noqa: T201
-print("\n" + "=" * 80)  # noqa: T201
+print()
+print("=" * 80)
 print("🚀 DiT implementation is working correctly and ready to use!")  # noqa: T201
 print("=" * 80)  # noqa: T201

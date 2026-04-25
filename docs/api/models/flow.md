@@ -586,8 +586,8 @@ x = jax.random.normal(rngs.sample(), (16, 8, 8, 32))
 y, log_det = layer.forward(x, rngs=rngs)
 
 # After initialization, parameters are learned
-print(f"Scale: {layer.logs.value.shape}")  # (1, 1, 32)
-print(f"Bias: {layer.bias.value.shape}")   # (1, 1, 32)
+print(f"Scale: {layer.logs[...].shape}")  # (1, 1, 32)
+print(f"Bias: {layer.bias[...].shape}")   # (1, 1, 32)
 ```
 
 **Features:**

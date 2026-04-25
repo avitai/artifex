@@ -1,5 +1,7 @@
 """Top-level Artifex package."""
 
+# pyright: reportUnsupportedDunderAll=false
+
 from importlib import import_module
 from types import ModuleType
 

@@ -25,8 +25,7 @@
 # ---
 
 # %% [markdown]
-"""
-# Protein Diffusion Technical Validation
+"""# Protein Diffusion Technical Validation.
 
 **Status:** Validation utility
 
@@ -57,8 +56,7 @@ from flax import nnx
 
 
 # %% [markdown]
-"""
-## 1. Check Optional Dependencies
+"""## 1. Check Optional Dependencies.
 
 BioPython is used for loading real PDB files, but the example works without it
 using synthetic data instead.
@@ -74,8 +72,7 @@ except ImportError:
     print("Biopython not installed. Will use synthetic data.")
 
 # %% [markdown]
-"""
-## 2. Define a Simple Protein Model
+"""## 2. Define a Simple Protein Model.
 
 This minimal model transforms protein point clouds using a basic MLP architecture:
 
@@ -121,8 +118,7 @@ class SimpleProteinPointCloud(nnx.Module):
 
 
 # %% [markdown]
-"""
-## 3. Data Generation Functions
+"""## 3. Data Generation Functions.
 
 We provide two methods for getting protein coordinates:
 
@@ -169,8 +165,7 @@ def load_protein_from_pdb(pdb_file):
 
 
 # %% [markdown]
-"""
-## 4. Run Validation Tests
+"""## 4. Run Validation Tests.
 
 The main function validates:
 

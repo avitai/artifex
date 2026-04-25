@@ -1,6 +1,7 @@
 """WaveNet implementation for autoregressive audio generation."""
 
 from dataclasses import dataclass
+from typing import Any, cast
 
 import jax
 import jax.numpy as jnp
@@ -220,7 +221,8 @@ class WaveNetAudioModel(BaseAudioModel):
 
         # Residual blocks
         self.residual_blocks = nnx.List([])
-        for dilation in config.dilation_rates:
+        dilation_rates = config.dilation_rates or [1, 2, 4, 8]
+        for dilation in dilation_rates:
             block = ResidualBlock(
                 residual_channels=config.n_residual_channels,
                 skip_channels=config.n_skip_channels,
@@ -417,7 +419,8 @@ class WaveNetAudioModel(BaseAudioModel):
             # JIT-compiled forward pass with fixed-size context
             # Pass t as array to keep it traced (not static)
             t_arr = jnp.array(t)
-            next_audio = self._generate_step(generated, t_arr, subkey)
+            generate_step = cast(Any, self._generate_step)
+            next_audio = generate_step(generated, t_arr, subkey)
 
             # Store generated sample
             generated = generated.at[:, t].set(next_audio)

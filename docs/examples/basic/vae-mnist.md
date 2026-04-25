@@ -152,7 +152,7 @@ from artifex.generative_models.models.vae import VAE
 
 ## Data Loading
 
-For this example, we create synthetic MNIST-like data. In production, you would use real MNIST from `tensorflow_datasets` or `torchvision`.
+For this example, we create synthetic MNIST-like data. For real datasets, use an Artifex or Grain input pipeline that returns JAX arrays.
 
 **Data Format:**
 
@@ -171,11 +171,9 @@ def load_mnist_data():
         Tuple of (train_images, test_images)
 
     Note:
-        Real MNIST loading would look like:
+        Real MNIST loading should return normalized JAX arrays:
         ```python
-        import tensorflow_datasets as tfds
-        ds = tfds.load('mnist', split='train', as_supervised=True)
-        images = ds.map(lambda x, y: x / 255.0)  # Normalize to [0, 1]
+        images = load_images_as_jax_array("train") / 255.0
         ```
     """
     # Create synthetic MNIST-like data with proper dimensions
@@ -759,16 +757,8 @@ encoder_config = EncoderConfig(
 ### 5. Real MNIST Data
 
 ```python
-import tensorflow_datasets as tfds
-
-# Load real MNIST
-ds = tfds.load('mnist', split='train', as_supervised=True)
-
-def preprocess(image, label):
-    image = tf.cast(image, tf.float32) / 255.0  # Normalize to [0, 1]
-    return image
-
-ds = ds.map(preprocess).batch(32).prefetch(tf.data.AUTOTUNE)
+train_images = load_images_as_jax_array("train") / 255.0
+train_batches = make_jax_batches(train_images, batch_size=32)
 ```
 
 Real MNIST will give much better results and realistic digit generation.

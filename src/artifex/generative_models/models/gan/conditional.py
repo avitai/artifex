@@ -4,7 +4,7 @@ Based on the paper "Conditional Generative Adversarial Nets" by Mirza & Osindero
 and the reference implementation from https://github.com/Lornatang/conditional_gan
 """
 
-from typing import Any
+from typing import Any, cast
 
 import flax.nnx as nnx
 import jax
@@ -436,8 +436,8 @@ class ConditionalGAN(nnx.Module):
             raise TypeError(f"config must be ConditionalGANConfig, got {type(config).__name__}")
 
         # Extract nested configs (already validated by ConditionalGANConfig)
-        gen_config: ConditionalGeneratorConfig = config.generator
-        disc_config: ConditionalDiscriminatorConfig = config.discriminator
+        gen_config = cast(ConditionalGeneratorConfig, config.generator)
+        disc_config = cast(ConditionalDiscriminatorConfig, config.discriminator)
 
         # Create conditional generator with config object
         self.generator = ConditionalGenerator(config=gen_config, rngs=rngs)

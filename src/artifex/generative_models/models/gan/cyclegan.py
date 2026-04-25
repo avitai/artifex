@@ -8,7 +8,7 @@ paired training examples. It uses cycle consistency loss to enforce that
 translated images can be mapped back to the original domain.
 """
 
-from typing import Any
+from typing import Any, cast
 
 import flax.nnx as nnx
 import jax
@@ -177,6 +177,7 @@ class CycleGANGenerator(nnx.Module):
 
         Args:
             x: Input image tensor.
+            **kwargs: Additional keyword arguments for interface compatibility.
 
         Returns:
             Generated output image.
@@ -318,6 +319,7 @@ class CycleGANDiscriminator(nnx.Module):
 
         Args:
             x: Input image tensor.
+            **kwargs: Additional keyword arguments for interface compatibility.
 
         Returns:
             Discriminator scores (patch-wise).
@@ -386,10 +388,15 @@ class CycleGAN(GenerativeModel):
 
         # Extract nested configs from dict
         # These must be CycleGANGeneratorConfig and PatchGANDiscriminatorConfig
-        gen_a_to_b_config: CycleGANGeneratorConfig = config.generator["a_to_b"]
-        gen_b_to_a_config: CycleGANGeneratorConfig = config.generator["b_to_a"]
-        disc_a_config: PatchGANDiscriminatorConfig = config.discriminator["disc_a"]
-        disc_b_config: PatchGANDiscriminatorConfig = config.discriminator["disc_b"]
+        if not isinstance(config.generator, dict):
+            raise TypeError("CycleGANConfig.generator must be a generator config mapping")
+        if not isinstance(config.discriminator, dict):
+            raise TypeError("CycleGANConfig.discriminator must be a discriminator config mapping")
+
+        gen_a_to_b_config = cast(CycleGANGeneratorConfig, config.generator["a_to_b"])
+        gen_b_to_a_config = cast(CycleGANGeneratorConfig, config.generator["b_to_a"])
+        disc_a_config = cast(PatchGANDiscriminatorConfig, config.discriminator["disc_a"])
+        disc_b_config = cast(PatchGANDiscriminatorConfig, config.discriminator["disc_b"])
 
         # Initialize generators with config objects
         self.generator_a_to_b = CycleGANGenerator(

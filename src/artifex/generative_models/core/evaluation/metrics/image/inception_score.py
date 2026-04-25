@@ -25,6 +25,7 @@ class InceptionScore(FeatureBasedMetric):
         *,
         rngs: nnx.Rngs | None = None,
     ):
+        """Initialize Inception Score with a classifier."""
         if classifier is None:
             raise ValueError(
                 "InceptionScore requires an explicit callable classifier. "

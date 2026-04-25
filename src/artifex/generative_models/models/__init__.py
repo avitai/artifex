@@ -1,5 +1,7 @@
 """Model implementations for generative models."""
 
+# pyright: reportUnsupportedDunderAll=false
+
 from importlib import import_module
 from typing import Any
 

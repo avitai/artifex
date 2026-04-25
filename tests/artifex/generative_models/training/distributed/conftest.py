@@ -113,29 +113,26 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list) -> None:
         )
 
 
-def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
-    """Run distributed tests in subprocess after main session.
+@pytest.hookimpl(wrapper=True, trylast=True)
+def pytest_runtestloop(session: pytest.Session):
+    """Run deferred distributed tests before coverage reporting finalizes.
 
-    This hook is called after all tests complete. If we're on CPU with single
-    device, runs distributed tests in a subprocess with multi-device emulation.
-
-    Args:
-        session: The pytest session object
-        exitstatus: The exit status from the main test run (unused but required)
+    The distributed subprocess must run after the main single-device pass
+    completes but before pytest-cov combines and summarizes coverage data.
     """
-    del exitstatus  # Unused, but required by pytest hook signature
+    result = yield
 
     config = session.config
 
     if _IN_MULTIDEVICE_SUBPROCESS:
-        return
+        return result
 
     if not getattr(config, "_needs_multidevice_subprocess", False):
-        return
+        return result
 
     test_paths = getattr(config, "_distributed_test_paths", [])
     if not test_paths:
-        return
+        return result
 
     print("\n" + "=" * 70)
     print("Running distributed tests with multi-device CPU emulation...")
@@ -152,7 +149,12 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
     # 1. Sets XLA_FLAGS before any imports
     # 2. Imports JAX to initialize it with multi-device config
     # 3. THEN imports pytest (which loads global conftest that also imports JAX)
-    # This order is critical because JAX is already initialized when pytest loads
+    # This order is critical because JAX is already initialized when pytest loads.
+    #
+    # We enable coverage for the subprocess and append it to the active run so
+    # deferred multi-device tests contribute to the repo-wide coverage gate.
+    # Nested reports and fail-under enforcement stay disabled because this
+    # subprocess only exercises the distributed slice.
     test_paths_str = ", ".join(f'"{p}"' for p in test_paths)
     python_script = f"""
 import os
@@ -170,7 +172,21 @@ _ = jax.device_count()  # Ensure JAX is fully initialized
 
 # Step 3: Now import and run pytest
 import sys
-sys.exit(__import__("pytest").main([{test_paths_str}, "-v", "--tb=short", "--no-cov"]))
+sys.exit(
+    __import__("pytest").main(
+        [
+            {test_paths_str},
+            "-v",
+            "--tb=short",
+            "-o",
+            "addopts=",
+            "--cov=artifex",
+            "--cov-append",
+            "--cov-report=",
+            "--cov-fail-under=0",
+        ]
+    )
+)
 """
 
     # Run subprocess with inline Python script
@@ -185,4 +201,6 @@ sys.exit(__import__("pytest").main([{test_paths_str}, "-v", "--tb=short", "--no-
 
     if result.returncode != 0:
         print(f"\nDistributed tests failed with exit code {result.returncode}")
-        session.exitstatus = result.returncode
+        session.testsfailed += 1
+
+    return result

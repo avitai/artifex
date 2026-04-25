@@ -11,7 +11,7 @@ implementation includes:
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 
 import jax
 import jax.numpy as jnp
@@ -116,7 +116,7 @@ class DPOTrainer:
 
         bind = getattr(scorer, "bind", None)
         if callable(bind):
-            return bind(model)
+            return cast(LogProbScorer, bind(model))
 
         if hasattr(scorer, "model"):
             msg = (
@@ -136,7 +136,7 @@ class DPOTrainer:
 
         bind = getattr(scorer, "bind", None)
         if callable(bind):
-            return bind(self.reference_model)
+            return cast(LogProbScorer, bind(self.reference_model))
 
         if hasattr(scorer, "model"):
             msg = (
@@ -316,7 +316,6 @@ class DPOTrainer:
         Returns:
             Tuple of (loss, metrics_dict).
         """
-
         loss_fn = self.create_loss_fn()
         (loss, metrics), grads = nnx.value_and_grad(loss_fn, has_aux=True)(self.model, batch)
         self.optimizer.update(self.model, grads)

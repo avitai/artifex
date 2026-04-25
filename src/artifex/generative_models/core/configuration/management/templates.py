@@ -95,6 +95,9 @@ class TrainingConfigTemplate(ConfigTemplate):
 
     def generate(self, **params: Any) -> TrainingConfig:
         """Generate training config with special parameter handling."""
+        if self.config_class is None:
+            raise TypeError("training templates require a TrainingConfig config_class")
+
         params = params.copy()
 
         # Validate required parameters first
@@ -140,16 +143,13 @@ class TrainingConfigTemplate(ConfigTemplate):
             config["scheduler"].update(scheduler_params)
 
         # Validate if config class provided
-        if self.config_class:
-            try:
-                validated_config = self.config_class.from_dict(config)
-                if not isinstance(validated_config, TrainingConfig):
-                    raise TypeError("training template must materialize TrainingConfig")
-                return validated_config
-            except Exception as e:
-                raise ValueError(f"Template config validation failed: {e}") from e
-
-        return config
+        try:
+            validated_config = self.config_class.from_dict(config)
+            if not isinstance(validated_config, TrainingConfig):
+                raise TypeError("training template must materialize TrainingConfig")
+            return validated_config
+        except Exception as e:
+            raise ValueError(f"Template config validation failed: {e}") from e
 
 
 SIMPLE_TRAINING_TEMPLATE = TrainingConfigTemplate(

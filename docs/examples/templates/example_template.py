@@ -63,8 +63,8 @@
 
 # %%
 # Cell 2: Environment Setup and Verification
-"""
-This cell checks that all required packages are installed and working correctly.
+"""This cell checks that all required packages are installed and working correctly.
+
 Run this first to catch any environment issues early.
 """
 
@@ -153,8 +153,8 @@ print("\n🎉 Environment setup complete!")
 
 # %%
 # Cell: Import all required dependencies
-"""
-📖 WHAT THIS CELL DOES:
+"""📖 WHAT THIS CELL DOES:.
+
 Imports all libraries and modules needed for the example.
 
 🎓 KEY CONCEPTS:
@@ -182,8 +182,8 @@ print("✅ All imports successful!")
 
 # %%
 # Cell: Configuration parameters
-"""
-📖 WHAT THIS CELL DOES:
+"""📖 WHAT THIS CELL DOES:.
+
 Defines all hyperparameters and configuration for the example.
 
 💡 TRY EXPERIMENTING:
@@ -257,8 +257,8 @@ display(
 
 # %%
 # Cell: Initialize environment
-"""
-📖 WHAT THIS CELL DOES:
+"""📖 WHAT THIS CELL DOES:.
+
 Sets up the random number generator and device manager.
 
 🎓 KEY CONCEPTS:
@@ -287,8 +287,8 @@ display(
 
 # %%
 # Cell: Create sample data
-"""
-📖 WHAT THIS CELL DOES:
+"""📖 WHAT THIS CELL DOES:.
+
 Generates synthetic data for demonstration.
 
 💡 TRY EXPERIMENTING:
@@ -321,8 +321,8 @@ plt.show()
 
 # %%
 # Cell: Define model architecture
-"""
-📖 WHAT THIS CELL DOES:
+"""📖 WHAT THIS CELL DOES:.
+
 Defines the model class following Artifex/Flax NNX patterns.
 
 🎓 KEY CONCEPTS:
@@ -354,7 +354,8 @@ class ExampleModel(nnx.Module):
             rngs: Random number generators for initialization
             dtype: Data type for model parameters
         """
-        # ALWAYS call super().__init__()
+        # ALWAYS call super().__init__().
+
         super().__init__()
 
         self.input_dim = input_dim
@@ -383,7 +384,8 @@ class ExampleModel(nnx.Module):
         Returns:
             Output array after forward pass
         """
-        # Flatten input
+        # Flatten input.
+
         batch_size = x.shape[0]
         x = x.reshape(batch_size, -1)
 
@@ -431,8 +433,8 @@ print(f"✅ Model created with {LATENT_DIM}-dimensional output")
 
 # %%
 # Cell: Test forward pass
-"""
-📖 WHAT THIS CELL DOES:
+"""📖 WHAT THIS CELL DOES:.
+
 Tests that the model can process a batch of data.
 
 💡 TRY EXPERIMENTING:
@@ -476,8 +478,8 @@ print(f"   Output std: {output.std():.3f}")
 # %%
 # Exercise 1: Your solution
 
-# TODO: Create a model with different HIDDEN_DIMS
-# TODO: Run forward pass and compare with original
+# Create a model with different HIDDEN_DIMS.
+# Run a forward pass and compare it with the original output.
 
 
 # %% [markdown]

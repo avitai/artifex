@@ -1,5 +1,4 @@
-"""
-Weights & Biases logger implementation for the Artifex library.
+"""Weights & Biases logger implementation for the Artifex library.
 
 This module provides a logger implementation that integrates with Weights & Biases
 for experiment tracking, visualization, and collaboration.
@@ -14,8 +13,7 @@ from artifex.generative_models.utils.logging.logger import Logger
 
 
 class WandbLogger(Logger):
-    """
-    Logger implementation that integrates with Weights & Biases.
+    """Logger implementation that integrates with Weights & Biases.
 
     This logger logs metrics, media, and other artifacts to W&B, enabling
     experiment tracking, visualization, and collaboration.
@@ -35,8 +33,7 @@ class WandbLogger(Logger):
         resume: Literal["allow", "never", "must", "auto"] | bool | None = None,
         anonymous: Literal["never", "allow", "must"] | None = None,
     ):
-        """
-        Initialize the Weights & Biases logger.
+        """Initialize the Weights & Biases logger.
 
         Args:
             name: Name of the W&B run.
@@ -99,8 +96,7 @@ class WandbLogger(Logger):
         step: int | None = None,
         **kwargs,
     ) -> None:
-        """
-        Log a scalar value to W&B.
+        """Log a scalar value to W&B.
 
         Args:
             name: Name of the scalar.
@@ -120,8 +116,7 @@ class WandbLogger(Logger):
         step: int | None = None,
         **kwargs,
     ) -> None:
-        """
-        Log multiple scalar values to W&B.
+        """Log multiple scalar values to W&B.
 
         Args:
             scalars: Dictionary of scalar names to values.
@@ -146,8 +141,7 @@ class WandbLogger(Logger):
         step: int | None = None,
         **kwargs,
     ) -> None:
-        """
-        Log an image or list of images to W&B.
+        """Log an image or list of images to W&B.
 
         Args:
             name: Name of the image.
@@ -188,8 +182,7 @@ class WandbLogger(Logger):
         step: int | None = None,
         **kwargs,
     ) -> None:
-        """
-        Log a histogram of values to W&B.
+        """Log a histogram of values to W&B.
 
         Args:
             name: Name of the histogram.
@@ -227,8 +220,7 @@ class WandbLogger(Logger):
         step: int | None = None,
         **kwargs,
     ) -> None:
-        """
-        Log text to W&B.
+        """Log text to W&B.
 
         Args:
             name: Name of the text entry.
@@ -246,8 +238,7 @@ class WandbLogger(Logger):
         params: dict[str, Any],
         **kwargs,
     ) -> None:
-        """
-        Log hyperparameters to W&B.
+        """Log hyperparameters to W&B.
 
         Args:
             params: Dictionary of hyperparameter names to values.
@@ -261,8 +252,7 @@ class WandbLogger(Logger):
         self.info(f"Logged {len(params)} hyperparameters to W&B")
 
     def log_code(self, root: str | None = None, **kwargs) -> None:
-        """
-        Log code to W&B for experiment reproducibility.
+        """Log code to W&B for experiment reproducibility.
 
         Args:
             root: Root directory of the code to log.
@@ -283,8 +273,7 @@ class WandbLogger(Logger):
         metadata: dict[str, Any] | None = None,
         **kwargs,
     ) -> None:
-        """
-        Log a model to W&B Artifacts.
+        """Log a model to W&B Artifacts.
 
         Args:
             model_path: Path to the model file or directory.
@@ -313,8 +302,7 @@ class WandbLogger(Logger):
             self.warning(f"Failed to log model to W&B: {e}")
 
     def finish(self, exit_code: int = 0) -> None:
-        """
-        Finish the W&B run.
+        """Finish the W&B run.
 
         Args:
             exit_code: Exit code to report to W&B.

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Geometric Demo Utilities
+"""Geometric Demo Utilities.
 
 This script provides utilities for running and configuring the geometric benchmark demo.
 It includes preset configurations, troubleshooting tools, and performance analysis.
@@ -392,7 +391,7 @@ def save_config(config, filename):
 
 def load_config(filename):
     """Load configuration from file."""
-    with open(filename, "r") as f:
+    with open(filename) as f:
         return json.load(f)
 
 

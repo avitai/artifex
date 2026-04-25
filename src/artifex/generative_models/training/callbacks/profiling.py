@@ -4,9 +4,8 @@ Provides JAX-native profiling capabilities including trace-based profiling
 for TensorBoard visualization and memory usage tracking.
 
 Note:
-    JAX profiler tracing is disabled on macOS due to TensorFlow ARM64
-    compatibility issues. The profiler uses TensorFlow/TensorBoard backend
-    which hangs on macOS ARM64. See: https://github.com/tensorflow/tensorflow/issues/52138
+    JAX profiler tracing is disabled on macOS because some TensorBoard
+    visualization stacks can hang on ARM64.
 """
 
 from __future__ import annotations

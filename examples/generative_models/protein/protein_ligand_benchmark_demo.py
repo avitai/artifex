@@ -10,8 +10,7 @@
 # ---
 
 # %% [markdown]
-"""
-# Protein-Ligand Co-Design Benchmark Demo
+"""# Protein-Ligand Co-Design Benchmark Demo.
 
 **Level:** Advanced | **Runtime:** ~3-5 minutes (CPU), ~1-2 minutes (GPU)
 **Format:** Python + Jupyter
@@ -163,8 +162,7 @@ Artifex Team
 """
 
 # %% [markdown]
-"""
-## Section 1: Imports and Setup
+"""## Section 1: Imports and Setup.
 
 We import all necessary components for the protein-ligand benchmark:
 - JAX for numerical operations and automatic differentiation
@@ -207,8 +205,7 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root / "src"))
 
 # %% [markdown]
-"""
-## Section 2: Example Protein-Ligand Model
+"""## Section 2: Example Protein-Ligand Model.
 
 This mock model simulates a protein-ligand co-design system for demonstration purposes.
 In practice, you would replace this with your actual generative model.
@@ -324,6 +321,7 @@ class ExampleProteinLigandModel:
             Dictionary with generated ligand coordinates and atom types
         """
         batch_size = protein_coords.shape[0]
+
         key = jax.random.key(456)
         keys = jax.random.split(key, batch_size + 1)
 
@@ -364,8 +362,7 @@ class ExampleProteinLigandModel:
 
 
 # %% [markdown]
-"""
-## Section 3: Molecular Modality Framework Demo
+"""## Section 3: Molecular Modality Framework Demo.
 
 The molecular modality provides domain-specific functionality for working with
 chemical structures, including:
@@ -378,7 +375,8 @@ chemical structures, including:
 # %%
 def demonstrate_molecular_modality():
     """Demonstrate the molecular modality framework."""
-    print("\n" + "=" * 60)
+    print()
+    print("=" * 60)
     print("MOLECULAR MODALITY FRAMEWORK DEMO")
     print("=" * 60)
 
@@ -422,8 +420,7 @@ def demonstrate_molecular_modality():
 
 
 # %% [markdown]
-"""
-## Section 4: CrossDocked2020 Dataset Demo
+"""## Section 4: CrossDocked2020 Dataset Demo.
 
 The CrossDocked2020 dataset contains protein-ligand complexes with:
 - 3D coordinates for protein and ligand atoms
@@ -436,7 +433,8 @@ The CrossDocked2020 dataset contains protein-ligand complexes with:
 # %%
 def demonstrate_crossdocked_dataset():
     """Demonstrate the CrossDocked2020 dataset."""
-    print("\n" + "=" * 60)
+    print()
+    print("=" * 60)
     print("CROSSDOCKED2020 DATASET DEMO")
     print("=" * 60)
 
@@ -512,8 +510,7 @@ def demonstrate_crossdocked_dataset():
 
 
 # %% [markdown]
-"""
-## Section 5: Protein-Ligand Metrics Demo
+"""## Section 5: Protein-Ligand Metrics Demo.
 
 Three specialized metrics evaluate different aspects of protein-ligand modeling:
 
@@ -534,7 +531,8 @@ Three specialized metrics evaluate different aspects of protein-ligand modeling:
 # %%
 def demonstrate_protein_ligand_metrics():
     """Demonstrate protein-ligand specific metrics."""
-    print("\n" + "=" * 60)
+    print()
+    print("=" * 60)
     print("PROTEIN-LIGAND METRICS DEMO")
     print("=" * 60)
 
@@ -625,8 +623,7 @@ def demonstrate_protein_ligand_metrics():
 
 
 # %% [markdown]
-"""
-## Section 6: Complete Benchmark Suite Demo
+"""## Section 6: Complete Benchmark Suite Demo.
 
 The benchmark suite orchestrates complete evaluation across all metrics.
 This demo tests three model qualities (poor/good/excellent) to show how
@@ -637,7 +634,8 @@ performance varies across the target metrics.
 # %%
 def demonstrate_benchmark_suite():
     """Demonstrate the complete protein-ligand benchmark suite."""
-    print("\n" + "=" * 60)
+    print()
+    print("=" * 60)
     print("PROTEIN-LIGAND CO-DESIGN BENCHMARK SUITE")
     print("=" * 60)
 
@@ -697,8 +695,7 @@ def demonstrate_benchmark_suite():
 
 
 # %% [markdown]
-"""
-## Section 7: Model Comparison Demo
+"""## Section 7: Model Comparison Demo.
 
 This section demonstrates how to systematically compare multiple model architectures
 or configurations using the benchmark suite. The comparison table shows clear
@@ -709,7 +706,8 @@ differences between baseline, improved, and state-of-the-art models.
 # %%
 def demonstrate_model_comparison():
     """Demonstrate comparing multiple models."""
-    print("\n" + "=" * 60)
+    print()
+    print("=" * 60)
     print("MODEL COMPARISON DEMO")
     print("=" * 60)
 
@@ -772,8 +770,7 @@ def demonstrate_model_comparison():
 
 
 # %% [markdown]
-"""
-## Section 8: Main Execution
+"""## Section 8: Main Execution.
 
 This section orchestrates the complete demonstration, running all components
 in sequence and providing a summary of the implementation.
@@ -807,7 +804,9 @@ def main():
         # Model comparison
         demonstrate_model_comparison()
 
-        print("\n" + "=" * 80)
+        print()
+
+        print("=" * 80)
         print("🎉 IMPLEMENTATION COMPLETE!")
         print("=" * 80)
         print("✅ Molecular modality framework operational")
@@ -831,8 +830,7 @@ if __name__ == "__main__":
     exit(main())
 
 # %% [markdown]
-"""
-## Summary and Key Takeaways
+"""## Summary and Key Takeaways.
 
 ### What You Learned
 

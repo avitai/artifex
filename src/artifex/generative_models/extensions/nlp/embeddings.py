@@ -177,11 +177,11 @@ class TextEmbeddings(ModelExtension):
         # Get embedding parameters from extensions field
         embedding_params = getattr(config, "extensions", {}).get("embeddings", {})
 
-        self.embedding_dim = embedding_params.get("embedding_dim", 512)
-        self.vocab_size = embedding_params.get("vocab_size", 50000)
-        self.max_position_embeddings = embedding_params.get("max_position_embeddings", 512)
-        self.dropout_rate = embedding_params.get("dropout_rate", 0.1)
-        self.use_position_embeddings = embedding_params.get("use_position_embeddings", True)
+        self.embedding_dim = int(embedding_params.get("embedding_dim", 512))
+        self.vocab_size = int(embedding_params.get("vocab_size", 50000))
+        self.max_position_embeddings = int(embedding_params.get("max_position_embeddings", 512))
+        self.dropout_rate = float(embedding_params.get("dropout_rate", 0.1))
+        self.use_position_embeddings = bool(embedding_params.get("use_position_embeddings", True))
         self.rngs = rngs
 
         # Token embeddings
@@ -487,12 +487,11 @@ class TextEmbeddings(ModelExtension):
         Returns:
             Positional encodings of shape [seq_len, dim].
         """
-        if dim is None:
-            dim = self.embedding_dim
+        resolved_dim = self.embedding_dim if dim is None else dim
 
         return create_sinusoidal_positions(
             max_seq_len=seq_len,
-            dim=dim,
+            dim=int(resolved_dim),
             base=base,
         )
 
@@ -600,16 +599,17 @@ class TextEmbeddings(ModelExtension):
         if not self.enabled:
             return {"extension_type": "text_embeddings"}
 
-        results = {"extension_type": "text_embeddings"}
+        results: dict[str, Any] = {"extension_type": "text_embeddings"}
 
         # Process input tokens if available
         if isinstance(inputs, dict) and "tokens" in inputs:
-            tokens = inputs["tokens"]
+            tokens = jnp.asarray(inputs["tokens"])
             position_ids = inputs.get("position_ids")
+            position_ids_array = None if position_ids is None else jnp.asarray(position_ids)
             deterministic = kwargs.get("deterministic", False)
 
             # Embed tokens
-            embeddings = self.embed(tokens, position_ids, deterministic=deterministic)
+            embeddings = self.embed(tokens, position_ids_array, deterministic=deterministic)
             results["input_embeddings"] = embeddings
 
             # Extract sentence embeddings if requested
@@ -628,7 +628,7 @@ class TextEmbeddings(ModelExtension):
         # Process model output embeddings if available
         if isinstance(model_outputs, dict):
             if "embeddings" in model_outputs:
-                output_embeddings = model_outputs["embeddings"]
+                output_embeddings = jnp.asarray(model_outputs["embeddings"])
 
                 # Project to vocabulary if requested
                 if kwargs.get("project_to_vocab", False):
@@ -637,7 +637,7 @@ class TextEmbeddings(ModelExtension):
 
                 # Compute attention weights if query embeddings provided
                 if "query_embeddings" in kwargs:
-                    query_embeddings = kwargs["query_embeddings"]
+                    query_embeddings = jnp.asarray(kwargs["query_embeddings"])
                     temperature = kwargs.get("temperature", 1.0)
                     attention_weights = self.compute_attention_weights(
                         query_embeddings, output_embeddings, temperature
@@ -646,7 +646,7 @@ class TextEmbeddings(ModelExtension):
 
             elif "hidden_states" in model_outputs:
                 # Handle hidden states as embeddings
-                hidden_states = model_outputs["hidden_states"]
+                hidden_states = jnp.asarray(model_outputs["hidden_states"])
 
                 # Extract sentence embeddings from hidden states
                 if kwargs.get("extract_sentence_embedding", False):

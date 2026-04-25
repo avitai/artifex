@@ -1,5 +1,4 @@
-"""
-Base logger interface for Artifex.
+"""Base logger interface for Artifex.
 
 This module provides a base logger class for logging training progress,
 metrics, and other information during model training and evaluation.
@@ -18,8 +17,7 @@ import jax.numpy as jnp
 
 
 class Logger(ABC):
-    """
-    Abstract base class for all loggers.
+    """Abstract base class for all loggers.
 
     This class defines the interface that all concrete logger implementations
     must follow. It provides methods for logging scalar values, images,
@@ -32,8 +30,7 @@ class Logger(ABC):
         log_dir: str | None = None,
         level: int = logging.INFO,
     ):
-        """
-        Initialize the logger.
+        """Initialize the logger.
 
         Args:
             name: Name of the logger.
@@ -64,8 +61,7 @@ class Logger(ABC):
         self._logger.addHandler(console_handler)
 
     def log(self, msg: str, level: int = logging.INFO) -> None:
-        """
-        Log a message with the specified level.
+        """Log a message with the specified level.
 
         Args:
             msg: Message to log.
@@ -95,8 +91,7 @@ class Logger(ABC):
 
     @abstractmethod
     def log_scalar(self, name: str, value: float, step: int | None = None, **kwargs) -> None:
-        """
-        Log a scalar value.
+        """Log a scalar value.
 
         Args:
             name: Name of the scalar.
@@ -108,8 +103,7 @@ class Logger(ABC):
 
     @abstractmethod
     def log_scalars(self, scalars: dict[str, float], step: int | None = None, **kwargs) -> None:
-        """
-        Log multiple scalar values.
+        """Log multiple scalar values.
 
         Args:
             scalars: dictionary of scalar names to values.
@@ -126,8 +120,7 @@ class Logger(ABC):
         step: int | None = None,
         **kwargs,
     ) -> None:
-        """
-        Log an image or list of images.
+        """Log an image or list of images.
 
         Args:
             name: Name of the image.
@@ -145,8 +138,7 @@ class Logger(ABC):
         step: int | None = None,
         **kwargs,
     ) -> None:
-        """
-        Log a histogram of values.
+        """Log a histogram of values.
 
         Args:
             name: Name of the histogram.
@@ -158,8 +150,7 @@ class Logger(ABC):
 
     @abstractmethod
     def log_text(self, name: str, text: str, step: int | None = None, **kwargs) -> None:
-        """
-        Log text.
+        """Log text.
 
         Args:
             name: Name of the text entry.
@@ -171,8 +162,7 @@ class Logger(ABC):
 
     @abstractmethod
     def log_hyperparams(self, params: dict[str, Any], **kwargs) -> None:
-        """
-        Log hyperparameters.
+        """Log hyperparameters.
 
         Args:
             params: dictionary of hyperparameter names to values.
@@ -181,8 +171,7 @@ class Logger(ABC):
         pass
 
     def close(self) -> None:
-        """
-        Close the logger and release any resources.
+        """Close the logger and release any resources.
 
         This method should be called when the logger is no longer needed.
         """
@@ -257,8 +246,7 @@ class FileLogger(Logger):
         filename: str | None = None,
         level: int = logging.INFO,
     ):
-        """
-        Initialize the file logger.
+        """Initialize the file logger.
 
         Args:
             name: Name of the logger.
@@ -316,7 +304,6 @@ class FileLogger(Logger):
         step: int | None = None,
     ) -> None:
         """Log scalar values to CSV file."""
-
         # Prepare row data
         fieldnames = ["timestamp", "step", *scalars.keys()]
         row = {
@@ -494,8 +481,7 @@ def create_logger(
     log_to_file: bool = True,
     level: int = logging.INFO,
 ) -> Logger:
-    """
-    Create a logger with console and/or file output.
+    """Create a logger with console and/or file output.
 
     Args:
         name: Name of the logger.

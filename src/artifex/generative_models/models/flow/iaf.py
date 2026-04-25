@@ -243,6 +243,7 @@ class IAF(NormalizingFlow):
 
         Args:
             x: Input latent tensor (using x for compatibility with base class)
+            *args: Additional positional arguments for interface compatibility
             rngs: Optional random number generators
             training: Whether in training mode
             **kwargs: Additional keyword arguments
@@ -269,6 +270,7 @@ class IAF(NormalizingFlow):
         Args:
             n_samples: Number of samples to generate
             rngs: Optional random number generators
+            **kwargs: Additional sampling options for interface compatibility
 
         Returns:
             Generated samples
@@ -303,6 +305,7 @@ class IAF(NormalizingFlow):
             x: Input data
             rngs: Optional random number generators
             training: Whether in training mode
+            **kwargs: Additional log-probability options for interface compatibility
 
         Returns:
             Log probabilities

@@ -199,7 +199,7 @@ def test_log_training_metrics(file_logger, temp_log_dir):
     metrics_logger.log_training_metrics(metrics, step=10)
 
     # Check that the metrics file contains the prefixed metrics
-    with open(file_logger.metrics_file, "r") as f:
+    with open(file_logger.metrics_file) as f:
         content = f.read()
         assert "train/loss" in content
         assert "train/accuracy" in content
@@ -212,7 +212,7 @@ def test_log_validation_metrics(file_logger, temp_log_dir):
     metrics_logger.log_validation_metrics(metrics, step=10)
 
     # Check that the metrics file contains the prefixed metrics
-    with open(file_logger.metrics_file, "r") as f:
+    with open(file_logger.metrics_file) as f:
         content = f.read()
         assert "val/loss" in content
         assert "val/accuracy" in content
@@ -225,7 +225,7 @@ def test_log_test_metrics(file_logger, temp_log_dir):
     metrics_logger.log_test_metrics(metrics, step=10)
 
     # Check that the metrics file contains the prefixed metrics
-    with open(file_logger.metrics_file, "r") as f:
+    with open(file_logger.metrics_file) as f:
         content = f.read()
         assert "test/loss" in content
         assert "test/accuracy" in content

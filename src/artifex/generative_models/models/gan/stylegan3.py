@@ -221,7 +221,6 @@ class SynthesisBlock(nnx.Module):
         rngs: nnx.Rngs | None = None,
     ) -> jnp.ndarray:
         """Forward pass through synthesis block."""
-
         # Upsample if needed
         if self.upsample:
             x = self._upsample(x)

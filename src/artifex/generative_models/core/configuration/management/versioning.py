@@ -29,8 +29,7 @@ class DateTimeEncoder(json.JSONEncoder):
 
 
 def compute_config_hash(config: dict[str, Any] | ConfigDocument) -> str:
-    """
-    Compute a deterministic hash for a configuration.
+    """Compute a deterministic hash for a configuration.
 
     Args:
         config: Configuration dictionary or object
@@ -56,8 +55,7 @@ def compute_config_hash(config: dict[str, Any] | ConfigDocument) -> str:
 
 
 def _clean_config_for_hash(config: dict[str, Any]) -> dict[str, Any]:
-    """
-    Remove non-deterministic fields from configuration for hashing.
+    """Remove non-deterministic fields from configuration for hashing.
 
     Args:
         config: Configuration dictionary
@@ -161,8 +159,7 @@ class ConfigVersion:
         }
 
     def save(self, config_dir: str | Path) -> Path:
-        """
-        Save versioned configuration to file.
+        """Save versioned configuration to file.
 
         Args:
             config_dir: Directory to save configuration
@@ -189,8 +186,7 @@ class ConfigVersionRegistry:
     """Registry for tracking configuration versions."""
 
     def __init__(self, registry_dir: str | Path):
-        """
-        Initialize a configuration version registry.
+        """Initialize a configuration version registry.
 
         Args:
             registry_dir: Directory to store versioned configurations
@@ -218,7 +214,7 @@ class ConfigVersionRegistry:
         if not self.index_file.exists():
             return {}
 
-        with open(self.index_file, "r", encoding="utf-8") as f:
+        with open(self.index_file, encoding="utf-8") as f:
             try:
                 return json.load(f) or {}
             except json.JSONDecodeError:
@@ -234,8 +230,7 @@ class ConfigVersionRegistry:
         config: dict[str, Any] | ConfigDocument,
         description: str | None = None,
     ) -> ConfigVersion:
-        """
-        Register a configuration version.
+        """Register a configuration version.
 
         Args:
             config: Configuration dictionary or object
@@ -264,8 +259,7 @@ class ConfigVersionRegistry:
         return config_version
 
     def get_by_version(self, version: str) -> ConfigVersion:
-        """
-        Get a configuration by version.
+        """Get a configuration by version.
 
         Args:
             version: Version string
@@ -287,7 +281,7 @@ class ConfigVersionRegistry:
         if not file_path.exists():
             raise ValueError(f"Config file for version {version} not found")
 
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             config_data = json.load(f)
 
         # Create ConfigVersion object
@@ -299,8 +293,7 @@ class ConfigVersionRegistry:
         )
 
     def get_by_hash(self, config_hash: str) -> ConfigVersion:
-        """
-        Get a configuration by hash.
+        """Get a configuration by hash.
 
         Args:
             config_hash: Configuration hash (can be a prefix)
@@ -335,8 +328,7 @@ class ConfigVersionRegistry:
         return self.get_by_version(matching_versions[0])
 
     def list_versions(self) -> list[ConfigVersion]:
-        """
-        List all tracked configuration versions.
+        """List all tracked configuration versions.
 
         Returns:
             list of ConfigVersion objects

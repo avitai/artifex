@@ -55,16 +55,16 @@ class SpectralMetric(MetricBase):
         gen_mag = jnp.abs(gen_stft)
 
         # Compute spectral convergence
-        numerator = jnp.linalg.norm(real_mag - gen_mag, ord="fro", axis=(-2, -1))
-        denominator = jnp.linalg.norm(real_mag, ord="fro", axis=(-2, -1))
+        numerator = jnp.asarray(jnp.linalg.norm(real_mag - gen_mag, ord="fro", axis=(-2, -1)))
+        denominator = jnp.asarray(jnp.linalg.norm(real_mag, ord="fro", axis=(-2, -1)))
 
         # Avoid division by zero
-        spectral_convergence = jnp.where(
-            denominator > 1e-8, numerator / denominator, jnp.ones_like(numerator)
+        spectral_convergence = jnp.asarray(
+            jnp.where(denominator > 1e-8, numerator / denominator, jnp.ones_like(numerator))
         )
 
         # Average across batch
-        avg_spectral_convergence = float(jnp.mean(spectral_convergence))
+        avg_spectral_convergence = float(jnp.mean(jnp.asarray(spectral_convergence)))
 
         return {"spectral_convergence": avg_spectral_convergence}
 

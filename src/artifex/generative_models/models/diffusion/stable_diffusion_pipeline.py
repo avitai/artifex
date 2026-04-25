@@ -274,8 +274,14 @@ class StableDiffusionPipeline(nnx.Module):
         """
         if num_inference_steps is None:
             num_inference_steps = self.default_num_inference_steps
-        if guidance_scale is None:
-            guidance_scale = self.default_guidance_scale
+        if num_inference_steps is None:
+            num_inference_steps = 50
+
+        resolved_guidance_scale = (
+            self.default_guidance_scale if guidance_scale is None else guidance_scale
+        )
+        if resolved_guidance_scale is None:
+            resolved_guidance_scale = 7.5
 
         batch_size = token_ids.shape[0]
 
@@ -283,7 +289,7 @@ class StableDiffusionPipeline(nnx.Module):
         text_embeddings = self.encode_text(token_ids)
 
         # For classifier-free guidance, we need unconditional embeddings
-        do_classifier_free_guidance = guidance_scale > 1.0
+        do_classifier_free_guidance = resolved_guidance_scale > 1.0
         if do_classifier_free_guidance:
             # Create unconditional (empty) token IDs
             uncond_tokens = jnp.zeros_like(token_ids)
@@ -323,7 +329,7 @@ class StableDiffusionPipeline(nnx.Module):
             # Perform classifier-free guidance
             if do_classifier_free_guidance:
                 noise_pred_uncond, noise_pred_text = jnp.split(noise_pred, 2, axis=0)
-                noise_pred = noise_pred_uncond + guidance_scale * (
+                noise_pred = noise_pred_uncond + resolved_guidance_scale * (
                     noise_pred_text - noise_pred_uncond
                 )
 

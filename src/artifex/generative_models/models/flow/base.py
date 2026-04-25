@@ -196,7 +196,9 @@ class NormalizingFlow(GenerativeModel):
             except AttributeError:
                 continue
             if callable(stream):
-                return stream()
+                key = stream()
+                if isinstance(key, jax.Array):
+                    return key
 
         return jax.random.PRNGKey(0)
 

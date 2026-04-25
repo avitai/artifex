@@ -161,15 +161,33 @@ def _collect_runtime_state() -> tuple[tuple[Any, ...], DeviceCapabilities]:
     device_type = _runtime_device_type(jax_devices)
     metadata = _collect_gpu_metadata() if device_type is DeviceType.GPU else {}
 
+    total_memory_mb = metadata.get("total_memory_mb")
+    if isinstance(total_memory_mb, str):
+        total_memory_mb = int(total_memory_mb) if total_memory_mb.isdigit() else None
+    if not isinstance(total_memory_mb, int):
+        total_memory_mb = None
+
+    compute_capability = metadata.get("compute_capability")
+    if compute_capability is not None and not isinstance(compute_capability, str):
+        compute_capability = str(compute_capability)
+
+    cuda_version = metadata.get("cuda_version")
+    if cuda_version is not None and not isinstance(cuda_version, str):
+        cuda_version = str(cuda_version)
+
+    driver_version = metadata.get("driver_version")
+    if driver_version is not None and not isinstance(driver_version, str):
+        driver_version = str(driver_version)
+
     return jax_devices, DeviceCapabilities(
         device_type=device_type,
         device_count=len(jax_devices),
         default_backend=default_backend,
         visible_devices=tuple(_visible_device_label(device) for device in jax_devices),
-        total_memory_mb=metadata.get("total_memory_mb"),
-        compute_capability=metadata.get("compute_capability"),
-        cuda_version=metadata.get("cuda_version"),
-        driver_version=metadata.get("driver_version"),
+        total_memory_mb=total_memory_mb,
+        compute_capability=compute_capability,
+        cuda_version=cuda_version,
+        driver_version=driver_version,
         supports_mixed_precision=device_type in {DeviceType.GPU, DeviceType.TPU},
         supports_distributed=len(jax_devices) > 1,
         error=None,
@@ -180,6 +198,7 @@ class DeviceManager:
     """Pure runtime manager for visible JAX devices."""
 
     def __init__(self) -> None:
+        """Initialize runtime device state."""
         self._devices, self.capabilities = _collect_runtime_state()
 
     @property

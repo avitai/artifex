@@ -1,5 +1,7 @@
 """artifex generative models package."""
 
+# pyright: reportUnsupportedDunderAll=false
+
 from importlib import import_module
 from types import ModuleType
 

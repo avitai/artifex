@@ -499,7 +499,8 @@ Discrete data (e.g., uint8 images) create delta peaks in continuous space, allow
 
 ```python
 # Uniform dequantization
-x_dequantized = x + torch.rand_like(x) / 256.0
+rng, noise_key = jax.random.split(rng)
+x_dequantized = x + jax.random.uniform(noise_key, x.shape, dtype=x.dtype) / 256.0
 
 # Variational dequantization (more sophisticated)
 noise = flow_model_for_noise(x)
@@ -516,7 +517,7 @@ alpha = 0.05
 x = alpha + (1 - 2*alpha) * x
 
 # Apply logit transform
-x_logit = torch.logit(x)  # log(x / (1-x))
+x_logit = jnp.log(x) - jnp.log1p(-x)
 ```
 
 !!!warning "Critical Importance"
@@ -530,13 +531,13 @@ Never compute $\det(J)$ directly—immediate overflow/underflow:
 
 ```python
 # WRONG
-det_J = torch.det(jacobian)
-log_det = torch.log(det_J)  # Overflow!
+det_J = jnp.linalg.det(jacobian)
+log_det = jnp.log(det_J)  # Overflow!
 
 # CORRECT
-log_det = torch.logdet(jacobian)
+sign, log_det = jnp.linalg.slogdet(jacobian)
 # Or for triangular Jacobians:
-log_det = torch.sum(torch.log(torch.abs(torch.diagonal(jacobian))))
+log_det = jnp.sum(jnp.log(jnp.abs(jnp.diagonal(jacobian))))
 ```
 
 **2. Gradient Clipping:**
@@ -544,7 +545,10 @@ log_det = torch.sum(torch.log(torch.abs(torch.diagonal(jacobian))))
 Prevents exploding gradients in deep architectures (10-15+ layers):
 
 ```python
-torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+tx = optax.chain(
+    optax.clip_by_global_norm(1.0),
+    optax.adam(learning_rate=1e-3),
+)
 ```
 
 **3. Normalization Layers:**
@@ -580,7 +584,7 @@ Watch these metrics:
 ```python
 # Invertibility check
 x_reconstructed = flow.inverse(flow.forward(x))
-recon_error = torch.mean(torch.abs(x - x_reconstructed))
+recon_error = jnp.mean(jnp.abs(x - x_reconstructed))
 assert recon_error < 1e-5, f"Poor invertibility: {recon_error}"
 ```
 
@@ -940,21 +944,21 @@ $$
 
 <div class="grid cards" markdown>
 
-- :simple-pytorch:{ .lg .middle } **PyTorch Ecosystem**
+- :simple-jax:{ .lg .middle } **JAX Ecosystem**
 
     ---
 
-  - **normflows** (1000+ stars): Complete architectures (RealNVP, Glow, NSF, MAF)
-  - **nflows**: State-of-the-art methods from Edinburgh group (creators of spline flows)
-  - **Zuko**: Modern PyTorch implementation with clean API
+  - **Distrax**: Bijectors and distributions that compose with JAX transforms
+  - **FlowJAX**: JAX-native flow utilities and common transformations
+  - **Optax**: Optimizer chains for clipping, schedules, and adaptive training
 
-- :simple-tensorflow:{ .lg .middle } **TensorFlow Probability**
+- :material-hub-outline:{ .lg .middle } **Composable Bijectors**
 
     ---
 
-  - First-party flow support via composable **bijectors**
-  - Production-stable with extensive testing
-  - Integrates with TensorFlow ecosystem
+  - Build RealNVP, Glow, and spline flows from invertible transformations
+  - Keep log-determinant calculations explicit and testable
+  - Use JAX transformations for batching, differentiation, and compilation
 
 - :simple-jax:{ .lg .middle } **JAX Implementations**
 
@@ -1076,15 +1080,13 @@ config = {
 
     ```python
     # WRONG: Direct determinant (overflow!)
-    det = torch.det(jacobian)
-    log_det = torch.log(det)
+    det = jnp.linalg.det(jacobian)
+    log_det = jnp.log(det)
 
     # CORRECT: Log-space computation
-    log_det = torch.logdet(jacobian)
+    sign, log_det = jnp.linalg.slogdet(jacobian)
     # Or for triangular matrices:
-    log_det = torch.sum(torch.log(torch.abs(
-        torch.diagonal(jacobian)
-    )))
+    log_det = jnp.sum(jnp.log(jnp.abs(jnp.diagonal(jacobian))))
     ```
 
 - :material-bug: **Ignoring Invertibility Checks**
@@ -1094,7 +1096,7 @@ config = {
     ```python
     # Monitor reconstruction error
     x_reconstructed = flow.inverse(flow.forward(x))
-    error = torch.mean(torch.abs(x - x_reconstructed))
+    error = jnp.mean(jnp.abs(x - x_reconstructed))
 
     # Should be < 1e-5 for numerical stability
     if error > 1e-3:

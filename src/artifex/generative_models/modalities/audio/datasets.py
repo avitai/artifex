@@ -97,7 +97,7 @@ def create_audio_dataset(
     rngs: nnx.Rngs | None = None,
     shuffle: bool = False,
     **kwargs: Any,
-) -> MemorySource:
+) -> Any:
     """Create an audio dataset as a MemorySource.
 
     Args:

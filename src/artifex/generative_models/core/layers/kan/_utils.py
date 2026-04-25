@@ -142,6 +142,8 @@ def _initialize_kan_params(
         if residual_fn is not None:
             c_res = init_scheme.get("c_res")
         c_basis = init_scheme.get("c_basis")
+        if c_basis is None:
+            raise ValueError("custom KAN initialization requires a c_basis array")
 
     else:
         raise ValueError(f"Unknown initialization method: {init_type}")

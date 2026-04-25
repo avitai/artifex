@@ -10,7 +10,7 @@
 # ---
 
 # %%
-r"""VAE MNIST Example - Variational Autoencoder on MNIST
+r"""VAE MNIST Example - Variational Autoencoder on MNIST.
 
 ## Overview
 
@@ -125,8 +125,7 @@ Artifex Team
 """
 
 # %% [markdown]
-"""
-# VAE MNIST Example
+"""# VAE MNIST Example.
 
 This notebook demonstrates Variational Autoencoders (VAEs) on MNIST using Artifex's
 modular encoder/decoder components.
@@ -143,8 +142,8 @@ By the end of this example, you will understand:
 
 # %%
 # Cell 1: Import Dependencies
-"""
-Import Artifex components:
+"""Import Artifex components:.
+
 - MLPEncoder: Encodes inputs to latent distribution parameters (μ, log σ²)
 - MLPDecoder: Decodes latent codes to reconstructions
 - VAE: Base VAE class with ELBO loss and sampling methods
@@ -164,13 +163,10 @@ from artifex.generative_models.models.vae import VAE
 
 
 # %% [markdown]
-"""
-## Data Loading
+"""## Data Loading.
 
-For this example, we create synthetic MNIST-like data. In production, you would use:
-- `tensorflow_datasets` for real MNIST
-- `torch.utils.data.DataLoader` for PyTorch datasets
-- Artifex's data loaders for standardized pipelines
+For this example, we create synthetic MNIST-like data. For real datasets, use
+Artifex or Grain input pipelines that return JAX arrays.
 
 **Data Format:**
 - Images: 28×28×1 (grayscale)
@@ -191,14 +187,13 @@ def load_mnist_data():
         Tuple of (train_images, test_images)
 
     Note:
-        Real MNIST loading would look like:
+        Real MNIST loading should return normalized JAX arrays:
         ```python
-        import tensorflow_datasets as tfds
-        ds = tfds.load('mnist', split='train', as_supervised=True)
-        images = ds.map(lambda x, y: x / 255.0)  # Normalize to [0, 1]
+        images = load_images_as_jax_array("train") / 255.0
         ```
     """
-    # Create synthetic MNIST-like data with proper dimensions
+    # Create synthetic MNIST-like data with proper dimensions.
+
     key = jax.random.key(42)
     train_key, test_key = jax.random.split(key)
 
@@ -210,8 +205,7 @@ def load_mnist_data():
 
 
 # %% [markdown]
-"""
-## Visualization
+"""## Visualization.
 
 The visualization function shows three rows:
 1. **Original**: Input images from the dataset
@@ -269,8 +263,7 @@ def visualize_vae_results(original, reconstructed, generated, num_samples=5):
 
 
 # %% [markdown]
-"""
-## Main Pipeline
+"""## Main Pipeline.
 
 The main function demonstrates the VAE workflow:
 
@@ -301,6 +294,7 @@ def main():
     modular encoder/decoder components.
     """
     print("=" * 80)  # noqa: T201
+
     print("VAE MNIST Example - Using Artifex's MLPEncoder & MLPDecoder")  # noqa: T201
     print("=" * 80)  # noqa: T201
 
@@ -589,8 +583,7 @@ print(f"  ✅ Results saved to {output_path}")  # noqa: T201
 
 
 # %% [markdown]
-"""
-## Experiments to Try
+"""## Experiments to Try.
 
 1. **CNN Architecture**:
    ```python
@@ -660,16 +653,8 @@ print(f"  ✅ Results saved to {output_path}")  # noqa: T201
 
 5. **Real MNIST Data**:
    ```python
-   import tensorflow_datasets as tfds
-
-   # Load real MNIST
-   ds = tfds.load('mnist', split='train', as_supervised=True)
-
-   def preprocess(image, label):
-       image = tf.cast(image, tf.float32) / 255.0  # Normalize to [0, 1]
-       return image
-
-   ds = ds.map(preprocess).batch(32).prefetch(tf.data.AUTOTUNE)
+   train_images = load_images_as_jax_array("train") / 255.0
+   train_batches = make_jax_batches(train_images, batch_size=32)
    ```
    Real MNIST will give much better results and realistic digit generation.
 

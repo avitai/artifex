@@ -45,7 +45,7 @@ from typing import Any
 
 import jax
 import jax.numpy as jnp
-from datarax import DAGExecutor, from_source
+from datarax import build_source_pipeline, DAGExecutor
 from datarax.core.data_source import DataSourceModule
 from flax import nnx
 
@@ -113,7 +113,7 @@ def create_data_pipeline(
     Returns:
         A DAGExecutor pipeline that yields BatchView objects.
     """
-    return from_source(
+    return build_source_pipeline(
         source,
         batch_size=batch_size,
         prefetch_size=prefetch_size,

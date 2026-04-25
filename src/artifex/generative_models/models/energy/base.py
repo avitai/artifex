@@ -341,7 +341,7 @@ class MLPEnergyFunction(EnergyFunction):
                     in_features=in_dim,
                     out_features=hidden_dim,
                     use_bias=use_bias,
-                    rngs=rngs,
+                    rngs=rngs or nnx.Rngs(),
                 )
             )
             in_dim = hidden_dim
@@ -351,7 +351,7 @@ class MLPEnergyFunction(EnergyFunction):
             in_features=in_dim,
             out_features=1,
             use_bias=use_bias,
-            rngs=rngs,
+            rngs=rngs or nnx.Rngs(),
         )
 
         # Dropout layer
@@ -443,7 +443,7 @@ class CNNEnergyFunction(EnergyFunction):
                     strides=(2, 2),  # Downsample
                     padding="SAME",
                     use_bias=use_bias,
-                    rngs=rngs,
+                    rngs=rngs or nnx.Rngs(),
                 )
             )
             in_channels = out_channels
@@ -453,7 +453,7 @@ class CNNEnergyFunction(EnergyFunction):
             in_features=hidden_dims[-1],
             out_features=1,
             use_bias=use_bias,
-            rngs=rngs,
+            rngs=rngs or nnx.Rngs(),
         )
 
     def __call__(

@@ -7,7 +7,7 @@ Structurally conforms to calibrax DatasetProtocol.
 
 import logging
 import os
-from typing import Any
+from typing import Any, cast
 
 import jax.numpy as jnp
 import numpy as np
@@ -160,8 +160,10 @@ class CelebADataset:
                 if i >= self.num_samples:
                     break
 
+                row = cast(dict[str, Any], item)
+
                 # Process image
-                img = item["image"]
+                img = row["image"]
                 if isinstance(img, np.ndarray):
                     img = Image.fromarray(img)
                 img = img.resize((self.image_size, self.image_size))
@@ -173,9 +175,9 @@ class CelebADataset:
                     # Attributes are stored as individual keys in the HF dataset
                     attr_list = []
                     for attr_name in self.attribute_names:
-                        if attr_name in item:
+                        if attr_name in row:
                             # Convert True/False to 1/0
-                            attr_list.append(1 if item[attr_name] else 0)
+                            attr_list.append(1 if row[attr_name] else 0)
                         else:
                             attr_list.append(0)  # Default to 0 if attribute not found
                     attr_values.append(attr_list)
@@ -264,7 +266,7 @@ class CelebADataset:
         image = self.images[actual_idx]
 
         # Create sample dict
-        sample = {"images": image}
+        sample: dict[str, Any] = {"images": image}
 
         # Add attributes if available
         if self.include_attributes and self.selected_attributes_data is not None:
@@ -275,7 +277,7 @@ class CelebADataset:
 
     def get_batch(
         self, batch_size: int = 32, start_idx: int = 0, split: str | None = None
-    ) -> dict[str, jnp.ndarray]:
+    ) -> dict[str, Any]:
         """Get a batch of samples.
 
         Args:
@@ -311,7 +313,7 @@ class CelebADataset:
         batch_images = self.images[batch_indices]
 
         # Create batch dict
-        batch = {"images": batch_images}
+        batch: dict[str, Any] = {"images": batch_images}
 
         # Add attributes if available
         if self.include_attributes and self.selected_attributes_data is not None:

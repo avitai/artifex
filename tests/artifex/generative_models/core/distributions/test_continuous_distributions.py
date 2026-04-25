@@ -2,7 +2,6 @@
 
 import warnings
 
-import distrax
 import jax
 import jax.numpy as jnp
 import pytest
@@ -506,9 +505,10 @@ class TestOptimizations:
         # Compute entropy (should be cached)
         entropy1 = normal.entropy()
 
-        # Modify scale parameter (this will change entropy, unlike location)
-        normal.scale = nnx.Param(jnp.array(2.0))  # Change scale
-        normal._dist = distrax.Normal(loc=normal.loc, scale=normal.scale)  # Update underlying dist
+        # Modify scale parameter (this will change entropy, unlike location).
+        # The runtime distrax distribution is derived from current NNX parameters,
+        # so no explicit _dist rewrite is required here.
+        normal.scale = nnx.Param(jnp.array(2.0))
 
         # Entropy should be recomputed (cache invalidated)
         entropy2 = normal.entropy()

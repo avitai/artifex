@@ -572,8 +572,6 @@ class TransformerEncoder(nnx.Module):
         # Create positional encoding if needed (don't initialize to None)
         if pos_encoding_type != "none":
             if pos_encoding_type == "sinusoidal":
-                # Only pass rngs if dropout_rate > 0
-                pe_rngs = rngs if dropout_rate > 0 else None
                 self.pos_encoding: (
                     SinusoidalPositionalEncoding
                     | LearnedPositionalEncoding
@@ -582,7 +580,7 @@ class TransformerEncoder(nnx.Module):
                     dim=hidden_dim,
                     max_len=max_len,
                     dropout_rate=dropout_rate,
-                    rngs=pe_rngs,
+                    rngs=rngs,
                 )
             elif pos_encoding_type == "learned":
                 # LearnedPositionalEncoding always requires rngs
@@ -601,8 +599,6 @@ class TransformerEncoder(nnx.Module):
                     raise ValueError(
                         f"Hidden dimension must be even for rotary encoding, got {hidden_dim}"
                     )
-                # Only pass rngs if dropout_rate > 0
-                pe_rngs = rngs if dropout_rate > 0 else None
                 self.pos_encoding: (
                     SinusoidalPositionalEncoding
                     | LearnedPositionalEncoding
@@ -612,7 +608,7 @@ class TransformerEncoder(nnx.Module):
                     max_len=max_len,
                     base=pos_encoding_base,
                     dropout_rate=dropout_rate,
-                    rngs=pe_rngs,
+                    rngs=rngs,
                 )
             else:
                 raise ValueError(f"Unsupported positional encoding type: {pos_encoding_type}")
@@ -739,8 +735,6 @@ class TransformerDecoder(nnx.Module):
         # Create positional encoding if needed (don't initialize to None)
         if pos_encoding_type != "none":
             if pos_encoding_type == "sinusoidal":
-                # Only pass rngs if dropout_rate > 0
-                pe_rngs = rngs if dropout_rate > 0 else None
                 self.pos_encoding: (
                     SinusoidalPositionalEncoding
                     | LearnedPositionalEncoding
@@ -749,7 +743,7 @@ class TransformerDecoder(nnx.Module):
                     dim=hidden_dim,
                     max_len=max_len,
                     dropout_rate=dropout_rate,
-                    rngs=pe_rngs,
+                    rngs=rngs,
                 )
             elif pos_encoding_type == "learned":
                 # LearnedPositionalEncoding always requires rngs
@@ -768,8 +762,6 @@ class TransformerDecoder(nnx.Module):
                     raise ValueError(
                         f"Hidden dimension must be even for rotary encoding, got {hidden_dim}"
                     )
-                # Only pass rngs if dropout_rate > 0
-                pe_rngs = rngs if dropout_rate > 0 else None
                 self.pos_encoding: (
                     SinusoidalPositionalEncoding
                     | LearnedPositionalEncoding
@@ -779,7 +771,7 @@ class TransformerDecoder(nnx.Module):
                     max_len=max_len,
                     base=pos_encoding_base,
                     dropout_rate=dropout_rate,
-                    rngs=pe_rngs,
+                    rngs=rngs,
                 )
             else:
                 raise ValueError(f"Unsupported positional encoding type: {pos_encoding_type}")

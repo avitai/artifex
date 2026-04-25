@@ -290,8 +290,11 @@ class SpectrogramProcessor(AudioProcessor):
         stft_magnitude = self._stft(audio)
 
         if self.config.representation == AudioRepresentation.MEL_SPECTROGRAM:
+            mel_filters = self.mel_filters
+            if mel_filters is None:
+                raise ValueError("mel spectrogram representation requires mel filters")
             # Apply mel filters
-            mel_spec = jnp.einsum("...ft,mf->...mt", stft_magnitude, self.mel_filters)
+            mel_spec = jnp.einsum("...ft,mf->...mt", stft_magnitude, mel_filters)
 
             # Convert to log scale
             log_mel = jnp.log(mel_spec + 1e-8)
@@ -312,9 +315,12 @@ class SpectrogramProcessor(AudioProcessor):
         if self.config.representation == AudioRepresentation.MEL_SPECTROGRAM:
             # Convert from log mel to linear mel
             mel_spec = jnp.exp(features)
+            mel_filters = self.mel_filters
+            if mel_filters is None:
+                raise ValueError("mel spectrogram representation requires mel filters")
 
             # Pseudo-inverse mel filter (simplified)
-            mel_filters_pinv = jnp.linalg.pinv(self.mel_filters + 1e-8)
+            mel_filters_pinv = jnp.linalg.pinv(mel_filters + 1e-8)
             stft_magnitude = jnp.einsum("...mt,fm->...ft", mel_spec, mel_filters_pinv)
         else:
             # Convert from log STFT to linear STFT

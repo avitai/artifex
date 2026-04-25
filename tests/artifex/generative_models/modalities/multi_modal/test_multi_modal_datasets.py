@@ -2,7 +2,7 @@
 
 import jax.numpy as jnp
 import pytest
-from datarax import from_source
+from datarax import build_source_pipeline
 from datarax.core.data_source import DataSourceModule
 from datarax.sources import MemorySource
 from flax import nnx
@@ -262,8 +262,8 @@ class TestCreatePairedMultiModalDataset:
 class TestPipelineIntegration:
     """Test datarax pipeline integration."""
 
-    def test_from_source_pipeline(self, rngs):
-        """Test that MemorySource works with datarax from_source pipeline."""
+    def test_batched_pipeline(self, rngs):
+        """Test that MemorySource works with the datarax batched pipeline."""
         source = create_synthetic_multi_modal_dataset(
             modalities=("image", "text"),
             num_samples=20,
@@ -271,8 +271,8 @@ class TestPipelineIntegration:
             image_shape=(8, 8, 3),
             text_sequence_length=5,
         )
-        pipeline = from_source(source, batch_size=5)
-        batch = next(iter(pipeline))
+        pipeline = build_source_pipeline(source, batch_size=5)
+        batch = next(iter(pipeline)).get_data()
 
         assert "image" in batch
         assert batch["image"].shape[0] == 5

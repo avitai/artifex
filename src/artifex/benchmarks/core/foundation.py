@@ -78,7 +78,7 @@ class BenchmarkResult:
     @classmethod
     def load(cls, path: str) -> "BenchmarkResult":
         """Load a result from a file."""
-        with open(path, "r", encoding="utf-8") as handle:
+        with open(path, encoding="utf-8") as handle:
             data = json.load(handle)
         return cls(**data)
 
@@ -87,6 +87,7 @@ class Benchmark(ABC):
     """Abstract benchmark base class used by the retained benchmark surface."""
 
     def __init__(self, config: BenchmarkConfig) -> None:
+        """Initialize the benchmark with its configuration."""
         self.config = config
 
     def setup(self) -> None:
@@ -143,6 +144,7 @@ class BenchmarkSuite(ABC):
     """Base class for benchmark suites."""
 
     def __init__(self, name: str, description: str = ""):
+        """Initialize the benchmark suite metadata."""
         self.name = name
         self.description = description
         self.benchmarks: list[Benchmark] = []

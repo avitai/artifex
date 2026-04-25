@@ -76,6 +76,7 @@ class SequencePolicyAdapter:
         model_kwargs_factory: Callable[[SequenceBatchLike], dict[str, Any]] | None = None,
         logits_extractor: Callable[[Any], jax.Array] | None = None,
     ) -> None:
+        """Initialize the sequence log-prob scorer."""
         self.model = model
         self.model_kwargs_factory = model_kwargs_factory
         self.logits_extractor = logits_extractor or extract_logits_from_output
@@ -150,6 +151,7 @@ class SequenceValueHeadAdapter:
         model_kwargs_factory: Callable[[SequenceRolloutBatch], dict[str, Any]] | None = None,
         value_extractor: Callable[[Any], jax.Array] | None = None,
     ) -> None:
+        """Initialize the sequence value-head adapter."""
         self.model = model
         self.model_kwargs_factory = model_kwargs_factory
         self.value_extractor = value_extractor or extract_values_from_output

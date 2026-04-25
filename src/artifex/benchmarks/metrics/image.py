@@ -5,23 +5,14 @@ including FID, IS (Inception Score), LPIPS, and SSIM metrics for image generatio
 """
 
 import logging
+from collections.abc import Callable
+from typing import cast
 
 import flax.nnx as nnx
 import jax
 import jax.numpy as jnp
+import numpy as np
 from calibrax.metrics.functional.image import ssim as calibrax_ssim
-
-
-logger = logging.getLogger(__name__)
-
-
-try:
-    from tensorflow.keras.applications.inception_v3 import InceptionV3
-
-    _HAS_TENSORFLOW = True
-except ImportError:
-    InceptionV3 = None
-    _HAS_TENSORFLOW = False
 
 from artifex.benchmarks.metrics.core import _init_metric_from_config, MetricBase
 from artifex.benchmarks.runtime_guards import demo_mode_from_mapping, require_demo_mode
@@ -33,6 +24,16 @@ from artifex.generative_models.core.evaluation.metrics.quality import (
     calculate_fid_score,
     compute_lpips_distance,
 )
+
+
+logger = logging.getLogger(__name__)
+
+
+def _resolved_metric_rngs(rngs: nnx.Rngs | None) -> nnx.Rngs:
+    """Provide a deterministic fallback RNG container for retained mock paths."""
+    if rngs is not None:
+        return rngs
+    return nnx.Rngs(params=jax.random.PRNGKey(0))
 
 
 class FIDMetric(MetricBase):
@@ -56,7 +57,7 @@ class FIDMetric(MetricBase):
             config: Evaluation configuration (must be EvaluationConfig)
         """
         self.metric_name = "fid_score"
-        self.inception_model: InceptionV3 | MockInceptionModel | None = None
+        self.feature_extractor: Callable[[jax.Array], jax.Array]
         self.fid_params = _init_metric_from_config(
             self,
             config=config,
@@ -78,23 +79,23 @@ class FIDMetric(MetricBase):
                 ),
             )
 
-        self._initialize_inception_model()
+        self._initialize_feature_extractor()
 
-    def _initialize_inception_model(self):
-        """Initialize the Inception model for feature extraction."""
+    def _initialize_feature_extractor(self) -> None:
+        """Initialize the configured feature extractor."""
         if self.mock_inception:
-            self.inception_model = MockInceptionModel(rngs=self.rngs)
+            mock_model = MockInceptionModel(rngs=_resolved_metric_rngs(self.rngs))
+            self.feature_extractor = mock_model.extract_features
             logger.info("Using retained mock Inception model in explicit demo mode")
             return
 
-        if not _HAS_TENSORFLOW:
-            raise RuntimeError(
-                "FIDMetric requires TensorFlow InceptionV3 in supported mode. Pass "
-                "mock_inception=True only for the retained demo workflow."
+        feature_extractor = self.fid_params.get("feature_extractor")
+        if not callable(feature_extractor):
+            raise ValueError(
+                "FIDMetric requires an explicit callable feature_extractor in supported mode. "
+                "Pass mock_inception=True only for the retained demo workflow."
             )
-
-        self.inception_model = InceptionV3(include_top=False, weights="imagenet", pooling="avg")
-        logger.info("Loaded real Inception model for FID calculation")
+        self.feature_extractor = cast(Callable[[jax.Array], jax.Array], feature_extractor)
 
     def compute(
         self, real_data: jax.Array, generated_data: jax.Array, **kwargs
@@ -182,24 +183,7 @@ class FIDMetric(MetricBase):
         Returns:
             Extracted features [batch_size, feature_dim]
         """
-        if self.mock_inception:
-            # Use mock inception model
-            return self.inception_model.extract_features(images)
-        else:
-            # Convert to numpy and preprocess for Inception
-            images_np = jnp.array(images)
-
-            # Resize images to Inception input size if needed
-            if images_np.shape[1] != 299 or images_np.shape[2] != 299:
-                images_np = self._resize_images(images_np, target_size=(299, 299))
-
-            # Scale from [0, 1] to [-1, 1] if needed
-            if jnp.max(images_np) <= 1.0:
-                images_np = images_np * 2.0 - 1.0
-
-            # Extract features using real Inception model
-            features = self.inception_model.predict(images_np, verbose=0)
-            return features
+        return jnp.asarray(self.feature_extractor(images))
 
     def _resize_images(self, images: jax.Array, target_size: tuple[int, int]) -> jax.Array:
         """Resize images to target size.
@@ -220,7 +204,8 @@ class FIDMetric(MetricBase):
             )
 
             for i in range(batch_size):
-                img = Image.fromarray((images[i] * 255).astype(jnp.uint8))
+                image_uint8 = np.asarray(images[i] * 255, dtype=np.uint8)
+                img = Image.fromarray(image_uint8)
                 img_resized = img.resize(target_size)
                 resized_images[i] = jnp.array(img_resized) / 255.0
 
@@ -279,6 +264,22 @@ class MockInceptionModel:
         scaled_features = features * image_stds[:, None] + image_means[:, None]
 
         return jnp.array(scaled_features)
+
+    def predict(self, images: jax.Array) -> jax.Array:
+        """Return deterministic mock class probabilities for generated images."""
+        batch_size = images.shape[0]
+        if hasattr(self.rngs, "inception"):
+            key = self.rngs.inception()
+        elif hasattr(self.rngs, "params"):
+            key = self.rngs.params()
+        else:
+            key = jax.random.key(42)
+
+        logits = jax.random.normal(key, (batch_size, 1000))
+        probabilities = nnx.softmax(logits, axis=-1)
+        image_means = jnp.mean(images, axis=(1, 2, 3))
+        scaled = probabilities * (1.0 + 0.1 * image_means[:, None])
+        return scaled / jnp.sum(scaled, axis=-1, keepdims=True)
 
 
 class LPIPSMetric(MetricBase):
@@ -519,7 +520,7 @@ class ISMetric(MetricBase):
         self.mock_inception = is_params.get("mock_inception", False)
         self.demo_mode = demo_mode_from_mapping(is_params)
         self.splits = is_params.get("splits", 10)
-        self.inception_model = None
+        self.classifier: Callable[[jax.Array], jax.Array]
 
         if self.mock_inception:
             require_demo_mode(
@@ -531,26 +532,23 @@ class ISMetric(MetricBase):
                 ),
             )
 
-        self._initialize_inception_model()
+        self._initialize_classifier(is_params)
 
-    def _initialize_inception_model(self):
-        """Initialize the Inception model for feature extraction."""
+    def _initialize_classifier(self, is_params: dict[str, object]) -> None:
+        """Initialize the configured classifier."""
         if self.mock_inception:
-            self.inception_model = MockInceptionModel(rngs=self.rngs)
+            mock_model = MockInceptionModel(rngs=_resolved_metric_rngs(self.rngs))
+            self.classifier = mock_model.predict
             logger.info("Using retained mock Inception classifier in explicit demo mode")
             return
 
-        try:
-            import tensorflow as tf  # noqa: F401
-            from tensorflow.keras.applications.inception_v3 import InceptionV3
-        except ImportError as e:
-            raise RuntimeError(
-                "ISMetric requires TensorFlow InceptionV3 in supported mode. Pass "
-                "mock_inception=True only for the retained demo workflow."
-            ) from e
-
-        self.inception_model = InceptionV3(include_top=True, weights="imagenet")
-        logger.info("Loaded real Inception model for IS calculation")
+        classifier = is_params.get("classifier")
+        if not callable(classifier):
+            raise ValueError(
+                "ISMetric requires an explicit callable classifier in supported mode. "
+                "Pass mock_inception=True only for the retained demo workflow."
+            )
+        self.classifier = cast(Callable[[jax.Array], jax.Array], classifier)
 
     def compute(
         self, real_data: jax.Array, generated_data: jax.Array, **kwargs
@@ -600,45 +598,10 @@ class ISMetric(MetricBase):
         Returns:
             Inception predictions [batch_size, num_classes]
         """
+        predictions = jnp.asarray(self.classifier(images))
         if self.mock_inception:
-            # Use mock inception model to generate class probabilities
-            batch_size = images.shape[0]
-            num_classes = 1000  # ImageNet classes
-
-            # Generate random probabilities
-            if hasattr(self.rngs, "inception"):
-                key = self.rngs.inception()
-            elif hasattr(self.rngs, "params"):
-                key = self.rngs.params()
-            else:
-                key = jax.random.key(42)
-            logits = jax.random.normal(key, (batch_size, num_classes))
-
-            # Apply softmax to get probabilities
-            probs = nnx.softmax(logits, axis=1)
-
-            # Make probabilities somewhat dependent on image content
-            image_means = jnp.mean(images, axis=(1, 2, 3))
-            scaled_probs = probs * (1.0 + 0.1 * image_means[:, None])
-            normalized_probs = scaled_probs / jnp.sum(scaled_probs, axis=1, keepdims=True)
-
-            return normalized_probs
-        else:
-            # Convert to numpy and preprocess for Inception
-            images_np = images
-
-            # Resize images to Inception input size if needed
-            if images_np.shape[1] != 299 or images_np.shape[2] != 299:
-                # Placeholder for resizing
-                pass
-
-            # Scale from [0, 1] to [-1, 1] if needed
-            if images_np.max() <= 1.0:
-                images_np = images_np * 2.0 - 1.0
-
-            # Get predictions using real Inception model
-            preds = self.inception_model.predict(images_np, verbose=0)
-            return preds
+            return predictions
+        return nnx.softmax(predictions, axis=-1)
 
     def _calculate_inception_score(self, preds: jax.Array) -> float:
         """Calculate Inception Score from predictions.
@@ -687,6 +650,7 @@ class ISMetric(MetricBase):
 def create_fid_metric(
     rngs: nnx.Rngs,
     mock_inception: bool = False,
+    feature_extractor: Callable[[jax.Array], jax.Array] | None = None,
     batch_size: int = 32,
     config_name: str = "fid_metric",
 ) -> FIDMetric:
@@ -695,21 +659,24 @@ def create_fid_metric(
     Args:
         rngs: NNX Rngs for stochastic operations
         mock_inception: Whether to use mock inception model
+        feature_extractor: Callable feature extractor for supported mode
         batch_size: Evaluation batch size
         config_name: Name for the configuration
 
     Returns:
         Configured FID metric
     """
+    fid_params: dict[str, object] = {
+        "mock_inception": mock_inception,
+        "higher_is_better": False,
+    }
+    if feature_extractor is not None:
+        fid_params["feature_extractor"] = feature_extractor
+
     config = EvaluationConfig(
         name=config_name,
         metrics=["fid"],
-        metric_params={
-            "fid": {
-                "mock_inception": mock_inception,
-                "higher_is_better": False,
-            }
-        },
+        metric_params={"fid": fid_params},
         eval_batch_size=batch_size,
     )
 
@@ -783,6 +750,7 @@ def create_ssim_metric(
 def create_is_metric(
     rngs: nnx.Rngs,
     mock_inception: bool = False,
+    classifier: Callable[[jax.Array], jax.Array] | None = None,
     splits: int = 10,
     batch_size: int = 32,
     config_name: str = "is_metric",
@@ -792,6 +760,7 @@ def create_is_metric(
     Args:
         rngs: NNX Rngs for stochastic operations
         mock_inception: Whether to use mock inception model
+        classifier: Callable classifier for supported mode
         splits: Number of splits for IS calculation
         batch_size: Evaluation batch size
         config_name: Name for the configuration
@@ -799,16 +768,18 @@ def create_is_metric(
     Returns:
         Configured IS metric
     """
+    is_params: dict[str, object] = {
+        "mock_inception": mock_inception,
+        "splits": splits,
+        "higher_is_better": True,
+    }
+    if classifier is not None:
+        is_params["classifier"] = classifier
+
     config = EvaluationConfig(
         name=config_name,
         metrics=["inception_score"],
-        metric_params={
-            "inception_score": {
-                "mock_inception": mock_inception,
-                "splits": splits,
-                "higher_is_better": True,
-            }
-        },
+        metric_params={"inception_score": is_params},
         eval_batch_size=batch_size,
     )
 

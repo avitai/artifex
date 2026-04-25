@@ -10,8 +10,7 @@
 # ---
 
 # %% [markdown]
-r"""
-# Training a Flow Model on MNIST with RealNVP
+r"""# Training a Flow Model on MNIST with RealNVP.
 
 ## Overview
 
@@ -97,8 +96,7 @@ echo("Using: RealNVP, RealNVPConfig, CouplingNetworkConfig, DataRax, nnx.jit")
 echo("=" * 70)
 
 # %% [markdown]
-r"""
-## Step 1: Configuration
+r"""## Step 1: Configuration.
 
 Training configuration based on RealNVP best practices.
 """
@@ -117,8 +115,7 @@ echo(f"  Batch size: {BATCH_SIZE}")
 echo(f"  Learning rate: {BASE_LR} (with {WARMUP_STEPS} warmup steps)")
 
 # %% [markdown]
-r"""
-## Step 2: Data Loading with DataRax
+r"""## Step 2: Data Loading with DataRax.
 
 Flow models require continuous data. MNIST is discrete (0-255), so we apply
 dequantization. We use DataRax for efficient GPU-accelerated data loading.
@@ -161,7 +158,8 @@ def preprocess_batch(batch, key):
     3. Apply dequantization (add uniform noise)
     4. Scale to [-1, 1]
     """
-    # Extract images from batch
+    # Extract images from batch.
+
     images = batch["image"]
 
     # Normalize to [0, 1]
@@ -181,8 +179,7 @@ def preprocess_batch(batch, key):
 
 
 # %% [markdown]
-r"""
-## Step 3: Create RealNVP Using Artifex's API
+r"""## Step 3: Create RealNVP Using Artifex's API.
 
 Use Artifex's `RealNVP` class with configuration objects.
 """
@@ -223,8 +220,7 @@ echo(f"   Coupling layers: {flow_config.num_coupling_layers}")
 echo(f"   Hidden dims: {coupling_config.hidden_dims}")
 
 # %% [markdown]
-r"""
-## Step 4: Create Optimizer with LR Schedule
+r"""## Step 4: Create Optimizer with LR Schedule.
 
 Use learning rate warmup with cosine decay for stable training.
 """
@@ -252,8 +248,7 @@ optimizer = nnx.Optimizer(
 echo(f"   Optimizer: Adam with warmup ({WARMUP_STEPS} steps) + cosine decay")
 
 # %% [markdown]
-r"""
-## Step 5: Training Step
+r"""## Step 5: Training Step.
 
 Define the training step for maximum likelihood training.
 """
@@ -280,8 +275,7 @@ echo("   Training step JIT-compiled")
 
 
 # %% [markdown]
-r"""
-## Step 6: Training Loop
+r"""## Step 6: Training Loop.
 
 Train the model for multiple epochs using DataRax pipeline.
 """
@@ -331,8 +325,7 @@ echo("-" * 60)
 echo("Training complete!")
 
 # %% [markdown]
-r"""
-## Step 7: Generate Samples
+r"""## Step 7: Generate Samples.
 
 Generate new digits from the trained model.
 """
@@ -353,8 +346,7 @@ generated_images = generated_samples.reshape(n_samples, 28, 28)
 echo(f"✅ Generated {n_samples} samples")
 
 # %% [markdown]
-r"""
-## Step 8: Visualize Results
+r"""## Step 8: Visualize Results.
 """
 
 # %%

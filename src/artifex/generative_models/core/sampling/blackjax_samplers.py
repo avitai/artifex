@@ -6,7 +6,7 @@ distribution framework.
 """
 
 from collections.abc import Callable
-from typing import Any, NamedTuple
+from typing import Any, cast, NamedTuple
 
 import blackjax
 import jax
@@ -18,14 +18,17 @@ from artifex.generative_models.core.rng import extract_rng_key
 from artifex.generative_models.core.sampling.base import SamplingAlgorithm
 
 
+LogDensityFn = Callable[[Any], jax.Array]
+
+
 def _extract_key(rng: jax.Array | nnx.Rngs) -> jax.Array:
     """Extract a JAX random key from an explicit sampling owner."""
     return extract_rng_key(rng, streams=("sample", "default"), context="BlackJAX sampling")
 
 
 def _prepare_logdensity_fn(
-    log_prob_fn: Callable[[Any], float] | Distribution,
-) -> Callable[[Any], float]:
+    log_prob_fn: Callable[[Any], Any] | Distribution,
+) -> LogDensityFn:
     """Prepare log density function for BlackJAX.
 
     Args:
@@ -39,9 +42,9 @@ def _prepare_logdensity_fn(
     if isinstance(log_prob_fn, Distribution):
         # Make sure we return a scalar by summing the log probs if needed
         def scalar_log_prob(x):
-            result = log_prob_fn.log_prob(x)
+            result = jnp.asarray(log_prob_fn.log_prob(x))
             # If the result is not a scalar, sum it
-            if hasattr(result, "shape") and len(result.shape) > 0:
+            if result.ndim > 0:
                 return jnp.sum(result)
             return result
 
@@ -49,9 +52,9 @@ def _prepare_logdensity_fn(
 
     # If it's a function, wrap it to ensure it returns a scalar
     def ensure_scalar_log_prob(x):
-        result = log_prob_fn(x)
+        result = jnp.asarray(log_prob_fn(x))
         # If the result is not a scalar, sum it
-        if hasattr(result, "shape") and len(result.shape) > 0:
+        if result.ndim > 0:
             return jnp.sum(result)
         return result
 
@@ -79,7 +82,7 @@ class BlackJAXHMC(SamplingAlgorithm):
         inverse_mass_matrix: jax.Array | None = None,
         num_integration_steps: int = 10,
     ):
-        """Constructor.
+        """Initialize the HMC sampler.
 
         Args:
           log_prob_fn: Function that returns the log probability of a position.
@@ -91,7 +94,7 @@ class BlackJAXHMC(SamplingAlgorithm):
         self.step_size = step_size
         self.inverse_mass_matrix = inverse_mass_matrix
         self.num_integration_steps = num_integration_steps
-        self._kernel = None
+        self._kernel: Any | None = None
 
     def _scalar_log_prob_fn(self, x):
         """Return scalar log probability by summing over batch dimensions."""
@@ -135,15 +138,19 @@ class BlackJAXHMC(SamplingAlgorithm):
 
         # Note: blackjax.hmc() argument order is:
         # (logdensity_fn, step_size, inverse_mass_matrix, num_integration_steps)
-        self._kernel = blackjax.hmc(
-            logprob_fn,
-            self.step_size,
-            self.inverse_mass_matrix,
-            self.num_integration_steps,
+        self._kernel = cast(
+            Any,
+            blackjax.hmc(
+                logprob_fn,
+                self.step_size,
+                self.inverse_mass_matrix,
+                self.num_integration_steps,
+            ),
         )
 
         # Create initial state
-        sampler_state = self._kernel.init(x)
+        kernel = cast(Any, self._kernel)
+        sampler_state = kernel.init(x)
 
         return BlackJAXSamplerState(x=x, sampler_state=sampler_state, key=key)
 
@@ -175,15 +182,19 @@ class BlackJAXHMC(SamplingAlgorithm):
 
             # Note: blackjax.hmc() argument order is:
             # (logdensity_fn, step_size, inverse_mass_matrix, num_integration_steps)
-            self._kernel = blackjax.hmc(
-                logprob_fn,
-                self.step_size,
-                self.inverse_mass_matrix,
-                self.num_integration_steps,
+            self._kernel = cast(
+                Any,
+                blackjax.hmc(
+                    logprob_fn,
+                    self.step_size,
+                    self.inverse_mass_matrix,
+                    self.num_integration_steps,
+                ),
             )
 
         # Run one step
-        sampler_state, info = self._kernel.step(subkey, state.sampler_state)
+        kernel = cast(Any, self._kernel)
+        sampler_state, info = kernel.step(subkey, state.sampler_state)
 
         # Convert info to a dict if it's not already
         info_dict = dict(is_accepted=info.is_accepted)
@@ -207,7 +218,7 @@ class BlackJAXNUTS(SamplingAlgorithm):
         step_size: float = 1e-3,
         inverse_mass_matrix: jax.Array | None = None,
     ):
-        """Constructor.
+        """Initialize the NUTS sampler.
 
         Args:
           log_prob_fn: Function that returns the log probability of a position.
@@ -217,7 +228,7 @@ class BlackJAXNUTS(SamplingAlgorithm):
         self.log_prob_fn = log_prob_fn
         self.step_size = step_size
         self.inverse_mass_matrix = inverse_mass_matrix
-        self._kernel = None
+        self._kernel: Any | None = None
 
     def _scalar_log_prob_fn(self, x):
         """Return scalar log probability by summing over batch dimensions."""
@@ -259,14 +270,18 @@ class BlackJAXNUTS(SamplingAlgorithm):
         # Create the NUTS kernel
         logprob_fn = self._scalar_log_prob_fn
 
-        self._kernel = blackjax.nuts(
-            logprob_fn,
-            self.step_size,
-            self.inverse_mass_matrix,
+        self._kernel = cast(
+            Any,
+            blackjax.nuts(
+                logprob_fn,
+                self.step_size,
+                self.inverse_mass_matrix,
+            ),
         )
 
         # Create initial state with just the position
-        sampler_state = self._kernel.init(x)
+        kernel = cast(Any, self._kernel)
+        sampler_state = kernel.init(x)
 
         return BlackJAXSamplerState(x=x, sampler_state=sampler_state, key=key)
 
@@ -282,7 +297,8 @@ class BlackJAXNUTS(SamplingAlgorithm):
         key, subkey = jax.random.split(state.key)
 
         # Run one step
-        sampler_state, info = self._kernel.step(subkey, state.sampler_state)
+        kernel = cast(Any, self._kernel)
+        sampler_state, info = kernel.step(subkey, state.sampler_state)
 
         # Convert info to a dict if it's not already
         # NUTS uses acceptance_rate instead of is_accepted
@@ -305,7 +321,7 @@ class BlackJAXMALA(SamplingAlgorithm):
     """
 
     def __init__(self, log_prob_fn: Callable, step_size: float = 1e-3):
-        """Constructor.
+        """Initialize the MALA sampler.
 
         Args:
             log_prob_fn: Function that returns the log probability of a
@@ -314,7 +330,7 @@ class BlackJAXMALA(SamplingAlgorithm):
         """
         self.log_prob_fn = log_prob_fn
         self.step_size = step_size
-        self._kernel = None
+        self._kernel: Any | None = None
 
     def _scalar_log_prob_fn(self, x):
         """Return scalar log probability by summing over batch dimensions."""
@@ -339,13 +355,17 @@ class BlackJAXMALA(SamplingAlgorithm):
         # Create the MALA kernel
         logprob_fn = self._scalar_log_prob_fn
 
-        self._kernel = blackjax.mala(
-            logprob_fn,
-            self.step_size,
+        self._kernel = cast(
+            Any,
+            blackjax.mala(
+                logprob_fn,
+                self.step_size,
+            ),
         )
 
         # Create initial state
-        sampler_state = self._kernel.init(x)
+        kernel = cast(Any, self._kernel)
+        sampler_state = kernel.init(x)
 
         return BlackJAXSamplerState(x=x, sampler_state=sampler_state, key=key)
 
@@ -365,13 +385,17 @@ class BlackJAXMALA(SamplingAlgorithm):
             # Create the MALA kernel (should typically be initialized
             # in init())
             logprob_fn = self._scalar_log_prob_fn
-            self._kernel = blackjax.mala(
-                logprob_fn,
-                self.step_size,
+            self._kernel = cast(
+                Any,
+                blackjax.mala(
+                    logprob_fn,
+                    self.step_size,
+                ),
             )
 
         # Run one step
-        sampler_state, info = self._kernel.step(subkey, state.sampler_state)
+        kernel = cast(Any, self._kernel)
+        sampler_state, info = kernel.step(subkey, state.sampler_state)
 
         # Convert info to a dict if it's not already
         info_dict = dict(is_accepted=info.is_accepted)
@@ -384,7 +408,7 @@ class BlackJAXMALA(SamplingAlgorithm):
 
 
 def hmc_sampling(
-    log_prob_fn: Callable[[Any], float] | Distribution,
+    log_prob_fn: Callable[[Any], Any] | Distribution,
     init_state: Any,
     key: jax.Array | nnx.Rngs,
     n_samples: int,
@@ -421,7 +445,14 @@ def hmc_sampling(
         init_state = jnp.array([init_state.item()])
         # Wrap log_prob_fn to handle scalar input
         original_log_prob_fn = log_prob_fn
-        log_prob_fn = lambda x: original_log_prob_fn(x[0] if len(x) == 1 else x)
+
+        def _scalar_log_prob_wrapper(x: jax.Array) -> jax.Array:
+            scalar_input = x[0] if x.shape[0] == 1 else x
+            if isinstance(original_log_prob_fn, Distribution):
+                return jnp.asarray(original_log_prob_fn.log_prob(scalar_input))
+            return jnp.asarray(original_log_prob_fn(scalar_input))
+
+        log_prob_fn = _scalar_log_prob_wrapper
 
     # Prepare log density function
     logdensity_fn = _prepare_logdensity_fn(log_prob_fn)
@@ -453,11 +484,14 @@ def hmc_sampling(
             inverse_mass_matrix = jnp.array([1.0])
 
     # Create HMC sampler
-    hmc = blackjax.hmc(
-        logdensity_fn,
-        step_size=step_size,
-        inverse_mass_matrix=inverse_mass_matrix,
-        num_integration_steps=num_integration_steps,
+    hmc = cast(
+        Any,
+        blackjax.hmc(
+            logdensity_fn,
+            step_size=step_size,
+            inverse_mass_matrix=inverse_mass_matrix,
+            num_integration_steps=num_integration_steps,
+        ),
     )
 
     # Initialize state
@@ -502,7 +536,7 @@ def hmc_sampling(
 
 
 def nuts_sampling(
-    log_prob_fn: Callable[[Any], float] | Distribution,
+    log_prob_fn: Callable[[Any], Any] | Distribution,
     init_state: Any,
     key: jax.Array | nnx.Rngs,
     n_samples: int,
@@ -566,10 +600,13 @@ def nuts_sampling(
             inverse_mass_matrix = jnp.array([1.0])
 
     # Create NUTS sampler
-    nuts = blackjax.nuts(
-        logdensity_fn,
-        step_size,
-        inverse_mass_matrix,
+    nuts = cast(
+        Any,
+        blackjax.nuts(
+            logdensity_fn,
+            step_size,
+            inverse_mass_matrix,
+        ),
     )
 
     # Initialize state
@@ -610,7 +647,7 @@ def nuts_sampling(
 
 
 def mala_sampling(
-    log_prob_fn: Callable[[Any], float] | Distribution,
+    log_prob_fn: Callable[[Any], Any] | Distribution,
     init_state: Any,
     key: jax.Array | nnx.Rngs,
     n_samples: int,
@@ -640,7 +677,7 @@ def mala_sampling(
     logdensity_fn = _prepare_logdensity_fn(log_prob_fn)
 
     # Create MALA sampler
-    mala = blackjax.mala(logdensity_fn, step_size=step_size)
+    mala = cast(Any, blackjax.mala(logdensity_fn, step_size=step_size))
 
     # Initialize state
     state = mala.init(init_state)

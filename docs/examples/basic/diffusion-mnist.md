@@ -136,12 +136,10 @@ pip install artifex
 ### GPU Memory Configuration
 
 !!! warning "Important: Memory Configuration"
-    TensorFlow (used by tensorflow_datasets) can pre-allocate GPU memory, leaving none for JAX. Set these environment variables **before** any imports:
+    JAX can pre-allocate GPU memory for performance. Set these environment variables **before** any imports when you need tighter memory sharing:
 
 ```python
 import os
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"  # Suppress TF warnings
-os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true"  # Don't pre-allocate
 os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"  # JAX: don't pre-allocate
 os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = "0.8"  # JAX: use 80% of GPU
 ```

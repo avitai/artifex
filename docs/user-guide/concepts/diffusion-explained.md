@@ -512,11 +512,11 @@ Typical $\gamma = 5$. Achieves **3.4× faster convergence** by preventing over-w
 **Optimizer Configuration**:
 
 ```python
-optimizer = torch.optim.AdamW(
-    model.parameters(),
-    lr=1e-4,
-    betas=(0.9, 0.999),
-    weight_decay=1e-4
+tx = optax.adamw(
+    learning_rate=1e-4,
+    b1=0.9,
+    b2=0.999,
+    weight_decay=1e-4,
 )
 ```
 
@@ -1173,7 +1173,7 @@ Combines ViT with U-Net principles:
 
 - **ONNX Runtime**: 10-30% speedup
 - **TensorRT**: 2-5× speedup on NVIDIA GPUs
-- **torch.compile()**: 10-30% speedup with PyTorch 2.0+
+- **JAX compilation**: Use `jax.jit` and `jax.lax.scan` to compile repeated denoising loops
 - **Flash Attention**: 2-3× speedup for attention layers
 
 **Hardware Requirements**:

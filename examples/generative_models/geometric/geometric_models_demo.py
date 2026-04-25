@@ -11,8 +11,7 @@
 # ---
 
 # %% [markdown]
-"""
-# Geometric Models Demo: Point Clouds, Meshes, and Voxels
+"""# Geometric Models Demo: Point Clouds, Meshes, and Voxels.
 
 This example demonstrates how to configure and instantiate different types of
 geometric models in the Artifex framework:
@@ -82,8 +81,7 @@ def echo(message: object = "") -> None:
 
 
 # %% [markdown]
-"""
-## 1. Setup Random Number Generation
+"""## 1. Setup Random Number Generation.
 
 We initialize the random number generator for reproducible model creation.
 """
@@ -97,8 +95,7 @@ def create_demo_rngs(seed: int = 42) -> nnx.Rngs:
 
 
 # %% [markdown]
-"""
-## 2. Point Cloud Model
+"""## 2. Point Cloud Model.
 
 Point clouds are unordered sets of 3D points, commonly used for:
 
@@ -145,8 +142,7 @@ def run_point_cloud_demo(rngs: nnx.Rngs) -> None:
 
 
 # %% [markdown]
-"""
-## 3. Mesh Model
+"""## 3. Mesh Model.
 
 Meshes are connected vertex structures with explicit topology, ideal for:
 
@@ -189,8 +185,7 @@ def run_mesh_demo(rngs: nnx.Rngs) -> None:
 
 
 # %% [markdown]
-"""
-## 4. Voxel Model
+"""## 4. Voxel Model.
 
 Voxels are regular 3D grids, which makes them useful for:
 
@@ -235,8 +230,7 @@ def run_voxel_demo(rngs: nnx.Rngs) -> None:
 
 
 # %% [markdown]
-"""
-## Summary and Key Takeaways
+"""## Summary and Key Takeaways.
 
 This example demonstrates three foundational geometric representations:
 

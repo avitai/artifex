@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 
 import jax
 import jax.numpy as jnp
@@ -32,6 +32,7 @@ class GRPOTrainer:
         policy_adapter: SequenceRolloutPolicyAdapter | None = None,
         reference_adapter: SequenceRolloutPolicyAdapter | None = None,
     ) -> None:
+        """Initialize the GRPO trainer."""
         self.model = model
         self.optimizer = optimizer
         self.config = config if config is not None else GRPOConfig()
@@ -54,7 +55,7 @@ class GRPOTrainer:
 
         bind = getattr(adapter, "bind", None)
         if callable(bind):
-            return bind(model)
+            return cast(SequenceRolloutPolicyAdapter, bind(model))
 
         if hasattr(adapter, "model"):
             msg = (
@@ -74,7 +75,7 @@ class GRPOTrainer:
 
         bind = getattr(adapter, "bind", None)
         if callable(bind):
-            return bind(self.reference_model)
+            return cast(SequenceRolloutPolicyAdapter, bind(self.reference_model))
 
         if hasattr(adapter, "model"):
             msg = (

@@ -1,5 +1,4 @@
-"""
-Divergence losses module.
+"""Divergence losses module.
 
 This module provides loss functions based on divergence measures between
 probability distributions, commonly used in generative models like VAEs and GANs.
@@ -14,14 +13,14 @@ from calibrax.metrics.functional.divergence import (
     reverse_kl_divergence as _calibrax_reverse_kl_divergence,
     wasserstein_1d as _calibrax_wasserstein_1d,
 )
-from distrax import Distribution
+from distrax import Distribution as DistraxDistribution
 
 from artifex.generative_models.core.losses.base import reduce_loss
 
 
 def kl_divergence(
-    predictions: jax.Array | Distribution,
-    targets: jax.Array | Distribution,
+    predictions: jax.Array | DistraxDistribution,
+    targets: jax.Array | DistraxDistribution,
     log_predictions: jax.Array | None = None,
     log_targets: jax.Array | None = None,
     eps: float = 1e-8,
@@ -29,8 +28,7 @@ def kl_divergence(
     weights: jax.Array | None = None,
     axis: int | tuple[int, ...] | None = None,
 ) -> jax.Array:
-    """
-    Kullback-Leibler divergence between two distributions.
+    """Kullback-Leibler divergence between two distributions.
 
     KL(P||Q) = sum(P(x) * log(P(x) / Q(x)))
 
@@ -54,31 +52,34 @@ def kl_divergence(
         >>> kl_divergence(p, q)
     """
     # Handle distrax Distribution objects
-    if isinstance(predictions, Distribution) and isinstance(targets, Distribution):
-        kl = predictions.kl_divergence(targets)
+    if isinstance(predictions, DistraxDistribution) and isinstance(targets, DistraxDistribution):
+        kl = jnp.asarray(predictions.kl_divergence(targets))
         return reduce_loss(kl, reduction, weights, axis)
+
+    predictions_array = jnp.asarray(predictions)
+    targets_array = jnp.asarray(targets)
 
     # Handle array inputs
     if reduction == "mean" and weights is None and axis is None:
-        return _calibrax_kl_divergence(predictions, targets)
+        return _calibrax_kl_divergence(predictions_array, targets_array)
 
     if log_predictions is None:
-        predictions = jnp.clip(predictions, eps, 1.0)
-        log_predictions = jnp.log(predictions)
+        predictions_array = jnp.clip(predictions_array, eps, 1.0)
+        log_predictions = jnp.log(predictions_array)
 
     if log_targets is None:
-        targets = jnp.clip(targets, eps, 1.0)
-        log_targets = jnp.log(targets)
+        targets_array = jnp.clip(targets_array, eps, 1.0)
+        log_targets = jnp.log(targets_array)
 
-    kl_terms = predictions * (log_predictions - log_targets)
+    kl_terms = predictions_array * (log_predictions - log_targets)
     divergence_axis = axis if axis is not None else -1
     kl = jnp.sum(kl_terms, axis=divergence_axis)
     return reduce_loss(kl, reduction, weights, axis=None)
 
 
 def reverse_kl_divergence(
-    predictions: jax.Array | Distribution,
-    targets: jax.Array | Distribution,
+    predictions: jax.Array | DistraxDistribution,
+    targets: jax.Array | DistraxDistribution,
     log_predictions: jax.Array | None = None,
     log_targets: jax.Array | None = None,
     eps: float = 1e-8,
@@ -86,8 +87,7 @@ def reverse_kl_divergence(
     weights: jax.Array | None = None,
     axis: int | tuple[int, ...] | None = None,
 ) -> jax.Array:
-    """
-    Reverse Kullback-Leibler divergence between two distributions.
+    """Reverse Kullback-Leibler divergence between two distributions.
 
     KL(Q||P) = sum(Q(x) * log(Q(x) / P(x)))
 
@@ -111,38 +111,40 @@ def reverse_kl_divergence(
         >>> reverse_kl_divergence(p, q)
     """
     # Handle distrax Distribution objects
-    if isinstance(predictions, Distribution) and isinstance(targets, Distribution):
-        kl = targets.kl_divergence(predictions)
+    if isinstance(predictions, DistraxDistribution) and isinstance(targets, DistraxDistribution):
+        kl = jnp.asarray(targets.kl_divergence(predictions))
         return reduce_loss(kl, reduction, weights, axis)
+
+    predictions_array = jnp.asarray(predictions)
+    targets_array = jnp.asarray(targets)
 
     # Handle array inputs
     if reduction == "mean" and weights is None and axis is None:
-        return _calibrax_reverse_kl_divergence(predictions, targets)
+        return _calibrax_reverse_kl_divergence(predictions_array, targets_array)
 
     if log_predictions is None:
-        predictions = jnp.clip(predictions, eps, 1.0)
-        log_predictions = jnp.log(predictions)
+        predictions_array = jnp.clip(predictions_array, eps, 1.0)
+        log_predictions = jnp.log(predictions_array)
 
     if log_targets is None:
-        targets = jnp.clip(targets, eps, 1.0)
-        log_targets = jnp.log(targets)
+        targets_array = jnp.clip(targets_array, eps, 1.0)
+        log_targets = jnp.log(targets_array)
 
-    kl_terms = targets * (log_targets - log_predictions)
+    kl_terms = targets_array * (log_targets - log_predictions)
     divergence_axis = axis if axis is not None else -1
     kl = jnp.sum(kl_terms, axis=divergence_axis)
     return reduce_loss(kl, reduction, weights, axis=None)
 
 
 def js_divergence(
-    predictions: jax.Array | Distribution,
-    targets: jax.Array | Distribution,
+    predictions: jax.Array | DistraxDistribution,
+    targets: jax.Array | DistraxDistribution,
     eps: float = 1e-8,
     reduction: str = "mean",
     weights: jax.Array | None = None,
     axis: int | tuple[int, ...] | None = None,
 ) -> jax.Array:
-    """
-    Jensen-Shannon divergence between two distributions.
+    """Jensen-Shannon divergence between two distributions.
 
     JS(P||Q) = 0.5 * (KL(P||M) + KL(Q||M)) where M = 0.5 * (P + Q)
 
@@ -163,28 +165,31 @@ def js_divergence(
         >>> js_divergence(p, q)
     """
     # Handle distrax Distribution objects
-    if isinstance(predictions, Distribution) and isinstance(targets, Distribution):
+    if isinstance(predictions, DistraxDistribution) and isinstance(targets, DistraxDistribution):
         raise NotImplementedError("JS divergence not implemented for Distribution objects")
 
+    predictions_array = jnp.asarray(predictions)
+    targets_array = jnp.asarray(targets)
+
     if reduction == "mean" and weights is None and axis is None:
-        return _calibrax_js_divergence(predictions, targets)
+        return _calibrax_js_divergence(predictions_array, targets_array)
 
     # Clip inputs for numerical stability
-    predictions = jnp.clip(predictions, eps, 1.0)
-    targets = jnp.clip(targets, eps, 1.0)
+    predictions_array = jnp.clip(predictions_array, eps, 1.0)
+    targets_array = jnp.clip(targets_array, eps, 1.0)
 
     # Compute the mixture distribution M = 0.5 * (P + Q)
-    mixture = 0.5 * (predictions + targets)
+    mixture = 0.5 * (predictions_array + targets_array)
     mixture = jnp.clip(mixture, eps, 1.0)
 
     # Compute log probabilities
-    log_p = jnp.log(predictions)
-    log_q = jnp.log(targets)
+    log_p = jnp.log(predictions_array)
+    log_q = jnp.log(targets_array)
     log_m = jnp.log(mixture)
 
     # Compute KL(P||M) and KL(Q||M)
-    kl_p_m = predictions * (log_p - log_m)
-    kl_q_m = targets * (log_q - log_m)
+    kl_p_m = predictions_array * (log_p - log_m)
+    kl_q_m = targets_array * (log_q - log_m)
 
     # Sum over the specified axis for KL computations
     # Default to last axis if none specified (distribution axis)
@@ -200,15 +205,14 @@ def js_divergence(
 
 
 def wasserstein_distance(
-    predictions: jax.Array | Distribution,
-    targets: jax.Array | Distribution,
+    predictions: jax.Array | DistraxDistribution,
+    targets: jax.Array | DistraxDistribution,
     p: int = 1,
     reduction: str = "mean",
     weights: jax.Array | None = None,
     axis: int | tuple[int, ...] | None = None,
 ) -> jax.Array:
-    """
-    Wasserstein distance between empirical distributions (1D only).
+    """Wasserstein distance between empirical distributions (1D only).
 
     This implements a simple approximation based on sorting samples.
     For exact solution in higher dimensions, optimal transport methods are needed.
@@ -230,19 +234,21 @@ def wasserstein_distance(
         >>> wasserstein_distance(p, q, p=1, axis=1)
     """
     # Handle distrax Distribution objects
-    if isinstance(predictions, Distribution) or isinstance(targets, Distribution):
+    if isinstance(predictions, DistraxDistribution) or isinstance(targets, DistraxDistribution):
         raise NotImplementedError("Wasserstein distance not implemented for Distribution objects")
 
+    predictions_array = jnp.asarray(predictions)
+    targets_array = jnp.asarray(targets)
+
     if p == 1 and reduction == "mean" and weights is None and axis is None:
-        return _calibrax_wasserstein_1d(predictions, targets)
+        return _calibrax_wasserstein_1d(predictions_array, targets_array)
 
     # Default to last axis if none specified
-    if axis is None:
-        axis = -1
+    sort_axis = axis if isinstance(axis, int) else (-1 if axis is None else axis[-1])
 
     # Sort both distributions along specified axis
-    predictions_sorted = jnp.sort(predictions, axis=axis)
-    targets_sorted = jnp.sort(targets, axis=axis)
+    predictions_sorted = jnp.sort(predictions_array, axis=sort_axis)
+    targets_sorted = jnp.sort(targets_array, axis=sort_axis)
 
     # Compute Lp distance between sorted samples
     if p == 1:
@@ -256,7 +262,7 @@ def wasserstein_distance(
         distance = jnp.power(jnp.abs(predictions_sorted - targets_sorted), p)
 
     # Mean over the distribution axis
-    distance = jnp.mean(distance, axis=axis)
+    distance = jnp.mean(distance, axis=sort_axis)
 
     # Apply p-root for p > 1
     if p > 1:
@@ -330,8 +336,7 @@ def energy_distance(
     reduction: str = "mean",
     weights: jax.Array | None = None,
 ) -> jax.Array:
-    """
-    Energy distance between two distributions.
+    """Energy distance between two distributions.
 
     Energy distance is a metric between probability distributions that
     generalizes the concept of Euclidean distance.

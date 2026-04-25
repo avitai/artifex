@@ -2,7 +2,7 @@
 
 import jax.numpy as jnp
 import pytest
-from datarax import from_source
+from datarax import build_source_pipeline
 from datarax.core.data_source import DataSourceModule
 from datarax.sources import MemorySource
 from flax import nnx
@@ -193,11 +193,11 @@ class TestCreateTextDataset:
 class TestTextPipeline:
     """Test datarax pipeline integration."""
 
-    def test_from_source_pipeline(self, rngs) -> None:
+    def test_batched_pipeline(self, rngs) -> None:
         source = create_text_dataset(
             "synthetic", rngs=rngs, dataset_size=6, max_length=16, vocab_size=100
         )
-        pipeline = from_source(source, batch_size=3)
-        batch = next(iter(pipeline))
+        pipeline = build_source_pipeline(source, batch_size=3)
+        batch = next(iter(pipeline)).get_data()
         assert "text_tokens" in batch
         assert batch["text_tokens"].shape[0] == 3

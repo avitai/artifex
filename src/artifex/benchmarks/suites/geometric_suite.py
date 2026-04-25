@@ -1,7 +1,7 @@
 """Geometric benchmarks suite for point cloud and 3D data generation."""
 
 import logging
-from typing import Any
+from typing import Any, cast
 
 import jax.numpy as jnp
 from flax import nnx
@@ -189,16 +189,23 @@ class PointCloudGenerationBenchmark(Benchmark):
         )
 
         # Get num_points from dataset if available
-        num_points = getattr(self.dataset, "num_points", PointCloudConfig.num_points)
+        num_points = int(getattr(self.dataset, "num_points", PointCloudConfig.num_points))
 
         # Check if model_config is already a PointCloudConfig
+        point_cloud_config: PointCloudConfig
+        point_cloud_model_config: PointCloudConfig | None = None
         if isinstance(model_config, PointCloudConfig):
-            if model_config.num_points == num_points:
-                point_cloud_config = model_config
+            point_cloud_model_config = cast(PointCloudConfig, model_config)
+        if point_cloud_model_config is not None:
+            if point_cloud_model_config.num_points == num_points:
+                point_cloud_config = point_cloud_model_config
             else:
                 import dataclasses
 
-                point_cloud_config = dataclasses.replace(model_config, num_points=num_points)
+                point_cloud_config = dataclasses.replace(
+                    point_cloud_model_config,
+                    num_points=num_points,
+                )
         else:
             # Create network config with dataclass defaults
             network_config = PointCloudNetworkConfig(
@@ -214,7 +221,7 @@ class PointCloudGenerationBenchmark(Benchmark):
                 num_points=num_points,
             )
 
-        self.model = PointCloudModel(
+        self.model: PointCloudModel = PointCloudModel(
             config=point_cloud_config,
             rngs=self.rngs,
         )
@@ -311,8 +318,8 @@ class PointCloudGenerationBenchmark(Benchmark):
 
     def run_evaluation(
         self,
-        model: BenchmarkModelProtocol | None = None,
-        dataset: DatasetProtocol | BatchableDatasetProtocol | None = None,
+        model: BenchmarkModelProtocol | PointCloudModel | None = None,
+        dataset: DatasetProtocol | BatchableDatasetProtocol | ShapeNetDataset | None = None,
     ) -> dict[str, float | int]:
         """Execute the evaluation phase of the benchmark.
 
@@ -324,16 +331,28 @@ class PointCloudGenerationBenchmark(Benchmark):
             Dictionary containing evaluation metrics and performance measures
         """
         # Use provided model/dataset or default to internal instances
-        if model is None:
-            model = self.model
+        active_model = self.model if model is None else model
         if dataset is None:
             dataset = self.dataset
-
         # Get evaluation data
-        eval_batch = dataset.get_batch(batch_size=self.eval_config.eval_batch_size, split="test")
+        if isinstance(dataset, ShapeNetDataset):
+            eval_batch = dataset.get_batch(
+                batch_size=self.eval_config.eval_batch_size,
+                split="test",
+            )
+        else:
+            if not hasattr(dataset, "get_batch"):
+                raise ValueError("Point cloud evaluation requires a dataset with get_batch support")
+            batchable_dataset = cast(BatchableDatasetProtocol, dataset)
+            eval_batch = batchable_dataset.get_batch(self.eval_config.eval_batch_size, 0)
 
         # Generate samples (using the existing point clouds as input for demo)
-        generated_samples = model(eval_batch["point_clouds"], deterministic=True)
+        if isinstance(active_model, PointCloudModel):
+            generated_samples = active_model(eval_batch["point_clouds"], deterministic=True)
+        else:
+            generated_samples = {
+                "positions": active_model.predict(eval_batch["point_clouds"], rngs=self.rngs)
+            }
 
         # Calculate evaluation metrics
         metrics_results = self.metrics.compute_metrics(

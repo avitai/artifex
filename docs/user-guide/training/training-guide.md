@@ -109,19 +109,11 @@ def create_data_loader(data, batch_size, shuffle=True):
 
     return data_loader
 
-# Example usage with MNIST
-from tensorflow.datasets import load
-
-# Load MNIST
-ds_train = load('mnist', split='train', as_supervised=True)
-ds_val = load('mnist', split='test', as_supervised=True)
-
-# Convert to numpy arrays
-train_images = np.array([img for img, _ in ds_train])
-train_labels = np.array([label for _, label in ds_train])
-
-val_images = np.array([img for img, _ in ds_val])
-val_labels = np.array([label for _, label in ds_val])
+# Example usage with image arrays
+train_images = load_images_as_jax_array("train")
+val_images = load_images_as_jax_array("test")
+train_labels = load_labels_as_jax_array("train")
+val_labels = load_labels_as_jax_array("test")
 
 # Normalize to [0, 1]
 train_images = train_images.astype(np.float32) / 255.0

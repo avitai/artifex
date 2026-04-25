@@ -39,6 +39,13 @@ class AdvancedImageAugmentation(AugmentationExtension):
 
         self.rngs = rngs
 
+    def _metadata_float(self, key: str, default: float) -> float:
+        """Read optional augmentation metadata with a typed default."""
+        metadata = self.config.metadata
+        if metadata is None:
+            return default
+        return float(metadata.get(key, default))
+
     def augment(
         self,
         images: jax.Array,
@@ -209,8 +216,8 @@ class AdvancedImageAugmentation(AugmentationExtension):
         saturation_factors = jax.random.uniform(
             self.rngs.augment(),
             (batch_size, 1, 1, 1),
-            minval=1 - self.augmentation_config["saturation_range"],
-            maxval=1 + self.augmentation_config["saturation_range"],
+            minval=1.0 - self._metadata_float("saturation_range", 0.1),
+            maxval=1.0 + self._metadata_float("saturation_range", 0.1),
         )
 
         # Convert to grayscale (luminance)
@@ -225,9 +232,8 @@ class AdvancedImageAugmentation(AugmentationExtension):
 
     def _apply_noise_injection(self, images: jax.Array) -> jax.Array:
         """Apply Gaussian noise injection."""
-        noise = (
-            jax.random.normal(self.rngs.augment(), images.shape)
-            * self.augmentation_config["noise_level"]
+        noise = jax.random.normal(self.rngs.augment(), images.shape) * self._metadata_float(
+            "noise_level", 0.05
         )
 
         noisy_images = images + noise
@@ -240,9 +246,8 @@ class AdvancedImageAugmentation(AugmentationExtension):
         batch_size = images.shape[0]
 
         # Random decision for each image whether to apply blur
-        apply_blur = (
-            jax.random.uniform(self.rngs.augment(), (batch_size,))
-            < self.augmentation_config["blur_probability"]
+        apply_blur = jax.random.uniform(self.rngs.augment(), (batch_size,)) < self._metadata_float(
+            "blur_probability", 0.5
         )
 
         # Apply blur to all images, then select based on mask (JIT-compatible)

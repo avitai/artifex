@@ -34,37 +34,37 @@ class Conv2DResidualBlock
 
 ## Functions
 
-### __call__
+### **call**
 
 ```python
 def __call__()
 ```
 
-### __call__
+### **call**
 
 ```python
 def __call__()
 ```
 
-### __call__
+### **call**
 
 ```python
 def __call__()
 ```
 
-### __init__
+### **init**
 
 ```python
 def __init__()
 ```
 
-### __init__
+### **init**
 
 ```python
 def __init__()
 ```
 
-### __init__
+### **init**
 
 ```python
 def __init__()

@@ -23,6 +23,7 @@ class ProteinPointCloudAdapter(NNXGenerativeModelAdapter):
     """Adapter for protein point-cloud style benchmark inputs and outputs."""
 
     def __init__(self, model: Any, *, point_dim: int = 3) -> None:
+        """Initialize the protein point-cloud adapter."""
         super().__init__(model)
         self.point_dim = point_dim
         if self._model_name_str == "unknown":

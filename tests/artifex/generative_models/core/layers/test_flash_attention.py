@@ -13,7 +13,6 @@ Tests cover:
 import functools
 import inspect
 import time
-from typing import Optional
 
 import jax
 import jax.numpy as jnp
@@ -62,10 +61,10 @@ def make_attention_inputs(
     query_seq_len: int = 256,
     kv_seq_len: int = 256,
     num_heads: int = 8,
-    num_kv_heads: Optional[int] = None,
+    num_kv_heads: int | None = None,
     head_dim: int = 64,
     dtype: jnp.dtype = jnp.float32,
-    rng_key: Optional[jax.random.PRNGKey] = None,
+    rng_key: jax.Array | None = None,
 ) -> dict:
     """Generate random attention inputs for testing."""
 
@@ -98,7 +97,7 @@ def generate_segment_ids(
     seq_len: int,
     num_segments: int,
     num_pad_tokens: int = 0,
-    rng_key: Optional[jax.random.PRNGKey] = None,
+    rng_key: jax.Array | None = None,
 ) -> tuple[jnp.ndarray, jnp.ndarray]:
     """Generate segment IDs and positions for testing document masks."""
 
@@ -142,8 +141,8 @@ def reference_attention(
     query: jnp.ndarray,
     key: jnp.ndarray,
     value: jnp.ndarray,
-    mask: Optional[jnp.ndarray] = None,
-    scale: Optional[float] = None,
+    mask: jnp.ndarray | None = None,
+    scale: float | None = None,
 ) -> jnp.ndarray:
     """Reference implementation of attention for comparison."""
 

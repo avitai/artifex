@@ -345,7 +345,7 @@ class MolecularFeatures(ModelExtension):
             asphericity: float = eigenvals[2] - 0.5 * (eigenvals[0] + eigenvals[1])
             asphericity = asphericity / eigenvals[2]
 
-            eccentricity = jnp.sqrt(1 - eigenvals[0] / eigenvals[2])
+            eccentricity = float(jnp.sqrt(1 - eigenvals[0] / eigenvals[2]))
         else:
             asphericity: float = 0.0
             eccentricity: float = 0.0
@@ -411,7 +411,7 @@ class MolecularFeatures(ModelExtension):
         # Add some structural features
         if bonds is not None and fingerprint_size > 150:
             # Bond counts
-            total_bonds: float = jnp.sum(bonds) / 2  # Divide by 2 for symmetric matrix
+            total_bonds: float = float(jnp.sum(bonds) / 2)  # Divide by 2 for symmetric matrix
             fingerprint: jax.Array = fingerprint.at[120].set(total_bonds / 100.0)  # Normalized
 
             # Ring features (simplified)
@@ -420,7 +420,7 @@ class MolecularFeatures(ModelExtension):
                 fingerprint: jax.Array = fingerprint.at[130].set(ring_estimate / 10.0)
 
         # Normalize fingerprint
-        norm: float = jnp.linalg.norm(fingerprint)
+        norm: float = float(jnp.linalg.norm(fingerprint))
         if norm > 0:
             fingerprint: jax.Array = fingerprint / norm
 
@@ -442,12 +442,15 @@ class MolecularFeatures(ModelExtension):
 
         # Extract molecule data from model outputs
         if isinstance(model_outputs, dict):
+            coordinates = model_outputs.get("coordinates", model_outputs.get("positions"))
+            if coordinates is None:
+                raise ValueError("MolecularFeatures requires coordinates or positions in outputs")
             molecule_data = {
-                "coordinates": model_outputs.get("coordinates", model_outputs.get("positions")),
+                "coordinates": coordinates,
                 "atom_types": model_outputs.get(
                     "atom_types",
                     jnp.zeros(
-                        model_outputs.get("coordinates", model_outputs.get("positions")).shape[0],
+                        coordinates.shape[0],
                         dtype=jnp.int32,
                     ),
                 ),

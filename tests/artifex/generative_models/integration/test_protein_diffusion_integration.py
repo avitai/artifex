@@ -339,7 +339,7 @@ class TestProteinDiffusionIntegration:
         # Verify file was created and contains valid PDB
         try:
             assert os.path.exists(tmp_path)
-            with open(tmp_path, "r") as f:
+            with open(tmp_path) as f:
                 content = f.read()
                 assert "ATOM" in content
                 assert "MODEL" in content

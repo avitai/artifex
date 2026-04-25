@@ -36,10 +36,12 @@ runs:
 
     - name: Create virtual environment
       shell: bash
-      run: uv venv
+      run: uv venv --python "${{ inputs.python-version }}" --python-preference only-system --no-python-downloads
 
     - name: Install Artifex environment
       shell: bash
+      env:
+        UV_CONCURRENT_DOWNLOADS: "4"
       run: |
         set -euo pipefail
 
@@ -48,24 +50,32 @@ runs:
           editable_target="${{ inputs.macos-editable-target }}"
         fi
 
-        for attempt in 1 2 3; do
+        for attempt in 1 2 3 4 5; do
           if uv pip install -e "$editable_target"; then
             break
           fi
 
-          if [[ "$attempt" -eq 3 ]]; then
-            echo "Failed to install $editable_target after 3 attempts" >&2
+          if [[ "$attempt" -eq 5 ]]; then
+            echo "Failed to install $editable_target after 5 attempts" >&2
             exit 1
           fi
 
-          echo "Install attempt $attempt failed, retrying in 10 seconds..." >&2
-          sleep 10
+          delay=$((attempt * 10))
+          echo "Install attempt $attempt failed, retrying in ${delay} seconds..." >&2
+          sleep "$delay"
         done
 
         if [[ -n "${{ inputs.extra-packages }}" ]]; then
           uv pip install ${{ inputs.extra-packages }}
         fi
 
-    - name: Export repo-local PYTHONPATH
+    - name: Export repo-local environment
       shell: bash
-      run: echo "PYTHONPATH=$PYTHONPATH:$(pwd)" >> "$GITHUB_ENV"
+      run: |
+        {
+          echo "PYTHONPATH=$PYTHONPATH:$(pwd)"
+          echo "UV_PYTHON=${{ inputs.python-version }}"
+          echo "UV_PYTHON_DOWNLOADS=never"
+          echo "UV_PYTHON_PREFERENCE=only-system"
+          echo "UV_CONCURRENT_DOWNLOADS=4"
+        } >> "$GITHUB_ENV"

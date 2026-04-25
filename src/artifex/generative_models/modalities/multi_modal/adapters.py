@@ -492,7 +492,7 @@ class MultiModalVAEAdapter(MultiModalAdapter):
         losses: dict[str, jax.Array] = {}
 
         # Reconstruction loss for each modality
-        total_recon_loss = 0.0
+        total_recon_loss = jnp.array(0.0)
         for modality in self.modalities:
             if modality in inputs and modality in outputs:
                 # MSE loss

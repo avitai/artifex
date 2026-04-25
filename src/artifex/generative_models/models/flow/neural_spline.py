@@ -316,7 +316,7 @@ class SplineCouplingLayer(FlowLayer):
         output_dim = self.unmasked_dim * (3 * num_bins + 1)
 
         # Build conditioning network similar to RealNVP
-        self.conditioning_layers: list[nnx.Linear] = nnx.List([])
+        self.conditioning_layers = nnx.List([])
         input_dim = self.masked_dim
 
         for dim in hidden_dims:
@@ -491,6 +491,7 @@ class NeuralSplineFlow(NormalizingFlow):
 
         Args:
             x: Input data of shape (batch_size, input_dim)
+            rngs: Optional random number generators
 
         Returns:
             Tuple of (latent_variables, log_abs_det_jacobian)
@@ -509,6 +510,7 @@ class NeuralSplineFlow(NormalizingFlow):
 
         Args:
             z: Latent variables of shape (batch_size, input_dim)
+            rngs: Optional random number generators
 
         Returns:
             Tuple of (data_variables, log_abs_det_jacobian)
@@ -528,6 +530,7 @@ class NeuralSplineFlow(NormalizingFlow):
 
         Args:
             x: Input data of shape (batch_size, input_dim)
+            rngs: Optional random number generators
 
         Returns:
             Log probabilities of shape (batch_size,)
@@ -555,12 +558,13 @@ class NeuralSplineFlow(NormalizingFlow):
             Generated samples of shape (n_samples, input_dim)
         """
         # Sample from base distribution
+        active_rngs = self.rngs if rngs is None else rngs
         if self.base_distribution == "normal":
-            z = jax.random.normal(rngs.params(), (n_samples, self.input_dim))
+            z = jax.random.normal(active_rngs.params(), (n_samples, self.input_dim))
         else:
             raise ValueError(f"Unsupported base distribution: {self.base_distribution}")
 
-        x, _ = self.inverse(z, rngs=rngs)
+        x, _ = self.inverse(z, rngs=active_rngs)
         return x
 
     def generate(self, n_samples: int, *, rngs: nnx.Rngs | None = None) -> jax.Array:

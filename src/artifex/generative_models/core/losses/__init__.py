@@ -1,5 +1,4 @@
-"""
-Loss functions for generative models.
+"""Loss functions for generative models.
 
 This module provides various loss functions that are used to train generative models.
 The API centers on pure functional loss primitives and lightweight helpers for

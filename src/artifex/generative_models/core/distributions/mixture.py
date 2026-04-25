@@ -218,7 +218,6 @@ class Mixture(Distribution):
         Returns:
             Log probability of x
         """
-
         # Compute log probabilities for all components
         component_log_probs = []
         for component in self.components:
@@ -242,7 +241,6 @@ class Mixture(Distribution):
         Returns:
             Approximate entropy of the distribution
         """
-
         # Compute component entropies
         component_entropies = []
         for component in self.components:

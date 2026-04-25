@@ -200,7 +200,7 @@ def create_synthetic_multi_modal_dataset(
     rngs: nnx.Rngs,
     shuffle: bool = False,
     **kwargs: Any,
-) -> MemorySource:
+) -> Any:
     """Create a synthetic multi-modal dataset as a MemorySource.
 
     Generates aligned multi-modal data and wraps it in a datarax
@@ -239,7 +239,7 @@ def create_paired_multi_modal_dataset(
     *,
     rngs: nnx.Rngs | None = None,
     shuffle: bool = False,
-) -> MemorySource:
+) -> Any:
     """Create a paired multi-modal dataset from pre-existing data.
 
     Wraps explicitly paired multi-modal data arrays in a MemorySource.
@@ -282,7 +282,7 @@ def create_aligned_dataset(
     alignment_model: nnx.Module | None = None,
     *,
     rngs: nnx.Rngs,
-) -> MemorySource:
+) -> Any:
     """Create an aligned multi-modal dataset from source data.
 
     Takes existing modality data and generates additional aligned

@@ -22,7 +22,7 @@
 # ---
 
 # %%
-r"""Advanced GAN Example
+r"""Advanced GAN Example.
 
 **Status:** Exploratory workflow
 
@@ -60,8 +60,7 @@ uv run python examples/generative_models/image/gan/advanced_gan.py
 """
 
 # %% [markdown]
-"""
-# Advanced GAN
+"""# Advanced GAN.
 
 **Status:** Exploratory workflow
 
@@ -80,8 +79,7 @@ By the end of this exploratory workflow, you will understand:
 
 # %%
 # Cell 1: Import Dependencies
-"""
-Import lower-level Artifex GAN building blocks and utilities for the exploratory workflow.
+"""Import lower-level Artifex GAN building blocks and utilities for the exploratory workflow.
 """
 
 from itertools import islice
@@ -131,8 +129,7 @@ print(f"Output directory: {OUTPUT_DIR}")
 
 
 # %% [markdown]
-"""
-## Data Loading
+"""## Data Loading.
 
 Load real MNIST dataset using Hugging Face datasets. This ensures we train on
 actual handwritten digits with proper training/test splits.
@@ -239,8 +236,7 @@ train_loader, test_loader = load_real_mnist(batch_size=64)
 
 
 # %% [markdown]
-"""
-## Training Infrastructure
+"""## Training Infrastructure.
 
 Common training utilities used by all GAN variants.
 """
@@ -282,6 +278,7 @@ def train_gan_model(
         Tuple of (generator, discriminator, metrics_dict)
     """
     print()
+
     print("=" * 70)
     print(f"Training {model_name}")
     print(f"Loss type: {loss_type}")
@@ -503,8 +500,7 @@ def train_gan_model(
 
 
 # %% [markdown]
-"""
-## Example 1: Conditional GAN
+"""## Example 1: Conditional GAN.
 
 Conditional GAN allows generation of specific digit classes by conditioning
 both generator and discriminator on label information.
@@ -644,8 +640,7 @@ visualize_conditional_samples(cond_generator)
 
 
 # %% [markdown]
-"""
-## Example 2: WGAN-GP (Wasserstein GAN with Gradient Penalty)
+"""## Example 2: WGAN-GP (Wasserstein GAN with Gradient Penalty).
 
 WGAN-GP uses Wasserstein distance instead of standard GAN loss, providing
 more stable training and meaningful loss curves.
@@ -790,8 +785,7 @@ visualize_gan_samples(wgan_generator, "wgan_gp_samples.png", crop_to_28=True)
 
 
 # %% [markdown]
-"""
-## Example 3: DCGAN (Deep Convolutional GAN)
+"""## Example 3: DCGAN (Deep Convolutional GAN).
 
 DCGAN introduced architectural guidelines that became standard for GAN training:
 - Replace pooling with strided convolutions
@@ -869,8 +863,7 @@ visualize_gan_samples(dcgan_generator, "dcgan_samples.png")
 
 
 # %% [markdown]
-"""
-## Example 4: LSGAN (Least Squares GAN)
+"""## Example 4: LSGAN (Least Squares GAN).
 
 LSGAN replaces the cross-entropy loss with a least squares loss, providing
 more stable gradients during training.
@@ -945,8 +938,7 @@ visualize_gan_samples(lsgan_generator, "lsgan_samples.png")
 
 
 # %% [markdown]
-"""
-## Summary and Comparison
+"""## Summary and Comparison.
 
 Let's compare the training dynamics and results of all four GAN variants.
 """
@@ -1070,8 +1062,7 @@ compare_all_models()
 
 
 # %% [markdown]
-"""
-## Key Takeaways
+"""## Key Takeaways.
 
 ### Model Comparison
 

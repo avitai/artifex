@@ -49,11 +49,11 @@ class SyntheticProteinDataset:
         self.rngs = rngs
 
         # Extract protein-specific parameters from config metadata
-        self.num_samples = config.metadata.get("num_samples", 100)
-        self.num_residues = config.metadata.get("num_residues", 10)
-        self.num_atoms = config.metadata.get("num_atoms", 4)
-        self.seed = config.metadata.get("seed", 42)
-        self.batch_size = config.metadata.get("batch_size", 32)
+        self.num_samples = int(config.metadata.get("num_samples", 100))
+        self.num_residues = int(config.metadata.get("num_residues", 10))
+        self.num_atoms = int(config.metadata.get("num_atoms", 4))
+        self.seed = int(config.metadata.get("seed", 42))
+        self.batch_size = int(config.metadata.get("batch_size", 32))
         self.demo_mode = demo_mode_from_mapping(config.metadata)
 
         require_demo_mode(
@@ -136,9 +136,9 @@ class SyntheticProteinDataset:
             for i in range(4, self.num_atoms):
                 # Add side chain atoms with varying positions
                 angle = (i - 4) * 2.0 * jnp.pi / (self.num_atoms - 4)
-                x = bond_length * jnp.cos(angle)
-                y = bond_length * jnp.sin(angle)
-                z = bond_length * 0.5
+                x = float(bond_length * jnp.cos(angle))
+                y = float(bond_length * jnp.sin(angle))
+                z = float(bond_length * 0.5)
                 base_offsets.append([x, y, z])
 
         offsets = jnp.array(base_offsets)[: self.num_atoms]
@@ -264,7 +264,7 @@ class SyntheticProteinDataset:
         Returns:
             Batch dictionary containing coordinates, flat_coordinates, and aatype
         """
-        batch_size = batch_size or self.batch_size
+        batch_size = self.batch_size if batch_size is None else int(batch_size)
 
         # Simple random sampling
         indices = jax.random.choice(

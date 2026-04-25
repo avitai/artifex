@@ -74,6 +74,30 @@ repos:
         exclude: *repo_non_source_exclude
         pass_filenames: false
         always_run: true
+      - id: flake8-functions-names
+        name: flake8-functions-names (FNE)
+        entry: uv run flake8 --select=FNE src tests
+        language: system
+        types: [python]
+        stages: [manual]
+        pass_filenames: false
+      - id: flake8-wemake-wps233
+        name: flake8-wemake WPS233
+        entry: uv run flake8 --select=WPS233 src tests
+        language: system
+        types: [python]
+        stages: [manual]
+        pass_filenames: false
+      - id: pylint-targeted-guide-checks
+        name: pylint targeted guide checks
+        entry: >-
+          uv run pylint --disable=all
+          --enable=duplicate-code,too-many-public-methods,too-many-instance-attributes,too-few-public-methods,too-many-ancestors,inconsistent-return-statements
+          --reports=no --score=no src/artifex
+        language: system
+        types: [python]
+        stages: [manual]
+        pass_filenames: false
       - id: check-file-length
         name: check-file-length (warn >1500, fail >2000 lines)
         entry: bash
@@ -115,22 +139,13 @@ repos:
         additional_dependencies: ["bandit[toml]"]
         log_file: /dev/null # Suppress stderr warnings
 
-  # Artifex-inspired documentation quality
-  - repo: https://github.com/pycqa/pydocstyle
-    rev: 6.3.0
-    hooks:
-      - id: pydocstyle
-        exclude: &repo_non_source_tests_and_examples_exclude ^(?:m[^/]*ry-bank|documents|custom_modes|\.[^/]*sor|notebooks|tests|examples)/
-        additional_dependencies: ["pydocstyle[toml]"]
-        args: ["--config=pyproject.toml"]
-
   # Docstring coverage check
   - repo: https://github.com/econchick/interrogate
     rev: 1.7.0
     hooks:
       - id: interrogate
         args: ["-c", "pyproject.toml", "src/artifex"]
-        exclude: *repo_non_source_and_tests_exclude
+        exclude: &repo_non_source_tests_and_examples_exclude ^(?:m[^/]*ry-bank|documents|custom_modes|\.[^/]*sor|notebooks|tests|examples)/
         pass_filenames: false
 
   # Artifex-inspired notebook quality

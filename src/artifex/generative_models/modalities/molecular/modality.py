@@ -5,7 +5,7 @@ generative models to work with 3D molecular structure data, including
 protein-ligand complexes.
 """
 
-from typing import Any
+from typing import Any, cast
 
 from flax import nnx
 
@@ -102,8 +102,7 @@ class MolecularModality(Modality):
                 config=extension_configs["pharmacophore"], rngs=rngs
             )
 
-        # Wrap in nnx.Dict for Flax NNX 0.12.0+ compatibility
-        return nnx.Dict(extensions_dict)
+        return cast(dict[str, ModelExtension], nnx.Dict(extensions_dict))
 
     def get_adapter(
         self, adapter_type: str | type[GenerativeModelProtocol] | None = None

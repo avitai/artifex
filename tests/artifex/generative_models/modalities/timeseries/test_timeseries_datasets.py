@@ -2,7 +2,7 @@
 
 import jax.numpy as jnp
 import pytest
-from datarax import from_source
+from datarax import build_source_pipeline
 from datarax.core.data_source import DataSourceModule
 from datarax.sources import MemorySource
 from flax import nnx
@@ -160,11 +160,11 @@ class TestCreateSimpleTimeseriesDataset:
 class TestTimeseriesPipeline:
     """Test datarax pipeline integration."""
 
-    def test_from_source_pipeline(self, rngs) -> None:
+    def test_batched_pipeline(self, rngs) -> None:
         source = create_synthetic_timeseries_dataset(
             sequence_length=20, num_features=1, num_samples=6, rngs=rngs
         )
-        pipeline = from_source(source, batch_size=3)
-        batch = next(iter(pipeline))
+        pipeline = build_source_pipeline(source, batch_size=3)
+        batch = next(iter(pipeline)).get_data()
         assert "timeseries" in batch
         assert batch["timeseries"].shape[0] == 3

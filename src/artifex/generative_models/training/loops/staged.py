@@ -82,13 +82,13 @@ def _create_epoch_runner(
         """Run entire epoch - JIT-compiled with fori_loop inside."""
 
         def body_fn(
-            i: jax.Array,
+            i: int,
             carry: tuple[nnx.Module, nnx.Optimizer, dict[str, jax.Array]],
         ) -> tuple[nnx.Module, nnx.Optimizer, dict[str, jax.Array]]:
             model, optimizer, metric_totals = carry
 
             # Compute actual step for this batch (for KL annealing, etc.)
-            step = base_step + i
+            step = base_step + jnp.asarray(i)
 
             # RNG for this step
             step_rng = jax.random.fold_in(epoch_rng, i)

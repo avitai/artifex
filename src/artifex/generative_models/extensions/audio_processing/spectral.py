@@ -84,10 +84,10 @@ class SpectralAnalysis(ModelExtension):
         """Create mel-scale filter bank."""
 
         # Mel scale conversion functions
-        def hz_to_mel(hz: float) -> float:
+        def hz_to_mel(hz: float) -> jax.Array:
             return 2595 * jnp.log10(1 + hz / 700)
 
-        def mel_to_hz(mel: float) -> float:
+        def mel_to_hz(mel: jax.Array) -> jax.Array:
             return 700 * (10 ** (mel / 2595) - 1)
 
         # Create mel-spaced frequency points

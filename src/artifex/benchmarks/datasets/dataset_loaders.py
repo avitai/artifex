@@ -38,16 +38,20 @@ class BenchmarkDataset:
         config: BenchmarkDatasetConfig,
         data: np.ndarray | jnp.ndarray,
     ) -> None:
+        """Initialize the in-memory benchmark dataset."""
         self.config = config
         self.data = jnp.array(data) if isinstance(data, np.ndarray) else data
 
     def __len__(self) -> int:
+        """Return the number of samples."""
         return self.data.shape[0]
 
     def __getitem__(self, idx: int) -> Any:
+        """Return one dataset sample."""
         return self.data[idx]
 
     def save(self, path: str | Path) -> None:
+        """Save the dataset to disk."""
         save_path = Path(path)
         save_path.parent.mkdir(parents=True, exist_ok=True)
 

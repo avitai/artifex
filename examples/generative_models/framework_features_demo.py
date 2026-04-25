@@ -10,8 +10,7 @@
 # ---
 
 # %% [markdown]
-"""
-# Artifex Framework Features Demonstration
+"""# Artifex Framework Features Demonstration.
 
 This example demonstrates the core features of the Artifex framework for generative modeling:
 
@@ -29,8 +28,7 @@ This example demonstrates the core features of the Artifex framework for generat
 """
 
 # %% [markdown]
-"""
-## Setup and Imports
+"""## Setup and Imports.
 
 We'll import the core framework components:
 - Configuration classes for models, training, data, and optimizers
@@ -72,8 +70,7 @@ def echo(message: object = "") -> None:
 
 
 # %% [markdown]
-"""
-## 1. Unified Configuration System
+"""## 1. Unified Configuration System.
 
 Artifex uses a unified configuration system based on frozen dataclasses. This provides:
 
@@ -174,8 +171,7 @@ def demonstrate_configuration_system():
 model_config = demonstrate_configuration_system()
 
 # %% [markdown]
-"""
-## 2. Factory Pattern
+"""## 2. Factory Pattern.
 
 The factory pattern provides a unified interface for creating all model types. Benefits:
 
@@ -195,7 +191,8 @@ The factory pattern provides a unified interface for creating all model types. B
 # %%
 def demonstrate_factory_pattern(model_config):
     """Demonstrate the factory pattern for model creation."""
-    echo("\n" + "=" * 60)
+    echo()
+    echo("=" * 60)
     echo("2. FACTORY PATTERN")
     echo("=" * 60)
 
@@ -236,8 +233,7 @@ def demonstrate_factory_pattern(model_config):
 model = demonstrate_factory_pattern(model_config)
 
 # %% [markdown]
-r"""
-## 3. Explicit Loss Composition
+r"""## 3. Explicit Loss Composition.
 
 Artifex keeps multi-term objectives explicit:
 
@@ -259,7 +255,8 @@ This keeps multi-objective training in generative models explicit and easy to au
 # %%
 def demonstrate_loss_system():
     """Demonstrate explicit loss composition."""
-    echo("\n" + "=" * 60)
+    echo()
+    echo("=" * 60)
     echo("3. EXPLICIT LOSS COMPOSITION")
     echo("=" * 60)
 
@@ -295,8 +292,7 @@ def demonstrate_loss_system():
 demonstrate_loss_system()
 
 # %% [markdown]
-"""
-## 4. Sampling Methods
+"""## 4. Sampling Methods.
 
 Artifex provides two main sampling paradigms for generation:
 
@@ -321,7 +317,8 @@ Both methods are JIT-compiled for performance.
 # %%
 def demonstrate_sampling_methods():
     """Demonstrate sampling methods."""
-    echo("\n" + "=" * 60)
+    echo()
+    echo("=" * 60)
     echo("4. SAMPLING METHODS")
     echo("=" * 60)
 
@@ -371,8 +368,7 @@ def demonstrate_sampling_methods():
 demonstrate_sampling_methods()
 
 # %% [markdown]
-"""
-## 5. Modality System
+"""## 5. Modality System.
 
 Artifex's modality system provides domain-specific features for different data types:
 
@@ -401,7 +397,8 @@ Each modality provides:
 # %%
 def demonstrate_modality_system():
     """Demonstrate the modality system."""
-    echo("\n" + "=" * 60)
+    echo()
+    echo("=" * 60)
     echo("5. MODALITY SYSTEM")
     echo("=" * 60)
 
@@ -433,8 +430,7 @@ def demonstrate_modality_system():
 demonstrate_modality_system()
 
 # %% [markdown]
-"""
-## Summary and Key Takeaways
+"""## Summary and Key Takeaways.
 
 ### Framework Benefits:
 
@@ -464,9 +460,11 @@ demonstrate_modality_system()
 # %%
 def main():
     """Run all demonstrations."""
-    echo("\n" + "🚀 " * 20)
+    echo()
+    echo("🚀 " * 20)
     echo("ARTIFEX FRAMEWORK FEATURES DEMONSTRATION")
-    echo("🚀 " * 20 + "\n")
+    echo("🚀 " * 20)
+    echo()
 
     echo("This example demonstrates proper usage of Artifex framework features:")
     echo("- Unified configuration system")
@@ -482,7 +480,9 @@ def main():
     demonstrate_sampling_methods()
     demonstrate_modality_system()
 
-    echo("\n" + "=" * 60)
+    echo()
+
+    echo("=" * 60)
     echo("✅ Framework features demonstration completed!")
     echo("=" * 60)
 

@@ -11,8 +11,7 @@
 # ---
 
 # %% [markdown]
-"""
-# Protein Models with Modality Architecture
+"""# Protein Models with Modality Architecture.
 
 This example demonstrates how to use Artifex's modality architecture for
 protein-oriented geometric workflows. The shared factory still returns the
@@ -76,8 +75,7 @@ def echo(message: object = "") -> None:
 
 
 # %% [markdown]
-"""
-## Setup and Initialization
+"""## Setup and Initialization.
 
 First, we'll set up our environment and initialize the random number generator.
 Artifex uses Flax NNX's `Rngs` class for managing random state across the model.
@@ -239,8 +237,7 @@ def main():
 
 
 # %% [markdown]
-"""
-## Summary and Key Takeaways
+"""## Summary and Key Takeaways.
 
 In this example, you learned:
 

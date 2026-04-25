@@ -118,6 +118,7 @@ class TransformerAutoregressiveModel(AutoregressiveModel):
 
         Args:
             x: Input token indices [batch, seq_len]
+            *args: Additional positional arguments for interface compatibility
             rngs: Random number generators
             training: Whether in training mode
             **kwargs: Additional keyword arguments

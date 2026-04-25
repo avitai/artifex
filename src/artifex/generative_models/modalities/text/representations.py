@@ -4,6 +4,8 @@ This module provides utilities for text representation processing,
 including tokenization, position encoding, and sequence processing.
 """
 
+from typing import TypeAlias
+
 import jax
 import jax.numpy as jnp
 from flax import nnx
@@ -60,15 +62,14 @@ class TextProcessor(nnx.Module):
         batch_size, seq_len = sequences.shape
 
         # Create attention mask if not provided
-        if mask is None:
-            mask = sequences != self.pad_token_id
+        resolved_mask = sequences != self.pad_token_id if mask is None else jnp.asarray(mask)
 
         # Compute sequence lengths
-        seq_lengths = jnp.sum(mask, axis=1)
+        seq_lengths = jnp.sum(resolved_mask, axis=1)
 
         return {
             "sequences": sequences,
-            "mask": mask,
+            "mask": resolved_mask,
             "lengths": seq_lengths,
             "batch_size": jnp.array(batch_size),
             "seq_len": jnp.array(seq_len),
@@ -527,11 +528,7 @@ class SequenceAugmentationProcessor(nnx.Module):
         dropout_mask = dropout_mask | ~mask
 
         # Replace dropped tokens with UNK
-        return jnp.where(
-            dropout_mask,
-            sequences,
-            self.unk_token_id,
-        )
+        return jnp.asarray(jnp.where(dropout_mask, sequences, self.unk_token_id))
 
     def apply_random_substitution(
         self,
@@ -628,13 +625,21 @@ class SequenceAugmentationProcessor(nnx.Module):
         return shuffled
 
 
+TextProcessorVariant: TypeAlias = (
+    TextProcessor
+    | TokenizationProcessor
+    | PositionEncodingProcessor
+    | SequenceAugmentationProcessor
+)
+
+
 def create_text_processor(
     config: ModalityConfig,
     processor_type: str = "basic",
     *,
     rngs: nnx.Rngs,
     **kwargs,
-) -> TextProcessor:
+) -> TextProcessorVariant:
     """Factory function to create text processors.
 
     Args:

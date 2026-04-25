@@ -79,6 +79,39 @@ class TestImageMetricsUnifiedConfig:
         assert isinstance(result["fid_score"], float)
         assert result["fid_score"] >= 0
 
+    def test_fid_metric_supported_mode_requires_feature_extractor(self, rngs, test_images):
+        """Test FID supported mode requires an explicit feature extractor."""
+        from artifex.benchmarks.metrics.image import FIDMetric
+
+        missing_config = EvaluationConfig(
+            name="fid_missing_extractor",
+            metrics=["fid"],
+            metric_params={"fid": {"higher_is_better": False}},
+        )
+        with pytest.raises(ValueError, match="feature_extractor"):
+            FIDMetric(rngs=rngs, config=missing_config)
+
+        def feature_extractor(images):
+            flat = images.reshape((images.shape[0], -1))
+            return flat[:, :16]
+
+        config = EvaluationConfig(
+            name="fid_supported",
+            metrics=["fid"],
+            metric_params={
+                "fid": {
+                    "feature_extractor": feature_extractor,
+                    "higher_is_better": False,
+                }
+            },
+        )
+        metric = FIDMetric(rngs=rngs, config=config)
+        real_images, generated_images = test_images
+        result = metric.compute(real_images, generated_images)
+
+        assert "fid_score" in result
+        assert isinstance(result["fid_score"], float)
+
     def test_lpips_metric_requires_evaluation_config(self, rngs):
         """Test that LPIPS metric requires EvaluationConfig."""
         from artifex.benchmarks.metrics.image import LPIPSMetric
@@ -166,6 +199,41 @@ class TestImageMetricsUnifiedConfig:
         metric = ISMetric(rngs=rngs, config=config)
         real_images, generated_images = test_images
 
+        result = metric.compute(real_images, generated_images)
+
+        assert "inception_score" in result
+        assert result["inception_score"] > 0
+
+    def test_is_metric_supported_mode_requires_classifier(self, rngs, test_images):
+        """Test Inception Score supported mode requires an explicit classifier."""
+        from artifex.benchmarks.metrics.image import ISMetric
+
+        missing_config = EvaluationConfig(
+            name="is_missing_classifier",
+            metrics=["inception_score"],
+            metric_params={"inception_score": {"higher_is_better": True}},
+        )
+        with pytest.raises(ValueError, match="classifier"):
+            ISMetric(rngs=rngs, config=missing_config)
+
+        def classifier(images):
+            batch_size = images.shape[0]
+            logits = jnp.linspace(-1.0, 1.0, 10)
+            return jnp.tile(logits[None, :], (batch_size, 1))
+
+        config = EvaluationConfig(
+            name="is_supported",
+            metrics=["inception_score"],
+            metric_params={
+                "inception_score": {
+                    "classifier": classifier,
+                    "splits": 2,
+                    "higher_is_better": True,
+                }
+            },
+        )
+        metric = ISMetric(rngs=rngs, config=config)
+        real_images, generated_images = test_images
         result = metric.compute(real_images, generated_images)
 
         assert "inception_score" in result

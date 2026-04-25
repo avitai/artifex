@@ -11,8 +11,7 @@
 # ---
 
 # %% [markdown]
-"""
-# Protein Extensions with Configuration System
+"""# Protein Extensions with Configuration System.
 
 This example demonstrates the canonical configuration-driven workflow for
 protein extensions in Artifex. The shipped protein extension YAML is loaded as a
@@ -59,8 +58,7 @@ def show(message: str) -> None:
 
 
 # %% [markdown]
-"""
-## 1. Load the Canonical Protein Extension Bundle
+"""## 1. Load the Canonical Protein Extension Bundle.
 
 The shipped YAML lives under `src/artifex/configs/defaults/extensions/protein.yaml`
 and is loaded as a real `ProteinExtensionsConfig`.
@@ -74,8 +72,7 @@ show(f"Bundle fields: {list(bundle.to_dict().keys())}")
 
 
 # %% [markdown]
-"""
-## 2. Customize the Bundle Programmatically
+"""## 2. Customize the Bundle Programmatically.
 
 The YAML bundle is just a typed config object, so local overrides are explicit
 and type-checked.
@@ -118,8 +115,7 @@ show(
 
 
 # %% [markdown]
-"""
-## 3. Materialize the Runtime Extensions
+"""## 3. Materialize the Runtime Extensions.
 """
 
 # %%
@@ -132,8 +128,7 @@ show(f"Created extensions: {', '.join(extensions.keys())}")
 
 
 # %% [markdown]
-"""
-## 4. Attach Extensions to a Point Cloud Model
+"""## 4. Attach Extensions to a Point Cloud Model.
 """
 
 # %%
@@ -161,8 +156,7 @@ model = PointCloudModel(model_config, extensions=extensions, rngs=rngs)
 
 
 # %% [markdown]
-"""
-## 5. Run a Forward Pass
+"""## 5. Run a Forward Pass.
 """
 
 # %%
@@ -186,8 +180,7 @@ show(f"Total loss with extensions: {loss}")
 
 
 # %% [markdown]
-"""
-## 6. Save the Bundle Back to YAML
+"""## 6. Save the Bundle Back to YAML.
 
 Because the bundle is a real config object, it round-trips cleanly through the
 same config machinery.
@@ -200,8 +193,7 @@ show(f"Saved customized bundle to: {output_path}")
 
 
 # %% [markdown]
-"""
-## Summary
+"""## Summary.
 
 - `get_protein_extensions_config()` loads the shipped bundle as a typed config
 - `ProteinExtensionsConfig` is the one supported composition surface

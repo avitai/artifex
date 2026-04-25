@@ -2,7 +2,10 @@
 
 _artifex_activate_die() {
     echo "error: $*" >&2
-    return 1 2>/dev/null || exit 1
+    if [[ "${BASH_SOURCE[0]}" != "$0" ]]; then
+        return 1
+    fi
+    exit 1
 }
 
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
@@ -25,6 +28,46 @@ _artifex_reset_previous_managed_env() {
     unset ARTIFEX_MANAGED_ENV_VARS
 }
 
+_artifex_filter_cuda_library_path() {
+    local current_path="$1"
+    local entry
+    local entries=()
+    local filtered_entries=()
+    local IFS=':'
+
+    read -r -a entries <<< "$current_path"
+    for entry in "${entries[@]}"; do
+        [[ -n "$entry" ]] || continue
+        case "$entry" in
+            *cuda*/lib|*cuda*/lib64|*cuda*/lib/*|*cuda*/lib64/*|\
+            *cuda*/targets/*/lib|*cuda*/targets/*/lib64|\
+            *cuda*/targets/*/lib/*|*cuda*/targets/*/lib64/*|\
+            *cudnn*/lib|*cudnn*/lib64|*cudnn*/lib/*|*cudnn*/lib64/*)
+                continue
+                ;;
+        esac
+        filtered_entries+=("$entry")
+    done
+
+    (
+        IFS=':'
+        printf '%s' "${filtered_entries[*]}"
+    )
+}
+
+_artifex_sanitize_cuda_library_path() {
+    [[ "${ARTIFEX_BACKEND:-}" == "cuda12" ]] || return
+    [[ -n "${LD_LIBRARY_PATH:-}" ]] || return
+
+    local filtered_path
+    filtered_path="$(_artifex_filter_cuda_library_path "$LD_LIBRARY_PATH")"
+    if [[ -n "$filtered_path" ]]; then
+        export LD_LIBRARY_PATH="$filtered_path"
+    else
+        unset LD_LIBRARY_PATH
+    fi
+}
+
 # shellcheck disable=SC1090
 source "$ACTIVATE_SCRIPT"
 
@@ -44,6 +87,8 @@ if [[ -f "$PROJECT_ROOT/.env.local" ]]; then
     # shellcheck disable=SC1090
     source "$PROJECT_ROOT/.env.local"
 fi
+
+_artifex_sanitize_cuda_library_path
 
 echo "Artifex environment active (${ARTIFEX_BACKEND:-auto})."
 echo "Use 'uv run python scripts/verify_gpu_setup.py' to inspect the active JAX backend."

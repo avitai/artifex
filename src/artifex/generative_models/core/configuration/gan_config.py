@@ -5,6 +5,7 @@ nested network configurations for true plug-and-play architecture.
 """
 
 import dataclasses
+from typing import cast
 
 from artifex.generative_models.core.configuration.base_dataclass import BaseConfig
 from artifex.generative_models.core.configuration.network_configs import (
@@ -316,7 +317,7 @@ class WGANConfig(GANConfig):
         if "discriminator" in data and isinstance(data["discriminator"], dict):
             data["discriminator"] = ConvDiscriminatorConfig.from_dict(data["discriminator"])
 
-        return super(WGANConfig, cls).from_dict(data)
+        return cast(WGANConfig, super(WGANConfig, cls).from_dict(data))
 
 
 @dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
@@ -423,7 +424,7 @@ class LSGANConfig(GANConfig):
         if "discriminator" in data and isinstance(data["discriminator"], dict):
             data["discriminator"] = ConvDiscriminatorConfig.from_dict(data["discriminator"])
 
-        return super(LSGANConfig, cls).from_dict(data)
+        return cast(LSGANConfig, super(LSGANConfig, cls).from_dict(data))
 
 
 @dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
@@ -750,4 +751,4 @@ class DCGANConfig(GANConfig):
         if "discriminator" in data and isinstance(data["discriminator"], dict):
             data["discriminator"] = ConvDiscriminatorConfig.from_dict(data["discriminator"])
 
-        return super(DCGANConfig, cls).from_dict(data)
+        return cast(DCGANConfig, super(DCGANConfig, cls).from_dict(data))

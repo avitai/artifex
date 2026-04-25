@@ -325,12 +325,12 @@ class TestWSSummaryGenerator:
         assert os.path.exists(paths["html"])
 
         # Verify the contents of the files
-        with open(paths["json"], "r") as f:
+        with open(paths["json"]) as f:
             json_content = json.load(f)
             assert "statistics" in json_content
             assert "results" in json_content
 
-        with open(paths["text"], "r") as f:
+        with open(paths["text"]) as f:
             text_content = f.read()
             assert "Test Summary" in text_content
             assert "Total tests: 4" in text_content

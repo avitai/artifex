@@ -102,11 +102,12 @@ def get_module_dependencies(
     source_module: str | None = None,
     known_modules: set[str] | None = None,
 ) -> list[ModuleDependency]:
-    """
-    Extract dependencies from a Python module file.
+    """Extract dependencies from a Python module file.
 
     Args:
         module_path: Path to the Python module file.
+        source_module: Optional source module name to use in dependency records.
+        known_modules: Optional set of known local modules for classification.
 
     Returns:
         list of ModuleDependency objects representing the module's dependencies.
@@ -114,7 +115,7 @@ def get_module_dependencies(
     dependencies: list[ModuleDependency] = []
 
     try:
-        with open(module_path, "r", encoding="utf-8") as f:
+        with open(module_path, encoding="utf-8") as f:
             content = f.read()
 
         tree = ast.parse(content)
@@ -157,8 +158,7 @@ def get_module_dependencies(
 
 
 class DependencyAnalyzer:
-    """
-    Analyzes dependencies between Python modules in a directory.
+    """Analyzes dependencies between Python modules in a directory.
 
     This class provides methods for discovering Python modules in a directory,
     analyzing their dependencies, detecting circular dependencies, and
@@ -166,8 +166,7 @@ class DependencyAnalyzer:
     """
 
     def __init__(self, root_dir: str):
-        """
-        Initialize the analyzer with a root directory.
+        """Initialize the analyzer with a root directory.
 
         Args:
             root_dir: Path to the root directory to analyze.
@@ -179,8 +178,7 @@ class DependencyAnalyzer:
         }
 
     def _discover_modules(self) -> list[str]:
-        """
-        Discover all Python modules in the root directory.
+        """Discover all Python modules in the root directory.
 
         Returns:
             list of paths to Python module files.
@@ -188,8 +186,7 @@ class DependencyAnalyzer:
         return sorted(str(path.resolve()) for path in Path(self.root_dir).rglob("*.py"))
 
     def get_all_dependencies(self) -> list[ModuleDependency]:
-        """
-        Get dependencies for all discovered modules.
+        """Get dependencies for all discovered modules.
 
         Returns:
             list of ModuleDependency objects.
@@ -213,8 +210,7 @@ class DependencyAnalyzer:
         include_pattern: str | None = None,
         exclude_pattern: str | None = None,
     ) -> None:
-        """
-        Generate a dependency graph visualization.
+        """Generate a dependency graph visualization.
 
         Args:
             output_file: Path to save the output graph.
@@ -272,8 +268,7 @@ class DependencyAnalyzer:
 def detect_circular_dependencies(
     dependencies: list[ModuleDependency],
 ) -> list[list[ModuleDependency]]:
-    """
-    Detect circular dependencies in a list of module dependencies.
+    """Detect circular dependencies in a list of module dependencies.
 
     Args:
         dependencies: list of ModuleDependency objects.
@@ -355,8 +350,7 @@ def generate_dependency_report(
     dependencies: list[ModuleDependency],
     circular_dependencies: list[list[ModuleDependency]],
 ) -> str:
-    """
-    Generate a text report from dependency analysis.
+    """Generate a text report from dependency analysis.
 
     Args:
         dependencies: list of all module dependencies.

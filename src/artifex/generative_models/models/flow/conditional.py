@@ -519,8 +519,13 @@ class ConditionalNormalizingFlow(NormalizingFlow):
 
         # Handle missing conditioning
         if condition is None:
+            if x is None:
+                raise ValueError("Conditional flow loss requires batch data under 'x' or 'data'")
             batch_size = x.shape[0]
             condition = jnp.zeros((batch_size, self.condition_dim))
+
+        if x is None:
+            raise ValueError("Conditional flow loss requires batch data under 'x' or 'data'")
 
         # Compute conditional log probability
         log_prob = self.log_prob(x, rngs=rngs, condition=condition)

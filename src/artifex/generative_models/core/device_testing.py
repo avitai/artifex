@@ -8,7 +8,7 @@ from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from enum import Enum
 from types import MappingProxyType
-from typing import Any, TYPE_CHECKING
+from typing import Any, Protocol, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
@@ -94,6 +94,17 @@ class TestSuite:
 _CheckRunner = Callable[["DeviceManager"], tuple[bool, str | None, dict[str, Any]]]
 
 
+class _CheckLike(Protocol):
+    """Protocol for injected diagnostic checks used by tests."""
+
+    name: str
+    severity: TestSeverity
+
+    def run(self, device_manager: DeviceManager) -> tuple[bool, str | None, dict[str, Any]]:
+        """Execute the diagnostic."""
+        ...
+
+
 @dataclass(frozen=True, slots=True)
 class _DiagnosticCheck:
     """Private description of one runtime diagnostic."""
@@ -128,7 +139,10 @@ class _DiagnosticCheck:
         )
 
 
-def _execute_check(check: object, device_manager: DeviceManager) -> TestResult:
+def _execute_check(
+    check: _DiagnosticCheck | _CheckLike,
+    device_manager: DeviceManager,
+) -> TestResult:
     """Execute one check using the internal spec or a test double."""
     if isinstance(check, _DiagnosticCheck):
         return check.execute(device_manager)
@@ -322,7 +336,7 @@ def run_device_tests(
     device_manager: DeviceManager | None = None,
     *,
     critical_only: bool = False,
-    checks: Sequence[object] | None = None,
+    checks: Sequence[_DiagnosticCheck | _CheckLike] | None = None,
 ) -> TestSuite:
     """Run runtime diagnostics for the active JAX backend."""
     if device_manager is None:

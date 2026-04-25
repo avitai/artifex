@@ -41,6 +41,7 @@ source ./activate.sh
 
 `setup.sh` writes a generated `.artifex.env` file. Optional `.env` and `.env.local` files are treated as user-owned override layers and are loaded after `.artifex.env`.
 Re-sourcing `activate.sh` refreshes the managed backend variables from `.artifex.env` before applying `.env` and `.env.local`.
+When the resolved backend is `cuda12`, `activate.sh` also removes inherited CUDA toolkit library directories from `LD_LIBRARY_PATH` so JAX uses its pip-managed runtime instead of stale system CUDA libraries.
 
 ### Explicit backend selection
 

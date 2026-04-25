@@ -1,10 +1,11 @@
 """Data modalities for generative models."""
 
+from artifex.generative_models.core.configuration import BaseModalityConfig
+
 from .audio.base import AudioModality
 from .base import (
     BaseEvaluationSuite,
     BaseGenerationProtocol,
-    BaseModalityConfig,
     BaseModalityImplementation,
     BaseProcessor,
     create_modality_factory,

@@ -328,15 +328,15 @@ class VectorQuantizer(nnx.Module):
         # Compute distances to codebook vectors
         distances = (
             jnp.sum(flat_z ** 2, axis=1, keepdims=True)
-            + jnp.sum(self.embeddings.value ** 2, axis=1)
-            - 2 * flat_z @ self.embeddings.value.T
+            + jnp.sum(self.embeddings[...] ** 2, axis=1)
+            - 2 * flat_z @ self.embeddings[...].T
         )
 
         # Get nearest codebook indices
         indices = jnp.argmin(distances, axis=1)
 
         # Quantize
-        quantized_flat = self.embeddings.value[indices]
+        quantized_flat = self.embeddings[...][indices]
 
         # Reshape to original shape
         quantized = quantized_flat.reshape(z.shape)

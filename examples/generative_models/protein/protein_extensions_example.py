@@ -11,8 +11,7 @@
 # ---
 
 # %% [markdown]
-"""
-# Protein Extensions Example
+"""# Protein Extensions Example.
 
 This example demonstrates the canonical Artifex extension contract for protein-aware
 geometric models. Protein extensions are composed as a typed
@@ -62,8 +61,7 @@ def show(message: str) -> None:
 
 
 # %% [markdown]
-"""
-## 1. Build a Typed Protein Extension Bundle
+"""## 1. Build a Typed Protein Extension Bundle.
 
 This bundle is the single supported composition surface for protein extensions.
 Each optional field corresponds to one extension in the resulting collection.
@@ -110,8 +108,7 @@ show(f"Created protein extensions: {', '.join(extensions.keys())}")
 
 
 # %% [markdown]
-"""
-## 2. Create a Protein-Aware Point Cloud Model
+"""## 2. Create a Protein-Aware Point Cloud Model.
 """
 
 # %%
@@ -141,8 +138,7 @@ model = PointCloudModel(model_config, extensions=extensions, rngs=rngs)
 
 
 # %% [markdown]
-"""
-## 3. Create a Synthetic Protein Batch
+"""## 3. Create a Synthetic Protein Batch.
 """
 
 # %%
@@ -158,8 +154,7 @@ batch = {
 
 
 # %% [markdown]
-"""
-## 4. Run the Model and Inspect Extension Outputs
+"""## 4. Run the Model and Inspect Extension Outputs.
 """
 
 # %%
@@ -176,8 +171,7 @@ for name, extension in extensions.items():
 
 
 # %% [markdown]
-"""
-## 5. Instantiate Extensions Directly
+"""## 5. Instantiate Extensions Directly.
 
 The typed bundle is the recommended composition path. When you need finer
 control, you can still instantiate the underlying extension modules directly
@@ -228,8 +222,7 @@ show(f"  protein_mixin keys: {list(protein_mixin_extension(batch, outputs).keys(
 
 
 # %% [markdown]
-"""
-## Summary
+"""## Summary.
 
 - The canonical composition surface is `ProteinExtensionsConfig`
 - `create_protein_extensions()` materializes that bundle into live extension modules

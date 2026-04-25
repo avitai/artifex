@@ -60,7 +60,7 @@ class MADE(nnx.Module):
     def _build_network(self, rngs: nnx.Rngs, activation: str):
         """Build the masked network."""
         # Create layer dimensions
-        dims = (self.input_dim, *self.hidden_dims, self.output_dim)
+        dims = [self.input_dim, *self.hidden_dims, self.output_dim]
 
         # Assign degrees to each unit
         self.degrees = self._assign_degrees(dims)
@@ -128,6 +128,7 @@ class MADE(nnx.Module):
 
         Args:
             x: Input tensor of shape (batch_size, input_dim)
+            **kwargs: Additional keyword arguments for interface compatibility
 
         Returns:
             Tuple of (mu, log_alpha) each of shape (batch_size, input_dim)

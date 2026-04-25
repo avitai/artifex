@@ -1,6 +1,5 @@
 # %% [markdown]
-"""
-# BlackJAX Integration Examples with Artifex Distributions
+"""# BlackJAX Integration Examples with Artifex Distributions.
 
 This example demonstrates advanced integration patterns between BlackJAX samplers and
 Artifex's distribution framework.
@@ -82,8 +81,7 @@ from artifex.generative_models.core.sampling.blackjax_samplers import (
 
 
 # %% [markdown]
-"""
-## Helper Function: Plotting Samples
+"""## Helper Function: Plotting Samples.
 
 We define a helper function to visualize MCMC samples for 1D and 2D distributions.
 """
@@ -207,8 +205,7 @@ def plot_samples(samples, title="MCMC Samples", filename=None, true_params=None)
 
 
 # %% [markdown]
-"""
-## Example 1: Normal Distribution with Direct BlackJAX HMC
+"""## Example 1: Normal Distribution with Direct BlackJAX HMC.
 
 This example demonstrates using BlackJAX's HMC sampler directly with a Artifex
 Normal distribution. This shows the low-level BlackJAX API for maximum control.
@@ -304,8 +301,7 @@ def example_normal_hmc():
 
 
 # %% [markdown]
-"""
-## Example 2: Normal Distribution with hmc_sampling (Functional)
+"""## Example 2: Normal Distribution with hmc_sampling (Functional).
 
 This example demonstrates using the `hmc_sampling()` function, which provides a
 simplified interface for the same task. This is the recommended approach for most
@@ -378,8 +374,7 @@ def example_normal_hmc_function():
 
 
 # %% [markdown]
-"""
-## Example 3: Normal Distribution with Direct BlackJAX MALA
+"""## Example 3: Normal Distribution with Direct BlackJAX MALA.
 
 This example demonstrates using BlackJAX's MALA sampler directly. MALA is often
 faster per iteration than HMC but may require more iterations for the same effective
@@ -465,8 +460,7 @@ def example_normal_mala():
 
 
 # %% [markdown]
-"""
-## Example 4: Univariate Normal with Direct BlackJAX NUTS
+"""## Example 4: Univariate Normal with Direct BlackJAX NUTS.
 
 This example demonstrates NUTS sampling on a univariate (1D) normal distribution.
 NUTS automatically tunes the HMC trajectory length, but can be memory-intensive.
@@ -560,8 +554,7 @@ def example_univariate_normal_nuts():
 
 
 # %% [markdown]
-"""
-## Example 5: Mixture of Gaussians with mala_sampling
+"""## Example 5: Mixture of Gaussians with mala_sampling.
 
 This example demonstrates sampling from a mixture distribution using the functional API.
 Mixture distributions are multimodal and can be challenging for MCMC samplers.
@@ -581,6 +574,7 @@ def example_mixture_mala_function():
     difficult to jump between distant modes separated by low-probability regions.
     """
     print()
+
     print("===== Example 5a: Mixture of Gaussians with MALA (Demonstrating Limitations) =====")
 
     # Use 1D mixture with widely separated modes
@@ -680,8 +674,7 @@ def example_mixture_mala_function():
 
 
 # %% [markdown]
-"""
-## Example 5b: Mixture of Gaussians with NUTS (Better but Not Perfect)
+"""## Example 5b: Mixture of Gaussians with NUTS (Better but Not Perfect).
 
 Now let's demonstrate NUTS on a multimodal distribution with moderately-separated modes.
 NUTS uses Hamiltonian dynamics for better exploration than MALA, but still faces
@@ -703,6 +696,7 @@ def example_mixture_nuts_function():
     SMC methods are needed.
     """
     print()
+
     print("===== Example 5b: Mixture with NUTS (Better Exploration, Closer Modes) =====")
 
     # Use 1D mixture for clearer demonstration
@@ -808,8 +802,7 @@ def example_mixture_nuts_function():
 
 
 # %% [markdown]
-"""
-## Running All Examples
+"""## Running All Examples.
 
 Now let's run all integration examples to see both class-based and functional APIs
 in action, including the multimodal distribution comparison.
@@ -836,8 +829,7 @@ if __name__ == "__main__":
     print("All examples complete!")
 
 # %% [markdown]
-"""
-## Key Takeaways
+"""## Key Takeaways.
 
 After running this example, you should understand:
 

@@ -41,6 +41,8 @@ def test_pyproject_uses_explicit_cuda12_extra():
     assert "cuda-dev" in extras
     assert "gpu" not in extras
     assert any("jax[cuda12]" in requirement for requirement in extras["cuda12"])
+    assert any("nvidia-cudnn-cu12==" in requirement for requirement in extras["cuda12"])
+    assert any("nvidia-cuda-runtime-cu12==" in requirement for requirement in extras["cuda12"])
     assert "tool.artifex.cuda" not in (REPO_ROOT / "pyproject.toml").read_text()
 
 
@@ -142,6 +144,52 @@ def test_activate_clears_stale_managed_backend_variables(tmp_path: Path) -> None
     assert payload["artifex_backend"] == "cuda12"
     assert payload["jax_platforms"] is None
     assert payload["env_root"] == str(REPO_ROOT)
+
+
+def test_activate_strips_inherited_cuda_library_paths_for_cuda12_backend(
+    tmp_path: Path,
+) -> None:
+    """CUDA12 activation should drop stale toolkit library paths while keeping unrelated ones."""
+    managed_env = tmp_path / ".artifex.env"
+    subprocess.run(
+        [
+            sys.executable,
+            "scripts/setup_env.py",
+            "write",
+            "--backend",
+            "cuda12",
+            "--output",
+            str(managed_env),
+        ],
+        cwd=REPO_ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    result = subprocess.run(
+        [
+            "bash",
+            "-lc",
+            (
+                "export LD_LIBRARY_PATH='/tmp/keep:/opt/toolchains/cuda-12.4/lib64:"
+                "/tmp/also-keep:/opt/toolchains/cuda-12.4/targets/x86_64-linux/lib'; "
+                f"export ARTIFEX_MANAGED_ENV_FILE='{managed_env}'; "
+                "source ./activate.sh >/tmp/artifex-activate-contract.log 2>&1; "
+                f"'{sys.executable}' - <<'PY'\n"
+                "import json, os\n"
+                "print(json.dumps({'ld_library_path': os.environ.get('LD_LIBRARY_PATH')}))\n"
+                "PY"
+            ),
+        ],
+        cwd=REPO_ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    payload = json.loads(result.stdout)
+    assert payload["ld_library_path"] == "/tmp/keep:/tmp/also-keep"
 
 
 def test_env_example_is_comment_only_user_override_template() -> None:

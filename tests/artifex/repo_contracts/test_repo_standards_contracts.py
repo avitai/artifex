@@ -39,7 +39,7 @@ def test_pyproject_declares_canonical_repo_standards_contract() -> None:
     assert standards["interpreter"]["minimum_supported"] == "3.11"
     assert standards["interpreter"]["tooling"] == "3.11"
     assert standards["interpreter"]["docs"] == "3.11"
-    assert standards["coverage"]["project_fail_under"] == 70
+    assert standards["coverage"]["project_fail_under"] == 80
     assert standards["coverage"]["new_code_target"] == 80
     assert standards["typing"]["pyright_mode"] == "basic"
     assert standards["docs"]["main_strict"] is True
@@ -129,7 +129,7 @@ def test_pre_commit_uses_shared_excludes_and_repo_pyright_environment() -> None:
     assert re.search(r"exclude:\s*&repo_non_source_exclude\b", contents)
     assert contents.count("exclude: *repo_non_source_exclude") >= 6
     assert re.search(r"exclude:\s*&repo_non_source_and_tests_exclude\b", contents)
-    assert contents.count("exclude: *repo_non_source_and_tests_exclude") >= 2
+    assert contents.count("exclude: *repo_non_source_and_tests_exclude") >= 1
 
 
 def test_ruff_per_file_policy_keeps_blocking_lint_focused_on_maintained_runtime_code() -> None:

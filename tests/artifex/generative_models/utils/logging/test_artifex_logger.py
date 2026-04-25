@@ -96,7 +96,7 @@ def test_file_logger_log_scalar(temp_log_dir):
     logger.log_scalar("test_metric", 0.5, step=10)
 
     # Check that the metrics file contains the scalar
-    with open(logger.metrics_file, "r") as f:
+    with open(logger.metrics_file) as f:
         content = f.read()
         assert "test_metric" in content
         assert "0.5" in content
@@ -111,7 +111,7 @@ def test_file_logger_log_scalars(temp_log_dir):
     logger.log_scalars(metrics, step=10)
 
     # Check that the metrics file contains the scalars
-    with open(logger.metrics_file, "r") as f:
+    with open(logger.metrics_file) as f:
         content = f.read()
         assert "metric1" in content
         assert "0.5" in content
@@ -179,7 +179,7 @@ def test_logger_log_hyperparams(temp_log_dir):
     assert len(hyperparams_files) > 0
 
     # Check file contents
-    with open(hyperparams_files[0], "r") as f:
+    with open(hyperparams_files[0]) as f:
         content = f.read()
         assert "learning_rate: 0.001" in content
         assert "batch_size: 32" in content
@@ -203,7 +203,7 @@ def test_logger_log_text(temp_log_dir):
     assert len(text_files) > 0
 
     # Check file contents
-    with open(text_files[0], "r") as f:
+    with open(text_files[0]) as f:
         content = f.read()
         assert text in content
 

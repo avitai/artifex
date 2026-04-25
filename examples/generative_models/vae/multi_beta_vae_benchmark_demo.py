@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # %% [markdown]
-"""
-# Multi-β VAE Controllable Generation Benchmark Demo
+"""# Multi-β VAE Controllable Generation Benchmark Demo.
 
 **Level:** Intermediate | **Runtime:** ~2-3 minutes (CPU), ~1 minute (GPU)
 **Format:** Python + Jupyter
@@ -151,8 +150,7 @@ Artifex Team
 """
 
 # %% [markdown]
-"""
-## Section 1: Imports and Setup
+"""## Section 1: Imports and Setup.
 
 We import the necessary components for Multi-β VAE benchmarking:
 - JAX and Flax NNX for neural network operations
@@ -173,8 +171,7 @@ from artifex.benchmarks.suites.multi_beta_vae_suite import (
 
 
 # %% [markdown]
-"""
-## Section 2: Mock Multi-β VAE Model
+"""## Section 2: Mock Multi-β VAE Model.
 
 This mock model simulates a Multi-β VAE without requiring full training.
 It demonstrates the expected interface and behavior for benchmarking.
@@ -214,6 +211,7 @@ class MockMultiBetaVAE(nnx.Module):
             rngs: Random number generator keys
         """
         super().__init__()
+
         self.latent_dim = latent_dim
         self.image_size = image_size
         self.quality_level = quality_level
@@ -346,7 +344,8 @@ class MockMultiBetaVAE(nnx.Module):
         Returns:
             Reconstructed images
         """
-        # Get random key (FIXED RNG PATTERN)
+        # Get random key (FIXED RNG PATTERN).
+
         if rngs is not None and "decode" in rngs:
             key = rngs.decode()
         else:
@@ -385,7 +384,8 @@ class MockMultiBetaVAE(nnx.Module):
         Returns:
             Generated images
         """
-        # Get random key (FIXED RNG PATTERN)
+        # Get random key (FIXED RNG PATTERN).
+
         if rngs is not None and "generate" in rngs:
             key = rngs.generate()
         else:
@@ -445,6 +445,7 @@ class MockMultiBetaVAE(nnx.Module):
             Simple pattern image
         """
         pattern_type = jax.random.randint(key, (), 0, 4)
+
         x = jnp.linspace(-2, 2, size)
         y = jnp.linspace(-2, 2, size)
         X, Y = jnp.meshgrid(x, y)
@@ -484,7 +485,8 @@ class MockMultiBetaVAE(nnx.Module):
         Returns:
             Reconstruction loss value
         """
-        # Simple MSE loss
+        # Simple MSE loss.
+
         mse = jnp.mean((images - reconstructions) ** 2)
 
         # Scale based on quality level
@@ -498,8 +500,7 @@ class MockMultiBetaVAE(nnx.Module):
 
 
 # %% [markdown]
-"""
-## Section 3: Benchmark Demo Execution
+"""## Section 3: Benchmark Demo Execution.
 
 This section demonstrates the complete benchmarking workflow:
 1. Initialize the benchmark suite with dataset configuration
@@ -515,7 +516,8 @@ demonstrating the full benchmarking capabilities.
 # %%
 def run_benchmark_demo():
     """Run the Multi-β VAE benchmark demo."""
-    print("\n" + "=" * 80)
+    print()
+    print("=" * 80)
     print("MULTI-β VAE CONTROLLABLE GENERATION BENCHMARK DEMO")
     print("=" * 80)
 
@@ -655,8 +657,7 @@ if __name__ == "__main__":
     run_benchmark_demo()
 
 # %% [markdown]
-"""
-## Summary and Key Takeaways
+"""## Summary and Key Takeaways.
 
 ### What You Learned
 

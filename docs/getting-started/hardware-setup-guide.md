@@ -47,6 +47,7 @@ uv run python scripts/verify_gpu_setup.py
 
 The generated backend settings live in `.artifex.env`. Optional `.env` and `.env.local` files are user-owned override layers and are loaded after `.artifex.env`.
 Re-sourcing `activate.sh` refreshes the managed backend state from `.artifex.env` before applying those user-owned overrides.
+On the `cuda12` path, `activate.sh` also strips inherited CUDA toolkit library directories from `LD_LIBRARY_PATH` so JAX keeps using the pip-managed runtime bundled by the environment.
 
 ## Explicit backend workflows
 

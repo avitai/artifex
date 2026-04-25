@@ -154,6 +154,7 @@ class PrecisionRecall(FeatureBasedMetric):
             real_samples: Real samples
             generated_samples: Generated samples
             k: Number of nearest neighbors (uses self.k if None)
+            batch_size: Optional batch size for feature extraction
 
         Returns:
             Dictionary containing precision, recall, and F1 score
@@ -351,6 +352,7 @@ class DensityPrecisionRecall(FeatureBasedMetric):
             real_samples: Real samples
             generated_samples: Generated samples
             k: Number of nearest neighbors (uses self.k if None)
+            batch_size: Optional batch size for feature extraction
 
         Returns:
             Dictionary containing precision, recall, and F1 score

@@ -10,6 +10,25 @@ from artifex.generative_models.core.base import GenerativeModel
 from ..base import ModelAdapter
 
 
+def _attach_extensions(model: GenerativeModel, extensions: dict[str, Any]) -> GenerativeModel:
+    """Attach modality extensions to models that expose an extension registry."""
+    if not extensions:
+        return model
+
+    existing_extensions = getattr(model, "extension_modules", None)
+    if existing_extensions is None:
+        setattr(model, "extension_modules", nnx.Dict(extensions))
+        return model
+
+    if hasattr(existing_extensions, "update"):
+        existing_extensions.update(extensions)
+    else:
+        merged_extensions = dict(existing_extensions)
+        merged_extensions.update(extensions)
+        setattr(model, "extension_modules", nnx.Dict(merged_extensions))
+    return model
+
+
 @dataclasses.dataclass(frozen=True)
 class TimeseriesAdapterConfig:
     """Configuration for timeseries adapters.
@@ -78,9 +97,11 @@ class TimeseriesTransformerAdapter(ModelAdapter):
 
         # Add timeseries-specific extensions
         extensions = self._get_timeseries_extensions(config, rngs=rngs)
-        for name, extension in extensions.items():
-            model.add_extension(name, extension)
+        return _attach_extensions(model, extensions)
 
+    def adapt(self, model: Any, config: Any) -> Any:
+        """Return an already-built model unchanged when no RNGs are available."""
+        del config
         return model
 
     def _get_timeseries_extensions(
@@ -165,9 +186,11 @@ class TimeseriesRNNAdapter(ModelAdapter):
 
         # Add timeseries-specific extensions
         extensions = self._get_timeseries_extensions(config, rngs=rngs)
-        for name, extension in extensions.items():
-            model.add_extension(name, extension)
+        return _attach_extensions(model, extensions)
 
+    def adapt(self, model: Any, config: Any) -> Any:
+        """Return an already-built model unchanged when no RNGs are available."""
+        del config
         return model
 
     def _get_timeseries_extensions(
@@ -251,9 +274,11 @@ class TimeseriesDiffusionAdapter(ModelAdapter):
 
         # Add timeseries-specific extensions
         extensions = self._get_timeseries_extensions(config, rngs=rngs)
-        for name, extension in extensions.items():
-            model.add_extension(name, extension)
+        return _attach_extensions(model, extensions)
 
+    def adapt(self, model: Any, config: Any) -> Any:
+        """Return an already-built model unchanged when no RNGs are available."""
+        del config
         return model
 
     def _get_timeseries_extensions(
@@ -335,9 +360,11 @@ class TimeseriesVAEAdapter(ModelAdapter):
 
         # Add timeseries-specific extensions
         extensions = self._get_timeseries_extensions(config, rngs=rngs)
-        for name, extension in extensions.items():
-            model.add_extension(name, extension)
+        return _attach_extensions(model, extensions)
 
+    def adapt(self, model: Any, config: Any) -> Any:
+        """Return an already-built model unchanged when no RNGs are available."""
+        del config
         return model
 
     def _get_timeseries_extensions(

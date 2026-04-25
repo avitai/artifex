@@ -11,8 +11,7 @@
 # ---
 
 # %% [markdown]
-"""
-# Simple Point Cloud Example
+"""# Simple Point Cloud Example.
 
 This example demonstrates point cloud generation and visualization using Artifex's
 PointCloudModel with JAX and Flax NNX.
@@ -71,8 +70,7 @@ from artifex.generative_models.models.geometric import PointCloudModel
 
 
 # %% [markdown]
-"""
-## 1. Visualization Function
+"""## 1. Visualization Function.
 
 First, we define a helper function to visualize 3D point clouds using matplotlib.
 """
@@ -87,6 +85,7 @@ def plot_point_cloud(points, filename=None):
         filename: Optional filename to save the plot
     """
     fig = plt.figure(figsize=(10, 8))
+
     ax = fig.add_subplot(111, projection="3d")
 
     # Normalize points for coloring
@@ -121,8 +120,7 @@ def plot_point_cloud(points, filename=None):
 
 
 # %% [markdown]
-"""
-## 2. Model Configuration and Creation
+"""## 2. Model Configuration and Creation.
 
 We configure a PointCloudModel using Artifex's unified configuration system.
 

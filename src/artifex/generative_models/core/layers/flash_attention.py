@@ -17,7 +17,7 @@ import math
 import platform
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 import jax
 import jax.numpy as jnp
@@ -350,10 +350,9 @@ def create_attention_mask(
     kv_seq_len: int,
     config: FlashAttentionConfig,
     causal: bool = True,
-    mesh: Optional[Mesh] = None,
+    mesh: Mesh | None = None,
 ) -> AttentionMask:
     """Create block-sparse attention mask for Flash Attention."""
-
     batch_size = query_positions.shape[0]
     num_query_blocks = (query_seq_len + config.query_block_size - 1) // config.query_block_size
     num_kv_blocks = (kv_seq_len + config.kv_block_size - 1) // config.kv_block_size
@@ -377,19 +376,18 @@ def flash_attention(
     query: Array,
     key: Array,
     value: Array,
-    query_positions: Optional[Array] = None,
-    query_segment_ids: Optional[Array] = None,
-    kv_positions: Optional[Array] = None,
-    kv_segment_ids: Optional[Array] = None,
-    mask: Optional[AttentionMask] = None,
-    scale: Optional[float] = None,
-    config: Optional[FlashAttentionConfig] = None,
+    query_positions: Array | None = None,
+    query_segment_ids: Array | None = None,
+    kv_positions: Array | None = None,
+    kv_segment_ids: Array | None = None,
+    mask: AttentionMask | None = None,
+    scale: float | None = None,
+    config: FlashAttentionConfig | None = None,
     causal: bool = False,  # Default to False for compatibility
     assume_sequential_positions: bool = False,
-    mesh: Optional[Mesh] = None,
+    mesh: Mesh | None = None,
 ) -> Array:
-    """
-    Segment-aware JAX attention helper.
+    """Segment-aware JAX attention helper.
 
     Args:
         query: Query tensor [batch, seq_len, num_heads, head_dim]
@@ -409,7 +407,6 @@ def flash_attention(
     Returns:
         Attention output [batch, seq_len, num_heads, head_dim]
     """
-
     batch_size, query_seq_len, num_heads, head_dim = query.shape
     _, kv_seq_len, num_kv_heads, _ = key.shape
 
@@ -502,7 +499,6 @@ def _fallback_attention(
     num_heads,
 ):
     """Fallback to standard JAX attention implementation using jax.nn.dot_product_attention."""
-
     # query, key, value are already reshaped to [batch*heads, seq_len, head_dim]
     # But jax.nn.dot_product_attention expects [batch, seq_len, num_heads, head_dim]
     # So we need to reshape them back
@@ -573,25 +569,25 @@ class FlashMultiHeadAttention(Module):
         self,
         num_heads: int,
         in_features: int,
-        qkv_features: Optional[int] = None,
-        out_features: Optional[int] = None,
-        in_kv_features: Optional[int] = None,
+        qkv_features: int | None = None,
+        out_features: int | None = None,
+        in_kv_features: int | None = None,
         *,
-        dtype: Optional[Dtype] = None,
+        dtype: Dtype | None = None,
         param_dtype: Dtype = jnp.float32,
         broadcast_dropout: bool = True,
         dropout_rate: float = 0.0,
-        deterministic: Optional[bool] = None,
+        deterministic: bool | None = None,
         precision: PrecisionLike = None,
         kernel_init: Initializer = default_kernel_init,
-        out_kernel_init: Optional[Initializer] = None,
+        out_kernel_init: Initializer | None = None,
         bias_init: Initializer = initializers.zeros_init(),
-        out_bias_init: Optional[Initializer] = None,
+        out_bias_init: Initializer | None = None,
         use_bias: bool = True,
-        attention_fn: Optional[Callable[..., Array]] = None,
-        decode: Optional[bool] = None,
+        attention_fn: Callable[..., Array] | None = None,
+        decode: bool | None = None,
         normalize_qk: bool = False,
-        flash_config: Optional[FlashAttentionConfig] = None,
+        flash_config: FlashAttentionConfig | None = None,
         use_segment_ids: bool = True,
         causal: bool = False,  # Default to False for standard attention
         assume_sequential_positions: bool = False,
@@ -599,7 +595,6 @@ class FlashMultiHeadAttention(Module):
         keep_rngs: bool = True,
     ):
         """Initialize Flash Multi-Head Attention module."""
-
         self.num_heads = num_heads
         self.in_features = in_features
         self.qkv_features = qkv_features if qkv_features is not None else in_features
@@ -688,21 +683,20 @@ class FlashMultiHeadAttention(Module):
     def __call__(
         self,
         inputs_q: Array,
-        inputs_k: Optional[Array] = None,
-        inputs_v: Optional[Array] = None,
+        inputs_k: Array | None = None,
+        inputs_v: Array | None = None,
         *,
-        mask: Optional[Array] = None,
-        query_positions: Optional[Array] = None,
-        kv_positions: Optional[Array] = None,
-        query_segment_ids: Optional[Array] = None,
-        kv_segment_ids: Optional[Array] = None,
-        deterministic: Optional[bool] = None,
-        rngs: Optional[rnglib.Rngs] = None,
+        mask: Array | None = None,
+        query_positions: Array | None = None,
+        kv_positions: Array | None = None,
+        query_segment_ids: Array | None = None,
+        kv_segment_ids: Array | None = None,
+        deterministic: bool | None = None,
+        rngs: rnglib.Rngs | None = None,
         sow_weights: bool = False,
-        decode: Optional[bool] = None,
+        decode: bool | None = None,
     ) -> Array:
-        """
-        Apply Flash Multi-Head Attention.
+        """Apply Flash Multi-Head Attention.
 
         Args:
             inputs_q: Query input [batch, seq_len, features]
@@ -721,7 +715,6 @@ class FlashMultiHeadAttention(Module):
         Returns:
             Attention output [batch, seq_len, features]
         """
-
         if rngs is None:
             rngs = self.rngs
 

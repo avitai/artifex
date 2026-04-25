@@ -1,6 +1,6 @@
 """Beta Variational Autoencoder implementation."""
 
-from typing import Any
+from typing import Any, cast
 
 import jax
 import jax.numpy as jnp
@@ -10,7 +10,11 @@ from artifex.generative_models.core.configuration.vae_config import (
     BetaVAEConfig,
     BetaVAEWithCapacityConfig,
 )
-from artifex.generative_models.core.losses.vae import vae_elbo_terms, vae_kl_components
+from artifex.generative_models.core.losses.vae import (
+    vae_elbo_terms,
+    vae_kl_components,
+    VAEReconstructionLossType,
+)
 from artifex.generative_models.models.vae.base import _extract_vae_inputs, VAE
 
 
@@ -42,14 +46,17 @@ class BetaVAE(VAE):
         # BetaVAE-specific settings from config
         self.beta_default = config.beta_default
         self.beta_warmup_steps = config.beta_warmup_steps
-        self.reconstruction_loss_type = config.reconstruction_loss_type
+        self.reconstruction_loss_type = cast(
+            VAEReconstructionLossType,
+            config.reconstruction_loss_type,
+        )
 
     def loss_fn(
         self,
         batch: Any,
         model_outputs: dict[str, jax.Array],
         *,
-        beta: float | None = None,
+        beta: float | jax.Array | None = None,
         **kwargs: Any,
     ) -> dict[str, jax.Array]:
         """Calculate loss for BetaVAE.
@@ -98,7 +105,10 @@ class BetaVAE(VAE):
             mean=mean,
             log_var=log_var,
             beta=beta,
-            reconstruction_loss_type=self.reconstruction_loss_type,
+            reconstruction_loss_type=cast(
+                VAEReconstructionLossType,
+                self.reconstruction_loss_type,
+            ),
         )
         losses["beta"] = jnp.asarray(beta)
         return losses
@@ -132,7 +142,7 @@ class BetaVAEWithCapacity(BetaVAE):
         batch: Any,
         model_outputs: dict[str, jax.Array],
         *,
-        beta: float | None = None,
+        beta: float | jax.Array | None = None,
         step: int = 0,  # Current training step
         **kwargs: Any,
     ) -> dict[str, jax.Array]:
@@ -153,6 +163,8 @@ class BetaVAEWithCapacity(BetaVAE):
         recon_loss = base_losses["reconstruction_loss"]
         mean = model_outputs["mean"]
         log_var = model_outputs.get("log_var")
+        if log_var is None:
+            raise KeyError("Missing required output key: 'log_var'")
 
         kl_loss, _ = vae_kl_components(mean, log_var)
 

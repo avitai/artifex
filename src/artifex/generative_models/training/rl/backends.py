@@ -7,12 +7,12 @@ from typing import Any
 
 import jax
 import jax.numpy as jnp
-from flax import nnx
 from jax import tree_util
 
 from artifex.generative_models.training.rl.protocols import (
     LogProbScorer,
     RewardModel,
+    SequenceGeneratingModule,
     SequenceGenerationBackend,
     SequenceRolloutPolicyAdapter,
 )
@@ -25,7 +25,7 @@ from artifex.generative_models.training.rl.types import (
 )
 
 
-SequenceGenerateFn = Callable[[nnx.Module, SequenceGenerationRequest], jax.Array]
+SequenceGenerateFn = Callable[[SequenceGeneratingModule, SequenceGenerationRequest], jax.Array]
 
 
 def _repeat_batch_aligned_pytree(value: Any | None, repeats: int) -> Any | None:
@@ -51,18 +51,19 @@ class LocalSequenceGenerationBackend:
 
     def __init__(
         self,
-        model: nnx.Module,
+        model: SequenceGeneratingModule,
         *,
         generate_fn: SequenceGenerateFn | None = None,
         prompt_kwarg: str = "prompt_tokens",
         conditioning_kwarg: str | None = None,
     ) -> None:
+        """Initialize the sequence generation backend."""
         self.model = model
         self.generate_fn = generate_fn
         self.prompt_kwarg = prompt_kwarg
         self.conditioning_kwarg = conditioning_kwarg
 
-    def bind(self, model: nnx.Module) -> LocalSequenceGenerationBackend:
+    def bind(self, model: SequenceGeneratingModule) -> LocalSequenceGenerationBackend:
         """Return an equivalent backend bound to a different model instance."""
         return LocalSequenceGenerationBackend(
             model,
@@ -185,6 +186,7 @@ class LocalSequenceRolloutBackend:
         reward_model: RewardModel | None = None,
         reference_scorer: LogProbScorer | None = None,
     ) -> None:
+        """Initialize the rollout backend."""
         self.generation_backend = generation_backend
         self.policy_adapter = policy_adapter
         self.reward_model = reward_model

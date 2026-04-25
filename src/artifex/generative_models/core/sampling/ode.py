@@ -18,6 +18,7 @@ def euler_step(
     dt: float,
     vector_field_fn: Callable[[jax.Array, float], jax.Array],
 ) -> jax.Array:
+    """Take one Euler integration step."""
     vector_field = vector_field_fn(state, t)
     return state + dt * vector_field
 
@@ -28,6 +29,7 @@ def rk4_step(
     dt: float,
     vector_field_fn: Callable[[jax.Array, float], jax.Array],
 ) -> jax.Array:
+    """Take one fourth-order Runge-Kutta integration step."""
     k1 = vector_field_fn(state, t)
     k2 = vector_field_fn(state + dt * k1 / 2, t + dt / 2)
     k3 = vector_field_fn(state + dt * k2 / 2, t + dt / 2)

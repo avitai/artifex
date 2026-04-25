@@ -63,7 +63,6 @@ class VQVAE(VAE):
         Returns:
             Tuple of (quantized encoding, auxiliary dict containing losses and indices)
         """
-
         encoding_shape = encoding.shape
 
         # Flatten the encoding to [batch_size * height * width, embedding_dim]
@@ -258,6 +257,7 @@ class VQVAE(VAE):
         **kwargs,
     ) -> jax.Array:
         """Sample from the model.
+
         Args:
             n_samples: Number of samples to generate
             temperature: Temperature parameter controlling randomness

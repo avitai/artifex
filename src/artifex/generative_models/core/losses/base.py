@@ -1,5 +1,4 @@
-"""
-Minimal shared loss utilities.
+"""Minimal shared loss utilities.
 
 This module intentionally stays small. Family-specific losses should be built
 from explicit JAX and CalibraX primitives rather than additional management
@@ -16,8 +15,7 @@ def reduce_loss(
     weights: jax.Array | None = None,
     axis: int | tuple[int, ...] | None = None,
 ) -> jax.Array:
-    """
-    Apply reduction to a loss tensor with optional weighting.
+    """Apply reduction to a loss tensor with optional weighting.
 
     Args:
         loss: Raw loss values.

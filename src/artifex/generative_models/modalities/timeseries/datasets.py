@@ -211,7 +211,7 @@ def create_synthetic_timeseries_dataset(
     rngs: nnx.Rngs | None = None,
     shuffle: bool = False,
     **kwargs: Any,
-) -> MemorySource:
+) -> Any:
     """Create a synthetic timeseries dataset as a MemorySource.
 
     Args:
@@ -252,7 +252,7 @@ def create_simple_timeseries_dataset(
     rngs: nnx.Rngs | None = None,
     shuffle: bool = False,
     **kwargs: Any,
-) -> MemorySource:
+) -> Any:
     """Create a simple timeseries dataset for testing.
 
     Args:

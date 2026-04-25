@@ -54,7 +54,6 @@ from artifex.generative_models.core.losses import (
 # Example 1: Simple Functional Usage
 def example_functional_usage():
     """Demonstrate simple functional usage of loss functions."""
-
     # Generate some dummy data
     key = jax.random.key(42)
     key1, key2 = jax.random.split(key)
@@ -77,7 +76,6 @@ def example_functional_usage():
 # Example 2: Explicit Loss Composition
 def example_explicit_loss_composition():
     """Demonstrate explicit JAX-native loss composition."""
-
     # Generate dummy data
     key = jax.random.key(42)
     key1, key2 = jax.random.split(key)
@@ -114,6 +112,7 @@ class SimpleVAE(nnx.Module):
             rngs: Random number generator keys
         """
         super().__init__()
+
         self.encoder = nnx.Sequential(
             nnx.Linear(in_features=input_dim, out_features=hidden_dim, rngs=rngs),
             nnx.relu,
@@ -137,6 +136,7 @@ class SimpleVAE(nnx.Module):
             Mean and log variance of the latent distribution
         """
         h = self.encoder(x)
+
         mean, logvar = jnp.split(h, 2, axis=-1)
         return mean, logvar
 
@@ -152,6 +152,7 @@ class SimpleVAE(nnx.Module):
             Sampled latent vector
         """
         std = jnp.exp(0.5 * logvar)
+
         eps = jax.random.normal(rngs.sample(), mean.shape)
         return mean + eps * std
 
@@ -177,6 +178,7 @@ class SimpleVAE(nnx.Module):
             Dictionary with reconstruction, mean, and logvar
         """
         mean, logvar = self.encode(x)
+
         z = self.reparameterize(mean, logvar, rngs=rngs)
         recon = self.decode(z)
         return {"reconstruction": recon, "mean": mean, "logvar": logvar}
@@ -185,7 +187,6 @@ class SimpleVAE(nnx.Module):
 # %%
 def example_vae_training():
     """Demonstrate VAE training with explicit loss terms."""
-
     # Create model and optimizer
     model = SimpleVAE(latent_dim=64, rngs=nnx.Rngs(42))
     optimizer = nnx.Optimizer(model, optax.adam(1e-3), wrt=nnx.OfType(nnx.Param))
@@ -236,7 +237,6 @@ def example_vae_training():
 # Example 4: GAN Training with Explicit Objectives
 def example_gan_training():
     """Demonstrate explicit GAN generator and discriminator objectives."""
-
     # Dummy data for demonstration
     key = jax.random.key(42)
     real_scores = jax.random.uniform(key, (32,)) * 0.1 + 0.9  # Near 1.0
@@ -256,7 +256,6 @@ def example_gan_training():
 # Example 5: Explicit Scheduling and Progressive Training
 def example_scheduled_loss():
     """Demonstrate explicit schedule weights for curriculum learning."""
-
     # Create a perceptual loss that ramps up over time
     perceptual_loss = PerceptualLoss(content_weight=0.1, style_weight=0.01)
 
@@ -283,7 +282,6 @@ def example_scheduled_loss():
 # Example 6: 3D Geometric Losses
 def example_geometric_losses():
     """Demonstrate 3D geometric loss functions."""
-
     # Point cloud loss
     key = jax.random.key(42)
     key1, key2 = jax.random.split(key)
@@ -389,5 +387,7 @@ if __name__ == "__main__":
     echo("\n7. Complete Training:")
     example_complete_training()
 
-    echo("\n" + "=" * 50)
+    echo()
+
+    echo("=" * 50)
     echo("All examples completed successfully!")

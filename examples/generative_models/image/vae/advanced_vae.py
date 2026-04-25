@@ -10,7 +10,7 @@
 # ---
 
 # %%
-r"""Advanced VAE Examples - Showcase Artifex's Advanced VAE Features
+r"""Advanced VAE Examples - Showcase Artifex's Advanced VAE Features.
 
 ## Overview
 
@@ -114,8 +114,7 @@ Artifex Team
 """
 
 # %% [markdown]
-"""
-# Advanced VAE Examples
+"""# Advanced VAE Examples.
 
 This notebook demonstrates Artifex's advanced VAE implementations on real MNIST data.
 
@@ -131,8 +130,7 @@ By the end of this example, you will understand:
 
 # %%
 # Cell 1: Import Dependencies
-"""
-Import Artifex's VAE implementations and utilities for training advanced variants.
+"""Import Artifex's VAE implementations and utilities for training advanced variants.
 """
 
 import logging
@@ -183,8 +181,7 @@ echo(f"Output directory: {OUTPUT_DIR}")
 
 
 # %% [markdown]
-"""
-## Data Loading
+"""## Data Loading.
 
 Load real MNIST dataset using TensorFlow Datasets. This ensures we train on
 actual handwritten digits with proper training/test splits.
@@ -285,8 +282,7 @@ def load_real_mnist(batch_size=128):
 
 
 # %% [markdown]
-"""
-## Example 1: β-VAE with β Annealing
+"""## Example 1: β-VAE with β Annealing.
 
 Demonstrate Artifex's BetaVAE with gradual β annealing from 1.0 to 4.0.
 This helps avoid posterior collapse while achieving disentanglement.
@@ -305,7 +301,8 @@ def create_beta_vae(beta=4.0, warmup_steps=1000):
     Returns:
         BetaVAE model
     """
-    # Create encoder config
+    # Create encoder config.
+
     encoder_config = EncoderConfig(
         name="beta_vae_encoder",
         hidden_dims=(512, 256),  # Tuple for frozen dataclass
@@ -399,6 +396,7 @@ def train_beta_vae(model, train_ds, num_epochs=5, learning_rate=1e-3, batches_pe
         Dictionary with training history
     """
     echo()
+
     echo("=" * 70)
     echo(f"Training β-VAE (β={model.beta_default}, warmup={model.beta_warmup_steps} steps)")
     echo("=" * 70)
@@ -474,8 +472,7 @@ def train_beta_vae(model, train_ds, num_epochs=5, learning_rate=1e-3, batches_pe
 
 
 # %% [markdown]
-"""
-## Example 2: β-VAE with Capacity Control
+"""## Example 2: β-VAE with Capacity Control.
 
 Demonstrate Artifex's BetaVAEWithCapacity which uses capacity control
 (Burgess et al.) for more stable training.
@@ -494,7 +491,8 @@ def create_capacity_beta_vae(capacity_max=25.0, capacity_steps=5000):
     Returns:
         BetaVAEWithCapacity model
     """
-    # Create encoder config
+    # Create encoder config.
+
     encoder_config = EncoderConfig(
         name="capacity_vae_encoder",
         hidden_dims=(512, 256),  # Tuple for frozen dataclass
@@ -553,6 +551,7 @@ def train_capacity_beta_vae(
         Dictionary with training history
     """
     echo()
+
     echo("=" * 70)
     echo(f"Training β-VAE with Capacity Control (C_max={model.capacity_max} nats)")
     echo("=" * 70)
@@ -642,8 +641,7 @@ def train_capacity_beta_vae(
 
 
 # %% [markdown]
-"""
-## Example 3: Conditional VAE
+"""## Example 3: Conditional VAE.
 
 Demonstrate Artifex's ConditionalVAE for label-conditioned generation,
 enabling controlled sampling of specific digit classes.
@@ -662,7 +660,8 @@ def create_conditional_vae():
     Returns:
         ConditionalVAE model
     """
-    # MNIST image dimensions - base encoder receives flattened images + condition
+    # MNIST image dimensions - base encoder receives flattened images + condition.
+
     # ConditionalVAE handles the input size adjustment internally
 
     # Create encoder config (base encoder dimensions before conditioning adjustment)
@@ -718,6 +717,7 @@ def train_conditional_vae(model, train_ds, num_epochs=5, learning_rate=1e-3, bat
         Dictionary with training history
     """
     echo()
+
     echo("=" * 70)
     echo(f"Training Conditional VAE (condition_dim={model.condition_dim})")
     echo("=" * 70)
@@ -789,8 +789,7 @@ def train_conditional_vae(model, train_ds, num_epochs=5, learning_rate=1e-3, bat
 
 
 # %% [markdown]
-"""
-## Example 4: VQ-VAE
+"""## Example 4: VQ-VAE.
 
 Demonstrate Artifex's VQVAE with codebook monitoring and perplexity tracking
 to ensure healthy codebook usage.
@@ -809,7 +808,8 @@ def create_vqvae(num_embeddings=512, embedding_dim=64):
     Returns:
         VQVAE model
     """
-    # Create encoder config
+    # Create encoder config.
+
     encoder_config = EncoderConfig(
         name="vqvae_encoder",
         hidden_dims=(512, 256),  # Tuple for frozen dataclass
@@ -862,6 +862,7 @@ def train_vqvae(model, train_ds, num_epochs=5, learning_rate=1e-3, batches_per_e
         Dictionary with training history
     """
     echo()
+
     echo("=" * 70)
     echo(f"Training VQ-VAE (codebook={model.num_embeddings}, dim={model.embedding_dim})")
     echo("=" * 70)
@@ -936,8 +937,7 @@ def train_vqvae(model, train_ds, num_epochs=5, learning_rate=1e-3, batches_per_e
 
 
 # %% [markdown]
-"""
-## Visualization Functions
+"""## Visualization Functions.
 
 Create visualizations for each VAE variant showing reconstructions and
 generated samples.
@@ -958,7 +958,8 @@ def visualize_vae_results(model, test_ds, variant_name, conditional=False):
     Returns:
         matplotlib figure
     """
-    # Set model to evaluation mode (disables dropout, uses running stats for batch norm)
+    # Set model to evaluation mode (disables dropout, uses running stats for batch norm).
+
     model.eval()
 
     # Get test batch from Grain DataLoader
@@ -1054,8 +1055,7 @@ def plot_training_curves(history, variant_name):
 
 
 # %% [markdown]
-"""
-## Main Execution
+"""## Main Execution.
 
 Train and evaluate all four advanced VAE variants using Artifex's
 production-ready implementations.

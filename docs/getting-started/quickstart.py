@@ -10,8 +10,7 @@
 # ---
 
 # %% [markdown]
-"""
-# Quickstart: Train Your First VAE
+"""# Quickstart: Train Your First VAE.
 
 This quickstart demonstrates how to train a Variational Autoencoder (VAE) on MNIST
 using Artifex's high-performance training infrastructure.
@@ -46,8 +45,7 @@ from artifex.generative_models.training.trainers import VAETrainer, VAETrainingC
 
 
 # %% [markdown]
-"""
-## Step 1: Load Data with TFDSEagerSource
+"""## Step 1: Load Data with TFDSEagerSource.
 
 `TFDSEagerSource` loads the entire dataset into JAX arrays at initialization.
 This eliminates TensorFlow overhead during training - pure JAX from start to finish.
@@ -65,8 +63,7 @@ num_samples = len(mnist_source)
 print(f"Loaded {num_samples} images, shape: {images.shape}")
 
 # %% [markdown]
-"""
-## Step 2: Configure the VAE Model
+"""## Step 2: Configure the VAE Model.
 
 We use a CNN architecture for better image quality:
 - **Encoder**: 3-layer CNN (32 -> 64 -> 128 channels) mapping images to 20-dim latent space
@@ -109,8 +106,7 @@ print(f"  Latent dimension: {encoder.latent_dim}")
 print(f"  Encoder type: CNN with dims {encoder.hidden_dims}")
 
 # %% [markdown]
-"""
-## Step 3: Create Model, Optimizer, and Trainer
+"""## Step 3: Create Model, Optimizer, and Trainer.
 
 - **Model**: VAE with CNN encoder/decoder
 - **Optimizer**: Adam with learning rate 2e-3
@@ -140,8 +136,7 @@ param_count = sum(p.size for p in state_leaves if hasattr(p, "size"))
 print(f"Model created with ~{param_count / 1e3:.1f}K parameters")
 
 # %% [markdown]
-"""
-## Step 4: Train with JIT-Compiled Training Loop
+"""## Step 4: Train with JIT-Compiled Training Loop.
 
 We use `train_epoch_staged` which:
 1. Pre-stages data on GPU with `jax.device_put()`
@@ -204,8 +199,7 @@ print("-" * 50)
 print("Training complete!")
 
 # %% [markdown]
-"""
-## Step 5: Generate and Reconstruct Images
+"""## Step 5: Generate and Reconstruct Images.
 
 Now let's test the trained model:
 - **Generation**: Sample from the prior p(z) = N(0, I) and decode
@@ -226,8 +220,7 @@ reconstructed = model.reconstruct(test_images, deterministic=True)
 print(f"Reconstructed {reconstructed.shape[0]} images")
 
 # %% [markdown]
-"""
-## Step 6: Visualize Results
+"""## Step 6: Visualize Results.
 
 Let's visualize the generated samples and reconstructions to verify
 the model learned meaningful representations.
@@ -265,8 +258,7 @@ print()
 print("Success! You've trained your first VAE with Artifex!")
 
 # %% [markdown]
-"""
-## What You Just Did
+"""## What You Just Did.
 
 1. **Loaded data efficiently** with `TFDSEagerSource` - pure JAX, no TF overhead
 2. **Configured a CNN VAE** using Artifex's modular config system

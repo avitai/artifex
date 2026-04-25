@@ -3,9 +3,12 @@
 # Base class for diffusion models
 from artifex.generative_models.models.diffusion.base import DiffusionModel
 
+# Stable Diffusion implementation
+from artifex.generative_models.models.diffusion.clip_text_encoder import CLIPTextEncoder
+
 # DDIM implementation
-# from artifex.generative_models.models.diffusion.ddim import DDIMModel
-# TODO: Uncomment when DDIMModel is implemented
+from artifex.generative_models.models.diffusion.ddim import DDIMModel
+
 # DDPM implementation
 from artifex.generative_models.models.diffusion.ddpm import DDPMModel
 
@@ -32,24 +35,15 @@ from artifex.generative_models.models.diffusion.latent import LDMModel
 from artifex.generative_models.models.diffusion.score import ScoreDiffusionModel
 
 
-# Stable Diffusion implementation
-# from artifex.generative_models.models.diffusion.stable_diffusion import (
-# TODO: Uncomment when StableDiffusionModel is implemented
-#     StableDiffusionModel,
-#     TextEncoder,
-# )
-
-
 __all__ = [
     # Base models
     "DiffusionModel",
     "DDPMModel",
-    # "DDIMModel",  # TODO: Uncomment when DDIMModel is implemented
+    "DDIMModel",
     "ScoreDiffusionModel",
     "LDMModel",
     "DiTModel",
-    # "StableDiffusionModel",  # TODO: Uncomment when StableDiffusionModel is implemented
-    # "TextEncoder",  # TODO: Uncomment when TextEncoder is implemented
+    "CLIPTextEncoder",
     # Guidance
     "ClassifierFreeGuidance",
     "ClassifierGuidance",

@@ -94,6 +94,7 @@ def get_default_backbone(config, *, rngs: nnx.Rngs):
 
     # Create UNet backbone via factory
     backbone_config = UNetBackboneConfig(
+        name="default_unet_backbone",
         hidden_dims=tuple(hidden_dims),
         time_embedding_dim=time_embedding_dim,
         in_channels=in_channels,
@@ -363,11 +364,12 @@ class GenerativeModel(GenerativeModule):
         Returns:
             dictionary containing model configuration.
         """
-        if hasattr(self, "config"):
-            if dataclasses.is_dataclass(self.config):
-                return dataclasses.asdict(self.config)
-            if isinstance(self.config, dict):
-                return self.config.copy()
+        config = getattr(self, "config", None)
+        if config is not None:
+            if dataclasses.is_dataclass(config) and not isinstance(config, type):
+                return dataclasses.asdict(config)
+            if isinstance(config, dict):
+                return config.copy()
         return {}
 
     def _extract_data_from_batch(self, batch: PyTree) -> PyTree:

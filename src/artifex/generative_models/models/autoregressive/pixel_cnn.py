@@ -119,6 +119,7 @@ class PixelCNNResidualBlock(nnx.Module):
         *,
         rngs: nnx.Rngs,
     ) -> None:
+        """Initialize the PixelCNN residual block."""
         super().__init__()
         self.channels = channels
         self.kernel_size = kernel_size
@@ -139,6 +140,7 @@ class PixelCNNResidualBlock(nnx.Module):
         )
 
     def __call__(self, x: jax.Array, **kwargs: Any) -> jax.Array:
+        """Apply the residual block to inputs."""
         residual = x
         x = nnx.relu(self.conv1(x))
         x = self.conv2(x)

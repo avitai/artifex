@@ -37,18 +37,21 @@ class AffineTransform(Distribution):
         super().__init__(rngs=rngs)
         self.base_distribution = base_distribution
 
-        # Handle default values
         self.shift = shift if shift is not None else 0.0
         self.scale = scale if scale is not None else 1.0
+        self._dist = nnx.data(True)
 
-        # Create distrax bijector and wrap with nnx.data for NNX compatibility
-        # (bijectors contain JAX arrays internally)
-        bijector = distrax.ScalarAffine(shift=self.shift, scale=self.scale)
-        self.bijector = nnx.data(bijector)
-
-        # Create transformed distribution and wrap with nnx.data for NNX compatibility
-        self._dist = nnx.data(
-            distrax.Transformed(distribution=self.base_distribution._dist, bijector=bijector)
+    def _distribution(self) -> distrax.Transformed:
+        """Construct the current affine-transformed Distrax distribution."""
+        if self._dist is None:
+            raise ValueError("Distribution not initialized.")
+        bijector = distrax.ScalarAffine(
+            shift=self._materialize_array(self.shift),
+            scale=self._materialize_array(self.scale),
+        )
+        return distrax.Transformed(
+            distribution=self.base_distribution._distribution(),
+            bijector=bijector,
         )
 
 
@@ -74,12 +77,16 @@ class TransformedDistribution(Distribution):
         """
         super().__init__(rngs=rngs)
         self.base_distribution = base_distribution
-        # Wrap bijector with nnx.data for NNX compatibility (bijectors contain JAX arrays)
         self.bijector = nnx.data(bijector)
+        self._dist = nnx.data(True)
 
-        # Create transformed distribution and wrap with nnx.data for NNX compatibility
-        self._dist = nnx.data(
-            distrax.Transformed(distribution=self.base_distribution._dist, bijector=bijector)
+    def _distribution(self) -> distrax.Transformed:
+        """Construct the current Distrax transformed distribution."""
+        if self._dist is None:
+            raise ValueError("Distribution not initialized.")
+        return distrax.Transformed(
+            distribution=self.base_distribution._distribution(),
+            bijector=self._materialize_leaf(self.bijector),
         )
 
     def entropy(self) -> jax.Array:

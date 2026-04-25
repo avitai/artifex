@@ -1,5 +1,4 @@
-"""
-Metrics logging utilities for the Artifex library.
+"""Metrics logging utilities for the Artifex library.
 
 This module provides utility functions for logging metrics from various
 evaluation metrics and integrating them with loggers.
@@ -14,8 +13,7 @@ from artifex.generative_models.utils.logging.logger import Logger
 
 
 class MetricsLogger:
-    """
-    Class for logging metrics from various evaluation metrics.
+    """Class for logging metrics from various evaluation metrics.
 
     This class integrates evaluation metrics with loggers to streamline
     the process of computing and logging metrics during training and evaluation.
@@ -28,8 +26,7 @@ class MetricsLogger:
         prefix: str = "",
         compute_frequency: int = 100,
     ):
-        """
-        Initialize the metrics logger.
+        """Initialize the metrics logger.
 
         Args:
             logger: Logger instance to use for logging metrics.
@@ -53,8 +50,7 @@ class MetricsLogger:
             self.logger.info("Initialized metrics logger with no metrics")
 
     def add_metric(self, name: str, metric: Metric) -> None:
-        """
-        Add a metric to the logger.
+        """Add a metric to the logger.
 
         Args:
             name: Name of the metric.
@@ -64,8 +60,7 @@ class MetricsLogger:
         self.logger.info(f"Added metric: {name}")
 
     def remove_metric(self, name: str) -> bool:
-        """
-        Remove a metric from the logger.
+        """Remove a metric from the logger.
 
         Args:
             name: Name of the metric to remove.
@@ -89,8 +84,7 @@ class MetricsLogger:
         log_results: bool = True,
         **kwargs,
     ) -> dict[str, dict[str, float]]:
-        """
-        Compute all metrics and optionally log them.
+        """Compute all metrics and optionally log them.
 
         Args:
             real_data: Real data samples.
@@ -159,8 +153,7 @@ class MetricsLogger:
         return results
 
     def should_compute(self, step: int) -> bool:
-        """
-        Check if metrics should be computed at the given step.
+        """Check if metrics should be computed at the given step.
 
         Args:
             step: Current step number.
@@ -176,8 +169,7 @@ class MetricsLogger:
         step: int | None = None,
         prefix: str = "train/",
     ) -> None:
-        """
-        Log training metrics.
+        """Log training metrics.
 
         Args:
             metrics: Dictionary of metric names to values.
@@ -196,8 +188,7 @@ class MetricsLogger:
         step: int | None = None,
         prefix: str = "val/",
     ) -> None:
-        """
-        Log validation metrics.
+        """Log validation metrics.
 
         Args:
             metrics: Dictionary of metric names to values.
@@ -216,8 +207,7 @@ class MetricsLogger:
         step: int | None = None,
         prefix: str = "test/",
     ) -> None:
-        """
-        Log test metrics.
+        """Log test metrics.
 
         Args:
             metrics: Dictionary of metric names to values.
@@ -237,8 +227,7 @@ class MetricsLogger:
         step: int | None = None,
         max_samples: int = 16,
     ) -> None:
-        """
-        Log generated samples as images.
+        """Log generated samples as images.
 
         Args:
             samples: Generated samples to log.
@@ -261,8 +250,7 @@ class MetricsLogger:
         step: int | None = None,
         max_samples: int = 8,
     ) -> None:
-        """
-        Log a comparison of real and generated samples.
+        """Log a comparison of real and generated samples.
 
         Args:
             real_samples: Real data samples.
@@ -317,8 +305,7 @@ def log_distribution_metrics(
     generated_samples: Any,
     step: int | None = None,
 ) -> dict[str, float]:
-    """
-    Log basic distribution metrics between real and generated samples.
+    """Log basic distribution metrics between real and generated samples.
 
     Args:
         logger: Logger instance to use for logging.

@@ -9,8 +9,7 @@
 # ---
 
 # %% [markdown]
-r"""
-# Simple Image-Text Multimodal Learning
+r"""# Simple Image-Text Multimodal Learning.
 
 **Status:** Standalone pedagogy
 
@@ -91,8 +90,7 @@ def echo(message: object = "") -> None:
 
 
 # %% [markdown]
-"""
-## Model Architecture
+"""## Model Architecture.
 
 The multimodal model consists of three main components:
 
@@ -118,6 +116,7 @@ class SimpleImageEncoder(nnx.Module):
             rngs: Random number generators.
         """
         super().__init__()
+
         # Simple CNN encoder
         self.encoder = nnx.Sequential(
             nnx.Conv(3, 32, kernel_size=(3, 3), rngs=rngs),
@@ -153,6 +152,7 @@ class SimpleTextEncoder(nnx.Module):
             rngs: Random number generators.
         """
         super().__init__()
+
         self.embedding = nnx.Embed(vocab_size, embed_dim, rngs=rngs)
         self.encoder = nnx.Sequential(
             nnx.Linear(embed_dim, 64, rngs=rngs), nnx.relu, nnx.Linear(64, embed_dim, rngs=rngs)
@@ -167,7 +167,8 @@ class SimpleTextEncoder(nnx.Module):
         Returns:
             Text embeddings.
         """
-        # Embed and average pool
+        # Embed and average pool.
+
         embedded = self.embedding(text_ids)
         pooled = jnp.mean(embedded, axis=1)  # Average over sequence
         return self.encoder(pooled)
@@ -222,7 +223,8 @@ class SimpleMultimodalModel(nnx.Module):
         Returns:
             Output predictions [batch, output_dim]
         """
-        # Encode each modality
+        # Encode each modality.
+
         image_features = self.encode_image(images)
         text_features = self.encode_text(text_ids)
 
@@ -245,6 +247,7 @@ class SimpleMultimodalModel(nnx.Module):
             Similarity scores
         """
         image_features = self.encode_image(images)
+
         text_features = self.encode_text(text_ids)
 
         # Normalize features
@@ -262,8 +265,7 @@ class SimpleMultimodalModel(nnx.Module):
 
 
 # %% [markdown]
-"""
-## Data Generation and Visualization
+"""## Data Generation and Visualization.
 
 Create synthetic image-text pairs for demonstration and visualize
 the learned embedding space.
@@ -306,7 +308,8 @@ def visualize_multimodal_embeddings(model, images, text_ids):
         images: Input images
         text_ids: Input text token IDs
     """
-    # Get embeddings
+    # Get embeddings.
+
     image_embeddings = model.encode_image(images)
     text_embeddings = model.encode_text(text_ids)
 
@@ -359,8 +362,7 @@ def visualize_multimodal_embeddings(model, images, text_ids):
 
 
 # %% [markdown]
-"""
-## Main Demonstration
+"""## Main Demonstration.
 
 Demonstrates:
 - Model creation and initialization
@@ -489,8 +491,7 @@ def main():
 
 
 # %% [markdown]
-"""
-## Summary and Key Takeaways
+"""## Summary and Key Takeaways.
 
 This example demonstrated multimodal learning fundamentals:
 

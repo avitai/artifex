@@ -138,10 +138,10 @@ class TestDenseKANLayerVsRefBaseLayer:
 
         # Copy all weights from reference to artifex
         art.grid.knots = nnx.Variable(ref.grid.item)
-        art.c_basis = nnx.Param(ref.c_basis.value)
-        art.c_res = nnx.Param(ref.c_res.value)
-        art.c_spl = nnx.Param(ref.c_spl.value)
-        art.bias = nnx.Param(ref.bias.value)
+        art.c_basis = nnx.Param(ref.c_basis[...])
+        art.c_res = nnx.Param(ref.c_res[...])
+        art.c_spl = nnx.Param(ref.c_spl[...])
+        art.bias = nnx.Param(ref.bias[...])
 
         x = _make_input()
         ref_out = ref(x)
@@ -185,7 +185,7 @@ class TestDenseKANLayerVsRefBaseLayer:
         )
 
         art.grid.knots = nnx.Variable(ref.grid.item)
-        art.c_basis = nnx.Param(ref.c_basis.value)
+        art.c_basis = nnx.Param(ref.c_basis[...])
 
         x = _make_input()
         ref_out = ref(x)
@@ -275,10 +275,10 @@ class TestEfficientKANLayerVsRefSplineLayer:
         )
 
         art.grid.knots = nnx.Variable(ref.grid.item)
-        art.c_basis = nnx.Param(ref.c_basis.value)
-        art.c_res = nnx.Param(ref.c_res.value)
-        art.c_spl = nnx.Param(ref.c_spl.value)
-        art.bias = nnx.Param(ref.bias.value)
+        art.c_basis = nnx.Param(ref.c_basis[...])
+        art.c_res = nnx.Param(ref.c_res[...])
+        art.c_spl = nnx.Param(ref.c_spl[...])
+        art.bias = nnx.Param(ref.bias[...])
 
         x = _make_input()
         ref_out = ref(x)
@@ -320,7 +320,7 @@ class TestEfficientKANLayerVsRefSplineLayer:
         )
 
         art.grid.knots = nnx.Variable(ref.grid.item)
-        art.c_basis = nnx.Param(ref.c_basis.value)
+        art.c_basis = nnx.Param(ref.c_basis[...])
 
         x = _make_input()
         ref_out = ref(x)
@@ -399,8 +399,8 @@ class TestChebyshevKANLayerVsRef:
             rngs=nnx.Rngs(SEED),
         )
 
-        art.c_basis = nnx.Param(ref.c_basis.value)
-        art.bias = nnx.Param(ref.bias.value)
+        art.c_basis = nnx.Param(ref.c_basis[...])
+        art.bias = nnx.Param(ref.bias[...])
 
         x = _make_input()
         ref_out = ref(x)
@@ -437,10 +437,10 @@ class TestChebyshevKANLayerVsRef:
             rngs=nnx.Rngs(SEED),
         )
 
-        art.c_basis = nnx.Param(ref.c_basis.value)
-        art.c_res = nnx.Param(ref.c_res.value)
-        art.c_ext = nnx.Param(ref.c_ext.value)
-        art.bias = nnx.Param(ref.bias.value)
+        art.c_basis = nnx.Param(ref.c_basis[...])
+        art.c_res = nnx.Param(ref.c_res[...])
+        art.c_ext = nnx.Param(ref.c_ext[...])
+        art.bias = nnx.Param(ref.bias[...])
 
         x = _make_input()
         ref_out = ref(x)
@@ -509,9 +509,9 @@ class TestFourierKANLayerVsRef:
             rngs=nnx.Rngs(SEED),
         )
 
-        art.c_cos = nnx.Param(ref.c_cos.value)
-        art.c_sin = nnx.Param(ref.c_sin.value)
-        art.bias = nnx.Param(ref.bias.value)
+        art.c_cos = nnx.Param(ref.c_cos[...])
+        art.c_sin = nnx.Param(ref.c_sin[...])
+        art.bias = nnx.Param(ref.bias[...])
 
         x = _make_input()
         ref_out = ref(x)
@@ -544,9 +544,9 @@ class TestFourierKANLayerVsRef:
             rngs=nnx.Rngs(SEED),
         )
 
-        art.c_cos = nnx.Param(ref.c_cos.value)
-        art.c_sin = nnx.Param(ref.c_sin.value)
-        art.bias = nnx.Param(ref.bias.value)
+        art.c_cos = nnx.Param(ref.c_cos[...])
+        art.c_sin = nnx.Param(ref.c_sin[...])
+        art.bias = nnx.Param(ref.bias[...])
 
         x = _make_input()
         ref_out = ref(x)
@@ -625,8 +625,8 @@ class TestLegendreKANLayerVsRef:
             rngs=nnx.Rngs(SEED),
         )
 
-        art.c_basis = nnx.Param(ref.c_basis.value)
-        art.bias = nnx.Param(ref.bias.value)
+        art.c_basis = nnx.Param(ref.c_basis[...])
+        art.bias = nnx.Param(ref.bias[...])
 
         x = _make_input()
         ref_out = ref(x)
@@ -663,10 +663,10 @@ class TestLegendreKANLayerVsRef:
             rngs=nnx.Rngs(SEED),
         )
 
-        art.c_basis = nnx.Param(ref.c_basis.value)
-        art.c_res = nnx.Param(ref.c_res.value)
-        art.c_ext = nnx.Param(ref.c_ext.value)
-        art.bias = nnx.Param(ref.bias.value)
+        art.c_basis = nnx.Param(ref.c_basis[...])
+        art.c_res = nnx.Param(ref.c_res[...])
+        art.c_ext = nnx.Param(ref.c_ext[...])
+        art.bias = nnx.Param(ref.bias[...])
 
         x = _make_input()
         ref_out = ref(x)
@@ -755,8 +755,8 @@ class TestRBFKANLayerVsRef:
         )
 
         art.grid.knots = nnx.Variable(ref.grid.item)
-        art.c_basis = nnx.Param(ref.c_basis.value)
-        art.bias = nnx.Param(ref.bias.value)
+        art.c_basis = nnx.Param(ref.c_basis[...])
+        art.bias = nnx.Param(ref.bias[...])
 
         x = _make_input()
         ref_out = ref(x)
@@ -798,10 +798,10 @@ class TestRBFKANLayerVsRef:
         )
 
         art.grid.knots = nnx.Variable(ref.grid.item)
-        art.c_basis = nnx.Param(ref.c_basis.value)
-        art.c_res = nnx.Param(ref.c_res.value)
-        art.c_ext = nnx.Param(ref.c_ext.value)
-        art.bias = nnx.Param(ref.bias.value)
+        art.c_basis = nnx.Param(ref.c_basis[...])
+        art.c_res = nnx.Param(ref.c_res[...])
+        art.c_ext = nnx.Param(ref.c_ext[...])
+        art.bias = nnx.Param(ref.bias[...])
 
         x = _make_input()
         ref_out = ref(x)
@@ -840,8 +840,8 @@ class TestSineKANLayerVsRef:
         )
 
         # Copy omega and phase from reference
-        art.omega = nnx.Param(ref.omega.value)
-        art.phase = nnx.Param(ref.phase.value)
+        art.omega = nnx.Param(ref.omega[...])
+        art.phase = nnx.Param(ref.phase[...])
 
         x = _make_input()
         ref_basis = ref.basis(x)
@@ -878,10 +878,10 @@ class TestSineKANLayerVsRef:
             rngs=nnx.Rngs(SEED),
         )
 
-        art.omega = nnx.Param(ref.omega.value)
-        art.phase = nnx.Param(ref.phase.value)
-        art.c_basis = nnx.Param(ref.c_basis.value)
-        art.bias = nnx.Param(ref.bias.value)
+        art.omega = nnx.Param(ref.omega[...])
+        art.phase = nnx.Param(ref.phase[...])
+        art.c_basis = nnx.Param(ref.c_basis[...])
+        art.bias = nnx.Param(ref.bias[...])
 
         x = _make_input()
         ref_out = ref(x)
@@ -916,12 +916,12 @@ class TestSineKANLayerVsRef:
             rngs=nnx.Rngs(SEED),
         )
 
-        art.omega = nnx.Param(ref.omega.value)
-        art.phase = nnx.Param(ref.phase.value)
-        art.c_basis = nnx.Param(ref.c_basis.value)
-        art.c_res = nnx.Param(ref.c_res.value)
-        art.c_ext = nnx.Param(ref.c_ext.value)
-        art.bias = nnx.Param(ref.bias.value)
+        art.omega = nnx.Param(ref.omega[...])
+        art.phase = nnx.Param(ref.phase[...])
+        art.c_basis = nnx.Param(ref.c_basis[...])
+        art.c_res = nnx.Param(ref.c_res[...])
+        art.c_ext = nnx.Param(ref.c_ext[...])
+        art.bias = nnx.Param(ref.bias[...])
 
         x = _make_input()
         ref_out = ref(x)

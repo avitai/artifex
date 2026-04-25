@@ -1,5 +1,4 @@
-"""
-Adversarial loss functions module.
+"""Adversarial loss functions module.
 
 This module provides loss functions commonly used in Generative Adversarial
 Networks (GANs) and other adversarial training approaches.
@@ -16,8 +15,7 @@ def vanilla_generator_loss(
     reduction: str = "mean",
     weights: jax.Array | None = None,
 ) -> jax.Array:
-    """
-    Generate loss for vanilla GAN.
+    """Generate loss for vanilla GAN.
 
     Implements the standard generator loss which aims to maximize the
     probability of generated samples being classified as real:
@@ -46,8 +44,7 @@ def vanilla_discriminator_loss(
     reduction: str = "mean",
     weights: jax.Array | None = None,
 ) -> jax.Array:
-    """
-    Discriminator loss for vanilla GAN.
+    """Discriminator loss for vanilla GAN.
 
     Implements the standard discriminator loss which aims to maximize the
     probability of correctly classifying real and fake samples:
@@ -85,8 +82,7 @@ def least_squares_generator_loss(
     reduction: str = "mean",
     weights: jax.Array | None = None,
 ) -> jax.Array:
-    """
-    Generate loss for Least Squares GAN (LSGAN).
+    """Generate loss for Least Squares GAN (LSGAN).
 
     Implements the LSGAN generator loss which uses least squares instead of
     the log loss from vanilla GAN:
@@ -118,8 +114,7 @@ def least_squares_discriminator_loss(
     reduction: str = "mean",
     weights: jax.Array | None = None,
 ) -> jax.Array:
-    """
-    Discriminator loss for Least Squares GAN (LSGAN).
+    """Discriminator loss for Least Squares GAN (LSGAN).
 
     Implements the LSGAN discriminator loss:
     loss = 0.5 * (D(x) - target_real)^2 + 0.5 * (D(G(z)) - target_fake)^2
@@ -157,8 +152,7 @@ def wasserstein_generator_loss(
     reduction: str = "mean",
     weights: jax.Array | None = None,
 ) -> jax.Array:
-    """
-    Generate loss for Wasserstein GAN (WGAN).
+    """Generate loss for Wasserstein GAN (WGAN).
 
     Implements the WGAN generator loss:
     loss = -D(G(z))
@@ -186,8 +180,7 @@ def wasserstein_discriminator_loss(
     reduction: str = "mean",
     weights: jax.Array | None = None,
 ) -> jax.Array:
-    """
-    Discriminator/critic loss for Wasserstein GAN (WGAN).
+    """Discriminator/critic loss for Wasserstein GAN (WGAN).
 
     Implements the WGAN discriminator/critic loss:
     loss = D(G(z)) - D(x)
@@ -216,8 +209,7 @@ def hinge_generator_loss(
     reduction: str = "mean",
     weights: jax.Array | None = None,
 ) -> jax.Array:
-    """
-    Generate loss for Hinge GAN.
+    """Generate loss for Hinge GAN.
 
     Implements the hinge loss for the generator:
     loss = -D(G(z))
@@ -245,8 +237,7 @@ def hinge_discriminator_loss(
     reduction: str = "mean",
     weights: jax.Array | None = None,
 ) -> jax.Array:
-    """
-    Discriminator loss for Hinge GAN.
+    """Discriminator loss for Hinge GAN.
 
     Implements the hinge loss for the discriminator:
     loss = max(0, 1 - D(x)) + max(0, 1 + D(G(z)))
