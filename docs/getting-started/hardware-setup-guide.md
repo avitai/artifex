@@ -6,13 +6,13 @@ This guide describes the supported JAX backend model for Artifex.
 
 ### CPU
 
-- Default package install: `pip install artifex`
+- Default package install: `pip install avitai-artifex`
 - Default repo sync: `uv sync --extra dev --extra test`
 - JAX uses CPU when no accelerator runtime is available
 
 ### NVIDIA CUDA 12 on Linux
 
-- Package install: `pip install "artifex[cuda12]"`
+- Package install: `pip install "avitai-artifex[cuda12]"`
 - Repo sync: `uv sync --extra cuda-dev`
 - Recommended repo bootstrap: `./setup.sh --backend cuda12`
 
@@ -20,7 +20,7 @@ Artifex relies on JAX's pip-managed CUDA runtime for this path. The required hos
 
 ### Apple Silicon Metal
 
-- Package install: `pip install "artifex[metal]"`
+- Package install: `pip install "avitai-artifex[metal]"`
 - Repo sync: `uv sync --extra dev --extra test --extra metal`
 - Recommended repo bootstrap: `./setup.sh --backend metal`
 

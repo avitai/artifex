@@ -21,7 +21,7 @@ This tutorial provides a complete, production-ready example of training a DDPM (
 
 ```bash
 # Install Artifex if needed
-pip install artifex
+pip install avitai-artifex
 
 # Run the Python script
 python examples/generative_models/image/diffusion/diffusion_mnist_training.py
@@ -127,10 +127,10 @@ Before diving into the code, let's understand why we use specific techniques:
 
 ```bash
 # Install Artifex with CUDA support (recommended)
-pip install "artifex[cuda12]"
+pip install "avitai-artifex[cuda12]"
 
 # Or CPU-only
-pip install artifex
+pip install avitai-artifex
 ```
 
 ### GPU Memory Configuration

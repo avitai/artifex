@@ -18,7 +18,7 @@ A quick reference guide demonstrating how to configure and instantiate three typ
 ```bash
 # Clone and setup
 cd artifex
-pip install artifex
+pip install avitai-artifex
 
 # Run Python script
 python examples/generative_models/geometric/geometric_models_demo.py
@@ -307,7 +307,7 @@ JAX_PLATFORMS=cpu python examples/generative_models/geometric/geometric_models_d
 **Solution**: Activate the environment first:
 
 ```bash
-pip install artifex
+pip install avitai-artifex
 python examples/generative_models/geometric/geometric_models_demo.py
 ```
 

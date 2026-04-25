@@ -9,13 +9,13 @@ Common questions about Artifex and their answers.
 **A**: Package users can install Artifex directly:
 
 ```bash
-pip install artifex
+pip install avitai-artifex
 ```
 
 For GPU support:
 
 ```bash
-pip install "artifex[cuda12]"
+pip install "avitai-artifex[cuda12]"
 ```
 
 If you are contributing to the repository instead of installing the published package, use:

@@ -8,7 +8,7 @@ It does **not** configure CUDA, mutate `JAX_PLATFORMS`, or manage backend
 bootstrap. Backend setup belongs to:
 
 - `./setup.sh` and `source ./activate.sh` for contributors
-- `pip install "artifex[cuda12]"` for package users
+- `pip install "avitai-artifex[cuda12]"` for package users
 - `uv run python scripts/verify_gpu_setup.py` for explicit runtime verification
 
 ## Supported Surface

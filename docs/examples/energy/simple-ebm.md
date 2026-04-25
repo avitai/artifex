@@ -26,7 +26,7 @@ This complete example demonstrates Energy-Based Models (EBMs) with MCMC sampling
 
 ```bash
 # Install Artifex if needed
-pip install artifex
+pip install avitai-artifex
 
 # Run the example
 python examples/generative_models/energy/simple_ebm_example.py
@@ -36,7 +36,7 @@ python examples/generative_models/energy/simple_ebm_example.py
 
 ```bash
 # Install Artifex if needed
-pip install artifex
+pip install avitai-artifex
 
 # Launch Jupyter
 jupyter lab examples/generative_models/energy/simple_ebm_example.ipynb

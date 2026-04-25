@@ -81,31 +81,31 @@ keywords = [
   "jax"
 ]
 license = {file = "LICENSE"}
-name = "artifex"
+name = "avitai-artifex"
 readme = "README.md"
 requires-python = ">=3.11"
 version = "0.1.0"
 
 [project.optional-dependencies]
 # Platform-specific installation:
-# - Linux with GPU: uv pip install "artifex[cuda12]"
-# - macOS (Apple Silicon): uv pip install artifex[all-macos]
-# - macOS/Linux CPU-only: uv pip install artifex[all-cpu]
+# - Linux with GPU: uv pip install "avitai-artifex[cuda12]"
+# - macOS (Apple Silicon): uv pip install avitai-artifex[all-macos]
+# - macOS/Linux CPU-only: uv pip install avitai-artifex[all-cpu]
 all = [
-  "artifex[cuda-dev,docs]"
+  "avitai-artifex[cuda-dev,docs]"
 ]
 all-cpu = [
   # CPU-only installation (no GPU acceleration)
   # Use this for macOS or Linux without CUDA
-  "artifex[dev,docs,test]"
+  "avitai-artifex[dev,docs,test]"
 ]
 all-macos = [
   # macOS with Metal acceleration (Apple Silicon M1/M2/M3+)
-  "artifex[dev,docs,metal,test]"
+  "avitai-artifex[dev,docs,metal,test]"
 ]
 cuda-dev = [
   # Complete Linux CUDA development environment
-  "artifex[dev,test,cuda12]"
+  "avitai-artifex[dev,test,cuda12]"
 ]
 cuda12 = [
   # Linux CUDA runtime managed through the official JAX extra.

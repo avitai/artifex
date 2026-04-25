@@ -21,7 +21,7 @@ This tutorial demonstrates how to train a RealNVP normalizing flow model using A
 
 ```bash
 # Install Artifex if needed
-pip install artifex
+pip install avitai-artifex
 
 # Run the Python script
 python examples/generative_models/image/flow/flow_mnist.py
@@ -130,10 +130,10 @@ Before diving into the code, let's understand why we use specific techniques:
 
 ```bash
 # Install Artifex with CUDA support (recommended)
-pip install "artifex[cuda12]"
+pip install "avitai-artifex[cuda12]"
 
 # Or CPU-only
-pip install artifex
+pip install avitai-artifex
 ```
 
 ---

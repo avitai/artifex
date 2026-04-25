@@ -26,7 +26,7 @@ This advanced example demonstrates Diffusion Transformers (DiT), which combines 
 
 ```bash
 # Install Artifex if needed
-pip install artifex
+pip install avitai-artifex
 
 # Run the example
 python examples/generative_models/diffusion/dit_demo.py
@@ -36,7 +36,7 @@ python examples/generative_models/diffusion/dit_demo.py
 
 ```bash
 # Install Artifex if needed
-pip install artifex
+pip install avitai-artifex
 
 # Launch Jupyter
 jupyter lab examples/generative_models/diffusion/dit_demo.ipynb

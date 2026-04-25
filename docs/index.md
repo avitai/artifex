@@ -52,10 +52,10 @@ A research-focused modular generative modeling library built on JAX/Flax NNX, pr
 
 ```bash
 # CPU-only version
-pip install artifex
+pip install avitai-artifex
 
 # With GPU support (CUDA 12.0+)
-pip install "artifex[cuda12]"
+pip install "avitai-artifex[cuda12]"
 ```
 
 See the [Installation Guide](getting-started/installation.md) for detailed setup instructions including Docker and source installation.

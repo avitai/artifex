@@ -2,18 +2,21 @@
 
 Artifex supports CPU-first installation by default, with explicit extras for accelerator backends.
 
+The PyPI distribution is named `avitai-artifex`; installed code is still imported
+as `artifex`.
+
 ## Package users
 
 ### CPU
 
 ```bash
-pip install artifex
+pip install avitai-artifex
 ```
 
 ### NVIDIA CUDA 12 on Linux
 
 ```bash
-pip install "artifex[cuda12]"
+pip install "avitai-artifex[cuda12]"
 ```
 
 This uses JAX's official pip-managed CUDA runtime. Artifex does not require `/usr/local/cuda` or manual `LD_LIBRARY_PATH` edits for this install path.
@@ -21,7 +24,7 @@ This uses JAX's official pip-managed CUDA runtime. Artifex does not require `/us
 ### Apple Silicon Metal
 
 ```bash
-pip install "artifex[metal]"
+pip install "avitai-artifex[metal]"
 ```
 
 ## Repository developers

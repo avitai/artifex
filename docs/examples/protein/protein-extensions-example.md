@@ -11,7 +11,7 @@ extensions in Artifex.
 ## Quick Start
 
 ```bash
-pip install artifex
+pip install avitai-artifex
 python examples/generative_models/protein/protein_extensions_example.py
 ```
 

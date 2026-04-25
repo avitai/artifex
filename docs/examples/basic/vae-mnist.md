@@ -21,7 +21,7 @@ This example demonstrates how to build a Variational Autoencoder (VAE) on MNIST 
 
 ```bash
 # Install Artifex if needed
-pip install artifex
+pip install avitai-artifex
 
 # Run the Python script
 python examples/generative_models/image/vae/vae_mnist.py

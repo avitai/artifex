@@ -371,7 +371,7 @@ examples/generative_models/image/diffusion/diffusion_mnist.ipynb
 
 ```bash
 # Make sure environment is activated
-pip install artifex
+pip install avitai-artifex
 
 # Verify installation
 python -c "import artifex; print(artifex.__version__)"

@@ -19,10 +19,10 @@ Choose your preferred installation method:
 
     ```bash
     # CPU-friendly install
-    pip install artifex
+    pip install avitai-artifex
 
     # Optional Linux NVIDIA GPU support
-    pip install "artifex[cuda12]"
+    pip install "avitai-artifex[cuda12]"
     ```
 
 === "From Source (Contributors)"

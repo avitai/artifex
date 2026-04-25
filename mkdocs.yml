@@ -70,7 +70,7 @@ extra:
     - icon: fontawesome/brands/github
       link: https://github.com/avitai/artifex
     - icon: fontawesome/brands/python
-      link: https://pypi.org/project/artifex/
+      link: https://pypi.org/project/avitai-artifex/
     - icon: fontawesome/brands/twitter
       link: https://twitter.com/mahdi_shafiei
 

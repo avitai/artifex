@@ -26,7 +26,7 @@ This example demonstrates the ProteinPointCloudModel, a specialized geometric mo
 
 ```bash
 # Install Artifex if needed
-pip install artifex
+pip install avitai-artifex
 
 # Run the example
 python examples/generative_models/protein/protein_point_cloud_example.py
@@ -36,7 +36,7 @@ python examples/generative_models/protein/protein_point_cloud_example.py
 
 ```bash
 # Install Artifex if needed
-pip install artifex
+pip install avitai-artifex
 
 # Launch Jupyter
 jupyter lab examples/generative_models/protein/protein_point_cloud_example.ipynb

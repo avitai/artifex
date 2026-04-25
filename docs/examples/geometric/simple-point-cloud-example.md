@@ -18,7 +18,7 @@ Learn how to generate and visualize 3D point clouds using Artifex's PointCloudMo
 ```bash
 # Clone and setup
 cd artifex
-pip install artifex
+pip install avitai-artifex
 
 # Run Python script
 python examples/generative_models/geometric/simple_point_cloud_example.py
