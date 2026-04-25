@@ -718,11 +718,11 @@ requires-dist = [
     { name = "beartype", marker = "extra == 'test'", specifier = ">=0.14.1" },
     { name = "blackjax", specifier = ">=1.2.5" },
     { name = "build", marker = "extra == 'dev'", specifier = ">=1.0.3" },
-    { name = "calibrax", git = "https://github.com/avitai/calibrax.git" },
+    { name = "calibrax", specifier = ">=0.1.0" },
     { name = "coverage", marker = "extra == 'dev'", specifier = ">=7" },
     { name = "coverage", marker = "extra == 'test'", specifier = ">=7" },
     { name = "dacite", specifier = ">=1.8.0" },
-    { name = "datarax", git = "https://github.com/avitai/datarax.git?rev=9497a26b0e82bcbd9be460693b1aa150fa7eec8d" },
+    { name = "datarax", specifier = ">=0.1.2" },
     { name = "datasets", specifier = ">=2.14.0" },
     { name = "deadcode", marker = "extra == 'dev'", specifier = ">=2.4" },
     { name = "deptry", marker = "extra == 'dev'", specifier = ">=0.23" },
@@ -1031,7 +1031,7 @@ wheels = [
 [[package]]
 name = "calibrax"
 version = "0.1.0"
-source = { git = "https://github.com/avitai/calibrax.git#339ced8ed2761839163dd17e9a5e8335d6383ac9" }
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
     { name = "flax" },
@@ -1041,6 +1041,10 @@ dependencies = [
     { name = "numpy" },
     { name = "psutil" },
     { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/83/d3/e00b944fa01706b5f455c7d90310d8d3f8af6062de8bda5db635f5e9dc5f/calibrax-0.1.0.tar.gz", hash = "sha256:9ee2a20c96c8f2c41ca928532ccfaa813572360909d17f5c9ea5716a89890054", size = 142383, upload-time = "2026-04-25T20:01:38.911Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f2/d4/5d1ddbb610717cd70012be6c41e2dc5dc76d41fdca86e20fef09aa07bc5a/calibrax-0.1.0-py3-none-any.whl", hash = "sha256:a34c328768434c87f515a1bff17fad07ec6f0b0d61d9c00ea43a1d3cdca847ed", size = 180492, upload-time = "2026-04-25T20:01:36.314Z" },
 ]
 
 [[package]]
@@ -1552,8 +1556,8 @@ wheels = [
 
 [[package]]
 name = "datarax"
-version = "0.1.1"
-source = { git = "https://github.com/avitai/datarax.git?rev=9497a26b0e82bcbd9be460693b1aa150fa7eec8d#9497a26b0e82bcbd9be460693b1aa150fa7eec8d" }
+version = "0.1.2"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "array-record" },
     { name = "calibrax" },
@@ -1571,6 +1575,10 @@ dependencies = [
     { name = "tensorflow-datasets" },
     { name = "toml" },
     { name = "tomli-w" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/b2/82/4542f04140a3573095ba7d90940c6a55afe931aa04fb0ea1cc9c23584c1c/datarax-0.1.2.tar.gz", hash = "sha256:6610936873e7f0876719d07cf179fce8b5965c63067752e7f55c7dddd55b04fd", size = 241055, upload-time = "2026-04-25T20:04:00.546Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2f/5f/d31704e7f0ebf55679a41dc64570db4c64f6e2e0de38c9925ccf8c8580d8/datarax-0.1.2-py3-none-any.whl", hash = "sha256:67fac018a613f7abc30a2d95ccaf032cac09b057114c532204f420b1b43bb585", size = 298383, upload-time = "2026-04-25T20:03:57.683Z" },
 ]
 
 [[package]]

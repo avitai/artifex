@@ -32,10 +32,10 @@ classifiers = [
 ]
 dependencies = [
   "blackjax>=1.2.5",
-  "calibrax @ git+https://github.com/avitai/calibrax.git",
+  "calibrax>=0.1.0",
   "dacite>=1.8.0",
   "datasets>=2.14.0",
-  "datarax @ git+https://github.com/avitai/datarax.git@9497a26b0e82bcbd9be460693b1aa150fa7eec8d",
+  "datarax>=0.1.2",
   "distrax>=0.1.7",
   "flax>=0.12.0",
   "grain>=0.1.0",
