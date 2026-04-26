@@ -63,6 +63,7 @@ def test_pyproject_declares_reviewed_ci_roles_and_security_triage_policy() -> No
         "CVE-2025-53000",
         "CVE-2026-0994",
         "CVE-2026-4539",
+        "CVE-2026-3219",
     ]
 
     for entry in reviewed_ignores:
@@ -144,6 +145,46 @@ def test_workflow_roles_and_blocking_quality_commands_are_explicit() -> None:
     assert security_workflow["jobs"]["security-audit"]["name"] == "Security Audit"
     assert "automatic pull-request and push enforcement" in security_contents
     assert "scheduled and manual by design" not in security_contents
+
+
+def test_partial_ci_coverage_jobs_defer_threshold_to_combined_report() -> None:
+    """Partial coverage producers should not apply the repo-wide fail-under threshold."""
+    workflow = _load_yaml(".github/workflows/ci.yml")
+
+    for job_name, step_name in (
+        ("integration_tests", "Run integration tests"),
+        ("e2e_tests", "Run end-to-end tests"),
+    ):
+        step = next(
+            step for step in workflow["jobs"][job_name]["steps"] if step.get("name") == step_name
+        )
+        command = step["run"]
+
+        assert "--cov=src/artifex" in command
+        assert "--cov-fail-under=0" in command
+
+    coverage_step = next(
+        step
+        for step in workflow["jobs"]["coverage"]["steps"]
+        if step.get("name") == "Combine coverage reports"
+    )
+
+    assert "uv run coverage report" in coverage_step["run"]
+
+
+def test_ci_coverage_artifacts_include_hidden_coverage_data_files() -> None:
+    """Coverage aggregation needs the raw hidden .coverage files, not just XML reports."""
+    workflow = _load_yaml(".github/workflows/ci.yml")
+
+    for job_name in ("unit_tests", "integration_tests", "e2e_tests"):
+        upload_step = next(
+            step
+            for step in workflow["jobs"][job_name]["steps"]
+            if step.get("name") == "Upload test results"
+        )
+
+        assert ".coverage" in upload_step["with"]["path"]
+        assert upload_step["with"]["include-hidden-files"] == "true"
 
 
 def test_build_verification_matches_compatibility_matrix_and_install_smoke_policy() -> None:

@@ -94,7 +94,9 @@ def test_user_facing_docs_reference_explicit_cuda12_install() -> None:
         contents = (REPO_ROOT / relative_path).read_text()
         assert "artifex[cuda]" not in contents
 
-    assert '"artifex[cuda12]"' in (REPO_ROOT / "docs/getting-started/installation.md").read_text()
+    installation_guide = (REPO_ROOT / "docs/getting-started/installation.md").read_text()
+    assert '"avitai-artifex[cuda12]"' in installation_guide
+    assert '"artifex[cuda12]"' not in installation_guide
 
 
 def test_activate_clears_stale_managed_backend_variables(tmp_path: Path) -> None:

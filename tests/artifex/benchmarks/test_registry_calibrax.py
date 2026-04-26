@@ -134,6 +134,15 @@ class TestSuiteRegistryCalibrax:
 
         _suite_registry.clear()
 
+    def teardown_method(self) -> None:
+        from artifex.benchmarks.suites import standard
+        from artifex.benchmarks.suites.registry import _suite_registry
+
+        _suite_registry.clear()
+        register_suite("quality", standard.get_quality_suite)
+        register_suite("performance", standard.get_performance_suite)
+        register_suite("standard", standard.get_standard_suite)
+
     def test_backed_by_calibrax_registry(self) -> None:
         from artifex.benchmarks.suites.registry import _suite_registry
 

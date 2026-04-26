@@ -1,5 +1,6 @@
 """Performance tests for model inference and training."""
 
+import sys
 import time
 
 import jax
@@ -345,6 +346,10 @@ class TestMemoryUsage:
             (16, 8.0),  # Larger batch: expect at least 8x speedup
             (32, 16.0),  # Large batch: expect at least 16x speedup
         ],
+    )
+    @pytest.mark.skipif(
+        sys.platform == "darwin",
+        reason="macOS CPU timing variance makes the batch-speedup ratio non-deterministic",
     )
     def test_batch_processing_efficiency(self, batch_size: int, min_speedup: float):
         """Test that batch processing is more efficient than individual items.

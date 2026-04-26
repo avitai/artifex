@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import jax
 import jax.numpy as jnp
 import pytest
 
@@ -180,3 +181,72 @@ class TestSampleUShaped:
         samples = sample_u_shaped(key, (1000,))
         assert jnp.all(samples >= 0)
         assert jnp.all(samples <= 1)
+
+
+class TestTrainingUtilsJAXTransformCompatibility:
+    """Tensor utilities used by trainer steps should remain transform safe."""
+
+    def test_batch_and_prediction_extractors_are_jittable_and_differentiable(self):
+        data = jnp.arange(12, dtype=jnp.float32).reshape(3, 4)
+
+        def batch_loss(values):
+            return jnp.sum(extract_batch_data({"image": values}) ** 2)
+
+        def prediction_loss(values):
+            return jnp.sum(extract_model_prediction({"predicted_noise": values}) ** 2)
+
+        batch_value = jax.jit(batch_loss)(data)
+        prediction_value = jax.jit(prediction_loss)(data)
+        batch_grad = jax.grad(batch_loss)(data)
+        prediction_grad = jax.grad(prediction_loss)(data)
+
+        assert batch_value.shape == ()
+        assert prediction_value.shape == ()
+        assert jnp.isfinite(batch_value)
+        assert jnp.isfinite(prediction_value)
+        assert batch_grad.shape == data.shape
+        assert prediction_grad.shape == data.shape
+        assert jnp.all(jnp.isfinite(batch_grad))
+        assert jnp.all(jnp.isfinite(prediction_grad))
+
+    def test_broadcast_helpers_are_jittable_and_differentiable(self):
+        values = jnp.array([0.2, 0.4, 0.6], dtype=jnp.float32)
+
+        def expand_loss(inputs):
+            expanded = expand_dims_to_match(inputs, 4)
+            return jnp.sum(expanded * jnp.ones((3, 1, 1, 1), dtype=jnp.float32))
+
+        def reshape_loss(inputs):
+            reshaped = reshape_for_broadcast(inputs, batch_size=3, target_ndim=4)
+            return jnp.sum(reshaped * jnp.ones((3, 1, 1, 1), dtype=jnp.float32))
+
+        expand_value = jax.jit(expand_loss)(values)
+        reshape_value = jax.jit(reshape_loss)(values)
+        expand_grad = jax.grad(expand_loss)(values)
+        reshape_grad = jax.grad(reshape_loss)(values)
+
+        assert expand_value.shape == ()
+        assert reshape_value.shape == ()
+        assert jnp.isfinite(expand_value)
+        assert jnp.isfinite(reshape_value)
+        assert expand_grad.shape == values.shape
+        assert reshape_grad.shape == values.shape
+        assert jnp.all(jnp.isfinite(expand_grad))
+        assert jnp.all(jnp.isfinite(reshape_grad))
+
+    def test_sampling_helpers_are_jittable_with_differentiable_parameters(self):
+        key = jax.random.key(42)
+
+        def logit_normal_loss(loc, scale):
+            return jnp.sum(sample_logit_normal(key, (8,), loc=loc, scale=scale))
+
+        logit_value = jax.jit(logit_normal_loss)(0.1, 0.7)
+        loc_grad, scale_grad = jax.grad(logit_normal_loss, argnums=(0, 1))(0.1, 0.7)
+        u_samples = jax.jit(lambda: sample_u_shaped(key, (8,)))()
+
+        assert logit_value.shape == ()
+        assert jnp.isfinite(logit_value)
+        assert jnp.isfinite(loc_grad)
+        assert jnp.isfinite(scale_grad)
+        assert u_samples.shape == (8,)
+        assert jnp.all(jnp.isfinite(u_samples))

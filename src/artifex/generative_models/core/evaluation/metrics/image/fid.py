@@ -50,7 +50,7 @@ class FrechetInceptionDistance(FeatureBasedMetric, DistributionMetric):
         sigma1: jax.Array,
         mu2: jax.Array,
         sigma2: jax.Array,
-    ) -> float:
+    ) -> jax.Array:
         """Calculate the Fréchet distance between two multivariate Gaussians."""
         return frechet_distance_from_statistics(mu1, sigma1, mu2, sigma2)
 
@@ -70,4 +70,4 @@ class FrechetInceptionDistance(FeatureBasedMetric, DistributionMetric):
             gen_stats["mean"],
             gen_stats["covariance"],
         )
-        return {self.name: fid}
+        return {self.name: float(fid)}

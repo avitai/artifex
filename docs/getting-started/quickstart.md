@@ -25,6 +25,9 @@ Choose your preferred installation method:
     pip install "avitai-artifex[cuda12]"
     ```
 
+    The PyPI distribution is named `avitai-artifex`; installed code is still imported
+    as `artifex`.
+
 === "From Source (Contributors)"
 
     ```bash

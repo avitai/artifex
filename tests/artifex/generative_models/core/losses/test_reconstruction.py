@@ -3,6 +3,7 @@
 import jax
 import jax.numpy as jnp
 import numpy as np
+import pytest
 from calibrax.metrics.functional.regression import (
     huber_loss as calibrax_huber_loss,
     mae as calibrax_mae,
@@ -269,3 +270,33 @@ class TestPSNRLoss:
         # Should be a large negative number
         # (negative since we're expressing as a loss)
         assert result < -50.0
+
+
+class TestReconstructionJAXTransformCompatibility:
+    """Reconstruction losses should remain usable in JIT-compiled objectives."""
+
+    @pytest.mark.parametrize(
+        ("name", "loss_fn"),
+        [
+            ("mse", mse_loss),
+            ("mae", mae_loss),
+            ("huber", huber_loss),
+            ("charbonnier", charbonnier_loss),
+            ("psnr", psnr_loss),
+        ],
+    )
+    def test_reconstruction_losses_are_jittable_and_differentiable(self, name, loss_fn):
+        predictions = jnp.array([[0.25, 0.55], [0.85, 1.15]], dtype=jnp.float32)
+        targets = jnp.array([[0.0, 0.35], [0.7, 0.95]], dtype=jnp.float32)
+
+        def scalar_loss(values):
+            return loss_fn(values, targets)
+
+        compiled_value = jax.jit(scalar_loss)(predictions)
+        gradients = jax.grad(scalar_loss)(predictions)
+
+        assert name
+        assert compiled_value.shape == ()
+        assert jnp.isfinite(compiled_value)
+        assert gradients.shape == predictions.shape
+        assert jnp.all(jnp.isfinite(gradients))

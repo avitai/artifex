@@ -29,7 +29,7 @@ def calculate_fid_statistics(features: jax.Array) -> tuple[jax.Array, jax.Array]
 
 def calculate_frechet_distance(
     mu1: jax.Array, sigma1: jax.Array, mu2: jax.Array, sigma2: jax.Array
-) -> float:
+) -> jax.Array:
     """Calculate Fréchet distance between two multivariate Gaussians.
 
     Args:
@@ -44,7 +44,7 @@ def calculate_frechet_distance(
     return frechet_distance_from_statistics(mu1, sigma1, mu2, sigma2)
 
 
-def calculate_fid_score(gen_features: jax.Array, real_features: jax.Array) -> float:
+def calculate_fid_score(gen_features: jax.Array, real_features: jax.Array) -> jax.Array:
     """Calculate FID score from features.
 
     Args:
@@ -64,10 +64,10 @@ def calculate_fid_score(gen_features: jax.Array, real_features: jax.Array) -> fl
         return fid
     except (ValueError, RuntimeError) as e:
         logger.error("Error calculating FID: %s", e)
-        return 100.0  # Return high FID score on error
+        return jnp.array(100.0)  # Return high FID score on error
 
 
-def compute_lpips_distance(images1: jax.Array, images2: jax.Array) -> float:
+def compute_lpips_distance(images1: jax.Array, images2: jax.Array) -> jax.Array:
     """Compute LPIPS distance between two sets of images.
 
     This implementation approximates LPIPS by combining MSE with a
@@ -110,10 +110,10 @@ def compute_lpips_distance(images1: jax.Array, images2: jax.Array) -> float:
     # Scale to approximate LPIPS range
     lpips_approx = 0.1 * jnp.sqrt(weighted_mse)
 
-    return float(jnp.mean(lpips_approx))
+    return jnp.mean(lpips_approx)
 
 
-def compute_spectral_convergence(real_mag: jax.Array, gen_mag: jax.Array) -> float:
+def compute_spectral_convergence(real_mag: jax.Array, gen_mag: jax.Array) -> jax.Array:
     """Compute spectral convergence between real and generated audio.
 
     Args:
@@ -133,12 +133,12 @@ def compute_spectral_convergence(real_mag: jax.Array, gen_mag: jax.Array) -> flo
     )
 
     # Average across batch
-    avg_spectral_convergence = float(jnp.mean(jnp.asarray(spectral_convergence)))
+    avg_spectral_convergence = jnp.mean(jnp.asarray(spectral_convergence))
 
     return avg_spectral_convergence
 
 
-def compute_mel_cepstral_distortion(real_mfcc: jax.Array, gen_mfcc: jax.Array) -> float:
+def compute_mel_cepstral_distortion(real_mfcc: jax.Array, gen_mfcc: jax.Array) -> jax.Array:
     """Compute mel-cepstral distortion between real and generated audio.
 
     Args:
@@ -163,4 +163,4 @@ def compute_mel_cepstral_distortion(real_mfcc: jax.Array, gen_mfcc: jax.Array) -
     # Scale by constant factor (common in MCD computation)
     mcd = (10.0 / jnp.log(10.0)) * jnp.sqrt(2.0) * mcd
 
-    return float(mcd)
+    return mcd

@@ -1,6 +1,7 @@
 """Tests for evaluation metrics and the narrowed evaluation pipeline."""
 
 import flax.nnx as nnx
+import jax
 import jax.numpy as jnp
 import pytest
 
@@ -13,6 +14,19 @@ from artifex.generative_models.core.evaluation.metrics.image import (
     InceptionScore,
 )
 from artifex.generative_models.core.evaluation.metrics.pipeline import EvaluationPipeline
+from artifex.generative_models.core.evaluation.metrics.quality import (
+    calculate_fid_score,
+    compute_lpips_distance,
+    compute_mel_cepstral_distortion,
+    compute_spectral_convergence,
+)
+from artifex.generative_models.core.evaluation.metrics.statistical import (
+    _compute_autocorrelation,
+    _compute_skewness,
+    compute_chi2_statistic,
+    compute_correlation_preservation_internal,
+    compute_ks_distance_internal,
+)
 from artifex.generative_models.core.evaluation.metrics.text import Perplexity
 from artifex.generative_models.core.protocols.metrics import MetricBase
 
@@ -387,8 +401,12 @@ class TestInceptionScoreEdgeCases:
 
 
 from artifex.generative_models.core.evaluation.metrics.metric_ops import (
+    bincount,
     compute_cdf,
     compute_ks_distance,
+    corrcoef,
+    frechet_distance_from_statistics,
+    matrix_sqrtm,
     nearest_neighbors,
     pairwise_distances,
 )
@@ -464,3 +482,165 @@ class TestComputeKSDistance:
         data2 = jnp.array([1.0, 2.0, 3.0, 4.0, 5.0])
         ks_dist = compute_ks_distance(data1, data2)
         assert ks_dist == pytest.approx(0.0, abs=1e-6)
+
+
+class TestMetricOpsJAXTransformCompatibility:
+    """Metric primitives should keep their documented JAX transform behavior."""
+
+    def test_rank_and_count_ops_are_jittable(self):
+        query = jnp.array([[0.1, 0.2], [1.0, 0.5]], dtype=jnp.float32)
+        data = jnp.array([[0.4, 0.2], [1.1, 0.5], [1.7, 0.9]], dtype=jnp.float32)
+        cdf_data = jnp.array([1.0, 3.0, 2.0, 5.0, 4.0], dtype=jnp.float32)
+        eval_points = jnp.array([1.5, 2.5, 4.5], dtype=jnp.float32)
+        categories = jnp.array([0, 1, 1, 2, 3, 3], dtype=jnp.int32)
+
+        distances, indices = jax.jit(lambda q, d: nearest_neighbors(q, d, k=2))(query, data)
+        cdf = jax.jit(compute_cdf)(cdf_data, eval_points)
+        ks_distance = jax.jit(compute_ks_distance)(cdf_data, cdf_data + 0.25)
+        counts = jax.jit(lambda values: bincount(values, length=4))(categories)
+
+        assert distances.shape == (2, 2)
+        assert indices.shape == (2, 2)
+        assert cdf.shape == eval_points.shape
+        assert ks_distance.shape == ()
+        assert counts.shape == (4,)
+        assert jnp.all(jnp.isfinite(distances))
+        assert jnp.all(jnp.isfinite(cdf))
+        assert jnp.isfinite(ks_distance)
+        assert jnp.all(counts == jnp.array([1.0, 2.0, 1.0, 2.0]))
+
+    @pytest.mark.parametrize(
+        ("name", "loss_fn"),
+        [
+            (
+                "nearest_neighbor_distances",
+                lambda values: jnp.sum(
+                    nearest_neighbors(
+                        values,
+                        jnp.array(
+                            [[0.5, 0.1], [1.2, 0.6], [1.8, 0.9]],
+                            dtype=jnp.float32,
+                        ),
+                        k=2,
+                    )[0]
+                ),
+            ),
+            (
+                "pairwise_distances",
+                lambda values: jnp.sum(
+                    pairwise_distances(
+                        values,
+                        jnp.array(
+                            [[0.5, 0.1], [1.2, 0.6], [1.8, 0.9]],
+                            dtype=jnp.float32,
+                        ),
+                    )
+                ),
+            ),
+            ("corrcoef", lambda values: jnp.sum(corrcoef(values, rowvar=False))),
+            (
+                "matrix_sqrtm",
+                lambda values: jnp.sum(matrix_sqrtm(values @ values.T + jnp.eye(3) * 0.5)),
+            ),
+            (
+                "frechet_distance",
+                lambda values: frechet_distance_from_statistics(
+                    jnp.mean(values, axis=0),
+                    values.T @ values / values.shape[0] + jnp.eye(2) * 0.25,
+                    jnp.array([0.4, 0.8], dtype=jnp.float32),
+                    jnp.array([[1.1, 0.1], [0.1, 1.3]], dtype=jnp.float32),
+                ),
+            ),
+        ],
+    )
+    def test_differentiable_metric_ops_are_jittable_and_differentiable(self, name, loss_fn):
+        values = jnp.array([[0.1, 0.2], [1.0, 0.5], [1.7, 0.9]], dtype=jnp.float32)
+
+        compiled_value = jax.jit(loss_fn)(values)
+        gradients = jax.grad(loss_fn)(values)
+
+        assert name
+        assert compiled_value.shape == ()
+        assert jnp.isfinite(compiled_value)
+        assert gradients.shape == values.shape
+        assert jnp.all(jnp.isfinite(gradients))
+
+
+class TestQualityAndStatisticalMetricsJAXTransformCompatibility:
+    """Quality/statistical metric helpers used in transformable paths should be JAX-safe."""
+
+    def test_quality_metric_helpers_are_jittable_and_differentiable(self):
+        images1 = jnp.linspace(0.1, 0.9, 2 * 4 * 4 * 3, dtype=jnp.float32).reshape(2, 4, 4, 3)
+        images2 = images1 * 0.8 + 0.05
+        real_mag = jnp.linspace(0.2, 1.5, 2 * 3 * 4, dtype=jnp.float32).reshape(2, 3, 4)
+        gen_mag = real_mag * 0.9 + 0.1
+        real_mfcc = jnp.linspace(0.1, 1.2, 2 * 4 * 5, dtype=jnp.float32).reshape(2, 4, 5)
+        gen_mfcc = real_mfcc * 0.85 + 0.05
+        features = jnp.array(
+            [[0.1, 0.2, 0.3], [0.4, 0.6, 0.5], [0.8, 0.9, 1.0], [1.1, 1.0, 1.2]],
+            dtype=jnp.float32,
+        )
+        reference_features = features * 0.9 + 0.1
+
+        loss_fns = [
+            lambda values: compute_lpips_distance(values, images2),
+            lambda values: compute_spectral_convergence(values, gen_mag),
+            lambda values: compute_mel_cepstral_distortion(values, gen_mfcc),
+            lambda values: calculate_fid_score(values, reference_features),
+        ]
+        values_by_loss = [images1, real_mag, real_mfcc, features]
+
+        for loss_fn, values in zip(loss_fns, values_by_loss):
+            compiled_value = jax.jit(loss_fn)(values)
+            gradients = jax.grad(loss_fn)(values)
+
+            assert compiled_value.shape == ()
+            assert jnp.isfinite(compiled_value)
+            assert gradients.shape == values.shape
+            assert jnp.all(jnp.isfinite(gradients))
+
+    def test_statistical_metric_helpers_are_jittable(self):
+        real = jnp.array([0.1, 0.4, 0.9, 1.4], dtype=jnp.float32)
+        generated = jnp.array([0.2, 0.5, 1.0, 1.5], dtype=jnp.float32)
+        categories = jnp.array([0, 1, 1, 2, 3], dtype=jnp.int32)
+        generated_categories = jnp.array([0, 1, 2, 2, 3], dtype=jnp.int32)
+        timeseries = jnp.arange(2 * 5 * 2, dtype=jnp.float32).reshape(2, 5, 2) / 10.0
+        real_data = {
+            "x": jnp.array([0.1, 0.4, 0.8, 1.0], dtype=jnp.float32),
+            "y": jnp.array([1.0, 0.7, 0.5, 0.2], dtype=jnp.float32),
+        }
+        generated_data = {
+            "x": jnp.array([0.2, 0.5, 0.7, 0.9], dtype=jnp.float32),
+            "y": jnp.array([0.9, 0.8, 0.4, 0.3], dtype=jnp.float32),
+        }
+
+        ks_distance = jax.jit(compute_ks_distance_internal)(real, generated)
+        chi2 = jax.jit(lambda x, y: compute_chi2_statistic(x, y, vocab_size=4))(
+            categories,
+            generated_categories,
+        )
+        autocorrelation = jax.jit(lambda values: _compute_autocorrelation(values, max_lag=3))(
+            timeseries
+        )
+        skewness = jax.jit(_compute_skewness)(real)
+        correlation = jax.jit(
+            lambda x, y: compute_correlation_preservation_internal(
+                {"x": x[:, 0], "y": x[:, 1]},
+                {"x": y[:, 0], "y": y[:, 1]},
+                ["x", "y"],
+            )
+        )(
+            jnp.stack([real_data["x"], real_data["y"]], axis=1),
+            jnp.stack([generated_data["x"], generated_data["y"]], axis=1),
+        )
+
+        assert ks_distance.shape == ()
+        assert chi2.shape == ()
+        assert autocorrelation.shape == (3,)
+        assert skewness.shape == ()
+        assert correlation.shape == ()
+        assert jnp.isfinite(ks_distance)
+        assert jnp.isfinite(chi2)
+        assert jnp.all(jnp.isfinite(autocorrelation))
+        assert jnp.isfinite(skewness)
+        assert jnp.isfinite(correlation)

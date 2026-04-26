@@ -115,7 +115,7 @@ class FIDMetric(MetricBase):
         real_features = self._extract_features(real_data)
 
         # Calculate FID
-        fid_score = calculate_fid_score(gen_features, real_features)
+        fid_score = float(calculate_fid_score(gen_features, real_features))
 
         return {"fid_score": fid_score}
 
@@ -172,7 +172,7 @@ class FIDMetric(MetricBase):
         Returns:
             FID score (lower is better, non-negative)
         """
-        return frechet_distance_from_statistics(real_mean, real_cov, fake_mean, fake_cov)
+        return float(frechet_distance_from_statistics(real_mean, real_cov, fake_mean, fake_cov))
 
     def _extract_features(self, images: jax.Array) -> jax.Array:
         """Extract features from images using Inception model.
@@ -350,7 +350,7 @@ class LPIPSMetric(MetricBase):
             dictionary with LPIPS score
         """
         if self.mock_implementation:
-            lpips_score = compute_lpips_distance(real_data, generated_data)
+            lpips_score = float(compute_lpips_distance(real_data, generated_data))
             return {"lpips_distance": lpips_score}
 
         raise RuntimeError(

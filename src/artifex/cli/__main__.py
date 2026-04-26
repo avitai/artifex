@@ -22,7 +22,7 @@ def _version_callback(value: bool) -> None:
     if value:
         from importlib.metadata import version
 
-        typer.echo(f"artifex {version('artifex')}")
+        typer.echo(f"artifex {version('avitai-artifex')}")
         raise typer.Exit()
 
 

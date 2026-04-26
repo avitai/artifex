@@ -1,6 +1,7 @@
 """Tests for extension system with unified configuration."""
 
 import flax.nnx as nnx
+import jax
 import jax.numpy as jnp
 import pytest
 
@@ -268,6 +269,227 @@ class TestAdvancedImageAugmentation:
         augmented = augmentation(images)
 
         assert jnp.allclose(augmented, images)
+
+    def test_vertical_flip_with_probability_one_flips_every_image(self, rngs):
+        """Vertical flip should flip along the height axis when probability is certain."""
+        config = ImageAugmentationConfig(name="vertical_flip", probability=1.0)
+        augmentation = AdvancedImageAugmentation(config, rngs=rngs)
+        images = jnp.arange(2 * 3 * 2 * 1, dtype=jnp.float32).reshape(2, 3, 2, 1)
+
+        flipped = augmentation.apply_vertical_flip(images)
+
+        assert jnp.allclose(flipped, jnp.flip(images, axis=1))
+
+    def test_color_jitter_with_identity_ranges_preserves_images(self, rngs):
+        """Identity brightness and contrast ranges should preserve image values."""
+        config = ImageAugmentationConfig(
+            name="identity_jitter",
+            brightness_range=(1.0, 1.0),
+            contrast_range=(1.0, 1.0),
+        )
+        augmentation = AdvancedImageAugmentation(config, rngs=rngs)
+        images = jnp.linspace(0.0, 1.0, 2 * 4 * 4 * 3).reshape(2, 4, 4, 3)
+
+        jittered = augmentation._apply_color_jitter(images)
+
+        assert jnp.allclose(jittered, images)
+
+    def test_zero_strength_optional_augmentations_preserve_images(self, rngs):
+        """Optional saturation and noise helpers should honor zero-strength metadata."""
+        config = ImageAugmentationConfig(
+            name="zero_strength",
+            metadata={"saturation_range": 0.0, "noise_level": 0.0},
+        )
+        augmentation = AdvancedImageAugmentation(config, rngs=rngs)
+        images = jnp.linspace(0.0, 1.0, 2 * 4 * 4 * 3).reshape(2, 4, 4, 3)
+
+        assert augmentation._metadata_float("missing", 0.75) == 0.75
+        assert jnp.allclose(augmentation._apply_saturation(images), images)
+        assert jnp.allclose(augmentation._apply_noise_injection(images), images)
+
+    def test_affine_identity_and_zero_rotation_preserve_images(self, rngs):
+        """Identity affine transforms and zero rotation should preserve image values."""
+        config = ImageAugmentationConfig(name="identity_geometric")
+        augmentation = AdvancedImageAugmentation(config, rngs=rngs)
+        image = jnp.arange(4 * 4 * 1, dtype=jnp.float32).reshape(4, 4, 1) / 16.0
+        transform = jnp.eye(3)
+
+        transformed = augmentation._apply_affine_transform(image, transform)
+        rotated = augmentation._apply_random_rotations(image[None, ...], max_rotation=0.0)
+
+        assert jnp.allclose(transformed, image)
+        assert jnp.allclose(rotated[0], image)
+
+    def test_bilinear_interpolation_supports_grayscale_images(self, rngs):
+        """Bilinear interpolation should return grayscale arrays without a channel axis."""
+        config = ImageAugmentationConfig(name="grayscale_interpolation")
+        augmentation = AdvancedImageAugmentation(config, rngs=rngs)
+        image = jnp.arange(9, dtype=jnp.float32).reshape(3, 3)
+        coords = jnp.array([[0.0, 1.0], [1.0, 2.0]])
+
+        interpolated = augmentation._bilinear_interpolate(image, coords, coords)
+
+        assert interpolated.shape == (2, 2)
+        assert jnp.allclose(interpolated, jnp.array([[0.0, 4.0], [4.0, 8.0]]))
+
+    def test_blur_helpers_preserve_shape_for_color_and_grayscale(self, rngs):
+        """Blur helpers should support both color batches and grayscale images."""
+        config = ImageAugmentationConfig(
+            name="blur",
+            metadata={"blur_probability": 1.0},
+        )
+        augmentation = AdvancedImageAugmentation(config, rngs=rngs)
+        color = jnp.zeros((2, 5, 5, 3), dtype=jnp.float32).at[:, 2, 2, :].set(1.0)
+        grayscale = jnp.zeros((5, 5), dtype=jnp.float32).at[2, 2].set(1.0)
+
+        blurred_color = augmentation._apply_blur(color)
+        blurred_grayscale = augmentation._gaussian_blur(grayscale)
+
+        assert blurred_color.shape == color.shape
+        assert blurred_grayscale.shape == grayscale.shape
+        assert jnp.isfinite(blurred_color).all()
+        assert jnp.isfinite(blurred_grayscale).all()
+
+    def test_deterministic_augment_is_jittable_and_differentiable(self, rngs):
+        """The pure deterministic augmentation bypass should compile under JAX transforms."""
+        config = ImageAugmentationConfig(name="deterministic_jit")
+        augmentation = AdvancedImageAugmentation(config, rngs=rngs)
+        images = jnp.linspace(0.0, 1.0, 2 * 4 * 4 * 3).reshape(2, 4, 4, 3)
+
+        def loss_fn(values):
+            return jnp.sum(augmentation.augment(values, deterministic=True))
+
+        compiled_value = jax.jit(loss_fn)(images)
+        gradients = jax.grad(loss_fn)(images)
+
+        assert compiled_value.shape == ()
+        assert jnp.isfinite(compiled_value)
+        assert jnp.allclose(gradients, jnp.ones_like(images))
+
+    @pytest.mark.parametrize(
+        "method_name",
+        [
+            "_apply_color_jitter",
+            "_apply_saturation",
+            "_apply_noise_injection",
+            "_apply_blur",
+            "apply_horizontal_flip",
+            "apply_vertical_flip",
+        ],
+    )
+    def test_rng_backed_augmentation_methods_are_nnx_jittable_and_differentiable(self, method_name):
+        """RNG-backed augmentation helpers should compile through the NNX transform path."""
+        config = ImageAugmentationConfig(
+            name=f"{method_name}_jit",
+            probability=1.0,
+            brightness_range=(1.0, 1.0),
+            contrast_range=(1.0, 1.0),
+            metadata={
+                "blur_probability": 1.0,
+                "noise_level": 0.0,
+                "saturation_range": 0.0,
+            },
+        )
+        augmentation = AdvancedImageAugmentation(config, rngs=nnx.Rngs(42))
+        images = jnp.linspace(0.0, 1.0, 2 * 4 * 4 * 3).reshape(2, 4, 4, 3)
+
+        def apply_method(module, values):
+            return getattr(module, method_name)(values)
+
+        compiled = nnx.jit(apply_method)
+        gradients_fn = nnx.grad(
+            lambda module, values: jnp.sum(apply_method(module, values)), argnums=1
+        )
+
+        transformed = compiled(augmentation, images)
+        gradients = gradients_fn(augmentation, images)
+
+        assert transformed.shape == images.shape
+        assert jnp.isfinite(transformed).all()
+        assert jnp.isfinite(gradients).all()
+
+    def test_cutout_is_nnx_jittable_and_differentiable(self):
+        """Cutout should compile through NNX transforms and expose finite mask gradients."""
+        config = ImageAugmentationConfig(name="cutout_jit", probability=1.0)
+        augmentation = AdvancedImageAugmentation(config, rngs=nnx.Rngs(42))
+        images = jnp.ones((2, 4, 4, 1), dtype=jnp.float32)
+
+        def apply_cutout(module, values):
+            return module.apply_cutout(values, cutout_size=2, num_cutouts=1)
+
+        compiled = nnx.jit(apply_cutout)
+        gradients_fn = nnx.grad(
+            lambda module, values: jnp.sum(apply_cutout(module, values)), argnums=1
+        )
+
+        transformed = compiled(augmentation, images)
+        gradients = gradients_fn(augmentation, images)
+
+        assert transformed.shape == images.shape
+        assert jnp.isfinite(transformed).all()
+        assert jnp.isfinite(gradients).all()
+
+    @pytest.mark.parametrize(
+        ("method_name", "input_shape"),
+        [
+            ("_gaussian_blur", (5, 5)),
+            ("_gaussian_blur", (5, 5, 3)),
+            ("_apply_conv2d", (5, 5)),
+        ],
+    )
+    def test_pure_blur_helpers_are_jittable_and_differentiable(
+        self, method_name, input_shape, rngs
+    ):
+        """Pure convolution helpers should compile and expose finite image gradients."""
+        config = ImageAugmentationConfig(name=f"{method_name}_pure")
+        augmentation = AdvancedImageAugmentation(config, rngs=rngs)
+        image = jnp.linspace(0.0, 1.0, int(jnp.prod(jnp.array(input_shape)))).reshape(input_shape)
+        kernel = jnp.ones((3, 3), dtype=jnp.float32) / 9.0
+
+        def apply_helper(values):
+            if method_name == "_apply_conv2d":
+                return augmentation._apply_conv2d(values, kernel)
+            return augmentation._gaussian_blur(values)
+
+        compiled_value = jax.jit(apply_helper)(image)
+        gradients = jax.grad(lambda values: jnp.sum(apply_helper(values)))(image)
+
+        assert compiled_value.shape == image.shape
+        assert jnp.isfinite(compiled_value).all()
+        assert jnp.isfinite(gradients).all()
+
+    def test_affine_and_interpolation_helpers_are_jittable_and_differentiable(self, rngs):
+        """Pure geometric helpers should compile and expose finite image gradients."""
+        config = ImageAugmentationConfig(name="geometric_jit")
+        augmentation = AdvancedImageAugmentation(config, rngs=rngs)
+        image = jnp.arange(4 * 4 * 1, dtype=jnp.float32).reshape(4, 4, 1) / 16.0
+        transform = jnp.eye(3)
+        coords = jnp.array([[0.0, 1.0], [1.0, 2.0]])
+
+        affine = jax.jit(lambda values: augmentation._apply_affine_transform(values, transform))
+        single_transform = jax.jit(
+            lambda values: augmentation._transform_single_image(
+                values,
+                jnp.array(0.0),
+                jnp.array(0.0),
+                jnp.array(0.0),
+                jnp.array(1.0),
+            )
+        )
+        interpolation = jax.jit(
+            lambda values: augmentation._bilinear_interpolate(values, coords, coords)
+        )
+
+        affine_grad = jax.grad(lambda values: jnp.sum(affine(values)))(image)
+        single_transform_grad = jax.grad(lambda values: jnp.sum(single_transform(values)))(image)
+        interpolation_grad = jax.grad(lambda values: jnp.sum(interpolation(values)))(image)
+
+        assert affine(image).shape == image.shape
+        assert single_transform(image).shape == image.shape
+        assert interpolation(image).shape == coords.shape + (1,)
+        assert jnp.isfinite(affine_grad).all()
+        assert jnp.isfinite(single_transform_grad).all()
+        assert jnp.isfinite(interpolation_grad).all()
 
 
 class TestExtensionsRegistry:

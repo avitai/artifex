@@ -272,6 +272,12 @@ directory = "htmlcov"
 skip_covered = false
 skip_empty = false
 
+[tool.coverage.paths]
+source = [
+  "src",
+  "*/work/artifex/artifex/src"
+]
+
 [tool.coverage.report]
 exclude_lines = [
   "pragma: no cover",
@@ -304,6 +310,7 @@ omit = [
   "*/benchmark/*"
 ]
 parallel = true
+relative_files = true
 source = ["src"]
 
 [tool.coverage.xml]

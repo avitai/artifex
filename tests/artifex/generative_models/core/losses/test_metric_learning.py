@@ -126,3 +126,58 @@ class TestImportFromTopLevel:
         assert ProxyNCALoss is not None
         assert ProxyAnchorLoss is not None
         assert MetricLearningLoss is not None
+
+
+class TestMetricLearningTransformCompatibility:
+    """Metric learning re-exports should preserve CalibraX transform behavior."""
+
+    @pytest.mark.parametrize(
+        ("loss_cls", "kwargs"),
+        [
+            (ContrastiveLoss, {"margin": 1.0}),
+            (TripletMarginLoss, {"margin": 0.2}),
+            (NTXentLoss, {"temperature": 0.5}),
+        ],
+    )
+    def test_stateless_losses_are_jittable_and_differentiable(
+        self, loss_cls, kwargs, embeddings_and_labels
+    ):
+        embeddings, labels = embeddings_and_labels
+        loss_fn = loss_cls(**kwargs)
+
+        def scalar_loss(values):
+            return loss_fn(values, labels)
+
+        compiled_value = jax.jit(scalar_loss)(embeddings)
+        gradients = jax.grad(scalar_loss)(embeddings)
+
+        assert compiled_value.shape == ()
+        assert jnp.isfinite(compiled_value)
+        assert gradients.shape == embeddings.shape
+        assert jnp.all(jnp.isfinite(gradients))
+
+    @pytest.mark.parametrize(
+        "loss_cls",
+        [ArcFaceLoss, CosFaceLoss, ProxyNCALoss, ProxyAnchorLoss],
+    )
+    def test_trainable_losses_are_nnx_jittable_and_differentiable(
+        self, loss_cls, embeddings_and_labels
+    ):
+        embeddings, labels = embeddings_and_labels
+        loss_module = loss_cls(num_classes=4, embedding_dim=16, rngs=nnx.Rngs(0))
+
+        def scalar_loss(module, values):
+            return module(values, labels)
+
+        compiled_value = nnx.jit(scalar_loss)(loss_module, embeddings)
+        module_grad = nnx.grad(scalar_loss, argnums=0)(loss_module, embeddings)
+        embedding_grad = nnx.grad(scalar_loss, argnums=1)(loss_module, embeddings)
+
+        module_grad_leaves = jax.tree_util.tree_leaves(module_grad)
+
+        assert compiled_value.shape == ()
+        assert jnp.isfinite(compiled_value)
+        assert module_grad_leaves
+        assert all(jnp.all(jnp.isfinite(leaf)) for leaf in module_grad_leaves)
+        assert embedding_grad.shape == embeddings.shape
+        assert jnp.all(jnp.isfinite(embedding_grad))

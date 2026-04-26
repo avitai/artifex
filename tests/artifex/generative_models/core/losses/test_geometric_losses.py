@@ -4,6 +4,7 @@ import jax
 import jax.numpy as jnp
 import pytest
 from calibrax.metrics.functional.geometric import hausdorff_distance as calibrax_hausdorff
+from flax import nnx
 
 from artifex.generative_models.core.losses.geometric import (
     binary_cross_entropy,
@@ -15,6 +16,7 @@ from artifex.generative_models.core.losses.geometric import (
     get_point_cloud_loss,
     get_voxel_loss,
     hausdorff_distance,
+    mse_voxel_loss,
 )
 
 
@@ -286,3 +288,118 @@ class TestHausdorffDistance:
         actual = hausdorff_distance(pred, target, reduction="none")
 
         assert jnp.allclose(actual, expected)
+
+
+class TestGeometricJAXTransformCompatibility:
+    """Geometric losses should remain valid in compiled model objectives."""
+
+    @pytest.mark.parametrize(
+        ("name", "loss_fn"),
+        [
+            ("chamfer", chamfer_distance),
+            ("earth_mover", earth_mover_distance),
+            ("hausdorff", hausdorff_distance),
+        ],
+    )
+    def test_point_cloud_losses_are_jittable_and_differentiable(self, name, loss_fn):
+        pred = jnp.array(
+            [
+                [[0.0, 0.0, 0.0], [1.2, 0.1, 0.0], [0.2, 1.1, 0.3]],
+                [[0.2, 0.1, 0.0], [1.3, 0.2, 0.2], [0.3, 1.2, 0.5]],
+            ],
+            dtype=jnp.float32,
+        )
+        target = pred + jnp.array([0.15, -0.05, 0.2], dtype=jnp.float32)
+
+        def scalar_loss(values):
+            return loss_fn(values, target)
+
+        compiled_value = jax.jit(scalar_loss)(pred)
+        gradients = jax.grad(scalar_loss)(pred)
+
+        assert name
+        assert compiled_value.shape == ()
+        assert jnp.isfinite(compiled_value)
+        assert gradients.shape == pred.shape
+        assert jnp.all(jnp.isfinite(gradients))
+
+    @pytest.mark.parametrize(
+        ("name", "loss_fn"),
+        [
+            ("binary_cross_entropy", binary_cross_entropy),
+            ("mse_voxel", mse_voxel_loss),
+            ("dice", dice_loss),
+            ("focal", focal_loss),
+        ],
+    )
+    def test_voxel_losses_are_jittable_and_differentiable(self, name, loss_fn):
+        pred = jnp.array(
+            [
+                [[[0.75], [0.25]], [[0.35], [0.85]]],
+                [[[0.65], [0.3]], [[0.45], [0.7]]],
+            ],
+            dtype=jnp.float32,
+        )
+        target = jnp.array(
+            [
+                [[[1.0], [0.0]], [[0.0], [1.0]]],
+                [[[1.0], [0.0]], [[0.0], [1.0]]],
+            ],
+            dtype=jnp.float32,
+        )
+
+        def scalar_loss(values):
+            return loss_fn(values, target)
+
+        compiled_value = jax.jit(scalar_loss)(pred)
+        gradients = jax.grad(scalar_loss)(pred)
+
+        assert name
+        assert compiled_value.shape == ()
+        assert jnp.isfinite(compiled_value)
+        assert gradients.shape == pred.shape
+        assert jnp.all(jnp.isfinite(gradients))
+
+    def test_mesh_loss_module_is_nnx_jittable_and_differentiable(self):
+        pred_vertices = jnp.array(
+            [
+                [0.0, 0.0, 0.0],
+                [1.0, 0.0, 0.1],
+                [0.0, 1.0, 0.2],
+                [1.0, 1.0, 0.3],
+            ],
+            dtype=jnp.float32,
+        )
+        faces = jnp.array([[0, 1, 2], [1, 3, 2]], dtype=jnp.int32)
+        pred_normals = jnp.array(
+            [
+                [0.0, 0.0, 1.0],
+                [0.1, 0.0, 0.9],
+                [0.0, 0.1, 0.9],
+                [0.1, 0.1, 0.9],
+            ],
+            dtype=jnp.float32,
+        )
+        target_vertices = pred_vertices + jnp.array([0.05, -0.02, 0.03], dtype=jnp.float32)
+        target_normals = pred_normals + jnp.array([0.02, -0.01, 0.01], dtype=jnp.float32)
+        target_mesh = (target_vertices, faces, target_normals)
+        loss_module = get_mesh_loss(laplacian_weight=0.1)
+
+        compiled_call = nnx.jit(
+            lambda module, vertices, normals: module((vertices, faces, normals), target_mesh)
+        )
+        compiled_value = compiled_call(loss_module, pred_vertices, pred_normals)
+
+        def scalar_loss(vertices, normals):
+            return loss_module((vertices, faces, normals), target_mesh)
+
+        vertex_grad, normal_grad = jax.grad(scalar_loss, argnums=(0, 1))(
+            pred_vertices, pred_normals
+        )
+
+        assert compiled_value.shape == ()
+        assert jnp.isfinite(compiled_value)
+        assert vertex_grad.shape == pred_vertices.shape
+        assert normal_grad.shape == pred_normals.shape
+        assert jnp.all(jnp.isfinite(vertex_grad))
+        assert jnp.all(jnp.isfinite(normal_grad))

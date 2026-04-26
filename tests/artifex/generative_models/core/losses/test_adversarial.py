@@ -5,10 +5,14 @@ import jax.numpy as jnp
 import pytest
 
 from artifex.generative_models.core.losses.adversarial import (
+    discriminator_loss,
+    generator_loss,
     hinge_discriminator_loss,
     hinge_generator_loss,
     least_squares_discriminator_loss,
     least_squares_generator_loss,
+    ns_vanilla_discriminator_loss,
+    ns_vanilla_generator_loss,
     vanilla_discriminator_loss,
     vanilla_generator_loss,
     wasserstein_discriminator_loss,
@@ -296,3 +300,84 @@ class TestHingeGANLoss:
         weights = jnp.array([0.5, 1.0, 0.8, 0.3])
         weighted_loss = hinge_discriminator_loss(real_scores, fake_scores, weights=weights)
         assert jnp.isfinite(weighted_loss)
+
+
+class TestAdversarialJAXTransformCompatibility:
+    """Adversarial losses should stay usable inside JIT-compiled train steps."""
+
+    @pytest.mark.parametrize(
+        ("name", "loss_fn"),
+        [
+            ("vanilla", vanilla_generator_loss),
+            ("least_squares", least_squares_generator_loss),
+            ("wasserstein", wasserstein_generator_loss),
+            ("hinge", hinge_generator_loss),
+            ("non_saturating", ns_vanilla_generator_loss),
+        ],
+    )
+    def test_generator_losses_are_jittable_and_differentiable(self, name, loss_fn):
+        scores = jnp.array([0.25, 0.45, 0.65, 0.85], dtype=jnp.float32)
+
+        def scalar_loss(values):
+            return loss_fn(values, reduction="mean")
+
+        compiled_value = jax.jit(scalar_loss)(scores)
+        gradients = jax.grad(scalar_loss)(scores)
+
+        assert name
+        assert compiled_value.shape == ()
+        assert jnp.isfinite(compiled_value)
+        assert gradients.shape == scores.shape
+        assert jnp.all(jnp.isfinite(gradients))
+
+    @pytest.mark.parametrize(
+        ("name", "loss_fn"),
+        [
+            ("vanilla", vanilla_discriminator_loss),
+            ("least_squares", least_squares_discriminator_loss),
+            ("wasserstein", wasserstein_discriminator_loss),
+            ("hinge", hinge_discriminator_loss),
+            ("non_saturating", ns_vanilla_discriminator_loss),
+        ],
+    )
+    def test_discriminator_losses_are_jittable_and_differentiable(self, name, loss_fn):
+        real = jnp.array([0.75, 0.8, 0.85, 0.9], dtype=jnp.float32)
+        fake = jnp.array([0.1, 0.2, 0.3, 0.4], dtype=jnp.float32)
+
+        def scalar_loss(real_scores, fake_scores):
+            return loss_fn(real_scores, fake_scores, reduction="mean")
+
+        compiled_value = jax.jit(scalar_loss)(real, fake)
+        real_grad, fake_grad = jax.grad(scalar_loss, argnums=(0, 1))(real, fake)
+
+        assert name
+        assert compiled_value.shape == ()
+        assert jnp.isfinite(compiled_value)
+        assert real_grad.shape == real.shape
+        assert fake_grad.shape == fake.shape
+        assert jnp.all(jnp.isfinite(real_grad))
+        assert jnp.all(jnp.isfinite(fake_grad))
+
+    @pytest.mark.parametrize("loss_type", ["vanilla", "least_squares", "wasserstein", "hinge"])
+    def test_loss_dispatchers_are_jittable_and_differentiable(self, loss_type):
+        real = jnp.array([0.75, 0.8, 0.85, 0.9], dtype=jnp.float32)
+        fake = jnp.array([0.1, 0.2, 0.3, 0.4], dtype=jnp.float32)
+
+        def generator_objective(fake_scores):
+            return generator_loss(fake_scores, loss_type=loss_type)
+
+        def discriminator_objective(real_scores, fake_scores):
+            return discriminator_loss(real_scores, fake_scores, loss_type=loss_type)
+
+        generator_value = jax.jit(generator_objective)(fake)
+        discriminator_value = jax.jit(discriminator_objective)(real, fake)
+        generator_grad = jax.grad(generator_objective)(fake)
+        real_grad, fake_grad = jax.grad(discriminator_objective, argnums=(0, 1))(real, fake)
+
+        assert generator_value.shape == ()
+        assert discriminator_value.shape == ()
+        assert jnp.isfinite(generator_value)
+        assert jnp.isfinite(discriminator_value)
+        assert jnp.all(jnp.isfinite(generator_grad))
+        assert jnp.all(jnp.isfinite(real_grad))
+        assert jnp.all(jnp.isfinite(fake_grad))

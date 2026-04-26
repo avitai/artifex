@@ -55,6 +55,8 @@ def test_pyright_and_coverage_settings_follow_repo_standards_contract() -> None:
     requires_python = pyproject["project"]["requires-python"]
     pyright = pyproject["tool"]["pyright"]
     pytest_options = pyproject["tool"]["pytest"]["ini_options"]
+    coverage_paths = pyproject["tool"]["coverage"]["paths"]
+    coverage_run = pyproject["tool"]["coverage"]["run"]
     coverage_report = pyproject["tool"]["coverage"]["report"]
     ruff = pyproject["tool"]["ruff"]
     ruff_format = ruff["format"]
@@ -62,6 +64,10 @@ def test_pyright_and_coverage_settings_follow_repo_standards_contract() -> None:
     assert requires_python == f">={standards['interpreter']['minimum_supported']}"
     assert pyright["pythonVersion"] == standards["interpreter"]["tooling"]
     assert pyright["typeCheckingMode"] == standards["typing"]["pyright_mode"]
+    assert coverage_run["source"] == ["src"]
+    assert coverage_run["relative_files"] is True
+    assert coverage_paths["source"][0] == "src"
+    assert coverage_paths["source"] == ["src", "*/work/artifex/artifex/src"]
     assert coverage_report["fail_under"] == standards["coverage"]["project_fail_under"]
     assert ruff["line-length"] == standards["line_length"]
     assert "*.ipynb" in ruff_format["exclude"]

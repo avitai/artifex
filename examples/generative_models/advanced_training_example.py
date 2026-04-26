@@ -75,7 +75,7 @@ where $\\eta_t$ is the learning rate at step $t$, and $T$ is the total number of
 This example requires the Artifex library with standard dependencies:
 
 ```bash
-pip install artifex[examples]
+pip install avitai-artifex
 ```
 
 ## Usage

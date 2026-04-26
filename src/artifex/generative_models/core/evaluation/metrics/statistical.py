@@ -212,13 +212,16 @@ def _compute_autocorrelation(data: jax.Array, max_lag: int) -> jax.Array:
 
     # Normalize by lag-0 autocorrelation
     autocorr_array = jnp.array(autocorr_list)
-    if autocorr_array[0] > 0:
-        autocorr_array = autocorr_array / autocorr_array[0]
+    autocorr_array = jnp.where(
+        autocorr_array[0] > 0,
+        autocorr_array / autocorr_array[0],
+        autocorr_array,
+    )
 
     return autocorr_array
 
 
-def _compute_skewness(data: jax.Array) -> float:
+def _compute_skewness(data: jax.Array) -> jax.Array:
     """Compute skewness of the data.
 
     Args:
@@ -230,8 +233,5 @@ def _compute_skewness(data: jax.Array) -> float:
     mean = jnp.mean(data)
     std = jnp.std(data)
 
-    if std == 0:
-        return 0.0
-
     skewness = jnp.mean(((data - mean) / std) ** 3)
-    return float(skewness)
+    return jnp.where(std == 0, 0.0, skewness)

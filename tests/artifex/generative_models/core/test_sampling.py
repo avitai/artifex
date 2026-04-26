@@ -12,8 +12,12 @@ from artifex.generative_models.core.distributions import Normal
 # Import sampling utilities
 from artifex.generative_models.core.sampling.ancestral import ancestral_sampling
 from artifex.generative_models.core.sampling.mcmc import mcmc_sampling, metropolis_step
-from artifex.generative_models.core.sampling.ode import ode_sampling
-from artifex.generative_models.core.sampling.sde import sde_sampling
+from artifex.generative_models.core.sampling.ode import euler_step, ode_sampling, rk4_step
+from artifex.generative_models.core.sampling.sde import (
+    euler_maruyama_step,
+    milstein_step,
+    sde_sampling,
+)
 
 # Import test fixtures
 from tests.artifex.generative_models.utils.test_fixtures import get_rng_key
@@ -363,3 +367,118 @@ class TestSDESampling:
     def test_ode_sampling_signature_has_no_dead_adjoint_flag(self):
         """ODE sampling should not expose inert adjoint controls."""
         assert "use_adjoint" not in inspect.signature(ode_sampling).parameters
+
+
+class TestSamplingJAXTransformCompatibility:
+    """Sampling steps used inside compiled loops should keep transform support."""
+
+    @pytest.mark.parametrize(
+        ("name", "step_fn"),
+        [
+            (
+                "euler",
+                lambda state: euler_step(
+                    state,
+                    0.2,
+                    0.1,
+                    lambda values, time: -0.5 * values + time,
+                ),
+            ),
+            (
+                "rk4",
+                lambda state: rk4_step(
+                    state,
+                    0.2,
+                    0.1,
+                    lambda values, time: -0.5 * values + time,
+                ),
+            ),
+            (
+                "ode_sampling",
+                lambda state: ode_sampling(
+                    lambda values, time: -0.5 * values + time,
+                    state,
+                    (0.0, 0.4),
+                    method="rk4",
+                    n_steps=4,
+                ),
+            ),
+        ],
+    )
+    def test_ode_steps_are_jittable_and_differentiable(self, name, step_fn):
+        state = jnp.array([0.25, -0.75], dtype=jnp.float32)
+
+        def scalar_loss(values):
+            return jnp.sum(step_fn(values))
+
+        compiled_value = jax.jit(scalar_loss)(state)
+        gradients = jax.grad(scalar_loss)(state)
+
+        assert name
+        assert compiled_value.shape == ()
+        assert jnp.isfinite(compiled_value)
+        assert gradients.shape == state.shape
+        assert jnp.all(jnp.isfinite(gradients))
+
+    @pytest.mark.parametrize(
+        ("name", "step_fn"),
+        [
+            (
+                "euler_maruyama",
+                lambda state, key: euler_maruyama_step(
+                    state,
+                    0.1,
+                    0.05,
+                    key,
+                    lambda values, time: -values + time,
+                    lambda values, _time: jnp.ones_like(values) * 0.2,
+                ),
+            ),
+            (
+                "milstein",
+                lambda state, key: milstein_step(
+                    state,
+                    0.1,
+                    0.05,
+                    key,
+                    lambda values, time: -values + time,
+                    lambda values, _time: jnp.ones_like(values) * 0.2,
+                    lambda values, _time: jnp.zeros_like(values),
+                ),
+            ),
+        ],
+    )
+    def test_sde_steps_are_jittable_and_differentiable(self, name, step_fn):
+        state = jnp.array([0.25, -0.75], dtype=jnp.float32)
+        key = get_rng_key(14)
+
+        def scalar_loss(values):
+            return jnp.sum(step_fn(values, key))
+
+        compiled_value = jax.jit(scalar_loss)(state)
+        gradients = jax.grad(scalar_loss)(state)
+
+        assert name
+        assert compiled_value.shape == ()
+        assert jnp.isfinite(compiled_value)
+        assert gradients.shape == state.shape
+        assert jnp.all(jnp.isfinite(gradients))
+
+    def test_metropolis_step_is_jittable_and_exposes_finite_state_gradients(self):
+        state = jnp.array([0.25, -0.75], dtype=jnp.float32)
+        key = get_rng_key(15)
+
+        def log_prob_fn(values):
+            return -0.5 * jnp.sum(values**2)
+
+        def scalar_next_state(values):
+            next_state, acceptance = metropolis_step(key, values, log_prob_fn, step_size=0.1)
+            return jnp.sum(next_state) + acceptance
+
+        compiled_value = jax.jit(scalar_next_state)(state)
+        gradients = jax.grad(scalar_next_state)(state)
+
+        assert compiled_value.shape == ()
+        assert jnp.isfinite(compiled_value)
+        assert gradients.shape == state.shape
+        assert jnp.all(jnp.isfinite(gradients))

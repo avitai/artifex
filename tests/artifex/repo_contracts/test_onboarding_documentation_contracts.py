@@ -10,8 +10,9 @@ def test_quickstart_separates_package_users_from_source_contributors() -> None:
     quickstart_lines = {line.strip() for line in quickstart.splitlines()}
 
     required_references = [
-        "pip install artifex",
-        'pip install "artifex[cuda12]"',
+        "pip install avitai-artifex",
+        'pip install "avitai-artifex[cuda12]"',
+        "installed code is still imported",
         "./setup.sh",
         "source ./activate.sh",
         "python -c",
@@ -26,6 +27,8 @@ def test_quickstart_separates_package_users_from_source_contributors() -> None:
         "python -m venv && source .venv/bin/activate",
         "uv pip install -e '.[dev]'",
         "uv pip install artifex",
+        "uv pip install avitai-artifex",
+        "pip install artifex",
         "uv run python -c",
         "uv run python train_vae.py",
     ]
@@ -108,8 +111,9 @@ def test_homepage_and_faq_match_installation_guide_contract() -> None:
     faq = (REPO_ROOT / "docs/community/faq.md").read_text()
 
     for contents in (homepage, faq):
-        assert "pip install artifex" in contents
-        assert 'pip install "artifex[cuda12]"' in contents
+        assert "pip install avitai-artifex" in contents
+        assert 'pip install "avitai-artifex[cuda12]"' in contents
+        assert "pip install artifex" not in contents
         assert "uv sync --extra cuda12" not in contents
         assert "uv sync --all-extras" not in contents
 
@@ -152,8 +156,10 @@ def test_root_readme_distinguishes_package_users_from_contributors() -> None:
     readme = (REPO_ROOT / "README.md").read_text()
 
     required_references = [
-        "pip install artifex",
-        'pip install "artifex[cuda12]"',
+        "pip install avitai-artifex",
+        'pip install "avitai-artifex[cuda12]"',
+        "The PyPI distribution is named `avitai-artifex`",
+        "the Python import package remains",
         "./setup.sh",
         "source ./activate.sh",
     ]
@@ -161,8 +167,10 @@ def test_root_readme_distinguishes_package_users_from_contributors() -> None:
         assert reference in readme
 
     banned_references = [
+        "pip install artifex",
         "source activate.sh",
         "uv pip install artifex",
+        "uv pip install avitai-artifex",
         "uv sync --all-extras",
     ]
     for reference in banned_references:

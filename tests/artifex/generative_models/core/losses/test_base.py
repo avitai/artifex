@@ -2,6 +2,7 @@
 
 import importlib
 
+import jax
 import jax.numpy as jnp
 import numpy as np
 import pytest
@@ -78,6 +79,32 @@ class TestReduceLoss:
         loss = jnp.array([1.0, 2.0, 3.0, 4.0])
         with pytest.raises(ValueError):
             reduce_loss(loss, reduction="invalid")
+
+    @pytest.mark.parametrize("reduction", ["mean", "sum", "batch_sum"])
+    def test_reduce_loss_is_jittable_and_differentiable(self, reduction):
+        """Jittable training paths should be able to transform shared reduction logic."""
+        loss = jnp.array([[0.5, 1.5], [2.0, 3.0]], dtype=jnp.float32)
+        weights = jnp.array([[1.0, 0.5], [0.75, 1.25]], dtype=jnp.float32)
+
+        def scalar_loss(values: jax.Array) -> jax.Array:
+            return reduce_loss(values, reduction=reduction, weights=weights)
+
+        compiled_value = jax.jit(scalar_loss)(loss)
+        gradients = jax.grad(scalar_loss)(loss)
+
+        assert compiled_value.shape == ()
+        assert jnp.isfinite(compiled_value)
+        assert gradients.shape == loss.shape
+        assert jnp.all(jnp.isfinite(gradients))
+
+    def test_reduce_loss_none_is_jittable(self):
+        """The no-reduction path should preserve shape under JIT."""
+        loss = jnp.array([[0.5, 1.5], [2.0, 3.0]], dtype=jnp.float32)
+
+        compiled_value = jax.jit(lambda values: reduce_loss(values, reduction="none"))(loss)
+
+        assert compiled_value.shape == loss.shape
+        assert jnp.allclose(compiled_value, loss)
 
 
 def test_base_module_only_exposes_reduce_loss_contract() -> None:

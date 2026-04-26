@@ -6,11 +6,17 @@ import pytest
 from flax import nnx
 
 from artifex.generative_models.core.losses.regularization import (
+    DropoutRegularization,
+    exclude_bias_predicate,
+    exclude_norm_predicate,
     gradient_penalty,
     l1_regularization,
     l2_regularization,
+    only_conv_predicate,
     orthogonal_regularization,
     spectral_norm_regularization,
+    SpectralNormRegularization,
+    total_variation_loss,
 )
 
 
@@ -88,6 +94,15 @@ class TestL1Regularization:
 
         assert jnp.isclose(loss, expected_loss)
 
+    def test_l1_supports_array_list_and_mean_reduction(self):
+        """L1 regularization should cover all supported parameter container paths."""
+        array = jnp.array([1.0, -2.0, 3.0])
+        params = [array, -array]
+
+        assert jnp.isclose(l1_regularization(array, scale=0.5), 3.0)
+        assert jnp.isclose(l1_regularization(params, scale=0.5), 6.0)
+        assert jnp.isclose(l1_regularization(params, scale=1.0, reduction="mean"), 2.0)
+
 
 class TestL2Regularization:
     """Test cases for L2 regularization (weight decay)."""
@@ -137,6 +152,15 @@ class TestL2Regularization:
 
         assert jnp.isclose(loss, expected_loss)
 
+    def test_l2_supports_array_list_and_no_reduction_alias(self):
+        """L2 regularization should cover array, list, and none-reduction paths."""
+        array = jnp.array([1.0, -2.0, 3.0])
+        params = [array, array + 1.0]
+
+        assert jnp.isclose(l2_regularization(array, scale=0.5), 7.0)
+        assert jnp.isclose(l2_regularization(params, scale=1.0, reduction="mean"), 35.0 / 6.0)
+        assert jnp.isclose(l2_regularization(array, scale=0.5, reduction="none"), 7.0)
+
 
 class TestGradientPenalty:
     """Test cases for gradient penalty regularization."""
@@ -183,6 +207,41 @@ class TestGradientPenalty:
 
         # Second penalty should be twice the first
         assert jnp.isclose(gp2, 2.0 * gp1)
+
+    def test_gradient_penalty_uniform_interpolation_and_weighted_none_reduction(self):
+        """Uniform interpolation should not require a key and should expose per-sample values."""
+        real = jnp.array([[0.0, 1.0], [1.0, 2.0]])
+        fake = real + 0.5
+
+        def discriminator(x):
+            return jnp.sum(x, axis=1)
+
+        result = gradient_penalty(
+            real,
+            fake,
+            discriminator,
+            lambda_gp=2.0,
+            reduction="none",
+            weights=jnp.array([1.0, 0.5]),
+            interpolation_mode="uniform",
+        )
+
+        assert result.shape == (2,)
+        assert jnp.isfinite(result).all()
+
+    def test_gradient_penalty_rejects_missing_key_and_unknown_mode(self):
+        """Gradient penalty should fail clearly for unsupported interpolation settings."""
+        samples = jnp.ones((2, 2))
+
+        with pytest.raises(ValueError, match="Random key required"):
+            gradient_penalty(samples, samples, lambda x: jnp.sum(x, axis=1))
+        with pytest.raises(ValueError, match="Unknown interpolation_mode"):
+            gradient_penalty(
+                samples,
+                samples,
+                lambda x: jnp.sum(x, axis=1),
+                interpolation_mode="unsupported",
+            )
 
 
 class TestOrthogonalRegularization:
@@ -248,3 +307,149 @@ class TestSpectralRegularization:
 
         # Second loss should be twice the first
         assert jnp.isclose(loss2, 2.0 * loss1)
+
+    def test_stateful_spectral_regularization_reuses_u_state(self, params):
+        """The NNX spectral regularizer should initialize and update a named state."""
+        regularizer = SpectralNormRegularization(n_power_iterations=2)
+        weight = params["layer1"]["kernel"]
+
+        first = regularizer(weight, weight_name="layer1/kernel")
+        second = regularizer(weight, weight_name="layer1/kernel")
+
+        assert first.shape == ()
+        assert second.shape == ()
+        assert "layer1/kernel" in regularizer._u_states
+        assert regularizer._u_states["layer1/kernel"][...].shape == (weight.shape[0], 1)
+
+
+class TestTotalVariationLoss:
+    """Test cases for total variation regularization."""
+
+    def test_total_variation_loss_supports_l1_l2_and_grayscale_inputs(self):
+        """TV loss should support both image ranks and norm types."""
+        images = jnp.array(
+            [
+                [
+                    [[0.0], [1.0]],
+                    [[2.0], [3.0]],
+                ]
+            ]
+        )
+        grayscale = images[..., 0]
+
+        assert jnp.isclose(total_variation_loss(images, norm_type="l1"), 6.0)
+        assert jnp.isclose(total_variation_loss(grayscale, norm_type="l2"), 10.0)
+
+    def test_total_variation_loss_supports_weights_and_rejects_unknown_norm(self):
+        """TV loss should apply weights and validate norm names."""
+        images = jnp.stack([jnp.zeros((2, 2, 1)), jnp.ones((2, 2, 1))])
+        weights = jnp.array([1.0, 0.5])
+
+        result = total_variation_loss(images, reduction="none", weights=weights)
+
+        assert result.shape == (2,)
+        with pytest.raises(ValueError, match="Unknown norm_type"):
+            total_variation_loss(images, norm_type="linf")
+
+
+class TestDropoutRegularization:
+    """Test cases for the dropout regularization module."""
+
+    def test_dropout_regularization_returns_zero_in_all_current_paths(self, key):
+        """The retained dropout regularizer should not add an auxiliary loss."""
+        activations = jnp.ones((2, 3))
+
+        assert DropoutRegularization(rate=0.0)(activations, training=True, key=key) == 0.0
+        assert DropoutRegularization(rate=0.5)(activations, training=False, key=key) == 0.0
+        assert DropoutRegularization(rate=0.5)(activations, training=True, key=key) == 0.0
+
+
+class TestRegularizationPredicates:
+    """Test cases for common regularization predicates."""
+
+    def test_common_predicates_match_parameter_names_and_shapes(self):
+        """Common predicates should encode bias, convolution, and norm exclusions."""
+        matrix = jnp.ones((3, 3))
+        conv_kernel = jnp.ones((3, 3, 2, 4))
+
+        assert exclude_bias_predicate("encoder/kernel", matrix) is True
+        assert exclude_bias_predicate("encoder/bias", matrix) is False
+        assert only_conv_predicate("conv/kernel", conv_kernel) is True
+        assert only_conv_predicate("dense/kernel", matrix) is False
+        assert exclude_norm_predicate("block/kernel", matrix) is True
+        assert exclude_norm_predicate("block/layer_norm/scale", matrix) is False
+
+
+class TestRegularizationJAXTransformCompatibility:
+    """JIT and differentiation checks for regularization paths used in training losses."""
+
+    @pytest.mark.parametrize(
+        ("name", "loss_fn"),
+        [
+            ("l1", lambda weight: l1_regularization(weight)),
+            ("l2", lambda weight: l2_regularization(weight)),
+            ("orthogonal", lambda weight: orthogonal_regularization(weight)),
+            ("spectral_norm", lambda weight: spectral_norm_regularization(weight)[0]),
+            ("total_variation", lambda weight: total_variation_loss(weight.reshape(1, 2, 2, 1))),
+        ],
+    )
+    def test_functional_regularizers_are_jittable_and_differentiable(self, name, loss_fn):
+        """Functional regularizers should compile and expose finite input gradients."""
+        weight = jnp.array([[1.0, 2.0], [3.0, 4.0]])
+
+        compiled_value = jax.jit(loss_fn)(weight)
+        gradients = jax.grad(loss_fn)(weight)
+
+        assert compiled_value.shape == ()
+        assert jnp.isfinite(compiled_value), name
+        assert jnp.isfinite(gradients).all(), name
+
+    def test_gradient_penalty_is_jittable_and_differentiable(self):
+        """Gradient penalty should compile and expose finite sample gradients."""
+        real = jnp.array([[0.0, 1.0], [1.0, 2.0]])
+        fake = real + 0.5
+
+        def discriminator(samples):
+            return jnp.sum(samples * samples, axis=1)
+
+        def loss_fn(real_samples):
+            return gradient_penalty(
+                real_samples,
+                fake,
+                discriminator,
+                interpolation_mode="uniform",
+            )
+
+        compiled_value = jax.jit(loss_fn)(real)
+        gradients = jax.grad(loss_fn)(real)
+
+        assert compiled_value.shape == ()
+        assert jnp.isfinite(compiled_value)
+        assert jnp.isfinite(gradients).all()
+
+    def test_dropout_regularization_module_is_jittable_and_differentiable(self):
+        """The retained dropout regularization module should compile with zero gradients."""
+        regularizer = DropoutRegularization(rate=0.5)
+        activations = jnp.array([[1.0, 2.0], [3.0, 4.0]])
+
+        def loss_fn(values):
+            return regularizer(values, training=True)
+
+        compiled_value = jax.jit(loss_fn)(activations)
+        gradients = jax.grad(loss_fn)(activations)
+
+        assert compiled_value.shape == ()
+        assert compiled_value == 0.0
+        assert jnp.allclose(gradients, jnp.zeros_like(activations))
+
+    def test_stateful_spectral_regularization_module_is_nnx_jittable(self):
+        """The stateful spectral regularizer should compile through the NNX transform path."""
+        regularizer = SpectralNormRegularization(n_power_iterations=1)
+        weight = jnp.array([[1.0, 2.0], [3.0, 4.0]])
+        regularizer(weight, weight_name="weight")
+
+        compiled_call = nnx.jit(lambda module, value: module(value, weight_name="weight"))
+        compiled_value = compiled_call(regularizer, weight)
+
+        assert compiled_value.shape == ()
+        assert jnp.isfinite(compiled_value)

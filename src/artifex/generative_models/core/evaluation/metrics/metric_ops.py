@@ -91,9 +91,10 @@ def compute_ks_distance(data1: jax.Array, data2: jax.Array) -> jax.Array:
     Returns:
         KS distance (maximum difference between CDFs)
     """
-    # Combine and sort all unique values
+    # Combine and sort all sample values. Duplicates do not change the maximum
+    # CDF gap, and avoiding jnp.unique keeps this helper JIT-compatible.
     all_values = jnp.concatenate([data1, data2])
-    eval_points = jnp.unique(all_values)
+    eval_points = jnp.sort(all_values)
 
     # Compute CDFs
     cdf1 = compute_cdf(data1, eval_points)
@@ -183,7 +184,7 @@ def matrix_sqrtm(matrix: jax.Array) -> jax.Array:
 
 def frechet_distance_from_statistics(
     mu1: jax.Array, sigma1: jax.Array, mu2: jax.Array, sigma2: jax.Array
-) -> float:
+) -> jax.Array:
     """Compute Fréchet distance between two Gaussian distributions.
 
     This implementation avoids ``jax.scipy.linalg.sqrtm()``, which relies on a
@@ -216,4 +217,4 @@ def frechet_distance_from_statistics(
         covmean = covmean.real
 
     distance = jnp.sum(diff**2) + jnp.trace(sigma1) + jnp.trace(sigma2) - 2 * jnp.trace(covmean)
-    return float(jnp.maximum(distance, 0.0))
+    return jnp.maximum(distance, 0.0)

@@ -365,7 +365,8 @@ def energy_distance(
 
         # Compute pairwise distances
         def pairwise_distance(x, y):
-            return jnp.power(jnp.sum((x[:, None, :] - y[None, :, :]) ** 2, axis=-1) ** 0.5, beta)
+            squared_distance = jnp.sum((x[:, None, :] - y[None, :, :]) ** 2, axis=-1)
+            return jnp.power(squared_distance + 1e-12, beta / 2.0)
 
         # E[||X - Y||^beta]
         d_xy = jnp.mean(pairwise_distance(pred_b, target_b))

@@ -10,6 +10,17 @@ from typing import Any
 from artifex.generative_models.core.configuration.base_dataclass import ConfigDocument
 
 
+def _coerce_datetime(value: datetime | str | int | float | None) -> datetime:
+    """Normalize persisted timestamp values into datetime instances."""
+    if value is None:
+        return datetime.now()
+    if isinstance(value, datetime):
+        return value
+    if isinstance(value, str):
+        return datetime.fromisoformat(value)
+    return datetime.fromtimestamp(value)
+
+
 # Custom JSON encoder to handle datetime objects
 class DateTimeEncoder(json.JSONEncoder):
     """JSON encoder that handles datetime objects."""
@@ -113,7 +124,7 @@ class ConfigVersion:
         """
         self.config = config
         self.description = description or ""
-        self.timestamp = timestamp or datetime.now()
+        self.timestamp = _coerce_datetime(timestamp)
         self.config_hash = compute_config_hash(config)
 
         # Generate version ID: YYYYMMDD-hash
