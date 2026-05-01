@@ -9,14 +9,14 @@ The dataset API follows a two-layer design:
 1. **Pure generation functions** produce `dict[str, jnp.ndarray]` from parameters. They have no side effects and do not depend on datarax.
 2. **Factory functions** call the generation functions and wrap the result in a `MemorySource`. They accept `rngs: nnx.Rngs` and return a `MemorySource` (or a tuple when additional config is needed).
 
-`MemorySource` provides `__len__`, `__getitem__`, `__iter__`, and `get_batch`. To build a training pipeline, pass the source to `datarax.from_source`:
+`MemorySource` provides `__len__`, `__getitem__`, `__iter__`, and `get_batch`. To build a training pipeline, pass the source to `datarax.Pipeline`:
 
 ```python
-import datarax
+from datarax import Pipeline
 from flax import nnx
 
 source = create_image_dataset(rngs=nnx.Rngs(0))
-pipeline = datarax.from_source(source, batch_size=32)
+pipeline = Pipeline(source=source, stages=[], batch_size=32, rngs=nnx.Rngs(0))
 ```
 
 ## Core Protocols
@@ -977,15 +977,15 @@ print(batch["timeseries"].shape)  # (16, 50, 1)
 | `__iter__()` | Iterate over samples one at a time |
 | `get_batch(batch_size)` | Get a batch of samples as a dict of stacked arrays |
 
-To build a full data pipeline with shuffling, batching, and prefetching:
+To build a full data pipeline with shuffling and batching:
 
 ```python
-import datarax
+from datarax import Pipeline
 from flax import nnx
 from artifex.generative_models.modalities.image.datasets import create_image_dataset
 
 source = create_image_dataset(rngs=nnx.Rngs(0), dataset_size=1000)
-pipeline = datarax.from_source(source, batch_size=32)
+pipeline = Pipeline(source=source, stages=[], batch_size=32, rngs=nnx.Rngs(0))
 
 for batch in pipeline:
     images = batch["images"]

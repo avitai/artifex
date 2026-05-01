@@ -58,30 +58,29 @@ All factory functions return a `MemorySource`, so the access patterns above work
 
 ### Pipeline Integration with datarax
 
-To feed a `MemorySource` into a processing pipeline, use `datarax.from_source`:
+To feed a `MemorySource` into a processing pipeline, use `datarax.Pipeline`:
 
 ```python
-import datarax
+from datarax import Pipeline
+from flax import nnx
 
 source = create_image_dataset("synthetic", rngs=rngs, dataset_size=500, height=64, width=64)
 
-pipeline = datarax.from_source(source, batch_size=32)
+pipeline = Pipeline(source=source, stages=[], batch_size=32, rngs=nnx.Rngs(0))
 
 for batch in pipeline:
     images = batch["images"]  # shape: (32, 64, 64, 3)
     # ... train step
 ```
 
-`from_source` accepts additional options:
+`Pipeline` accepts additional options:
 
 ```python
-pipeline = datarax.from_source(
-    source,
+pipeline = Pipeline(
+    source=source,
     batch_size=64,
-    enforce_batch=True,    # guarantee batch-first layout
-    jit_compile=False,     # JIT-compile the pipeline
-    prefetch_size=2,       # prefetch batches ahead
-    device_prefetch=False, # async device transfer
+    stages=[],                 # ordered nnx.Module stages applied per batch
+    rngs=nnx.Rngs(0),          # RNG state for stochastic stages and source
 )
 ```
 
@@ -601,9 +600,10 @@ print(batch["features"].shape)  # (64, 128)
 ### Feeding into a Pipeline
 
 ```python
-import datarax
+from datarax import Pipeline
+from flax import nnx
 
-pipeline = datarax.from_source(source, batch_size=64)
+pipeline = Pipeline(source=source, stages=[], batch_size=64, rngs=nnx.Rngs(0))
 
 for batch in pipeline:
     features = batch["features"]
@@ -615,11 +615,10 @@ for batch in pipeline:
 
 ## Performance Tips
 
-- **Batch size** -- choose a batch size that divides your dataset evenly; `enforce_batch=True` (the default in `from_source`) drops the trailing incomplete batch.
-- **Prefetching** -- set `prefetch_size=2` in `from_source` to overlap data loading with computation.
+- **Batch size** -- choose a batch size that divides your dataset evenly; `Pipeline` always emits fixed-shape batches by reading from the source's stateless `get_batch_at(start, size, key)` interface.
 - **Shuffling** -- enable `shuffle=True` in the factory or `MemorySourceConfig` for training. Disable it for deterministic evaluation.
-- **JIT compilation** -- pass `jit_compile=True` to `from_source` when pipeline transforms are pure JAX operations.
-- **Device transfer** -- set `device_prefetch=True` to asynchronously transfer batches to the accelerator.
+- **JIT compilation** -- `Pipeline.step` is `@nnx.jit`-decorated; for whole-epoch JIT use `pipeline.scan(step_fn, length=n_batches, modules=(model, optimizer))`.
+- **Device transfer** -- use `from datarax.distributed import prefetch_to_device` to asynchronously transfer batches to the accelerator.
 
 ---
 

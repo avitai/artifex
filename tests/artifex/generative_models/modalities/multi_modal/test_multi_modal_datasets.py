@@ -2,7 +2,7 @@
 
 import jax.numpy as jnp
 import pytest
-from datarax import build_source_pipeline
+from datarax import Pipeline
 from datarax.core.data_source import DataSourceModule
 from datarax.sources import MemorySource
 from flax import nnx
@@ -271,8 +271,8 @@ class TestPipelineIntegration:
             image_shape=(8, 8, 3),
             text_sequence_length=5,
         )
-        pipeline = build_source_pipeline(source, batch_size=5)
-        batch = next(iter(pipeline)).get_data()
+        pipeline = Pipeline(source=source, stages=[], batch_size=5, rngs=nnx.Rngs(0))
+        batch = next(iter(pipeline))
 
         assert "image" in batch
         assert batch["image"].shape[0] == 5

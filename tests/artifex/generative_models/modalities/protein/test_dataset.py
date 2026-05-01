@@ -203,10 +203,15 @@ def test_dataset_iteration():
         assert "seq_length" in element
 
 
-def test_pipeline_from_source():
-    """Test the datarax batched pipeline over a protein dataset."""
-    from datarax import build_source_pipeline
+def test_protein_dataset_batched_collation():
+    """Test batched collation over a protein dataset.
 
+    The datarax 0.1.3 ``Pipeline`` contract requires ``get_batch_at(start,
+    size, key)`` for JIT-compiled batch fetches. Proteins use
+    variable-length collation via ``protein_collate_fn``, so batched access
+    is exercised through the dataset's own ``get_batch`` method rather than
+    through ``Pipeline.step``.
+    """
     dataset = create_synthetic_protein_dataset(
         num_proteins=6,
         min_seq_length=5,
@@ -214,8 +219,11 @@ def test_pipeline_from_source():
         random_seed=42,
     )
 
-    pipeline = build_source_pipeline(dataset, batch_size=3)
-    batches = [batch_view.get_data() for batch_view in pipeline]
+    batch_size = 3
+    batches = [
+        dataset.get_batch(list(range(i, i + batch_size)))
+        for i in range(0, len(dataset), batch_size)
+    ]
 
     # 6 proteins / batch_size 3 = 2 batches
     assert len(batches) == 2

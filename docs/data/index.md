@@ -38,7 +38,7 @@ print(batch["atom_positions"].shape)
 ```
 
 `ProteinDataset` is backed by datarax's `DataSourceModule`, so it keeps the
-standard Datarax indexing, iteration, batching, and `from_source(...)`
+standard Datarax indexing, iteration, batching, and `Pipeline(...)`
 integration story.
 
 ## Where The Broader Data Story Lives

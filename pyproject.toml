@@ -32,10 +32,10 @@ classifiers = [
 ]
 dependencies = [
   "blackjax>=1.2.5",
-  "calibrax>=0.1.0",
+  "calibrax>=0.1.1",
   "dacite>=1.8.0",
   "datasets>=2.14.0",
-  "datarax>=0.1.2",
+  "datarax>=0.1.3",
   "distrax>=0.1.7",
   "flax>=0.12.0",
   "grain>=0.1.0",

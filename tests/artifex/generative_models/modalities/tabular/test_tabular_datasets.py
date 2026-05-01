@@ -1,7 +1,7 @@
 """Tests for tabular datasets backed by datarax MemorySource."""
 
 import pytest
-from datarax import build_source_pipeline
+from datarax import Pipeline
 from datarax.core.data_source import DataSourceModule
 from datarax.sources import MemorySource
 from flax import nnx
@@ -177,7 +177,7 @@ class TestTabularPipeline:
 
     def test_batched_pipeline(self, rngs) -> None:
         source, _ = create_simple_tabular_dataset(num_samples=6, rngs=rngs)
-        pipeline = build_source_pipeline(source, batch_size=3)
-        batch = next(iter(pipeline)).get_data()
+        pipeline = Pipeline(source=source, stages=[], batch_size=3, rngs=nnx.Rngs(0))
+        batch = next(iter(pipeline))
         assert "age" in batch
         assert batch["age"].shape[0] == 3

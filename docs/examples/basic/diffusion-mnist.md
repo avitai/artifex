@@ -171,7 +171,7 @@ from artifex.generative_models.training.trainers.diffusion_trainer import (
 )
 
 # DataRax imports for data loading
-from datarax import from_source
+from datarax import Pipeline
 from datarax.sources import from_tfds
 
 print(f"JAX backend: {jax.default_backend()}")
@@ -238,11 +238,11 @@ print(f"📊 MNIST train dataset loaded: {len(train_source)} samples")
 
 ### Create Training Pipeline
 
-DataRax's `from_source` function creates a batched data pipeline:
+DataRax's `Pipeline` builds a batched data pipeline directly from a source:
 
 ```python
-# Create training pipeline with batching and JIT compilation
-train_pipeline = from_source(train_source, batch_size=BATCH_SIZE, jit_compile=True)
+# Create training pipeline with batching (Pipeline.step is @nnx.jit by default)
+train_pipeline = Pipeline(source=train_source, stages=[], batch_size=BATCH_SIZE, rngs=data_rngs)
 
 # Calculate number of batches per epoch
 n_batches = len(train_source) // BATCH_SIZE

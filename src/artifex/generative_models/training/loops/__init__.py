@@ -12,7 +12,7 @@ Two strategies are provided:
 
 2. **Streaming (JIT + prefetch)**: For large datasets that must stream from CPU
    - 5-20x speedup via JIT-compiled steps and prefetch
-   - Works with any data iterator/generator or datarax DAGExecutor pipeline
+   - Works with any data iterator/generator or datarax ``Pipeline``
    - Supports batch-level callbacks
 
 3. **create_data_pipeline**: Convenience function to create a datarax pipeline

@@ -461,9 +461,7 @@ class Trainer:
                 )
                 pipeline = create_data_pipeline(source, batch_size=batch_size)
 
-                for batch_view in pipeline:
-                    batch = batch_view.get_data()
-
+                for batch in pipeline:
                     # Train step
                     metrics = self.train_step(batch)
                     epoch_metrics.append(metrics)
@@ -547,8 +545,7 @@ class Trainer:
         pipeline = create_data_pipeline(source, batch_size=batch_size)
         all_metrics: list[dict[str, Any]] = []
 
-        for batch_view in pipeline:
-            batch = batch_view.get_data()
+        for batch in pipeline:
             self.rng, eval_rng = jax.random.split(self.rng)
             loss, metrics = self.loss_fn(self.model, batch, eval_rng, jnp.array(self.step))
             metrics["loss"] = float(loss)

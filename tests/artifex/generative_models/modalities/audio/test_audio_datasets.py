@@ -2,7 +2,7 @@
 
 import jax.numpy as jnp
 import pytest
-from datarax import build_source_pipeline
+from datarax import Pipeline
 from datarax.core.data_source import DataSourceModule
 from datarax.sources import MemorySource
 from flax import nnx
@@ -122,7 +122,7 @@ class TestAudioPipeline:
         source = create_audio_dataset(
             "synthetic", rngs=rngs, n_samples=6, sample_rate=8000, duration=0.5
         )
-        pipeline = build_source_pipeline(source, batch_size=3)
-        batch = next(iter(pipeline)).get_data()
+        pipeline = Pipeline(source=source, stages=[], batch_size=3, rngs=nnx.Rngs(0))
+        batch = next(iter(pipeline))
         assert "audio" in batch
         assert batch["audio"].shape[0] == 3

@@ -383,11 +383,8 @@ The recommended approach uses the JIT-compatible `DiffusionTrainer` which handle
 import jax
 import jax.numpy as jnp
 import optax
-from datarax import from_source
-from datarax.core.config import ElementOperatorConfig
-from datarax.dag.nodes import OperatorNode
-from datarax.operators import ElementOperator
-from datarax.sources import TfdsDataSourceConfig, TFDSSource
+from datarax import Pipeline
+from datarax.sources import from_tfds
 from flax import nnx
 
 from artifex.generative_models.models.diffusion import DDPMModel
@@ -398,20 +395,29 @@ from artifex.generative_models.training.trainers import (
     DiffusionTrainer, DiffusionTrainingConfig,
 )
 
-# 1. Load Fashion-MNIST with datarax
-def normalize(element, _key):
-    """Normalize images to [-1, 1] for diffusion models."""
-    image = element.data["image"].astype(jnp.float32) / 127.5 - 1.0
-    return element.replace(data={**element.data, "image": image})
 
-source = TFDSSource(
-    TfdsDataSourceConfig(name="fashion_mnist", split="train", shuffle=True),
+# 1. Load Fashion-MNIST with datarax
+class Normalize(nnx.Module):
+    """Normalize images to [-1, 1] for diffusion models."""
+
+    def __call__(self, batch: dict) -> dict:
+        image = batch["image"].astype(jnp.float32) / 127.5 - 1.0
+        return {**batch, "image": image}
+
+
+source = from_tfds(
+    "fashion_mnist",
+    "train",
+    shuffle=True,
+    seed=0,
     rngs=nnx.Rngs(0),
 )
-normalize_op = ElementOperator(
-    ElementOperatorConfig(stochastic=False), fn=normalize, rngs=nnx.Rngs(1)
+pipeline = Pipeline(
+    source=source,
+    stages=[Normalize()],
+    batch_size=64,
+    rngs=nnx.Rngs(1),
 )
-pipeline = from_source(source, batch_size=64) >> OperatorNode(normalize_op)
 
 # 2. Create DDPM model
 config = DDPMConfig(

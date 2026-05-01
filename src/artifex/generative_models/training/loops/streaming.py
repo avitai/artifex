@@ -45,7 +45,7 @@ from typing import Any
 
 import jax
 import jax.numpy as jnp
-from datarax import build_source_pipeline, DAGExecutor
+from datarax import Pipeline
 from datarax.core.data_source import DataSourceModule
 from flax import nnx
 
@@ -92,9 +92,8 @@ def create_data_pipeline(
     source: DataSourceModule,
     batch_size: int = 32,
     *,
-    prefetch_size: int = 2,
-    device_prefetch: bool = False,
-) -> DAGExecutor:
+    rngs: nnx.Rngs | None = None,
+) -> Pipeline:
     """Create a datarax pipeline from a data source.
 
     Convenience function for composing a datarax pipeline suitable for
@@ -107,42 +106,24 @@ def create_data_pipeline(
     Args:
         source: A datarax DataSourceModule (e.g. MemorySource).
         batch_size: Number of samples per batch.
-        prefetch_size: Number of batches to prefetch.
-        device_prefetch: Whether to prefetch batches to the default device.
+        rngs: Optional ``nnx.Rngs`` for stochastic stages and source key
+            advancement. Defaults to ``nnx.Rngs(0)``.
 
     Returns:
-        A DAGExecutor pipeline that yields BatchView objects.
+        A ``Pipeline`` that yields batch dicts on iteration.
     """
-    return build_source_pipeline(
-        source,
+    return Pipeline(
+        source=source,
+        stages=[],
         batch_size=batch_size,
-        prefetch_size=prefetch_size,
-        device_prefetch=device_prefetch,
+        rngs=rngs if rngs is not None else nnx.Rngs(0),
     )
-
-
-def _iter_as_dicts(
-    data_iterator: Iterator[dict[str, Any]] | DAGExecutor,
-) -> Iterator[dict[str, Any]]:
-    """Yield plain dicts from either a dict iterator or a datarax pipeline.
-
-    Args:
-        data_iterator: Iterator yielding batch dicts, or a datarax DAGExecutor pipeline.
-
-    Yields:
-        Batch dicts.
-    """
-    if isinstance(data_iterator, DAGExecutor):
-        for batch_view in data_iterator:
-            yield batch_view.get_data()
-    else:
-        yield from data_iterator
 
 
 def train_epoch_streaming(
     model: nnx.Module,
     optimizer: nnx.Optimizer,
-    data_iterator: Iterator[dict[str, Any]] | DAGExecutor,
+    data_iterator: Iterator[dict[str, Any]] | Pipeline,
     rng: jax.Array,
     loss_fn: LossFn,
     base_step: int = 0,
@@ -151,8 +132,8 @@ def train_epoch_streaming(
 
     This function provides optimized training for large datasets that cannot
     fit in GPU memory. It uses JIT-compiled train steps. Accepts either a
-    plain iterator yielding batch dicts or a datarax ``DAGExecutor`` pipeline
-    (whose BatchView objects are automatically converted via ``get_data()``).
+    plain iterator yielding batch dicts or a datarax ``Pipeline`` (whose
+    iterator yields plain batch dicts directly).
 
     NOTE: For datasets that fit in GPU memory, use train_epoch_staged instead -
     it uses nnx.fori_loop to JIT the entire epoch for 10-50x better performance.
@@ -160,7 +141,7 @@ def train_epoch_streaming(
     Args:
         model: NNX model to train
         optimizer: NNX optimizer
-        data_iterator: Iterator yielding batch dicts, or a datarax DAGExecutor pipeline
+        data_iterator: Iterator yielding batch dicts, or a datarax ``Pipeline``
         rng: Epoch RNG key
         loss_fn: Step-aware objective closure. Signature:
             (model, batch, rng, step) -> (loss, metrics)
@@ -188,7 +169,7 @@ def train_epoch_streaming(
 
     # Python loop is unavoidable for streaming data
     # (iterator protocol is not JAX-traceable)
-    for batch in _iter_as_dicts(data_iterator):
+    for batch in data_iterator:
         rng, step_rng = jax.random.split(rng)
         _loss, metrics = train_step(model, optimizer, batch, step_rng, jnp.array(step))
         if metric_totals is None:

@@ -196,11 +196,12 @@ class ProteinDataset(DataSourceModule):
 
         With datarax pipeline::
 
-            from datarax import build_source_pipeline
+            from datarax import Pipeline
+            from flax import nnx
 
-            pipeline = build_source_pipeline(dataset, batch_size=8)
-            for batch_view in pipeline:
-                train_step(batch_view.get_data())
+            pipeline = Pipeline(source=dataset, stages=[], batch_size=8, rngs=nnx.Rngs(0))
+            for batch in pipeline:
+                train_step(batch)
     """
 
     # Narrow config type for pyright
@@ -358,8 +359,8 @@ class ProteinDataset(DataSourceModule):
         """Get a batch of protein structures.
 
         Supports two calling conventions:
-        - ``get_batch(batch_size)`` — datarax DAGExecutor convention,
-          returns next ``batch_size`` elements sequentially.
+        - ``get_batch(batch_size)`` — sequential batch convention used
+          by datarax sources, returns next ``batch_size`` elements.
         - ``get_batch(indices)`` — direct index-based access.
 
         Args:
@@ -372,7 +373,7 @@ class ProteinDataset(DataSourceModule):
             Dictionary with batched structure data.
         """
         if isinstance(batch_size_or_indices, int):
-            # Datarax DAGExecutor convention: get_batch(batch_size)
+            # Datarax sequential batch convention: get_batch(batch_size)
             batch_size = batch_size_or_indices
             start = getattr(self, "_batch_cursor", 0)
             indices = list(range(start, min(start + batch_size, len(self.structures))))

@@ -146,7 +146,7 @@ import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
 import optax
-from datarax import from_source
+from datarax import Pipeline
 from datarax.sources import from_tfds
 from flax import nnx
 from tqdm import tqdm
@@ -201,7 +201,7 @@ train_source = from_tfds(
     seed=SEED + 1,
     rngs=data_rngs,
 )
-train_pipeline = from_source(train_source, batch_size=BATCH_SIZE, jit_compile=True)
+train_pipeline = Pipeline(source=train_source, stages=[], batch_size=BATCH_SIZE, rngs=data_rngs)
 n_batches = len(train_source) // BATCH_SIZE
 print(f"Train: {len(train_source)} samples, {n_batches} batches per epoch")
 

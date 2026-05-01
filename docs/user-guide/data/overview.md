@@ -510,10 +510,10 @@ sequenceDiagram
 
 ### Creating a Data Pipeline
 
-The recommended way to create batched pipelines is `from_source` from the `datarax` library. It wraps a `MemorySource` into a batched, iterable pipeline:
+The recommended way to create batched pipelines is `Pipeline` from the `datarax` library. It wraps a `MemorySource` into a batched, iterable `nnx.Module`:
 
 ```python
-from datarax import from_source
+from datarax import Pipeline
 from flax import nnx
 from artifex.generative_models.modalities.image.datasets import create_image_dataset
 
@@ -525,7 +525,7 @@ source = create_image_dataset(
 )
 
 # Wrap into a batched pipeline
-pipeline = from_source(source, batch_size=32)
+pipeline = Pipeline(source=source, stages=[], batch_size=32, rngs=nnx.Rngs(0))
 
 for batch in pipeline:
     images = batch["images"]
@@ -674,7 +674,7 @@ config = AudioModalityConfig(
 Here is a complete example showing how to set up a data pipeline for training:
 
 ```python
-from datarax import from_source
+from datarax import Pipeline
 from flax import nnx
 from artifex.generative_models.modalities import ImageModality, ImageModalityConfig, ImageRepresentation
 from artifex.generative_models.modalities.image.datasets import create_image_dataset
@@ -715,8 +715,8 @@ val_source = create_image_dataset(
 
 # Build batched pipelines
 batch_size = 128
-train_pipeline = from_source(train_source, batch_size=batch_size)
-val_pipeline = from_source(val_source, batch_size=batch_size)
+train_pipeline = Pipeline(source=train_source, stages=[], batch_size=batch_size, rngs=nnx.Rngs(0))
+val_pipeline = Pipeline(source=val_source, stages=[], batch_size=batch_size, rngs=nnx.Rngs(1))
 
 # Training loop
 num_epochs = 10
@@ -772,7 +772,7 @@ print(available)  # ['image', 'text', 'audio', 'protein', 'molecular', ...]
     - Use JAX arrays for all numeric data
     - Provide `rngs: nnx.Rngs` for reproducible shuffling and batching
     - Validate data shapes and types
-    - Use `from_source()` for batched iteration in training loops
+    - Use `Pipeline(source=..., stages=[], batch_size=..., rngs=...)` for batched iteration in training loops
 
 !!! danger "DON'T"
     - Use PyTorch or TensorFlow tensors
@@ -822,7 +822,7 @@ Artifex's data system provides:
 
 - **Modality-centric architecture** -- Unified interface for different data types
 - **MemorySource-backed datasets** -- Factory functions return `MemorySource` instances with indexing, iteration, and batching
-- **datarax pipeline integration** -- Use `from_source()` for batched, iterable training pipelines
+- **datarax pipeline integration** -- Use `Pipeline(source=..., stages=[], batch_size=..., rngs=...)` for batched, iterable training pipelines
 - **JAX-native** -- Full JAX compatibility with JIT and GPU support
 - **Preprocessing pipelines** -- Configurable normalization and augmentation
 - **Multi-modal support** -- Native support for aligned multi-modal data

@@ -82,7 +82,7 @@ import numpy as np
 import optax
 
 # DataRax imports for data loading
-from datarax import from_source
+from datarax import Pipeline
 from datarax.sources import from_tfds
 from flax import nnx
 from tqdm import tqdm
@@ -170,8 +170,8 @@ train_source = from_tfds(
 echo()
 echo(f"MNIST train dataset loaded: {len(train_source)} samples")
 
-# Create training pipeline with batching and JIT compilation
-train_pipeline = from_source(train_source, batch_size=BATCH_SIZE, jit_compile=True)
+# Create training pipeline with batching (Pipeline.step is @nnx.jit by default)
+train_pipeline = Pipeline(source=train_source, stages=[], batch_size=BATCH_SIZE, rngs=data_rngs)
 
 # Calculate number of batches per epoch
 n_batches = len(train_source) // BATCH_SIZE
