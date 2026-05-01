@@ -84,7 +84,7 @@ license = {file = "LICENSE"}
 name = "avitai-artifex"
 readme = "README.md"
 requires-python = ">=3.11"
-version = "0.1.0"
+version = "0.1.1"
 
 [project.optional-dependencies]
 # Platform-specific installation:
