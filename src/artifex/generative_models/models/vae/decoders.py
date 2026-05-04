@@ -46,6 +46,7 @@ class MLPDecoder(nnx.Module):
         self.backbone = MLP(
             hidden_dims=decoder_dims,
             activation=config.activation,
+            output_activation=config.activation,
             in_features=latent_dim,
             use_batch_norm=use_batch_norm,
             rngs=rngs,

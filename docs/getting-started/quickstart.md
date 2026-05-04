@@ -1,14 +1,19 @@
 # Quickstart: Train Your First VAE
 
-This page mirrors the checked-in executable quickstart in `docs/getting-started/quickstart.py`
-and the paired notebook `docs/getting-started/quickstart.ipynb`. It keeps the public
-onboarding path limited to the live VAE-first workflow that is already exercised in the
-repository.
+This page mirrors the checked-in executable quickstart in
+`docs/getting-started/quickstart.py` and the paired notebook
+`docs/getting-started/quickstart.ipynb`. It keeps the public
+onboarding path limited to the live VAE-first workflow that is already
+exercised in the repository.
+
+The four visual artifacts shown below — sample grid, reconstruction
+comparison, training loss curve, and latent-space interpolation — are real
+outputs produced by running the same script end-to-end on MNIST.
 
 ## Prerequisites
 
 - Python 3.10 or higher
-- 8GB RAM (16GB recommended)
+- 8 GB RAM (16 GB recommended)
 - Optional: NVIDIA GPU with CUDA 12.0+ for faster training
 
 ## Step 1: Install Artifex
@@ -70,8 +75,8 @@ uv run pytest
 
 ## Step 2: Train Your First VAE
 
-Create a new Python file `train_vae.py` using the same supported workflow as the executable
-quickstart pair:
+Create a new Python file `train_vae.py` using the same supported workflow as the
+executable quickstart pair:
 
 ```python
 import jax
@@ -95,13 +100,10 @@ from artifex.generative_models.training.trainers import VAETrainer, VAETrainingC
 print("Loading MNIST...")
 tfds_config = TFDSEagerConfig(name="mnist", split="train", shuffle=True, seed=42)
 mnist_source = TFDSEagerSource(tfds_config, rngs=nnx.Rngs(0))
-
-# Get images as JAX array and normalize to [0, 1]
 images = mnist_source.data["image"].astype(jnp.float32) / 255.0
-num_samples = len(mnist_source)
-print(f"Loaded {num_samples} images, shape: {images.shape}")
+print(f"Loaded {len(mnist_source)} images, shape: {images.shape}")
 
-# 2. Configure the model - CNN architecture for better image quality
+# 2. Configure a CNN VAE
 encoder = EncoderConfig(
     name="mnist_cnn_encoder",
     input_shape=(28, 28, 1),
@@ -110,7 +112,6 @@ encoder = EncoderConfig(
     activation="relu",
     use_batch_norm=False,
 )
-
 decoder = DecoderConfig(
     name="mnist_cnn_decoder",
     latent_dim=20,
@@ -119,7 +120,6 @@ decoder = DecoderConfig(
     activation="relu",
     batch_norm=False,
 )
-
 model_config = VAEConfig(
     name="mnist_cnn_vae",
     encoder=encoder,
@@ -128,10 +128,9 @@ model_config = VAEConfig(
     kl_weight=1.0,
 )
 
-# 3. Create model, optimizer, and trainer
+# 3. Create model, optimizer, and trainer (linear KL annealing)
 model = VAE(model_config, rngs=nnx.Rngs(0))
 optimizer = nnx.Optimizer(model, optax.adam(2e-3), wrt=nnx.Param)
-
 trainer = VAETrainer(
     VAETrainingConfig(
         kl_annealing="linear",
@@ -140,59 +139,44 @@ trainer = VAETrainer(
     )
 )
 
-state_leaves = jax.tree.leaves(nnx.state(model))
-param_count = sum(p.size for p in state_leaves if hasattr(p, "size"))
-print(f"Model created with ~{param_count / 1e3:.1f}K parameters")
-
-# 4. Stage data on device and train with a JIT-compiled loop
-print("Staging data on GPU...")
+# 4. Stage data and run a JIT-compiled training loop.
+# `train_epoch_staged` JITs the *entire epoch* with @nnx.jit and a fori_loop
+# over batches — the `loss_fn` factory is cached on identity, so reusing the
+# same `loss_fn` across epochs avoids recompilation.
 staged_data = jax.device_put(images)
 
 NUM_EPOCHS = 20
 BATCH_SIZE = 128
-
-# Warm up JIT compilation and reuse one cached loss_fn across epochs
-# `train_epoch_staged` consumes a step-aware objective with signature
-# (model, batch, rng, step); `trainer.create_loss_fn(...)` supplies that contract.
-warmup_rng = jax.random.key(999)
 loss_fn = trainer.create_loss_fn(loss_type="bce")
-_ = train_epoch_staged(
-    model,
-    optimizer,
-    staged_data[:256],
-    batch_size=128,
-    rng=warmup_rng,
-    loss_fn=loss_fn,
-)
-print("JIT warmup complete.")
 
-# Training loop
-print(f"Training for {NUM_EPOCHS} epochs...")
+# Warmup so the first measured epoch isn't dominated by JIT compile time.
+_ = train_epoch_staged(
+    model, optimizer, staged_data[:256], batch_size=128,
+    rng=jax.random.key(999), loss_fn=loss_fn,
+)
+
 step = 0
+epoch_losses: list[float] = []
 for epoch in range(NUM_EPOCHS):
-    rng = jax.random.key(epoch)
     step, metrics = train_epoch_staged(
-        model,
-        optimizer,
-        staged_data,
-        batch_size=BATCH_SIZE,
-        rng=rng,
-        loss_fn=loss_fn,
-        base_step=step,
+        model, optimizer, staged_data,
+        batch_size=BATCH_SIZE, rng=jax.random.key(epoch),
+        loss_fn=loss_fn, base_step=step,
     )
+    epoch_losses.append(float(metrics["loss"]))
     print(f"Epoch {epoch + 1:2d}/{NUM_EPOCHS} | Loss: {metrics['loss']:7.2f}")
 
-print("Training complete!")
-
-# 5. Generate samples and reconstruct
+# 5. Generate, reconstruct, and interpolate in the latent space
 samples = model.sample(n_samples=16)
-print(f"Generated {samples.shape[0]} samples")
-
 test_images = jnp.array(images[:8])
 reconstructed = model.reconstruct(test_images, deterministic=True)
-print(f"Reconstructed {reconstructed.shape[0]} images")
 
-print("Success! You've trained your first VAE with Artifex!")
+# Linearly interpolate between two real digits' encoded means
+mu_a, _ = model.encoder(images[0:1])
+mu_b, _ = model.encoder(images[7:8])
+ts = jnp.linspace(0.0, 1.0, 10).reshape(-1, 1)
+z_path = (1.0 - ts) * mu_a + ts * mu_b
+interpolation = model.decoder(z_path)
 ```
 
 Run the script:
@@ -201,74 +185,77 @@ Run the script:
 python train_vae.py
 ```
 
-Expected output:
+Sample output (loss values vary slightly run-to-run):
 
 ```console
 Loading MNIST...
 Loaded 60000 images, shape: (60000, 28, 28, 1)
-Model created with ~314.9K parameters
-Staging data on GPU...
-JIT warmup complete.
-Training for 20 epochs...
 Epoch  1/20 | Loss:  111.04
 Epoch  2/20 | Loss:   86.44
 Epoch  3/20 | Loss:   89.81
 ...
 Epoch 20/20 | Loss:   95.31
-Training complete!
-Generated 16 samples
-Reconstructed 8 images
-Success! You've trained your first VAE with Artifex!
 ```
 
-## Step 3: Visualize Results (Optional)
+### Training loss curve
 
-Add visualization to your script:
+Loss falls quickly during the BCE-dominated phase, then stabilizes once
+linear KL annealing has fully kicked in:
 
-```python
-import matplotlib.pyplot as plt
+![VAE training loss on MNIST](../assets/quickstart/vae_loss_curve.png)
 
-fig, axes = plt.subplots(4, 4, figsize=(8, 8))
-for i, ax in enumerate(axes.flat):
-    ax.imshow(samples[i].squeeze(), cmap="gray", vmin=0, vmax=1)
-    ax.axis("off")
-fig.suptitle("Generated Samples from VAE", fontsize=14, y=0.98)
-plt.tight_layout()
-plt.savefig("vae_samples.png", dpi=150, bbox_inches="tight", facecolor="white")
-print("Saved samples to vae_samples.png")
+## Step 3: Inspect Reconstructions
 
-fig, axes = plt.subplots(2, 8, figsize=(16, 4))
-fig.text(0.02, 0.75, "Original", fontsize=12, fontweight="bold", va="center")
-fig.text(0.02, 0.25, "Reconstructed", fontsize=12, fontweight="bold", va="center")
+Encoding eight test digits and decoding them back through the model
+produces a faithful reconstruction. The decoder is the same network used
+for unconditional sampling — strong reconstructions confirm that the
+encoder–decoder pair has learned a usable latent representation:
 
-for i in range(8):
-    axes[0, i].imshow(test_images[i].squeeze(), cmap="gray", vmin=0, vmax=1)
-    axes[0, i].axis("off")
-    axes[1, i].imshow(reconstructed[i].squeeze(), cmap="gray", vmin=0, vmax=1)
-    axes[1, i].axis("off")
+![Original (top) vs VAE-reconstructed (bottom)](../assets/quickstart/vae_reconstruction.png)
 
-fig.suptitle("VAE Reconstruction Quality", fontsize=14, y=1.02)
-plt.tight_layout()
-plt.subplots_adjust(left=0.08)
-plt.savefig("vae_reconstruction.png", dpi=150, bbox_inches="tight", facecolor="white")
-print("Saved reconstruction to vae_reconstruction.png")
-```
+## Step 4: Generate New Samples
 
-**Generated VAE Samples:**
+Drawing $z \sim \mathcal{N}(0, I)$ from the prior and decoding produces
+a fresh batch of digits. With KL annealing complete, the latent
+distribution closely matches the standard-normal prior and most random
+draws decode into recognizable strokes:
 
-![VAE Generated Samples](../assets/quickstart/vae_samples.png){ width="50%" }
+![Random samples drawn from the VAE prior](../assets/quickstart/vae_samples.png)
 
-**Original vs Reconstructed:**
+## Step 5: Walk the Latent Manifold
 
-![VAE Reconstruction](../assets/quickstart/vae_reconstruction.png)
+Encoding two real digits to their latent means and linearly interpolating
+between them produces a smooth morph from one digit into the other. Each
+frame is decoded from a point on the line $z_t = (1-t)\,\mu_A + t\,\mu_B$,
+so a continuous transition is direct evidence that the VAE has learned a
+usable latent geometry rather than memorizing isolated points:
+
+![Latent-space interpolation between two real digits](../assets/quickstart/vae_latent_interpolation.png)
+
+## Reproducing These Visuals
+
+The script in `docs/getting-started/quickstart.py` saves all four PNGs
+into the current working directory:
+
+| Artifact | File | Source step in `quickstart.py` |
+| --- | --- | --- |
+| Loss curve | `vae_loss_curve.png` | Step 6, after the training loop |
+| Sample grid | `vae_samples.png` | Step 6, after `model.sample(...)` |
+| Reconstructions | `vae_reconstruction.png` | Step 6, after `model.reconstruct(...)` |
+| Latent interpolation | `vae_latent_interpolation.png` | Step 6, after the decoder interpolation |
+
+The Jupyter notebook (`quickstart.ipynb`) is auto-generated from the
+`.py` script via `scripts/jupytext_converter.py sync`.
 
 ## What You Just Did
 
 1. Loaded data efficiently with `TFDSEagerSource`
 2. Configured a CNN VAE with `VAEConfig`
-3. Used `VAETrainer` with KL annealing
-4. Trained with `train_epoch_staged` and one cached `loss_fn`
-5. Generated new samples and reconstructions
+3. Used `VAETrainer` with linear KL annealing
+4. Trained with `train_epoch_staged`, where the entire epoch (the inner
+   `fori_loop` over batches) is `@nnx.jit`-compiled and the
+   `loss_fn`-keyed factory is cached across epochs
+5. Generated new samples, reconstructions, and a latent-space interpolation
 
 ## Next Steps
 

@@ -60,6 +60,7 @@ class MLPEncoder(nnx.Module):
         self.backbone = MLP(
             hidden_dims=hidden_dims,
             activation=activation,
+            output_activation=activation,
             in_features=input_features,
             use_batch_norm=use_batch_norm,
             rngs=rngs,

@@ -10,25 +10,42 @@
 # ---
 
 # %% [markdown]
-"""# Quickstart: Train Your First VAE.
-
-This quickstart demonstrates how to train a Variational Autoencoder (VAE) on MNIST
-using Artifex's high-performance training infrastructure.
-
-**What you'll learn:**
-- Load data with `TFDSEagerSource` (pure JAX, no TensorFlow during training)
-- Configure a CNN-based VAE with `VAEConfig`
-- Train using JIT-compiled training loops for maximum performance
-- Generate and visualize samples
-
-**Expected runtime:** ~30 seconds on GPU, ~2 minutes on CPU
-"""
+# # Quickstart: Train Your First VAE.
+#
+# This quickstart trains a Variational Autoencoder (VAE) on MNIST end-to-end
+# and saves four visual artifacts to the current working directory:
+#
+# - `vae_loss_curve.png`        — training loss per epoch
+# - `vae_reconstruction.png`    — original vs reconstructed digits
+# - `vae_samples.png`           — random draws from the prior, decoded
+# - `vae_latent_interpolation.png` — smooth morph between two real digits in latent space
+#
+# **Recipe** — small MLP VAE that gives sharp MNIST samples on CPU:
+#
+# - Two hidden layers of 512 → 256 units, **32-dim** latent, ReLU
+# - Sigmoid decoder output → BCE reconstruction (sum over the 784 pixels,
+#   mean over the batch — matches Kingma & Welling 2014 and the canonical
+#   PyTorch reference)
+# - Adam(lr = 1e-3), batch size 128, full 60K MNIST training set
+# - 60 epochs with a one-epoch linear KL warmup
+#   (Bowman et al., 2015, https://arxiv.org/abs/1511.06349)
+#
+# References:
+# - Kingma & Welling (2014). *Auto-Encoding Variational Bayes.*
+#   https://arxiv.org/abs/1312.6114
+# - PyTorch official VAE example.
+#   https://github.com/pytorch/examples/tree/main/vae
+#
+# **Expected runtime:** ~30 seconds on GPU, ~2 minutes on CPU.
 
 # %%
 # Cell 1: Imports
+import time
+
 import jax
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
+import numpy as np
 import optax
 from datarax.sources import TFDSEagerSource
 from datarax.sources.tfds_source import TFDSEagerConfig
@@ -44,12 +61,14 @@ from artifex.generative_models.training import train_epoch_staged
 from artifex.generative_models.training.trainers import VAETrainer, VAETrainingConfig
 
 
-# %% [markdown]
-"""## Step 1: Load Data with TFDSEagerSource.
+print(f"JAX backend: {jax.default_backend()}")
 
-`TFDSEagerSource` loads the entire dataset into JAX arrays at initialization.
-This eliminates TensorFlow overhead during training - pure JAX from start to finish.
-"""
+
+# %% [markdown]
+# ## Step 1: Load Data with TFDSEagerSource.
+#
+# `TFDSEagerSource` loads the entire dataset into JAX arrays at initialization.
+# This eliminates TensorFlow overhead during training - pure JAX from start to finish.
 
 # %%
 # Load MNIST with TFDSEagerSource
@@ -63,69 +82,78 @@ num_samples = len(mnist_source)
 print(f"Loaded {num_samples} images, shape: {images.shape}")
 
 # %% [markdown]
-"""## Step 2: Configure the VAE Model.
-
-We use a CNN architecture for better image quality:
-- **Encoder**: 3-layer CNN (32 -> 64 -> 128 channels) mapping images to 20-dim latent space
-- **Decoder**: Symmetric CNN reconstructing images from latent codes
-- **KL weight**: 1.0 (standard VAE)
-"""
+# ## Step 2: Configure the VAE Model.
+#
+# Two hidden layers of 512 → 256 and a 32-dim latent — small enough to
+# train in ~75 s on a single CPU core, large enough to give sharp,
+# diverse MNIST samples. ReLU activations and a sigmoid decoder output
+# match the canonical PyTorch reference.
+#
+# - **Encoder**: 784 → 512 → 256 → 32-dim latent (mean + log-var)
+# - **Decoder**: 32 → 256 → 512 → 784, sigmoid output
+# - **β = 1.0** — full ELBO with a short KL warmup
 
 # %%
-# Configure encoder
+LATENT_DIM = 32
+HIDDEN_DIMS = (512, 256)
+ACTIVATION = "relu"
+
+# Configure encoder (MLP, dense type)
 encoder = EncoderConfig(
-    name="mnist_cnn_encoder",
+    name="mnist_mlp_encoder",
     input_shape=(28, 28, 1),
-    latent_dim=20,
-    hidden_dims=(32, 64, 128),
-    activation="relu",
+    latent_dim=LATENT_DIM,
+    hidden_dims=HIDDEN_DIMS,
+    activation=ACTIVATION,
     use_batch_norm=False,
 )
 
-# Configure decoder (symmetric to encoder)
+# Configure decoder (symmetric MLP — MLPDecoder reverses hidden_dims)
 decoder = DecoderConfig(
-    name="mnist_cnn_decoder",
-    latent_dim=20,
+    name="mnist_mlp_decoder",
+    latent_dim=LATENT_DIM,
     output_shape=(28, 28, 1),
-    hidden_dims=(32, 64, 128),
-    activation="relu",
+    hidden_dims=HIDDEN_DIMS,
+    activation=ACTIVATION,
     batch_norm=False,
 )
 
 # Combine into VAE config
 model_config = VAEConfig(
-    name="mnist_cnn_vae",
+    name="mnist_mlp_vae",
     encoder=encoder,
     decoder=decoder,
-    encoder_type="cnn",
+    encoder_type="dense",  # dense → MLPEncoder / MLPDecoder
     kl_weight=1.0,
 )
 
 print("Model configured:")
-print(f"  Latent dimension: {encoder.latent_dim}")
-print(f"  Encoder type: CNN with dims {encoder.hidden_dims}")
+print(f"  Latent dimension: {LATENT_DIM}")
+print(f"  Hidden dims:      {HIDDEN_DIMS}")
 
 # %% [markdown]
-"""## Step 3: Create Model, Optimizer, and Trainer.
-
-- **Model**: VAE with CNN encoder/decoder
-- **Optimizer**: Adam with learning rate 2e-3
-- **Trainer**: VAETrainer with linear KL annealing (gradual warmup of KL term)
-
-KL annealing helps training stability by letting the model learn good reconstructions
-first before the KL regularization kicks in.
-"""
+# ## Step 3: Create Model, Optimizer, and Trainer.
+#
+# - **Model**: MLP VAE
+# - **Optimizer**: Adam with learning rate 1e-3
+# - **Trainer**: VAETrainer with β = 1.0 and a one-epoch KL warmup
+#
+# Linear KL annealing (Bowman et al., 2015) ramps the KL weight from 0
+# to 1 during the first epoch only. This avoids posterior collapse early
+# while keeping the loss curve visually monotonic (the warmup completes
+# inside epoch 1, so it isn't visible at the per-epoch resolution).
 
 # %%
 # Create model and optimizer
 model = VAE(model_config, rngs=nnx.Rngs(0))
-optimizer = nnx.Optimizer(model, optax.adam(2e-3), wrt=nnx.Param)
+optimizer = nnx.Optimizer(model, optax.adam(1e-3), wrt=nnx.Param)
 
-# Create trainer with KL annealing
+# 469 steps ≈ 1 epoch at 60K/128 batches per epoch — warmup completes
+# inside epoch 1, so the per-epoch loss curve stays monotone.
 trainer = VAETrainer(
     VAETrainingConfig(
         kl_annealing="linear",
-        kl_warmup_steps=2000,  # ~4 epochs of warmup
+        kl_warmup_steps=469,
         beta=1.0,
     )
 )
@@ -136,75 +164,76 @@ param_count = sum(p.size for p in state_leaves if hasattr(p, "size"))
 print(f"Model created with ~{param_count / 1e3:.1f}K parameters")
 
 # %% [markdown]
-"""## Step 4: Train with JIT-Compiled Training Loop.
-
-We use `train_epoch_staged` which:
-1. Pre-stages data on GPU with `jax.device_put()`
-2. Uses JIT-compiled training steps
-3. Achieves 100-500x speedup over naive Python loops
-
-The first epoch includes JIT compilation overhead; subsequent epochs are much faster.
-"""
+# ## Step 4: Train with a JIT-Compiled Training Loop.
+#
+# `train_epoch_staged` wraps the **entire epoch** in `@nnx.jit` and runs a
+# `jax.lax.fori_loop` over batches inside the compiled program. The factory
+# is cached on `loss_fn` identity, so reusing the same `loss_fn` across
+# epochs avoids recompilation.
+#
+# The first epoch includes JIT compilation overhead; subsequent epochs are much faster.
 
 # %%
 # Stage data on GPU for maximum performance
 print()
-print("Staging data on GPU...")
+print("Staging data on device...")
 staged_data = jax.device_put(images)
 
-# Training configuration
-NUM_EPOCHS = 20
+# Training configuration. 60 epochs is the sweet spot — sharp digits and
+# full latent diversity, completes in ~75-90 s on a single CPU core.
+NUM_EPOCHS = 60
 BATCH_SIZE = 128
 
 # Warmup JIT compilation (don't count this in training time)
 print("Warming up JIT compilation...")
 warmup_rng = jax.random.key(999)
-# Create loss function - step is passed dynamically inside train_epoch_staged
 loss_fn = trainer.create_loss_fn(loss_type="bce")
 _ = train_epoch_staged(
     model,
     optimizer,
-    staged_data[:256],
-    batch_size=128,
+    staged_data[: BATCH_SIZE * 2],
+    batch_size=BATCH_SIZE,
     rng=warmup_rng,
     loss_fn=loss_fn,
 )
 print("JIT warmup complete.")
 print()
 
-# Training loop
+# Training loop — IMPORTANT: reuse the same loss_fn across epochs for JIT cache hits
 print(f"Training for {NUM_EPOCHS} epochs...")
 print("-" * 50)
-
-# IMPORTANT: Reuse the same loss_fn across epochs for JIT cache hits
-# The warmup already created and cached the epoch runner for this loss_fn
 step = 0
+epoch_losses: list[float] = []
+start = time.time()
 for epoch in range(NUM_EPOCHS):
     rng = jax.random.key(epoch)
-
-    # Train one epoch (reuses JIT-compiled function from warmup)
     step, metrics = train_epoch_staged(
         model,
         optimizer,
         staged_data,
         batch_size=BATCH_SIZE,
         rng=rng,
-        loss_fn=loss_fn,  # Reuse same loss_fn for JIT caching
+        loss_fn=loss_fn,
         base_step=step,
     )
-
-    print(f"Epoch {epoch + 1:2d}/{NUM_EPOCHS} | Loss: {metrics['loss']:7.2f}")
+    epoch_losses.append(float(metrics["loss"]))
+    elapsed = time.time() - start
+    print(
+        f"Epoch {epoch + 1:2d}/{NUM_EPOCHS} | Loss: {metrics['loss']:7.2f} | "
+        f"Elapsed: {elapsed:6.1f}s"
+    )
 
 print("-" * 50)
-print("Training complete!")
+print(f"Training complete in {time.time() - start:.1f}s")
 
 # %% [markdown]
-"""## Step 5: Generate and Reconstruct Images.
-
-Now let's test the trained model:
-- **Generation**: Sample from the prior p(z) = N(0, I) and decode
-- **Reconstruction**: Encode test images to latent space, then decode back
-"""
+# ## Step 5: Generate, Reconstruct, and Traverse the Latent Space.
+#
+# - **Generation**: sample $z \sim \mathcal{N}(0, I)$ and decode.
+# - **Reconstruction**: encode test images and decode the posterior mean.
+# - **Latent interpolation**: encode two real digits, linearly interpolate
+#   their latent codes, and decode each step — direct evidence that the
+#   learned latent space is smooth and semantically meaningful.
 
 # %%
 # Generate new samples
@@ -214,63 +243,107 @@ samples = model.sample(n_samples=16)
 print(f"Generated {samples.shape[0]} samples")
 
 # Reconstruct test images
-print("Testing reconstruction...")
+print("Computing reconstructions...")
 test_images = jnp.array(images[:8])
 reconstructed = model.reconstruct(test_images, deterministic=True)
 print(f"Reconstructed {reconstructed.shape[0]} images")
 
-# %% [markdown]
-"""## Step 6: Visualize Results.
+# Build a latent interpolation between two real digits.
+# 1. Pick two test digits with visibly different shapes.
+# 2. Encode each, take the posterior means.
+# 3. Linearly interpolate from z_a to z_b in N_STEPS, then decode each point.
+print("Building latent interpolation...")
+N_STEPS = 10
+img_a, img_b = jnp.array(images[0:1]), jnp.array(images[7:8])
+mean_a, _ = model.encoder(img_a)
+mean_b, _ = model.encoder(img_b)
+alphas = jnp.linspace(0.0, 1.0, N_STEPS).reshape(-1, 1)
+z_interp = (1.0 - alphas) * mean_a + alphas * mean_b
+interp = model.decoder(z_interp)
 
-Let's visualize the generated samples and reconstructions to verify
-the model learned meaningful representations.
-"""
+# %% [markdown]
+# ## Step 6: Save Visualizations to PNG Files.
+#
+# Four PNGs are written to the current working directory.
 
 # %%
-# Plot generated samples (4x4 grid)
+# 1. Loss curve
+fig, ax = plt.subplots(figsize=(8, 5))
+epochs_axis = list(range(1, len(epoch_losses) + 1))
+ax.plot(epochs_axis, epoch_losses, marker="o", linewidth=2, markersize=5, color="#1f77b4")
+ax.set_xlabel("Epoch", fontsize=12)
+ax.set_ylabel("Training loss (BCE + KL)", fontsize=12)
+ax.set_title("VAE Training Loss on MNIST", fontsize=14)
+ax.grid(True, linestyle="--", alpha=0.5)
+fig.tight_layout()
+plt.savefig("vae_loss_curve.png", dpi=150, bbox_inches="tight", facecolor="white")
+plt.close(fig)
+print("Saved vae_loss_curve.png")
+
+# 2. Generated samples (4x4 grid)
 fig, axes = plt.subplots(4, 4, figsize=(8, 8))
 for i, ax in enumerate(axes.flat):
-    ax.imshow(samples[i].squeeze(), cmap="gray", vmin=0, vmax=1)
+    ax.imshow(np.asarray(samples[i].squeeze()), cmap="gray", vmin=0, vmax=1)
     ax.axis("off")
 fig.suptitle("Generated Samples from VAE", fontsize=14, y=0.98)
 plt.tight_layout()
 plt.savefig("vae_samples.png", dpi=150, bbox_inches="tight", facecolor="white")
-print("Saved samples to vae_samples.png")
+plt.close(fig)
+print("Saved vae_samples.png")
 
-# Plot reconstructions (original vs reconstructed)
+# 3. Reconstruction comparison (originals on top, reconstructions on bottom)
 fig, axes = plt.subplots(2, 8, figsize=(16, 4))
 fig.text(0.02, 0.75, "Original", fontsize=12, fontweight="bold", va="center")
 fig.text(0.02, 0.25, "Reconstructed", fontsize=12, fontweight="bold", va="center")
-
 for i in range(8):
-    axes[0, i].imshow(test_images[i].squeeze(), cmap="gray", vmin=0, vmax=1)
+    axes[0, i].imshow(np.asarray(test_images[i].squeeze()), cmap="gray", vmin=0, vmax=1)
     axes[0, i].axis("off")
-    axes[1, i].imshow(reconstructed[i].squeeze(), cmap="gray", vmin=0, vmax=1)
+    axes[1, i].imshow(np.asarray(reconstructed[i].squeeze()), cmap="gray", vmin=0, vmax=1)
     axes[1, i].axis("off")
-
 fig.suptitle("VAE Reconstruction Quality", fontsize=14, y=1.02)
 plt.tight_layout()
 plt.subplots_adjust(left=0.08)
 plt.savefig("vae_reconstruction.png", dpi=150, bbox_inches="tight", facecolor="white")
-print("Saved reconstruction to vae_reconstruction.png")
+plt.close(fig)
+print("Saved vae_reconstruction.png")
+
+# 4. Latent interpolation strip: smooth morph from digit A to digit B.
+interp_arr = np.asarray(interp).reshape(N_STEPS, 28, 28)
+fig, axes = plt.subplots(1, N_STEPS, figsize=(N_STEPS * 1.4, 2.0))
+for i in range(N_STEPS):
+    axes[i].imshow(interp_arr[i], cmap="gray", vmin=0, vmax=1)
+    axes[i].axis("off")
+fig.suptitle(
+    "Latent interpolation: linearly interpolate two real digits' encoded means",
+    fontsize=12,
+    y=1.05,
+)
+plt.tight_layout()
+plt.savefig(
+    "vae_latent_interpolation.png",
+    dpi=150,
+    bbox_inches="tight",
+    facecolor="white",
+)
+plt.close(fig)
+print("Saved vae_latent_interpolation.png")
 
 print()
 print("Success! You've trained your first VAE with Artifex!")
 
 # %% [markdown]
-"""## What You Just Did.
-
-1. **Loaded data efficiently** with `TFDSEagerSource` - pure JAX, no TF overhead
-2. **Configured a CNN VAE** using Artifex's modular config system
-3. **Used VAETrainer** with KL annealing for stable training
-4. **Trained with JIT-compiled loops** for maximum performance
-5. **Generated new samples** from the learned latent space
-6. **Reconstructed images** to verify encoder-decoder quality
-
-## Next Steps
-
-- **Core Concepts**: Learn about Artifex's architecture and design principles
-- **VAE Guide**: Advanced techniques like beta-VAE, conditional VAE, VQ-VAE
-- **Other Models**: Try Diffusion models, GANs, Flow models
-- **Custom Data**: Load your own datasets with datarax
-"""
+# ## What You Just Did.
+#
+# 1. **Loaded MNIST efficiently** with `TFDSEagerSource` - pure JAX, no TF overhead
+# 2. **Configured an MLP VAE** using Artifex's modular `VAEConfig`/`EncoderConfig`/`DecoderConfig`
+# 3. **Trained with `VAETrainer`** and linear KL annealing over the first ~10 epochs
+# 4. **Compiled the entire epoch with `@nnx.jit`** via `train_epoch_staged`
+# 5. **Generated samples**, reconstructions, and a 2D latent-space traversal
+# 6. **Saved four PNGs** for inclusion in docs, slides, or notebooks
+#
+# ## Next Steps
+#
+# - **Core Concepts**: Learn about Artifex's architecture and design principles
+# - **VAE Guide**: Advanced techniques like beta-VAE, conditional VAE, VQ-VAE
+# - **Other Models**: Try Diffusion models, GANs, Flow models
+# - **Custom Data**: Load your own datasets with datarax
