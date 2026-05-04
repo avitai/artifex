@@ -61,7 +61,6 @@ theme:
     text: Roboto
     code: Roboto Mono
 
-  favicon: "_static/favicon.png"
   custom_dir: "docs/_overrides"
 
 # Extra configuration
@@ -86,6 +85,7 @@ nav:
 
   - User Guide:
       - Concepts:
+          - Generative Models — A Unified View: user-guide/concepts/generative-models-unified.md
           - VAE Explained: user-guide/concepts/vae-explained.md
           - GAN Explained: user-guide/concepts/gan-explained.md
           - Diffusion Explained: user-guide/concepts/diffusion-explained.md
@@ -703,7 +703,6 @@ plugins:
         - "*.ipynb"
         - "__pycache__"
         - "CNAME"  # Excluded: workflow creates it at correct location
-  - ipynb
   - mkdocstrings:
       handlers:
         python:

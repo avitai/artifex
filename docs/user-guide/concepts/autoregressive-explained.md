@@ -30,9 +30,12 @@
 
 ---
 
+!!! tip "New here?"
+    For a one-page map of how autoregressive models fit next to VAEs, GANs, Diffusion, Flows, and EBMs, start with [**Generative Models — A Unified View**](generative-models-unified.md). This page is the deep-dive on autoregressive models specifically.
+
 ## Overview
 
-Autoregressive models are a fundamental class of **generative models** that decompose the joint probability distribution into a product of conditional distributions using the **chain rule of probability**. They generate data **sequentially**, predicting each element conditioned on all previously generated elements.
+Autoregressive models, formalised in the early neural-language-model literature ([Bengio et al., 2003 — JMLR](https://www.jmlr.org/papers/v3/bengio03a.html)), are a fundamental class of **generative models** that decompose the joint probability distribution into a product of conditional distributions using the **chain rule of probability**. They generate data **sequentially**, predicting each element conditioned on all previously generated elements. The 2017 Transformer ([Vaswani et al., 2017](https://arxiv.org/abs/1706.03762)) and the GPT family ([Radford et al., 2018](https://cdn.openai.com/research-covers/language-unsupervised/language_understanding_paper.pdf); [Brown et al., 2020 — GPT-3](https://arxiv.org/abs/2005.14165)) made autoregressive Transformers the dominant generative-model paradigm of the 2020s, and the 2024–2026 wave (DeepSeek-V3, o1/R1 reasoning, Mamba-2, multi-token prediction, VAR / MAR for images) has fundamentally reshaped what an "autoregressive model" looks like — see [Recent Advances (2024–2026)](#recent-advances-20242026-mixture-of-experts-state-space-and-test-time-reasoning) below.
 
 **What makes autoregressive models special?**
 
@@ -81,7 +84,7 @@ $$
 where $\theta$ are learnable parameters and $x_{<i} = (x_1, \ldots, x_{i-1})$ denotes all previous elements.
 
 ```mermaid
-graph LR
+graph TD
     X1["x₁"] --> P1["p(x₁)"]
     X1 --> P2["p(x₂|x₁)"]
     X2["x₂"] --> P2
@@ -246,7 +249,7 @@ class AutoregressiveRNN(nnx.Module):
 
 ### 2. Masked Convolutional Networks (PixelCNN)
 
-**PixelCNN** (van den Oord et al., 2016) uses **masked convolutions** for autoregressive image generation:
+**PixelCNN** ([van den Oord, Kalchbrenner & Kavukcuoglu, 2016 — ICML](https://arxiv.org/abs/1601.06759); [Gated PixelCNN — van den Oord et al., 2016](https://arxiv.org/abs/1606.05328)) uses **masked convolutions** for autoregressive image generation:
 
 **Key idea**: Apply convolution with a **spatial mask** ensuring pixel $(i,j)$ only depends on pixels above and to the left.
 
@@ -319,7 +322,7 @@ graph TB
 
 ### 3. Transformer-Based Autoregressive Models
 
-**Transformers** (Vaswani et al., 2017) use **self-attention with causal masking** for autoregressive modeling:
+**Transformers** ([Vaswani et al., 2017 — NeurIPS](https://arxiv.org/abs/1706.03762)) use **self-attention with causal masking** for autoregressive modeling:
 
 **Self-Attention**:
 
@@ -393,7 +396,7 @@ class CausalSelfAttention(nnx.Module):
 
 - **Parallel training**: All positions computed simultaneously
 - **Long-range dependencies**: Direct connections via attention
-- **Scalability**: Powers models with billions of parameters (GPT-3: 175B, GPT-4: ~1.7T)
+- **Scalability**: Powers models with billions of parameters — GPT-3 (175B, [Brown et al., 2020](https://arxiv.org/abs/2005.14165)), DeepSeek-V3 (671B sparse / 37B active, [DeepSeek-AI, 2024](https://arxiv.org/abs/2412.19437)), Llama-3 (405B, [Meta, 2024](https://arxiv.org/abs/2407.21783)). GPT-4-class models are reportedly ~1.7T-parameter MoE but are closed-weights.
 - **State-of-the-art**: Best performance on text, competitive on images (GPT-style AR models)
 
 **Disadvantages**:
@@ -406,7 +409,7 @@ class CausalSelfAttention(nnx.Module):
 
 ### 4. WaveNet: Autoregressive Audio Generation
 
-**WaveNet** (van den Oord et al., 2016) is a deep autoregressive model for **raw audio waveforms**:
+**WaveNet** ([van den Oord et al., 2016 — DeepMind](https://arxiv.org/abs/1609.03499)) is a deep autoregressive model for **raw audio waveforms**:
 
 **Key innovation**: **Dilated causal convolutions** for exponentially large receptive fields.
 
@@ -457,7 +460,7 @@ where $*$ denotes convolution, $\odot$ is element-wise product, and $W_f$, $W_g$
 
 ### 5. Modern Vision Transformers: Visual Autoregressive Modeling (VAR)
 
-**VAR** (Visual Autoregressive Modeling, NeurIPS 2024 Best Paper) applies GPT-style autoregressive modeling to **images via next-scale prediction**:
+**VAR** ([Tian et al., 2024 — NeurIPS Best Paper](https://arxiv.org/abs/2404.02905)) applies GPT-style autoregressive modeling to **images via next-scale prediction**:
 
 **Key innovation**: Instead of predicting pixels in raster scan order, predict **image tokens at progressively finer scales**.
 
@@ -825,37 +828,41 @@ def beam_search(model, max_length, beam_size=5, *, rngs):
 
 | Aspect | Autoregressive Models | Diffusion Models |
 |--------|----------------------|------------------|
-| **Generation Process** | Sequential (one token/pixel) | Iterative denoising |
-| **Training** | Cross-entropy | Denoising score matching |
-| **Likelihood** | Exact | Tractable via ODE |
-| **Generation Speed** | Slow (sequential) | Slow (50-1000 steps) |
-| **Sample Quality** | Competitive (VAR 2024) | State-of-the-art |
-| **Architecture** | Ordered dependencies | Flexible U-Net |
-| **Parallelization** | Training: yes, Generation: no | Training and generation: limited |
+| **Generation process** | Sequential (one token / pixel) — accelerated by MTP + speculative decoding (≈3–6×) | Iterative denoising — accelerated by distillation to 1–4 NFEs |
+| **Training** | Cross-entropy on next-token prediction | Denoising / vector-field regression |
+| **Likelihood** | Exact via the chain rule | Tractable lower bound (ELBO) or via the probability-flow ODE |
+| **Generation speed** | Slow sequential (text); VAR / MAR ~20× faster than pixel-AR for images | 20–1000 steps un-distilled; 1–4 distilled |
+| **Sample quality (images)** | VAR (NeurIPS 2024 Best) FID 1.73 on ImageNet 256² **beats diffusion baselines** | Modern flow-matching DiTs (SD3, FLUX.1) remain SOTA on text-conditional generation |
+| **Sample quality (text)** | The dominant paradigm; Llama-3, GPT-4, DeepSeek-V3 | **Diffusion language models** (LLaDA, Mercury) report competitive 8B-scale results in selected settings (see [Diffusion explainer](diffusion-explained.md#diffusion-language-models-20242026)) |
+| **Architecture** | Causal-masked Transformer / Mamba / hybrid | DiT, MMDiT, U-Net |
+| **Parallelisation** | Training: full parallel (teacher forcing). Generation: partial (MTP, speculative) | Training: full parallel. Generation: partial (caching, distillation) |
 
-**Recent convergence**: VAR (2024) shows AR models can match diffusion quality while maintaining exact likelihood.
+**Recent convergence (2024–2026)**: AR has invaded image generation (VAR), and diffusion has invaded language (LLaDA, Mercury). The unified picture in 2026 is that "AR vs diffusion" is a *spectrum of factorisation strategies* rather than a binary choice — see [ARMs are Secretly EBMs](#autoregressive-energy-based-models) and the [Diffusion Language Models](#diffusion-language-models-an-ar-alternative) subsection in Recent Advances.
 
 **When to use AR over Diffusion**:
 
 - Exact likelihood computation required
 - Natural sequential structure (text, code, music)
-- Want to leverage Transformer scaling laws
+- Long-range coherence on text-heavy outputs
+- Want to leverage Transformer scaling laws + RLHF / RLVR post-training tooling
 
 ### Autoregressive vs Flows: Sequential vs Invertible
 
-| Aspect | Autoregressive Models | Normalizing Flows |
-|--------|----------------------|-------------------|
-| **Likelihood** | Exact | Exact |
-| **Generation Speed** | Slow (sequential) | Fast (single pass) |
-| **Architecture** | Flexible (any network respecting order) | Constrained (invertible) |
-| **Training** | Cross-entropy | Maximum likelihood via Jacobians |
-| **Dimensionality** | No restrictions | Input = output dimensionality |
+| Aspect | Autoregressive Models | Classical Normalizing Flows | Modern Flow Matching |
+|--------|----------------------|-------------------------------|------------------------|
+| **Likelihood** | Exact | Exact | Tractable via probability-flow ODE |
+| **Generation Speed** | Sequential (slow) | Single pass | 1–10 ODE steps |
+| **Architecture** | Any network respecting causal order | Constrained (invertible, equal dims) | Any DiT / U-Net |
+| **Training** | Cross-entropy | MLE via Jacobians | L2 regression on a vector field |
+| **Dimensionality** | No restrictions | Input = output | No restrictions |
 
-**MAF/IAF**: Masked Autoregressive Flow combines both—autoregressive structure as normalizing flow.
+**MAF/IAF**: Masked Autoregressive Flow combines AR with classical flows — autoregressive structure providing a triangular Jacobian (see [MAF subsection](#masked-autoregressive-flows-maf)).
 
 ---
 
-## Advanced Topics and Recent Advances
+## Advanced Topics
+
+The variants in this section are foundational extensions of the autoregressive framework — flow-based, energy-based, sparse-attention, and scientific applications. The 2024–2026 wave (MoE, state-space, multi-token prediction, test-time compute, etc.) is in its own [Recent Advances section](#recent-advances-20242026-mixture-of-experts-state-space-and-test-time-reasoning) below.
 
 ### Masked Autoregressive Flows (MAF)
 
@@ -888,19 +895,19 @@ $$
 
 ### Autoregressive Energy-Based Models
 
-Combine autoregressive and energy-based modeling:
+Autoregressive and energy-based modelling can be combined by parameterising each conditional with an energy function:
 
 $$
-p(x_1, \ldots, x_n) = \frac{1}{Z} \prod_{i=1}^{n} \exp(-E_i(x_i \mid x_{<i}))
+p(x_1, \ldots, x_n) = \prod_{i=1}^{n} \frac{\exp(-E_i(x_i \mid x_{<i}))}{Z_i(x_{<i})}
 $$
 
-Train with contrastive divergence using autoregressive structure.
+trained with per-step contrastive divergence. A 2026 result ([Wang et al., 2026 — *ARMs are Secretly EBMs*](https://arxiv.org/abs/2512.15605)) goes further and establishes a *formal bijection* between autoregressive language models and energy-based models in function space; this corresponds to a special case of the soft Bellman equation in maximum-entropy reinforcement learning, and reframes RLHF / DPO as energy shaping. See the [EBM explainer](ebm-explained.md#recent-advances-20242026-energy-flow-methods-and-implicit-ebms) for the full picture.
 
 ### Sparse Transformers and Efficient Attention
 
 **Problem**: Standard self-attention is $O(n^2)$ in sequence length.
 
-**Sparse Transformers** (Child et al., 2019) use **sparse attention patterns**:
+**Sparse Transformers** ([Child et al., 2019](https://arxiv.org/abs/1904.10509)) use **sparse attention patterns**:
 
 - **Strided attention**: Attend to every $k$-th position
 - **Fixed attention**: Attend to fixed positions (e.g., beginning of sequence)
@@ -908,35 +915,13 @@ Train with contrastive divergence using autoregressive structure.
 
 **Complexity**: $O(n \sqrt{n})$ or $O(n \log n)$ depending on pattern.
 
-**Linear Transformers** approximate attention with kernels:
+**Linear Transformers** ([Katharopoulos et al., 2020 — ICML](https://arxiv.org/abs/2006.16236); [Performer — Choromanski et al., 2021](https://arxiv.org/abs/2009.14794)) approximate attention with kernels:
 
 $$
 \text{Attention}(Q, K, V) \approx \phi(Q) (\phi(K)^T V)
 $$
 
 achieving $O(n)$ complexity.
-
-### Visual Autoregressive Modeling (VAR)
-
-**VAR** (2024, NeurIPS Best Paper) revolutionizes image generation:
-
-**Multi-scale tokenization**:
-
-1. Use VQ-VAE to tokenize images at scales $1, 2, 4, \ldots, k$
-2. Flatten tokens across scales into a sequence
-3. Apply GPT-style Transformer to model $p(\text{tokens}_{s+1} \mid \text{tokens}_{\leq s})$
-
-**Training**: Standard next-token prediction
-
-**Generation**: Autoregressively predict scales
-
-**Results**:
-
-- **ImageNet 256×256**: FID 1.92, surpassing diffusion transformers
-- **Scaling laws**: Power-law relationship between loss and compute ($R^2 \approx -0.998$)
-- **Speed**: Faster than pixel-level autoregressive, competitive with diffusion
-
-**Significance**: First GPT-style AR model to beat diffusion on image generation.
 
 ### Autoregressive for Protein and Scientific Data
 
@@ -954,26 +939,175 @@ achieving $O(n)$ complexity.
 
 ---
 
+## Recent Advances (2024–2026): Mixture-of-Experts, State-Space, and Test-Time Reasoning
+
+The 2017 Transformer + 2020 GPT-3 recipe defined autoregressive modelling for half a decade. Between 2024 and 2026 the field has fragmented along five new axes — **architecture** (MoE, state-space, hybrids), **objective** (multi-token prediction, RLHF / RLVR), **inference** (test-time compute, speculative decoding), **modality** (visual AR, audio AR, multimodal AR), and **alternatives** (continuous-token AR, diffusion LMs). This section organises the headline contributions, grounded in [Raschka's *State of LLMs 2025*](https://magazine.sebastianraschka.com/p/state-of-llms-2025), the [*Beyond Next-Token Prediction* survey (2025)](https://www.mdpi.com/2079-9292/15/5/966), and the [*Architectures, Training Paradigms, and Alignment* LLM survey (2025)](https://www.mdpi.com/2079-9292/14/18/3580).
+
+### Mixture-of-Experts at Production Scale
+
+**Mixture-of-Experts (MoE)** ([Shazeer et al., 2017 — Outrageously Large MoE](https://arxiv.org/abs/1701.06538); [Switch Transformer — Fedus et al., 2022](https://arxiv.org/abs/2101.03961)) routes each token through only a small subset of "expert" feed-forward networks, decoupling parameter count from per-token compute. It went from research curiosity to production default between 2023 and 2026:
+
+- **Mixtral 8×7B** ([Jiang et al., 2024](https://arxiv.org/abs/2401.04088)) — 47B total, 13B active per token; first open-weights MoE to match dense-Llama-2-70B quality.
+- **DeepSeek-V3** ([DeepSeek-AI, 2024](https://arxiv.org/abs/2412.19437)) — 671B total / 37B active per token, trained for ~$6M (2.788M H800 GPU-hours). Introduces **auxiliary-loss-free load balancing** (a learned bias on routing scores instead of an auxiliary loss) and **Multi-head Latent Attention (MLA)**, which compresses K/V into a low-rank latent for ~7× smaller KV-cache.
+- **Qwen3, GPT-OSS, Granite-4** (2025) — sparse-MoE backbones are now the default for new flagship models.
+
+The 2026 default architectural diagram is "**transformer + MoE feed-forward + GQA / MLA attention + RoPE positions + RMSNorm + SwiGLU**" — see [Llama 3 technical report (Meta, 2024)](https://arxiv.org/abs/2407.21783) for a clean reference.
+
+### State-Space Models and Hybrid Backbones
+
+For very long contexts, quadratic self-attention becomes the dominant cost. The 2024 wave of **selective state-space models (SSMs)** offers $O(N)$ alternatives:
+
+- **Mamba** ([Gu & Dao, 2024 — COLM](https://arxiv.org/abs/2312.00752)) — selective SSM where step size and B/C matrices are *input-dependent*; 5× higher inference throughput than Transformers, linear scaling to million-length sequences.
+- **Mamba-2** ([Dao & Gu, 2024 — ICML](https://arxiv.org/abs/2405.21060)) — *State-Space Duality* connects SSMs and attention; significantly faster than Mamba while matching quality.
+- **Hybrid backbones** — pure Mamba models (Codestral Mamba) coexist with hybrid stacks like **Jamba** ([Lieber et al., 2024](https://arxiv.org/abs/2403.19887)), **IBM Granite-4**, and **Samba** ([Microsoft, 2024](https://arxiv.org/abs/2406.07522)) that interleave Mamba blocks with sparse softmax-attention layers (typically 3:1 SSM:attention).
+- **Trillion-scale hybrid attention** ([Ant Group ICLR 2026 Expo](https://iclr.cc/virtual/2026/expo-talk-panel/10020572)) — production-grade systems mixing linear attention with periodic full-attention layers.
+
+The 2025–2026 consensus: **pure Mamba** wins at long-context retrieval and audio; **hybrids** dominate language modelling; **pure Transformer** still leads on benchmark-heavy short-context tasks.
+
+### Multi-Token Prediction (MTP)
+
+Instead of predicting only the next token, **MTP** trains the model to predict the next $k$ tokens at each position:
+
+- **Better Faster Large Language Models via Multi-Token Prediction** ([Gloeckle et al., 2024 — Meta](https://arxiv.org/abs/2404.19737)) — predicting the next 4 tokens during training markedly improves sample quality and *triples* inference throughput via speculative decoding.
+- **DeepSeek-V3 MTP** ([DeepSeek-AI, 2024](https://arxiv.org/abs/2412.19437)) — sequential MTP that maintains the causal chain (rather than parallel as in Gloeckle); used for both training-time benefit and **60% faster inference via self-speculative decoding**.
+- **FastMTP** ([2025](https://arxiv.org/abs/2509.18362)) — aligns multi-step draft quality with inference patterns.
+
+### Speculative Decoding
+
+Speculative decoding ([Leviathan et al., 2023 — ICML](https://arxiv.org/abs/2211.17192); [Chen et al., 2023 — DeepMind](https://arxiv.org/abs/2302.01318)) decouples *proposing* tokens (cheap draft model) from *verifying* them (expensive target model), restoring batch parallelism to autoregressive inference:
+
+```mermaid
+graph LR
+    P["Prompt"] --> D["Draft model<br/>(small / fast)"]
+    D -->|"propose k tokens"| V["Target model<br/>(large / slow)"]
+    V -->|"single forward pass<br/>verifies all k"| A["Accept matching prefix,<br/>reject + resample tail"]
+    A --> P
+
+    style D fill:#fff3cd
+    style V fill:#e1f5ff
+    style A fill:#c8e6c9
+```
+
+Modern variants — **EAGLE-3** ([Li et al., 2025](https://arxiv.org/abs/2503.01840)), **Medusa** ([Cai et al., 2024](https://arxiv.org/abs/2401.10774)), **draft-token sharing** in vLLM / SGLang — deliver **2–6× speedups** with bit-identical outputs (the draft is *verified*, not approximated).
+
+### Test-Time Compute and Reasoning Models
+
+The most important paradigm shift of 2024 is **scaling inference compute** rather than (only) parameters:
+
+- **OpenAI o1** ([2024 — *Learning to Reason with LLMs*](https://openai.com/index/learning-to-reason-with-llms/)) — RL-trained chain-of-thought "reasoning tokens"; AIME 2024 accuracy went from GPT-4o's 12% to 74% at 1 sample, 93% at 1000-sample re-ranking.
+- **DeepSeek-R1** ([DeepSeek-AI, 2025](https://arxiv.org/abs/2501.12948)) — open-weights replication; **RL with Verifiable Rewards (RLVR)** on math and code. R1-Zero shows that pure RL (no SFT) suffices to elicit long chain-of-thought.
+- **o3 / GPT-5** (2025–2026, closed) — successive scaling of test-time compute on competition math (FrontierMath), competitive programming, and ARC-AGI.
+
+There are now *two* scaling axes: **train-time compute** (parameters × tokens × steps) and **test-time compute** (CoT length × parallel samples × verifier passes). The latter is the dominant trend of 2025–2026.
+
+### Continuous-Token Autoregression (CALM, MAR)
+
+A small but important 2025 thread *decouples* autoregression from discrete tokens:
+
+- **CALM — Continuous Autoregressive Language Models** ([2025](https://arxiv.org/abs/2510.27688)) — uses an autoencoder to compress $k$ discrete tokens into a *single continuous vector* and autoregresses on those. Increases the "semantic bandwidth" of each generative step — potentially the right way past the per-token cost wall.
+- **MAR — Masked Autoregressive Modeling** ([Li et al., 2024](https://arxiv.org/abs/2406.11838)) — autoregression on *continuous* tokens with a per-token diffusion head (no VQ); matches diffusion image quality.
+
+### Visual and Multimodal Autoregression
+
+**VAR** (covered above) is the 2024 visual milestone. The 2025–2026 follow-ups extend it:
+
+- **MAR / VAR-Image / VAR-Video** — extensions to higher resolution and video.
+- **MAGVIT-v2** ([Yu et al., 2024](https://arxiv.org/abs/2310.05737)) — discrete-token AR over video VQ codes; competitive with diffusion on short-clip generation.
+- **Multimodal AR** — GPT-4o, Gemini 2.x, Llama 4 — interleave text and image / audio tokens in a *single* autoregressive stream rather than treating modalities as separate towers.
+
+### Diffusion Language Models: an AR Alternative
+
+A serious 2025 challenger to autoregression is **discrete diffusion language modelling**:
+
+- **LLaDA** ([Nie et al., 2025](https://arxiv.org/abs/2502.09992)) — 8B-parameter masked-diffusion LLM trained from scratch; competitive with LLaMA3-8B on instruction following and in-context learning.
+- **Mercury** ([Inception Labs, 2025](https://arxiv.org/abs/2506.17298)) — commercial-scale diffusion LLM with parallel multi-token decoding; 92ms latency vs ~450ms for AR baselines at matched quality.
+
+[ARMs are Secretly EBMs (Wang et al., 2026)](https://arxiv.org/abs/2512.15605) establishes a formal bijection between autoregressive models and energy-based models, reframing post-training (RLHF, DPO) as energy shaping. See the [EBM explainer](ebm-explained.md#recent-advances-20242026-energy-flow-methods-and-implicit-ebms) for the full picture.
+
+### Modern Building Blocks: RoPE, GQA, MLA, RMSNorm, SwiGLU
+
+The 2024–2026 LLM block looks substantially different from Vaswani's 2017 design:
+
+| Component | Old (Transformer 2017) | Modern (Llama-3 / DeepSeek-V3 / Qwen3) |
+| --- | --- | --- |
+| **Position encoding** | Absolute sinusoidal | **RoPE** ([Su et al., 2024](https://arxiv.org/abs/2104.09864)) — relative rotary; sometimes ALiBi |
+| **Attention** | Multi-Head | **Grouped-Query Attention (GQA)** ([Ainslie et al., 2023](https://arxiv.org/abs/2305.13245)) or **Multi-Head Latent Attention (MLA)** (DeepSeek-V2/V3) for KV-cache compression |
+| **Normalisation** | LayerNorm | **RMSNorm** ([Zhang & Sennrich, 2019](https://arxiv.org/abs/1910.07467)) — same effect, ~10% cheaper |
+| **MLP activation** | ReLU / GELU | **SwiGLU** ([Shazeer, 2020](https://arxiv.org/abs/2002.05202)) — gated linear unit with Swish |
+| **Feed-forward** | Dense MLP | **Sparse MoE** with auxiliary-loss-free routing (DeepSeek-V3) |
+| **Attention kernel** | naive softmax | **FlashAttention-2/3** ([Dao 2023](https://arxiv.org/abs/2307.08691); [Shah et al., 2024](https://arxiv.org/abs/2407.08608)) |
+| **Long-context** | Truncate to ~2k | RoPE + YARN / NTK-aware scaling for **1M+ tokens** |
+
+### Post-Training: RLHF → DPO → RLVR
+
+- **RLHF** ([Ouyang et al., 2022 — InstructGPT](https://arxiv.org/abs/2203.02155)) — supervised fine-tuning + reward model + PPO; the recipe behind ChatGPT.
+- **DPO** ([Rafailov et al., 2023 — NeurIPS](https://arxiv.org/abs/2305.18290)) — derives a closed-form reward from preferences; sidesteps the explicit reward model.
+- **RLVR** (Reinforcement Learning with Verifiable Rewards, 2024–2025) — used in o1 / R1; reward is a *verifier* (unit tests for code, ground-truth for math), not a learned model. The dominant 2025–2026 post-training paradigm for reasoning models.
+
+### Long-Context: From 2k to 10M Tokens
+
+Modern AR LLMs routinely handle 128k–1M token contexts:
+
+- **YARN, NTK-aware RoPE** — scale RoPE frequencies for context-length extrapolation.
+- **Ring Attention** ([Liu et al., 2024](https://arxiv.org/abs/2310.01889)) — distribute attention across devices for arbitrarily long sequences.
+- **InfiniAttention, Compressive Memory** — bounded-memory long-context attention.
+- **Native long-context** — Gemini 1.5 / 2.x and Llama 4 train with 1M+ context windows from scratch.
+- **Needle-in-a-haystack and RULER** ([Hsieh et al., 2024](https://arxiv.org/abs/2404.06654)) — dominant long-context evaluation benchmarks.
+
+### Recent Surveys
+
+| Resource | Year | Scope |
+| --- | --- | --- |
+| [*Large Language Models: A Survey*](https://arxiv.org/abs/2402.06196) (Minaee et al.) | 2024 | Comprehensive LLM survey |
+| [*A Survey of Large Language Models*](https://arxiv.org/abs/2303.18223) (Zhao et al., updated 2024) | 2024 | Continuously-updated review |
+| [*State of LLMs 2025*](https://magazine.sebastianraschka.com/p/state-of-llms-2025) (Raschka) | 2025 | Year-end retrospective + 2026 predictions |
+| [*Beyond Next-Token Prediction*](https://www.mdpi.com/2079-9292/15/5/966) | 2025 | Failure modes, deployment, world models |
+| [*LLM Architectures, Training Paradigms, Alignment*](https://www.mdpi.com/2079-9292/14/18/3580) | 2025 | Architecture + post-training survey |
+| [*Datasets for LLMs: A Comprehensive Survey*](https://link.springer.com/article/10.1007/s10462-025-11403-7) | 2025 | 303 datasets, 32 domains, 774.5 TB pre-training corpora |
+
+The throughline: **autoregression is no longer just "next-token prediction"**. In 2026 the term covers MoE-Transformers, hybrid SSM-attention stacks, multi-token-prediction objectives, test-time-compute reasoning, continuous-token AR, and visual / multimodal AR — all unified by the chain-rule factorisation discussed at the top of this page.
+
+---
+
 ## Practical Implementation in Artifex
 
 ### Basic Autoregressive Model
 
 ```python
-from artifex.generative_models.models.autoregressive import TransformerAR
+from flax import nnx
 
-# Create Transformer autoregressive model
-model = TransformerAR(
+from artifex.generative_models.core.configuration import (
+    TransformerConfig,
+    TransformerNetworkConfig,
+)
+from artifex.generative_models.models.autoregressive import (
+    TransformerAutoregressiveModel,
+)
+
+rngs = nnx.Rngs(0)
+
+config = TransformerConfig(
+    name="text-transformer-ar",
     vocab_size=10000,
     sequence_length=512,
-    hidden_dim=512,
     num_layers=6,
-    num_heads=8,
-    rngs=rngs
+    dropout_rate=0.1,
+    network=TransformerNetworkConfig(
+        name="text-transformer-network",
+        hidden_dims=(512,),
+        activation="gelu",
+        embed_dim=512,
+        num_heads=8,
+        mlp_ratio=4.0,
+    ),
 )
+
+# Create Transformer autoregressive model
+model = TransformerAutoregressiveModel(config, rngs=rngs)
 
 # Training
 batch = {"sequences": sequences}  # [batch_size, seq_len]
-outputs = model(batch["sequences"], rngs=rngs)
+outputs = model(batch["sequences"], rngs=rngs, training=True)
 loss_dict = model.loss_fn(batch, outputs, rngs=rngs)
 
 # Generation
@@ -989,16 +1123,23 @@ samples = model.generate(
 ### PixelCNN for Images
 
 ```python
+from flax import nnx
+
+from artifex.generative_models.core.configuration import PixelCNNConfig
 from artifex.generative_models.models.autoregressive import PixelCNN
 
-# Create PixelCNN for MNIST (28×28 grayscale)
-model = PixelCNN(
+rngs = nnx.Rngs(0)
+
+config = PixelCNNConfig(
+    name="mnist-pixelcnn",
     image_shape=(28, 28, 1),
     num_layers=7,
     hidden_channels=128,
     num_residual_blocks=5,
-    rngs=rngs
 )
+
+# Create PixelCNN for MNIST (28×28 grayscale)
+model = PixelCNN(config, rngs=rngs)
 
 # Training
 batch = {"images": images}  # [batch_size, 28, 28, 1], values in [0, 255]
@@ -1016,17 +1157,25 @@ generated_images = model.generate(
 ### WaveNet for Audio
 
 ```python
+from flax import nnx
+
+from artifex.generative_models.core.configuration import WaveNetConfig
 from artifex.generative_models.models.autoregressive import WaveNet
 
-# Create WaveNet for audio
-model = WaveNet(
-    num_layers=30,
-    num_stacks=3,
+rngs = nnx.Rngs(0)
+
+config = WaveNetConfig(
+    name="audio-wavenet",
+    vocab_size=256,
+    sequence_length=16000,
     residual_channels=128,
-    dilation_channels=256,
     skip_channels=512,
-    rngs=rngs
+    num_blocks=3,
+    layers_per_block=10,
 )
+
+# Create WaveNet for audio
+model = WaveNet(config, rngs=rngs)
 
 # Training
 batch = {"waveform": waveform}  # [batch_size, time_steps]
@@ -1041,6 +1190,91 @@ generated_audio = model.generate(
     rngs=rngs
 )
 ```
+
+---
+
+## Evaluation Metrics
+
+### Density-Estimation Metrics
+
+- **Cross-entropy loss / NLL** — the training objective. Reported per-token for text, per-pixel for images.
+- **Perplexity** $\mathrm{PPL} = \exp(\mathrm{NLL})$ — the standard text metric.
+- **Bits per dimension (BPD)** $= \mathrm{NLL} / (D \log 2)$ — for images, audio, byte-level text.
+- **Compression bound** — for any $p_\theta$ admitting tractable likelihood, the [arithmetic-coding](https://en.wikipedia.org/wiki/Arithmetic_coding) bound is $-\log_2 p_\theta$ bits per symbol; AR models routinely reach within 1 % of this in practice.
+
+### Language-Model Benchmarks
+
+The 2024–2026 LLM evaluation landscape has fragmented into specialised benchmarks:
+
+| Benchmark | Tests | Reference |
+| --- | --- | --- |
+| **MMLU / MMLU-Pro** | Multi-task knowledge | [Hendrycks et al., 2021](https://arxiv.org/abs/2009.03300) |
+| **GSM8K, MATH** | Math reasoning | [Cobbe et al., 2021](https://arxiv.org/abs/2110.14168) |
+| **HumanEval, MBPP, LiveCodeBench** | Code generation | [Chen et al., 2021](https://arxiv.org/abs/2107.03374) |
+| **GPQA Diamond** | Graduate-level science | [Rein et al., 2024](https://arxiv.org/abs/2311.12022) |
+| **AIME 2024 / 2025** | Olympiad math (used heavily by reasoning models) | — |
+| **FrontierMath** | Research-level math | [Glazer et al., 2024](https://arxiv.org/abs/2411.04872) |
+| **ARC-AGI** | Abstraction / reasoning corpus | [Chollet, 2019](https://arxiv.org/abs/1911.01547) |
+| **RULER** | Long-context (1M+ tokens) | [Hsieh et al., 2024](https://arxiv.org/abs/2404.06654) |
+| **LMSYS Chatbot Arena** | Pairwise human preference | [LMSYS](https://chat.lmsys.org/) |
+
+### Image / Video / Audio AR Metrics
+
+For VAR, MAGVIT-v2, and audio AR (WaveNet, Mamba audio):
+
+- **FID** ([Heusel et al., 2017](https://arxiv.org/abs/1706.08500)) — primary metric for VAR's ImageNet 256² FID 1.73.
+- **CMMD** for modern T2I AR.
+- **FAD** (Fréchet Audio Distance) — VGGish-feature distance for audio.
+
+### Inference / Throughput Metrics
+
+- **Tokens / second** — the dominant production metric; LMSYS Arena posts this for every served model.
+- **Time-to-first-token (TTFT)** vs **time-per-output-token (TPOT)** — separates prefill from decode.
+- **Acceptance rate** for speculative decoding — fraction of draft tokens accepted by the verifier.
+
+---
+
+## Production Considerations
+
+### Inference Cost
+
+| Decoding strategy | NFEs / token | Tokens / s on H100 (Llama-3-70B equivalent) |
+| --- | --- | --- |
+| Vanilla autoregressive (KV cache) | 1 model forward / token | ~30–60 |
+| Multi-token prediction ([Gloeckle et al., 2024](https://arxiv.org/abs/2404.19737)) | 1 / *k* tokens | ~90–180 (k=4) |
+| Speculative decoding ([Leviathan et al., 2023](https://arxiv.org/abs/2211.17192); [EAGLE-3, 2025](https://arxiv.org/abs/2503.01840)) | varies (acceptance-rate dependent) | ~60–200 |
+| DeepSeek-V3 self-speculative MTP ([2024](https://arxiv.org/abs/2412.19437)) | varies | up to 60 % faster than vanilla |
+
+### Quantisation
+
+- **BF16 / FP16** universally safe; standard for new model releases.
+- **INT8 / FP8 PTQ** widely adopted in production (TensorRT-LLM, vLLM, SGLang) — typically <1 % MMLU drop.
+- **GPTQ / AWQ** — 4-bit weight quantisation for consumer-GPU deployment; <2 % MMLU drop on 70B-class models.
+- **MoE quantisation** — DeepSeek-V3-style MoEs need *per-expert* calibration to preserve quality at 4-bit.
+
+### Inference Stacks
+
+The 2024–2026 production AR-inference stack is dominated by:
+
+- **vLLM** ([Kwon et al., 2023](https://arxiv.org/abs/2309.06180)) — PagedAttention; the default open-source server.
+- **SGLang** ([Zheng et al., 2024](https://arxiv.org/abs/2312.07104)) — aggressive radix-tree KV-cache reuse; best for chained / structured prompts.
+- **TensorRT-LLM** — NVIDIA's closed-stack solution; FP8 + tensor-parallel.
+- **llama.cpp / MLX / Apple Foundation Models** — on-device inference for 8B-class models.
+
+### Common Production Pitfalls
+
+- **KV-cache memory blowup** at long contexts — MLA ([DeepSeek-V2/V3](https://arxiv.org/abs/2412.19437)) and GQA ([Ainslie et al., 2023](https://arxiv.org/abs/2305.13245)) are the two standard mitigations.
+- **Hallucination** under low-temperature decoding — typically a sign of insufficient post-training; address with verifier-based RLHF / RLVR rather than aggressive sampling adjustments.
+- **Repetition loops** — top-p / top-k + repetition penalty + min-p are the standard mitigations.
+- **Speculative-decoding mis-acceptance** — always verify the draft against the same target distribution; never approximate.
+
+### Ethical / Safety Considerations
+
+- Autoregressive LLMs are the dominant *deployable* generative-AI surface; treat them with the same content-moderation rigour as social-media platforms.
+- **Watermarking** ([Kirchenbauer et al., 2023 — Maryland watermark](https://arxiv.org/abs/2301.10226)) — a small probabilistic bias in token sampling that can be statistically detected; deployable on any AR LLM without retraining.
+- **Provenance / C2PA metadata** for AR-image generators (VAR, MAR successors).
+
+For the broader unified picture and how AR fits alongside diffusion / VAE / GAN / EBM / Flow systems in 2026, see [Generative Models — A Unified View](generative-models-unified.md).
 
 ---
 
@@ -1114,13 +1348,15 @@ Autoregressive models decompose joint distributions via the chain rule, enabling
 - Latent representations needed (use VAEs)
 - Order doesn't exist naturally (graph generation)
 
-### Future Directions
+### Future Directions (2026 and Beyond)
 
-- **Faster generation**: Parallel decoding, non-autoregressive variants
-- **Hybrid models**: Combining AR with diffusion or flows
-- **Efficiency**: Sparse attention, linear transformers
-- **Scaling**: Billion-parameter models across all modalities
-- **Multi-modal**: Vision-language models (GPT-4V, Gemini)
+- **Test-time compute as a first-class scaling axis** — o1 / R1 / o3-style reasoning models are the dominant 2025–2026 frontier; expect deeper integration of search and verifier-based RL.
+- **MoE everywhere** — sparse-MoE backbones (DeepSeek-V3, Qwen3, GPT-OSS) are now the default for new flagship models; expect continued scaling to multi-trillion total parameters with single-digit-billion active.
+- **Hybrid SSM-attention backbones** — Jamba / Granite-4 / Samba-style mixes of Mamba and softmax attention for 1M+ context.
+- **Multi-token prediction + speculative decoding everywhere** — DeepSeek-V3 has made MTP the production default; FastMTP and EAGLE-3 are commodity inference acceleration.
+- **Diffusion language models as a serious alternative** — LLaDA, Mercury, ReFusion challenge AR for parallel decoding (see [Diffusion Language Models](diffusion-explained.md#diffusion-language-models-20242026)).
+- **Continuous-token AR** — CALM / MAR show that "tokens" need not be discrete; expect this to extend the throughput frontier.
+- **Multimodal native** — GPT-4o / Gemini 2.x / Llama 4 unify text, vision, and audio in a single AR stream.
 
 ---
 
@@ -1204,19 +1440,167 @@ Autoregressive models decompose joint distributions via the chain rule, enabling
 &nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2006.16236](https://arxiv.org/abs/2006.16236) | [ICML 2020](http://proceedings.mlr.press/v119/katharopoulos20a.html)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Linear attention achieving $O(n)$ complexity
 
-### Recent Advances (2023-2025)
+### Recent Advances (2023–2026)
 
-:material-file-document: **Tian, K., et al. (2024).** "Visual Autoregressive Modeling: Scalable Image Generation via Next-Scale Prediction"<br>
-&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2404.02905](https://arxiv.org/abs/2404.02905) | [NeurIPS 2024 Best Paper](https://openreview.net/forum?id=gojL67CfS8)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: GPT-style AR surpassing diffusion on ImageNet
+#### Visual Autoregression
+
+:material-file-document: **Tian, K., et al. (2024).** "Visual Autoregressive Modeling: Scalable Image Generation via Next-Scale Prediction" (NeurIPS Best Paper)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2404.02905](https://arxiv.org/abs/2404.02905)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: GPT-style AR surpassing diffusion on ImageNet (FID 1.73, 20× faster).
+
+:material-file-document: **Li, T., et al. (2024).** "Autoregressive Image Generation without Vector Quantization" (MAR)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2406.11838](https://arxiv.org/abs/2406.11838)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Continuous-token AR with per-token diffusion head; matches diffusion quality.
+
+:material-file-document: **Yu, L., et al. (2024).** "MAGVIT-v2: Language Model Beats Diffusion — Tokenizer is Key to Visual Generation"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2310.05737](https://arxiv.org/abs/2310.05737)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: AR over video VQ codes competitive with diffusion.
+
+#### Open-Weights Foundation Models
 
 :material-file-document: **Touvron, H., et al. (2023).** "LLaMA: Open and Efficient Foundation Language Models"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2302.13971](https://arxiv.org/abs/2302.13971)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: 7B-65B parameter open models competitive with GPT-3
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: 7B–65B open models competitive with GPT-3.
 
-:material-file-document: **Brown, T., et al. (2020).** "Language Models are Few-Shot Learners (GPT-3)"<br>
-&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2005.14165](https://arxiv.org/abs/2005.14165) | [NeurIPS 2020](https://proceedings.neurips.cc/paper/2020/hash/1457c0d6bfcb4967418bfb8ac142f64a-Abstract.html)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: 175B parameter model demonstrating in-context learning
+:material-file-document: **Meta (2024).** "The Llama 3 Herd of Models"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2407.21783](https://arxiv.org/abs/2407.21783)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: 405B dense Llama-3; reference modern Transformer recipe (RoPE, GQA, RMSNorm, SwiGLU).
+
+:material-file-document: **Jiang, A. Q., et al. (2024).** "Mixtral of Experts" (Mistral AI)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2401.04088](https://arxiv.org/abs/2401.04088)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: 8×7B sparse MoE matching dense Llama-2-70B at much lower inference cost.
+
+:material-file-document: **DeepSeek-AI (2024).** "DeepSeek-V3 Technical Report"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2412.19437](https://arxiv.org/abs/2412.19437)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: 671B/37B-active MoE with MLA, MTP, and auxiliary-loss-free balancing; ~$6M training cost.
+
+:material-file-document: **DeepSeek-AI (2025).** "DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2501.12948](https://arxiv.org/abs/2501.12948)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Open-weights replication of o1-style reasoning via Reinforcement Learning with Verifiable Rewards.
+
+#### State-Space and Hybrid Backbones
+
+:material-file-document: **Gu, A., & Dao, T. (2024).** "Mamba: Linear-Time Sequence Modeling with Selective State Spaces" (COLM)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2312.00752](https://arxiv.org/abs/2312.00752)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Selective SSMs; linear-time, 5× higher inference throughput than Transformers.
+
+:material-file-document: **Dao, T., & Gu, A. (2024).** "Transformers are SSMs: Generalized Models and Efficient Algorithms through Structured State Space Duality" (Mamba-2, ICML)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2405.21060](https://arxiv.org/abs/2405.21060)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: SSD framework unifying Mamba and attention; faster than Mamba.
+
+:material-file-document: **Lieber, O., et al. (2024).** "Jamba: A Hybrid Transformer-Mamba Language Model" (AI21 Labs)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2403.19887](https://arxiv.org/abs/2403.19887)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: First production-scale Mamba/attention hybrid.
+
+:material-file-document: **Microsoft (2024).** "Samba: Simple Hybrid State Space Models for Efficient Unlimited Context Language Modeling"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2406.07522](https://arxiv.org/abs/2406.07522)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Mamba + sliding-window attention; unlimited context.
+
+#### Multi-Token Prediction and Speculative Decoding
+
+:material-file-document: **Gloeckle, F., et al. (2024).** "Better & Faster Large Language Models via Multi-Token Prediction" (Meta)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2404.19737](https://arxiv.org/abs/2404.19737)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Predicting next 4 tokens improves quality and gives 3× inference speedup via self-speculative decoding.
+
+:material-file-document: **Leviathan, Y., Kalman, M., & Matias, Y. (2023).** "Fast Inference from Transformers via Speculative Decoding" (ICML)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2211.17192](https://arxiv.org/abs/2211.17192)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Foundational speculative decoding; bit-identical outputs at 2–3× speedup.
+
+:material-file-document: **Cai, T., et al. (2024).** "Medusa: Simple LLM Inference Acceleration Framework with Multiple Decoding Heads"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2401.10774](https://arxiv.org/abs/2401.10774)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Auxiliary decoding heads on the target model — no separate draft model.
+
+:material-file-document: **Li, Y., et al. (2025).** "EAGLE-3: Scaling Speculative Decoding"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2503.01840](https://arxiv.org/abs/2503.01840)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Tree-attention speculative decoding; production default in vLLM / SGLang.
+
+:material-file-document: **(2025).** "FastMTP: Accelerating LLM Inference with Enhanced Multi-Token Prediction"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2509.18362](https://arxiv.org/abs/2509.18362)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Aligns MTP draft quality with inference patterns.
+
+#### Test-Time Compute and Reasoning
+
+:material-file-document: **OpenAI (2024).** "Learning to Reason with LLMs" (o1)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [openai.com](https://openai.com/index/learning-to-reason-with-llms/)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: First production reasoning model; AIME 2024 went from 12% (GPT-4o) to 74% (o1).
+
+:material-file-document: **Snell, C., et al. (2024).** "Scaling LLM Test-Time Compute Optimally Can Be More Effective than Scaling Model Parameters"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2408.03314](https://arxiv.org/abs/2408.03314)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Theoretical and empirical foundations of test-time compute scaling.
+
+#### Modern Building Blocks
+
+:material-file-document: **Su, J., et al. (2024).** "RoFormer: Enhanced Transformer with Rotary Position Embedding" (RoPE)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2104.09864](https://arxiv.org/abs/2104.09864)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Relative rotary position embeddings; the dominant 2024+ choice.
+
+:material-file-document: **Ainslie, J., et al. (2023).** "GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2305.13245](https://arxiv.org/abs/2305.13245)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: GQA — KV-cache reduction without quality loss.
+
+:material-file-document: **Shazeer, N. (2020).** "GLU Variants Improve Transformer" (SwiGLU)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2002.05202](https://arxiv.org/abs/2002.05202)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Gated activation; standard MLP nonlinearity in 2024+ Transformers.
+
+:material-file-document: **Zhang, B., & Sennrich, R. (2019).** "Root Mean Square Layer Normalization" (RMSNorm)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:1910.07467](https://arxiv.org/abs/1910.07467)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: ~10% cheaper than LayerNorm; the modern default.
+
+#### Post-Training (RLHF / DPO / RLVR)
+
+:material-file-document: **Ouyang, L., et al. (2022).** "Training Language Models to Follow Instructions with Human Feedback" (InstructGPT)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2203.02155](https://arxiv.org/abs/2203.02155)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: RLHF — the recipe behind ChatGPT.
+
+:material-file-document: **Rafailov, R., et al. (2023).** "Direct Preference Optimization" (DPO, NeurIPS)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2305.18290](https://arxiv.org/abs/2305.18290)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Closed-form preference optimisation; sidesteps the explicit reward model.
+
+#### Long-Context
+
+:material-file-document: **Liu, H., et al. (2024).** "Ring Attention with Blockwise Transformers for Near-Infinite Context"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2310.01889](https://arxiv.org/abs/2310.01889)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Distributed attention enabling arbitrary-length sequences.
+
+:material-file-document: **Hsieh, C.-P., et al. (2024).** "RULER: What's the Real Context Size of Your Long-Context Language Models?"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2404.06654](https://arxiv.org/abs/2404.06654)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: The current standard long-context evaluation benchmark.
+
+#### Continuous-Token AR
+
+:material-file-document: **(2025).** "Continuous Autoregressive Language Models" (CALM)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2510.27688](https://arxiv.org/abs/2510.27688)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Compress $k$ discrete tokens into one continuous vector; trades discreteness for semantic bandwidth per step.
+
+:material-file-document: **(2026).** "Autoregressive Language Models are Secretly Energy-Based Models"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2512.15605](https://arxiv.org/abs/2512.15605)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Formal ARM↔EBM bijection corresponding to soft Bellman equation in MaxEnt RL.
+
+### Surveys
+
+:material-file-document: **Brown, T., et al. (2020).** "Language Models are Few-Shot Learners" (GPT-3, NeurIPS)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2005.14165](https://arxiv.org/abs/2005.14165)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: 175B AR model demonstrating in-context learning; the foundational scaling study.
+
+:material-file-document: **Minaee, S., et al. (2024).** "Large Language Models: A Survey"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2402.06196](https://arxiv.org/abs/2402.06196)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Comprehensive LLM survey covering architectures, training, and applications.
+
+:material-file-document: **Zhao, W. X., et al. (2024).** "A Survey of Large Language Models" (continuously updated)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2303.18223](https://arxiv.org/abs/2303.18223)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Continuously-updated review; the field-tracking reference.
+
+:material-file-document: **(2025).** "LLM Architectures, Training Paradigms, and Alignment Methods"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [MDPI Electronics](https://www.mdpi.com/2079-9292/14/18/3580)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: 2025 architecture and post-training survey.
+
+:material-file-document: **(2025).** "Beyond Next-Token Prediction: A Standards-Aligned Survey of Autoregressive LLM Failure Modes, Deployment Patterns, and World Models"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [MDPI Electronics](https://www.mdpi.com/2079-9292/15/5/966)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Failure modes of next-token prediction; the case for world-model alternatives.
+
+:material-web: **Raschka, S. (2025).** "The State of LLMs 2025"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [magazine.sebastianraschka.com](https://magazine.sebastianraschka.com/p/state-of-llms-2025)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Year-end retrospective with 2026 predictions.
 
 ### Tutorial Resources
 

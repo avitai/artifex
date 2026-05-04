@@ -31,18 +31,32 @@ def _load_mkdocs_config() -> dict[str, object]:
 
 
 def _slugify(heading: str) -> str:
+    """Approximate mkdocs' default slugifier.
+
+    Drops non-ASCII characters (so ``β-TCVAE …`` slugifies to
+    ``-tcvae-…`` exactly as mkdocs renders it) and preserves a leading
+    hyphen when the slug starts with one.
+    """
     normalized = heading.strip().lower()
     normalized = re.sub(r"`", "", normalized)
-    normalized = re.sub(r"[^\w\s-]", "", normalized)
+    normalized = re.sub(r"[^a-z0-9_\s-]", "", normalized)
     normalized = re.sub(r"[-\s]+", "-", normalized)
+    if normalized.startswith("-"):
+        return normalized.rstrip("-")
     return normalized.strip("-")
 
 
 @lru_cache(maxsize=None)
 def _heading_slugs(relative_path: str) -> set[str]:
+    """Collect markdown-heading slugs and explicit ``<a id="…">`` anchors."""
     contents = (DOCS_ROOT / relative_path).read_text()
     headings = re.findall(r"^#{1,6}\s+(.+)$", contents, flags=re.MULTILINE)
-    return {_slugify(heading) for heading in headings}
+    slugs = {_slugify(heading) for heading in headings}
+    explicit_anchors = re.findall(
+        r"<a\s+(?:id|name)\s*=\s*[\"']([^\"']+)[\"']", contents, flags=re.IGNORECASE
+    )
+    slugs.update(explicit_anchors)
+    return slugs
 
 
 def test_every_markdown_doc_is_in_mkdocs_nav() -> None:

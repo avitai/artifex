@@ -486,7 +486,7 @@ class TestAdvancedImageAugmentation:
 
         assert affine(image).shape == image.shape
         assert single_transform(image).shape == image.shape
-        assert interpolation(image).shape == coords.shape + (1,)
+        assert interpolation(image).shape == (*coords.shape, 1)
         assert jnp.isfinite(affine_grad).all()
         assert jnp.isfinite(single_transform_grad).all()
         assert jnp.isfinite(interpolation_grad).all()

@@ -30,9 +30,12 @@
 
 ---
 
+!!! tip "New here?"
+    For a one-page map of how EBMs fit next to VAEs, GANs, Diffusion, Flows, and Autoregressive models, start with [**Generative Models — A Unified View**](generative-models-unified.md). This page is the deep-dive on energy-based models specifically.
+
 ## Overview
 
-Energy-Based Models (EBMs) are a class of **deep generative models** that learn data distributions by assigning scalar energy values to every possible configuration. Unlike models that explicitly parameterize probability distributions, EBMs define probabilities implicitly through an energy function: **lower energy corresponds to higher probability**.
+Energy-Based Models (EBMs), formalised in the influential tutorial by [LeCun, Chopra, Hadsell, Ranzato & Huang (2006)](http://yann.lecun.com/exdb/publis/pdf/lecun-06.pdf) and put on a deep-learning footing by [Du & Mordatch (2019)](https://arxiv.org/abs/1903.08689), are a class of **deep generative models** that learn data distributions by assigning scalar energy values to every possible configuration. Unlike models that explicitly parameterize probability distributions, EBMs define probabilities implicitly through an energy function: **lower energy corresponds to higher probability**. The 2024–2026 wave of *energy-flow* methods (**Energy Matching**, **Equilibrium Matching**, **Energy-Based Diffusion Language Models**) has put EBMs back at the centre of generative-modelling research after a quiet 2020–2023 — see [Recent Advances (2024–2026)](#recent-advances-20242026-energy-flow-methods-and-implicit-ebms) below.
 
 **What makes EBMs special?**
 
@@ -204,20 +207,22 @@ This requires **sampling from the model distribution** $p_\theta(x)$, which is e
 
 ### Contrastive Divergence: Practical Approximation
 
-**Contrastive Divergence (CD)** (Hinton, 2002) approximates the intractable expectation using short MCMC chains:
+**Contrastive Divergence (CD)** ([Hinton, 2002 — Neural Computation](https://www.cs.toronto.edu/~hinton/absps/tr00-004.pdf)) approximates the intractable expectation using short MCMC chains:
 
 **Algorithm**:
 
-1. **Positive phase**: Sample data $x^+ \sim p_{\text{data}}$, compute $\nabla_\theta E_\theta(x^+)$
-2. **Negative phase**: Initialize $x^- = x^+$, run $k$ steps of MCMC to get $x^-$, compute $\nabla_\theta E_\theta(x^-)$
-3. **Gradient step**:
+1. **Positive phase**: Sample data $x^+ \sim p_{\text{data}}$, compute $\nabla_\theta E_\theta(x^+)$.
+2. **Negative phase**: Initialise $x^- = x^+$ (or from a persistent buffer), run $k$ MCMC steps to obtain a model sample $x^-$, compute $\nabla_\theta E_\theta(x^-)$.
+3. **Gradient of the negative log-likelihood**:
 
     $$
-    \nabla_\theta \mathcal{L}_{\text{CD}} \approx -\nabla_\theta E_\theta(x^+) + \nabla_\theta E_\theta(x^-)
+    \nabla_\theta \mathcal{L}_{\text{CD}} \;\approx\; \nabla_\theta E_\theta(x^+) \;-\; \nabla_\theta E_\theta(x^-).
     $$
+
+    Equivalently, the SGD parameter update is $\theta \leftarrow \theta - \alpha\, \nabla_\theta \mathcal{L}_{\text{CD}}$, which **lowers** the energy on data and **raises** it on model samples.
 
 ```mermaid
-graph LR
+graph TD
     Data["Data x⁺<br/>(real sample)"] --> PosGrad["Positive Gradient<br/>-∇E(x⁺)"]
     Data --> Init["Initialize<br/>x⁻ = x⁺"]
     Init --> MCMC["k MCMC Steps<br/>(typically k=1-60)"]
@@ -243,7 +248,7 @@ graph LR
 
 ### Persistent Contrastive Divergence (PCD)
 
-**PCD** (Tieleman, 2008) maintains a persistent sample buffer across training iterations:
+**PCD** ([Tieleman, 2008 — ICML](https://www.cs.toronto.edu/~tijmen/pcd/pcd.pdf)) maintains a persistent sample buffer across training iterations:
 
 **Algorithm**:
 
@@ -287,18 +292,24 @@ def persistent_contrastive_divergence(
 
 ### Langevin Dynamics: MCMC Sampling
 
-**Langevin dynamics** provides the MCMC sampler for EBMs:
+**Langevin dynamics** ([Welling & Teh, 2011 — ICML](https://www.stats.ox.ac.uk/~teh/research/compstats/WelTeh2011a.pdf)) provides the MCMC sampler for EBMs. The continuous-time SDE has the well-calibrated discretisation
 
 $$
-x_{t+1} = x_t - \frac{\epsilon}{2} \nabla_x E_\theta(x_t) + \sqrt{\epsilon} \, \xi_t
+x_{t+1} = x_t - \frac{\epsilon}{2} \nabla_x E_\theta(x_t) + \sqrt{\epsilon} \, \xi_t, \qquad \xi_t \sim \mathcal{N}(0, I),
 $$
 
-where $\xi_t \sim \mathcal{N}(0, I)$ and $\epsilon$ is the step size.
+which is **unbiased** for $p_\theta$ in the limit $\epsilon \to 0$. In practice, modern deep-EBM training (Du & Mordatch 2019 onward) instead uses an **SGLD-style decoupled** step where the gradient step size $\eta$ and the noise scale $\sigma$ are tuned independently:
+
+$$
+x_{t+1} = x_t - \eta\, \nabla_x E_\theta(x_t) + \sigma\, \xi_t,
+$$
+
+typically with $\eta \approx 10$–$100\times$ larger than the well-calibrated $\epsilon/2$ would suggest, plus a per-step clip to a valid data range (e.g. $[-1, 1]$ for images). This **breaks the formal Langevin sampling guarantee** but empirically produces much sharper samples within a feasible step budget; the implementation below uses this convention.
 
 **Two components:**
 
-1. **Gradient descent** $-\frac{\epsilon}{2} \nabla_x E_\theta(x_t)$ moves toward lower energy
-2. **Brownian motion** $\sqrt{\epsilon} \, \xi_t$ adds noise to explore the space
+1. **Gradient descent** $-\eta \nabla_x E_\theta(x_t)$ moves toward lower energy.
+2. **Brownian motion** $\sigma \xi_t$ explores the space and prevents the chain from collapsing onto a single mode.
 
 ```python
 def langevin_dynamics(
@@ -329,7 +340,7 @@ def langevin_dynamics(
 
 ### Score Matching: Avoiding Sampling
 
-**Score Matching** (Hyvärinen, 2005) bypasses MCMC sampling by matching the **score function** (gradient of log-density):
+**Score Matching** ([Hyvärinen, 2005 — JMLR](https://jmlr.org/papers/v6/hyvarinen05a.html)) bypasses MCMC sampling by matching the **score function** (gradient of log-density):
 
 $$
 \psi_\theta(x) = \nabla_x \log p_\theta(x) = -\nabla_x E_\theta(x)
@@ -355,11 +366,11 @@ $$
 
 **Disadvantages**:
 
-- **Second derivatives** $\nabla_x^2 E_\theta(x)$ expensive to compute
-- **Generation still requires MCMC** at test time
-- **Less effective** for high-dimensional data
+- **Second derivatives** $\nabla_x^2 E_\theta(x)$ in the Hyvärinen objective are expensive to compute (sliced score matching ([Song et al., 2019](https://arxiv.org/abs/1905.07088)) and DSM both side-step this).
+- **Generation still requires MCMC** at test time (or a learned sampler).
+- The vanilla Hyvärinen objective scales poorly with dimension because the trace term has high variance; **denoising / sliced score matching** completely fix this and are the basis of modern score-based diffusion ([Song & Ermon, 2019 — NCSN](https://arxiv.org/abs/1907.05600); [Song et al., 2021 — score-SDE](https://arxiv.org/abs/2011.13456)).
 
-**Denoising Score Matching**: A practical variant adds noise to data:
+**Denoising Score Matching** ([Vincent, 2011 — Neural Computation](https://www.iro.umontreal.ca/~vincentp/Publications/smdae_techreport.pdf)): A practical variant adds noise to data:
 
 $$
 \mathcal{L}_{\text{DSM}} = \mathbb{E}_{p_{\text{data}}(x)} \mathbb{E}_{p(\tilde{x}|x)}[\|\nabla_{\tilde{x}} E_\theta(\tilde{x}) + \frac{x - \tilde{x}}{\sigma^2}\|^2]
@@ -369,14 +380,14 @@ where $\tilde{x} = x + \sigma \epsilon$ with $\epsilon \sim \mathcal{N}(0, I)$.
 
 ### Noise Contrastive Estimation (NCE)
 
-**NCE** (Gutmann & Hyvärinen, 2010) frames training as **binary classification**:
+**NCE** ([Gutmann & Hyvärinen, 2010 — AISTATS](http://proceedings.mlr.press/v9/gutmann10a.html)) frames training as **binary classification**:
 
 **Setup**: Given data samples $\{x_i\}$ and noise samples $\{\tilde{x}_j\}$ from distribution $p_n$, train a classifier to distinguish them.
 
-**Decision rule**: Sample $x$ comes from data if $\frac{p_\theta(x)}{p_n(x)} > 1$, equivalently:
+**Decision rule**: sample $x$ comes from data if $\frac{p_\theta(x)}{p_n(x)} > 1$. Substituting $\log p_\theta(x) = -E_\theta(x) - c$ where $c = \log Z_\theta$ is treated as a **learnable scalar** (a key NCE trick that turns $Z$ from a doomed integral into one extra parameter):
 
 $$
-h_\theta(x) = \sigma(-E_\theta(x) - \log p_n(x))
+h_\theta(x) = \sigma(-E_\theta(x) - c - \log p_n(x)).
 $$
 
 **NCE objective**:
@@ -401,7 +412,7 @@ $$
 
 ## Joint Energy-Based Models (JEM)
 
-**Joint Energy-Based Models** (Grathwohl et al., 2020) unify generative and discriminative modeling in a single framework.
+**Joint Energy-Based Models** ([Grathwohl, Wang, Jacobsen, Duvenaud, Norouzi & Swersky, 2020 — ICLR](https://arxiv.org/abs/1912.03263)) unify generative and discriminative modeling in a single framework.
 
 ### The Key Insight
 
@@ -482,13 +493,13 @@ where:
 
     ---
 
-    Generates realistic samples comparable to GANs
+    Realistic samples — historically below GAN quality on CIFAR-10 (FID 38), reaching FID ≈ 9–11 with stabilised training ([Zhang et al., 2023](https://arxiv.org/abs/2303.04187)).
 
 - :material-shield-alert:{ .lg .middle } **Out-of-Distribution Detection**
 
     ---
 
-    Uses $p(x)$ to detect anomalies with AUROC > 95%
+    Uses $\log p(x)$ as an OOD score; achieves AUROC > 0.90 on standard CIFAR-10-vs-SVHN benchmarks.
 
 - :material-shield-check:{ .lg .middle } **Adversarial Robustness**
 
@@ -516,7 +527,7 @@ where:
 - **Computational cost**: Requires MCMC sampling during training
 - **Hyperparameter sensitivity**: Step size, noise scale, buffer size critical
 
-Recent work (2023-2024) has proposed improvements including better initialization, curriculum learning, and stabilized SGLD variants.
+Recent work has substantially stabilised JEM — see [Recent Advances → Foundational Refinements](#foundational-refinements-20212023) for *Stabilized JEM* ([Zhang et al., 2023](https://arxiv.org/abs/2303.04187)), which delivers the first stable JEM training on ImageNet-scale data via better initialisation, curriculum learning, and adaptive SGLD.
 
 ---
 
@@ -813,17 +824,17 @@ def training_step_with_diagnostics(model, batch, rngs):
 
 | Aspect | Energy-Based Models | GANs |
 |--------|---------------------|------|
-| **Training Stability** | Stable with PCD/CD | Notorious instability, mode collapse |
-| **Sample Quality** | Good (improving with recent methods) | Excellent (sharp, realistic) |
-| **Sampling Speed** | Slow (50-200 MCMC steps) | Fast (1 forward pass) |
-| **Mode Coverage** | Excellent (explicit density) | Poor (mode collapse common) |
-| **Likelihood** | Exact (modulo partition function) | None (no explicit density) |
-| **Architecture** | Any neural network | Generator-discriminator pair |
-| **Use Cases** | Density estimation, OOD detection | High-quality image synthesis |
+| **Training stability** | Stable with PCD / DRL / Energy Matching; classical CD with short chains is brittle | Adversarial; needs spectral norm + R1 |
+| **Sample quality** | Pre-2024 below GANs; modern EqM hits **FID 1.90 on ImageNet 256²** ([Wang et al., 2025](https://arxiv.org/abs/2510.02300)), surpassing GAN-class | Strong; modern R3GAN / GigaGAN remain competitive |
+| **Sampling speed** | Classical: 50–200 MCMC steps. EqM: a few adaptive-optimiser steps | 1 forward pass |
+| **Mode coverage** | Excellent (explicit density) | Prone to mode collapse |
+| **Likelihood** | Unnormalised; exact only in small / special structures, otherwise estimated or bounded because $Z$ is intractable | None (implicit) |
+| **Architecture** | Any neural network producing a scalar | Generator-discriminator pair |
+| **Strong use cases** | Density estimation, OOD detection, scientific applications, hybrid generative-discriminative tasks | Real-time image synthesis, latent editing |
 
 **When to use EBMs over GANs**:
 
-- Exact likelihood computation needed
+- Unnormalised scoring or density-ratio estimates needed
 - Out-of-distribution detection
 - Training stability priority
 - Avoiding mode collapse essential
@@ -832,18 +843,18 @@ def training_step_with_diagnostics(model, batch, rngs):
 
 | Aspect | Energy-Based Models | VAEs |
 |--------|---------------------|------|
-| **Architecture** | Unrestricted | Encoder-decoder with bottleneck |
-| **Likelihood** | Exact density | Lower bound (ELBO) |
-| **Sample Quality** | Good | Often blurry (reconstruction bias) |
-| **Sampling Speed** | Slow (MCMC) | Fast (single pass) |
-| **Training** | CD/PCD (requires MCMC) | Stable (reparameterization trick) |
-| **Latent Space** | No explicit latent | Structured latent representations |
-| **Use Cases** | Density estimation | Representation learning, compression |
+| **Architecture** | Unrestricted (any scalar-output network) | Encoder-decoder with bottleneck |
+| **Likelihood** | Unnormalised; exact only in small / special structures, otherwise estimated or bounded because $Z$ is intractable | Tractable lower bound (ELBO) |
+| **Sample quality** | Modern EqM matches diffusion (FID 1.90 on ImageNet 256²) | Blurry under L2 / Gaussian decoder; sharp once paired with adversarial / VQ losses (the SD-VAE recipe) |
+| **Sampling speed** | Classical: MCMC (slow). Modern (EqM): a few gradient-descent steps | Single forward pass |
+| **Training** | CD / PCD / DRL / Energy Matching | Stable (reparameterisation trick) |
+| **Latent space** | No explicit latent (the energy *is* the model) | Structured, interpretable, supports interpolation |
+| **Role in modern stacks** | Scoring, OOD detection, joint discriminative-generative | The *codec* feeding diffusion / flow priors |
 
 **When to use EBMs over VAEs**:
 
 - No need for learned latent representations
-- Exact density more important than speed
+- Flexible unnormalised density more important than speed
 - Want architectural flexibility
 - Avoid reconstruction-based blur
 
@@ -851,75 +862,158 @@ def training_step_with_diagnostics(model, batch, rngs):
 
 | Aspect | Energy-Based Models | Diffusion Models |
 |--------|---------------------|------------------|
-| **Conceptual Framework** | Energy landscape | Iterative denoising |
-| **Training** | CD/PCD (challenging) | Stable (MSE denoising) |
-| **Sampling** | MCMC (50-200 steps) | Denoising (50-1000 steps) |
-| **Sample Quality** | Good | State-of-the-art |
-| **Likelihood** | Exact | Tractable via ODE |
-| **Flexibility** | Any architecture | Flexible but typically U-Net |
-| **Maturity** | Older field, renewed interest | Rapidly advancing (2020-2025) |
+| **Conceptual framework** | Stationary energy landscape; samples are fixed points | Time-dependent score field; samples are end of a denoising trajectory |
+| **Training** | Classical CD/PCD: brittle. Modern Energy Matching / EqM / DRL: stable, simulation-free | Stable (MSE denoising) |
+| **Sampling** | Classical: 50–200 MCMC steps. Modern (EqM): adaptive gradient descent, often 5–50 steps | 20–1000 steps un-distilled; 1–4 steps distilled |
+| **Sample quality** | Modern EqM: FID 1.90 on ImageNet 256², surpassing several diffusion baselines | Leading across many image / video / 3D settings |
+| **Likelihood** | Unnormalised; $Z$ is usually intractable | ELBO / probability-flow ODE estimates |
+| **Architecture** | Any scalar-output network | DiT / U-Net / MMDiT (flexible but conventionally chosen) |
+| **2026 status** | Energy Matching (NeurIPS 2025), EqM (2025), EDLM (ICLR 2025), ARM↔EBM bijection (2026) — actively competitive again | Mature; flow-matching DiTs in production (SD3, FLUX.1) |
 
-**Relationship**: Diffusion models can be viewed as energy-based models with **time-dependent energy functions** and specific noise schedules. Score-based models unify the two perspectives.
+!!! note "Three formal connections"
+    1. **Score-based diffusion as time-indexed EBMs**: when $s_\theta(x, t)$ is a true score field, it can be written as $s_\theta(x, t) = -\nabla_x E_\theta(x, t)$ for an energy defined up to an additive constant — the score-SDE perspective ([Song et al., 2021](https://arxiv.org/abs/2011.13456)). An unconstrained vector field is not automatically conservative.
+    2. **Diffusion Recovery Likelihood** ([Gao et al., 2021](https://arxiv.org/abs/2012.08125)) explicitly parameterises a *sequence* of EBMs at progressively noisier scales, recovering each from the next.
+    3. **Energy Matching / Equilibrium Matching** invert the relationship: train a *time-invariant* energy whose gradient behaves like a denoising / flow-matching velocity field. The two paradigms share mathematical structure without becoming identical in likelihood, sampler, or modelling constraints.
 
 ---
 
-## Recent Advances (2023-2025)
+## Recent Advances (2024–2026): Energy-Flow Methods and Implicit EBMs
 
-### Improved Contrastive Divergence
+Between 2014 and 2023, EBM research focused on *making MCMC work* (Improved CD, PCD variants, Diffusion Recovery Likelihood). Between 2024 and 2026, the field has pivoted toward **simulation-free energy training** that borrows the regression objectives of flow matching and the architectural freedom of diffusion. This section organises the headline contributions, grounded in the recent comprehensive survey [*Hitchhiker's Guide on the Relation of EBMs with Other Generative Models*](https://arxiv.org/abs/2406.13661) (updated May 2025) and the continuously-updated [Awesome-EBM](https://github.com/yataobian/awesome-ebm) reading list.
 
-**Improved CD** (Du et al., ICML 2021) addresses gradient bias in standard CD:
+### Foundational Refinements (2021–2023)
 
-**Key innovations**:
+Before discussing the 2024–2026 wave, three earlier pieces set the table:
 
-1. **KL divergence term**: Add $\mathbb{E}_{x \sim p_{\text{data}}}[D_{\text{KL}}(q(x') | p_\theta(x'))]$ to loss
-2. **Data augmentation**: Augment both positive and negative samples
-3. **Multi-scale processing**: Process images at multiple resolutions
-4. **Reservoir sampling**: Maintain diverse buffer through stratified sampling
-
-**Results**: CIFAR-10 Inception Score of 8.30, substantial improvement over baseline CD.
-
-### Diffusion Contrastive Divergence (DCD)
-
-**DCD** (2023) replaces Langevin dynamics with **diffusion processes**:
-
-Instead of Langevin MCMC:
-$$
-x_{t+1} = x_t - \epsilon \nabla E(x_t) + \sqrt{2\epsilon} \xi_t
-$$
-
-Use general diffusion:
-$$
-dx_t = f(x_t, t)dt + g(t)dw_t
-$$
-
-**Benefits**:
-
-- **More flexible**: Not limited to Langevin
-- **More efficient**: Better exploration of space
-- **Simulation-free**: Train without explicit integration
-
-**Applications**: Higher quality image generation, faster convergence.
+- **Improved CD** ([Du, Li, Tenenbaum & Mordatch, 2021 — ICML](https://arxiv.org/abs/2012.01316)) — adds a KL-divergence term to address gradient bias, plus data augmentation, multi-scale processing, and reservoir-sampled buffers. Achieves Inception Score 8.30 on CIFAR-10.
+- **Diffusion Recovery Likelihood (DRL)** ([Gao, Song, Poole, Wu & Kingma, 2021 — ICLR](https://arxiv.org/abs/2012.08125)) — trains a *sequence* of EBMs at progressively noisier scales, each one a tractable conditional that recovers the previous scale; bridges EBMs with diffusion.
+- **Cooperative Diffusion Recovery Likelihood (CDRL)** ([Zhu et al., 2024 — ICLR](https://arxiv.org/abs/2309.05153)) — pairs each scale's EBM with an explicit initialiser model, dramatically improving CIFAR-10 / ImageNet generation while retaining tractable training.
+- **Persistently Trained Diffusion-Assisted EBMs** ([Yu et al., 2023](https://arxiv.org/abs/2304.10707)) — combines persistent training with diffusion-assisted sampling for long-run stability, post-training generation, and superior OOD detection.
+- **Stabilized JEM** ([Zhang et al., 2023](https://arxiv.org/abs/2303.04187)) — addresses JEM training instability via better initialisation, curriculum learning, and adaptive SGLD; first stable JEM training on ImageNet-scale data.
 
 ### Energy Matching: Unifying Flows and EBMs
 
-**Energy Matching** (2024) connects flow matching and energy-based modeling:
+**Energy Matching** ([Balcerak et al., 2025 — NeurIPS](https://arxiv.org/abs/2504.10612)) is the key conceptual unification of the 2024–2026 wave:
 
-**Framework**: Learn energy functions via flow matching objectives, avoiding MCMC during training entirely.
+- Far from the data manifold, samples follow **irrotational, optimal-transport** paths from noise to data — like flow matching.
+- Near the data manifold, an **entropic energy** term takes over and guides the system into a Boltzmann equilibrium — like a classical EBM.
+- A *single scalar potential* parameterises both regimes; **no time conditioning, no auxiliary generators, no second network**.
 
-**Training**: Match energy gradients to optimal transport flows between data and noise.
+The result substantially outperforms prior EBMs on CIFAR-10 and ImageNet generation while retaining simulation-free training away from the data manifold. The framework also supports interaction-energy terms for diverse-mode exploration, demonstrated on protein generation.
 
-**Results**: State-of-the-art likelihood on tabular datasets, competitive image generation.
+### Equilibrium Matching: Implicit Energy via Gradient Descent
 
-### Stable JEM Training
+**Equilibrium Matching (EqM)** ([Wang et al., 2025](https://arxiv.org/abs/2510.02300)) discards the time-conditional dynamics of diffusion / flow matching entirely:
 
-Recent work addresses JEM training instability:
+- Learn a **time-invariant gradient field** $\nabla E_\theta(x)$ such that the data manifold is a set of equilibrium (zero-gradient) points.
+- At inference, samples are produced by **gradient descent on the learned energy landscape** with *adjustable step sizes, adaptive optimisers, and adaptive compute* — replacing fixed-horizon ODE solvers with general optimisation.
+- Achieves **FID 1.90 on ImageNet 256×256**, surpassing diffusion / flow models at matched compute.
 
-1. **Better initialization**: Initialize from pre-trained classifier
-2. **Curriculum learning**: Gradually increase MCMC steps during training
-3. **Improved SGLD**: Adaptive step sizes, better noise schedules
-4. **Separate buffer per class**: Class-conditional buffers improve mixing
+EqM also handles partially-noised denoising, OOD detection, and image composition under a single unified framework — recovering the classical EBM "one model, many tasks" promise on modern benchmarks.
 
-**Stabilized JEM** (2023): Achieves stable training on ImageNet-scale datasets with competitive classification and generation.
+### Energy-Based Diffusion Language Models (EDLM)
+
+**EDLM** ([NVIDIA, 2025 — ICLR](https://arxiv.org/abs/2410.21357)) attacks discrete-text diffusion's approximation gap by attaching a **full-sequence energy model** at each diffusion step:
+
+- The standard discrete-diffusion factorisation $p(x_0 \mid x_t) \approx \prod_i p(x_0^{(i)} \mid x_t)$ breaks down for long sequences.
+- EDLM replaces the per-token approximation with a **sequence-level energy** $E_\theta(x_0, x_t)$ trained to score full reconstructions, then samples via NCE-style contrastive training plus importance-weighted decoding.
+- Closes a substantial chunk of the perplexity gap to autoregressive language models on PTB, OWT, and LM1B.
+
+This places EBMs at the centre of the discrete-diffusion-LM line of work alongside LLaDA and Mercury — see the [Diffusion explainer](diffusion-explained.md#diffusion-language-models-20242026).
+
+### ARMs are Secretly EBMs (2026)
+
+**Autoregressive Language Models are Secretly Energy-Based Models** ([Wang et al., 2026](https://arxiv.org/abs/2512.15605)) establishes an explicit *bijection* between autoregressive models and EBMs in function space:
+
+- The mapping corresponds to a special case of the **soft Bellman equation** in maximum-entropy reinforcement learning.
+- Implications: post-training alignment (RLHF, DPO) becomes natural energy-shaping; ARMs gain principled lookahead through their EBM dual.
+
+A companion 2026 paper ([*A Theoretical Lens for RL-Tuned LLMs via EBMs*](https://arxiv.org/abs/2512.18730)) develops the practical consequences for RLHF analysis.
+
+### Maximum-Entropy IRL for Diffusion Models
+
+**MaxEnt IRL for Diffusion** ([Anonymous, 2024 — NeurIPS](https://neurips.cc/virtual/2024/poster/94930)) interprets diffusion sample-quality fine-tuning as **inverse reinforcement learning with an EBM-shaped reward**:
+
+- Especially helpful when the diffusion sampler uses few steps, where standard losses become harder to optimise.
+- Connects EBMs back to the post-training-of-diffusion thread (DPO, DDPO, SiD).
+
+### Practical Recipes for Modern EBMs
+
+Reading across the 2024–2026 papers above, the consistent practical recipe is:
+
+1. **Pre-train a flow-matching or diffusion model** on the same data as a strong initialiser.
+2. **Add a scalar-potential head** (Energy Matching / EqM) or a **sequence-level energy** (EDLM) on top.
+3. **Train with simulation-free regression** for the bulk of the data manifold and **short MCMC / gradient-descent steps** near it.
+4. **Sample with adaptive optimisers** (Adam-like updates on $x$) rather than fixed ODE / SDE schedules — this is the EqM contribution and pairs cleanly with the production fast-inference stack.
+
+This recipe sidesteps the 2014–2020 era's combination of long-run MCMC instability and short-MCMC gradient bias — *the* historical reason EBMs stayed niche.
+
+---
+
+## Evaluation Metrics
+
+EBMs are evaluated on **density-estimation**, **sample-quality**, **out-of-distribution-detection**, and **representation-quality** axes:
+
+### Density-Estimation Metrics
+
+The partition function $Z_\theta$ makes *exact* likelihood intractable, so EBMs use *bounds and ratios*:
+
+- **Annealed Importance Sampling (AIS)** — gold-standard estimator of $\log Z_\theta$ for small-to-moderate dimensions; reported as **bits per dimension** on images.
+- **Reverse AIS** — provides upper-bound estimates; pair with AIS to bracket the true NLL.
+- **NCE log-Z estimate** — when training with NCE, the learned $c = \log Z$ parameter is itself an estimate.
+- **Energy-gap reporting** — $\mathbb{E}[E_\theta(x_\mathrm{data})] - \mathbb{E}[E_\theta(x_\mathrm{sample})]$; should be *positive and stable* during healthy training even when $Z$ is unknown.
+
+### Sample-Quality Metrics
+
+EBM sampling is unconditional by default; the standard image-generation metrics apply:
+
+- **FID** ([Heusel et al., 2017](https://arxiv.org/abs/1706.08500)), **Inception Score**, **CMMD** ([Jayasumana et al., 2024](https://arxiv.org/abs/2401.09603)).
+- Reference numbers from the [Recent Advances](#recent-advances-20242026-energy-flow-methods-and-implicit-ebms) section: **EqM achieves FID 1.90 on ImageNet 256²** ([Wang et al., 2025](https://arxiv.org/abs/2510.02300)); **CDRL** matches or surpasses diffusion baselines on CIFAR-10.
+- For language, **EDLM** ([NVIDIA, 2025](https://arxiv.org/abs/2410.21357)) reports **perplexity** competitive with similar-scale autoregressive LMs.
+
+### Out-of-Distribution Detection
+
+EBMs *naturally* support OOD detection via the energy score, which has been a historic strength:
+
+- **AUROC, AUPR** on standard CIFAR-10 vs SVHN / Textures / LSUN benchmarks. JEM and successors typically achieve **AUROC > 0.90**.
+- **Likelihood-ratio scores** ([Ren et al., 2019](https://arxiv.org/abs/1906.02845)) — divide by the energy of a "background" model to fix the well-known counter-intuitive higher-likelihood-on-OOD problem (cf. [Nalisnick et al., 2019](https://arxiv.org/abs/1810.09136)).
+
+### Representation Quality (JEM, conditional EBMs)
+
+- **Linear probing** on top of the JEM classifier head.
+- **Adversarial robustness** under PGD / AutoAttack — JEM and its successors are typically more robust than equivalent vanilla classifiers.
+- **Calibration** (ECE — Expected Calibration Error) — JEM-class models calibrate better than softmax baselines.
+
+---
+
+## Production Considerations
+
+### Inference Cost
+
+EBMs have historically had bad reputations at inference because of MCMC. The 2024–2026 landscape splits into three regimes:
+
+| Sampling regime | NFEs | 1024² latency on H100 |
+| --- | --- | --- |
+| Classical Langevin / SGLD | 50–200 | ~5–20 s (uncompetitive) |
+| Diffusion-Recovery-Likelihood ladder | 50–200 | ~5–20 s |
+| Equilibrium Matching gradient descent + Adam | 5–50 | ~200 ms – 2 s |
+| Mean-Flow-style 1-step distilled EBM | 1 | ~40 ms |
+
+Equilibrium Matching's **adaptive-optimiser sampling** is the key practical contribution: trade the rigidity of fixed ODE / SDE schedules for variable per-step costs and add early-termination criteria.
+
+### Quantisation and Deployment
+
+- **FP16 / BF16** universally safe for the energy network.
+- **INT8 PTQ** is risky — small errors in the energy gradient compound over MCMC steps. Quantise *only* the forward pass and keep gradients in FP16.
+- **Distillation** of EBMs into a single-step student is an active 2025–2026 research area (see [Equilibrium Matching's appendix on adaptive-NFE sampling](https://arxiv.org/abs/2510.02300)).
+
+### Common Pitfalls in Production
+
+- **Long-run sample collapse** — a classic EBM bug: samples slowly drift to a single low-energy mode after thousands of MCMC steps. Use a persistent buffer with periodic re-init (5 % per step) or switch to EqM-style adaptive sampling.
+- **Energy explosion during fine-tuning** — add a $\lambda \mathbb{E}[E^2]$ regulariser ($\lambda \approx 0.01$) to keep the energy bounded.
+- **OOD detection drift** — the AUROC on a held-out OOD set should be tracked as a *training metric*, not just a final-evaluation one.
+
+For the broader unified picture and how EBMs fit alongside diffusion / flow / VAE / GAN / AR systems in 2026, see [Generative Models — A Unified View](generative-models-unified.md).
 
 ---
 
@@ -982,13 +1076,13 @@ Energy-Based Models provide a principled framework for learning probability dist
 - Training data limited (VAEs/diffusion more sample-efficient)
 - Computational resources constrained at training time
 
-### Future Directions
+### Future Directions (2026 and Beyond)
 
-- **Faster sampling**: Learned samplers, amortized MCMC
-- **Better training**: Improved CD variants, score matching hybrids
-- **Scalability**: Efficient large-scale training, distributed MCMC
-- **Applications**: Scientific computing, protein design, molecular generation
-- **Unification**: Bridging EBMs, diffusion, and score-based models
+- **Energy-flow unification** — Energy Matching ([Balcerak et al., 2025](https://arxiv.org/abs/2504.10612)) and Equilibrium Matching ([Wang et al., 2025](https://arxiv.org/abs/2510.02300)) have shown that simulation-free EBM training can match diffusion FID; expect the next wave of large-scale generators to ship with energy heads.
+- **EBM dual of LLMs** — the bijection between ARMs and EBMs ([Wang et al., 2026](https://arxiv.org/abs/2512.15605)) suggests that post-training alignment (RLHF, DPO) is most cleanly understood as energy shaping; new RLHF methods built on this duality are emerging.
+- **Energy-based discrete diffusion for text** — EDLM ([NVIDIA, 2025](https://arxiv.org/abs/2410.21357)) closes the perplexity gap with autoregression on long sequences; expect this to extend to multimodal LLMs.
+- **Unified one-model-many-tasks** — EqM's single landscape solves generation, OOD detection, denoising, and composition; reviving the classical EBM ambition.
+- **Scientific applications** — protein design (Energy Matching), molecular generation, materials discovery, and physics-informed simulation continue to be where EBMs *naturally* dominate diffusion / flow alternatives.
 
 ---
 
@@ -1066,19 +1160,61 @@ Energy-Based Models provide a principled framework for learning probability dist
 &nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2012.08125](https://arxiv.org/abs/2012.08125) | [ICLR 2021](https://openreview.net/forum?id=v_1Soh8QUNc)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Connects EBMs with diffusion models via recovery likelihood
 
-### Recent Advances (2023-2025)
+### Recent Advances (2023–2026)
 
 :material-file-document: **Wu, D., Wang, L., & Hong, P. (2023).** "Training Energy-Based Models with Diffusion Contrastive Divergences"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2307.01668](https://arxiv.org/abs/2307.01668)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Replaces Langevin with general diffusion processes
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Replaces Langevin with general diffusion processes for the negative phase.
 
-:material-file-document: **Gao, Y., Liu, X., & Zha, H. (2024).** "Energy Matching: Unifying Flow Matching and Energy-Based Models for Generative Modeling"<br>
-&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2504.10612](https://arxiv.org/abs/2504.10612)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Unifies flow matching and EBMs (2024 cutting-edge)
+:material-file-document: **Zhu, Y., et al. (2024 — ICLR).** "Learning Energy-Based Models by Cooperative Diffusion Recovery Likelihood" (CDRL)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2309.05153](https://arxiv.org/abs/2309.05153)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Per-scale EBMs paired with explicit initialiser models; major CIFAR-10 / ImageNet improvements.
+
+:material-file-document: **Yu, X., et al. (2023).** "Persistently Trained, Diffusion-Assisted Energy-Based Models"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2304.10707](https://arxiv.org/abs/2304.10707)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Combines persistent training with diffusion-assisted sampling; long-run stability + post-training generation.
 
 :material-file-document: **Zhang, Y., et al. (2023).** "Stabilized Training of Joint Energy-based Models and their Practical Applications"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2303.04187](https://arxiv.org/abs/2303.04187)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Addresses JEM training instability
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: First stable JEM training on ImageNet-scale data.
+
+:material-file-document: **(2024 — NeurIPS).** "Maximum Entropy Inverse Reinforcement Learning of Diffusion Models with Energy-Based Models"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [neurips.cc/virtual/2024/poster/94930](https://neurips.cc/virtual/2024/poster/94930)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Re-frames diffusion sample-quality fine-tuning as MaxEnt IRL with an EBM-shaped reward.
+
+:material-file-document: **Balcerak, M., et al. (2025 — NeurIPS).** "Energy Matching: Unifying Flow Matching and Energy-Based Models for Generative Modeling"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2504.10612](https://arxiv.org/abs/2504.10612) | [github.com/m1balcerak/EnergyMatching](https://github.com/m1balcerak/EnergyMatching)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Single scalar potential — OT flow far from data, Boltzmann equilibrium near data; substantially outperforms prior EBMs.
+
+:material-file-document: **Wang, R., et al. (2025).** "Equilibrium Matching: Generative Modeling with Implicit Energy-Based Models" (EqM)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2510.02300](https://arxiv.org/abs/2510.02300) | [project page](https://raywang4.github.io/equilibrium_matching/)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Time-invariant gradient field; gradient-descent sampling; FID 1.90 on ImageNet 256² beats diffusion / flow.
+
+:material-file-document: **(NVIDIA, 2025 — ICLR).** "Energy-Based Diffusion Language Models for Text Generation" (EDLM)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2410.21357](https://arxiv.org/abs/2410.21357)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Sequence-level energy at each diffusion step closes the AR-LLM perplexity gap on PTB / OWT / LM1B.
+
+:material-file-document: **Wang, J., et al. (2026).** "Autoregressive Language Models are Secretly Energy-Based Models: Insights into the Lookahead Capabilities of Next-Token Prediction"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2512.15605](https://arxiv.org/abs/2512.15605)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Explicit bijection between ARMs and EBMs corresponding to the soft Bellman equation in MaxEnt RL.
+
+:material-file-document: **(2026).** "A Theoretical Lens for RL-Tuned Language Models via Energy-Based Models"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2512.18730](https://arxiv.org/abs/2512.18730)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Uses the ARM↔EBM duality to analyse RLHF and DPO theoretically.
+
+### Surveys
+
+:material-file-document: **(2024–2025).** "Hitchhiker's Guide on the Relation of Energy-Based Models with Other Generative Models, Sampling and Statistical Physics: A Comprehensive Review"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2406.13661](https://arxiv.org/abs/2406.13661)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Recent comprehensive review (updated May 2025) connecting EBMs with GANs, VAEs, flows, MCMC, and statistical physics.
+
+:material-github: **Awesome-EBM**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [github.com/yataobian/awesome-ebm](https://github.com/yataobian/awesome-ebm)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Continuously-updated curated list of energy / entropy-based-model papers.
+
+:material-web: **Energy-Based-Model.github.io — Du & Mordatch's continuously-updated EBM portal**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-link: [energy-based-model.github.io](https://energy-based-model.github.io/)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: Project list and code links.
 
 ### Tutorial Resources
 

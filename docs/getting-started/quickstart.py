@@ -187,6 +187,9 @@ BATCH_SIZE = 128
 # Warmup JIT compilation (don't count this in training time)
 print("Warming up JIT compilation...")
 warmup_rng = jax.random.key(999)
+
+# `train_epoch_staged` consumes a step-aware objective with signature
+# (model, batch, rng, step); `trainer.create_loss_fn(...)` supplies that contract.
 loss_fn = trainer.create_loss_fn(loss_type="bce")
 _ = train_epoch_staged(
     model,

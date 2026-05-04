@@ -124,7 +124,7 @@ cuda12 = [
   "nvidia-cusparse-cu12==12.5.8.93; sys_platform == 'linux'",
   "nvidia-nccl-cu12==2.27.5; sys_platform == 'linux'",
   "nvidia-nvjitlink-cu12==12.8.93; sys_platform == 'linux'",
-  "nvidia-nvshmem-cu12==3.4.5; sys_platform == 'linux'",
+  "nvidia-nvshmem-cu12==3.4.5; sys_platform == 'linux'"
 ]
 dev = [
   "build>=1.0.3",
@@ -163,11 +163,11 @@ dev = [
 docs = [
   "griffe>=1.7.3",
   "hippogriffe>=0.2",
-  "mkdocs>=1.6.1",
+  "mkdocs>=1.6.1,<2",
   "mkdocs-include-exclude-files>=0.1",
   "mkdocs-ipynb>=0.1",
   "mkdocs-jupyter>=0.24",
-  "mkdocs-material>=9.6.7",
+  "mkdocs-material>=9.6.7,<10",
   "mkdocstrings>=0.28.3",
   "mkdocstrings-python>=1.1.2",
   "pymdown-extensions>=10.14.3"

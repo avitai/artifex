@@ -175,18 +175,35 @@ class DocValidator:
 
     @staticmethod
     def _slugify(heading: str) -> str:
-        """Generate the slug used by MkDocs-style markdown anchors."""
+        """Generate the slug used by MkDocs-style markdown anchors.
+
+        Mirrors mkdocs' default slugifier: lowercases ASCII, drops non-ASCII
+        characters (e.g. Greek letters in headings), and collapses dashes /
+        whitespace into single hyphens. A heading like ``β-TCVAE and ...``
+        therefore renders an anchor with a leading hyphen, which the
+        validator must match exactly.
+        """
         normalized = heading.strip().lower().replace("`", "")
-        normalized = re.sub(r"[^\w\s-]", "", normalized)
+        normalized = re.sub(r"[^a-z0-9_\s-]", "", normalized)
         normalized = re.sub(r"[-\s]+", "-", normalized)
-        return normalized.strip("-")
+        return normalized.strip("-") if not normalized.startswith("-") else normalized.rstrip("-")
 
     @lru_cache(maxsize=None)
     def _heading_slugs(self, relative_path: str) -> set[str]:
-        """Collect all markdown heading slugs for one docs page."""
+        """Collect all anchor slugs for one docs page.
+
+        Picks up both markdown headings (rendered as auto-generated slugs)
+        and explicit HTML anchors of the form ``<a id="..."></a>`` /
+        ``<a name="..."></a>`` (used for citation back-links).
+        """
         contents = (self.docs_path / relative_path).read_text(encoding="utf-8")
         headings = re.findall(r"^#{1,6}\s+(.+)$", contents, flags=re.MULTILINE)
-        return {self._slugify(heading) for heading in headings}
+        slugs = {self._slugify(heading) for heading in headings}
+        explicit_anchors = re.findall(
+            r"<a\s+(?:id|name)\s*=\s*[\"']([^\"']+)[\"']", contents, flags=re.IGNORECASE
+        )
+        slugs.update(explicit_anchors)
+        return slugs
 
     def _relative_to_docs(self, path: Path) -> str:
         """Convert a docs file path into a docs-relative string."""

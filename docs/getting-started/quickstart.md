@@ -147,6 +147,9 @@ staged_data = jax.device_put(images)
 
 NUM_EPOCHS = 20
 BATCH_SIZE = 128
+
+# `train_epoch_staged` consumes a step-aware objective with signature
+# (model, batch, rng, step); `trainer.create_loss_fn(...)` supplies that contract.
 loss_fn = trainer.create_loss_fn(loss_type="bce")
 
 # Warmup so the first measured epoch isn't dominated by JIT compile time.
