@@ -71,7 +71,7 @@ class DiffusionTrainer:
     """Diffusion model trainer with modern training techniques.
 
     This trainer provides a JIT-compatible interface for training diffusion models
-    with state-of-the-art techniques. The train_step method takes model and optimizer
+    with advanced techniques. The train_step method takes model and optimizer
     as explicit arguments, allowing it to be wrapped with nnx.jit for performance.
 
     Features:

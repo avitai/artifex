@@ -6,7 +6,7 @@
 
 **Source:** `src/artifex/generative_models/training/trainers/diffusion_trainer.py`
 
-The Diffusion Trainer provides state-of-the-art training utilities for diffusion models, including multiple prediction types, advanced timestep sampling strategies, loss weighting schemes, and EMA model updates.
+The Diffusion Trainer provides training utilities for diffusion models, including multiple prediction types, advanced timestep sampling strategies, loss weighting schemes, and EMA model updates.
 
 ## Overview
 

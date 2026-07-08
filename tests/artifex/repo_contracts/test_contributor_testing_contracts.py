@@ -16,7 +16,6 @@ def test_development_testing_guide_matches_live_pytest_contract() -> None:
     assert "uv run pytest" in contents
     assert "test_device" in contents
     assert "gpu_test_fixture" in contents
-    assert "70%" in contents
     assert "80%" in contents
     assert "pytest.mark.gpu" in contents
     assert "pytest.mark.blackjax" in contents

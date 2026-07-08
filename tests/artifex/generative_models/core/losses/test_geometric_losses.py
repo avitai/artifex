@@ -3,7 +3,10 @@
 import jax
 import jax.numpy as jnp
 import pytest
-from calibrax.metrics.functional.geometric import hausdorff_distance as calibrax_hausdorff
+from calibrax.metrics.functional.geometric import (
+    chamfer_distance as calibrax_chamfer,
+    hausdorff_distance as calibrax_hausdorff,
+)
 from flax import nnx
 
 from artifex.generative_models.core.losses.geometric import (
@@ -39,6 +42,18 @@ class TestPointCloudLosses:
         # Test with factory function
         factory_loss_fn = get_point_cloud_loss("chamfer")
         assert jnp.allclose(factory_loss_fn(pred, target), loss)
+
+    def test_chamfer_distance_keeps_artifex_squared_batched_semantics(self):
+        """Calibrax Chamfer is useful but not a direct Artifex loss replacement."""
+        pred = jnp.array([[[0.0, 0.0, 0.0], [2.0, 0.0, 0.0]]], dtype=jnp.float32)
+        target = jnp.array([[[1.0, 0.0, 0.0], [2.0, 0.0, 0.0]]], dtype=jnp.float32)
+
+        artifex_loss = chamfer_distance(pred, target, reduction="none")
+        direct_calibrax = calibrax_chamfer(pred[0], target[0])
+
+        assert artifex_loss.shape == (1,)
+        assert float(artifex_loss[0]) == pytest.approx(1.0)
+        assert float(artifex_loss[0]) != pytest.approx(float(direct_calibrax))
 
     def test_earth_mover_distance(self):
         """Test earth mover distance calculation."""
@@ -280,7 +295,7 @@ class TestHausdorffDistance:
         assert loss_fn is hausdorff_distance
 
     def test_matches_calibrax_delegate(self):
-        """Hausdorff distance should delegate to the CalibraX primitive exactly."""
+        """Hausdorff distance should delegate to the Calibrax primitive exactly."""
         pred = jax.random.normal(jax.random.key(42), (3, 10, 3))
         target = jax.random.normal(jax.random.key(99), (3, 10, 3))
 

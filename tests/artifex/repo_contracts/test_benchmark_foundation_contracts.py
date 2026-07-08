@@ -1,4 +1,4 @@
-"""Repository contracts for the CalibraX-first benchmark foundation."""
+"""Repository contracts for the Calibrax-first benchmark foundation."""
 
 from __future__ import annotations
 
@@ -23,7 +23,7 @@ def _run_python(code: str) -> dict[str, object]:
 
 
 def test_benchmark_registry_surface_reuses_calibrax_singleton() -> None:
-    """The benchmark registry should be the CalibraX singleton, not a local wrapper."""
+    """The benchmark registry should be the Calibrax singleton, not a local wrapper."""
     payload = _run_python(
         "import json; "
         "from calibrax.core import BenchmarkRegistry as CalibraxBenchmarkRegistry; "
@@ -42,7 +42,7 @@ def test_benchmark_registry_surface_reuses_calibrax_singleton() -> None:
 
 
 def test_dataset_registry_surface_uses_calibrax_singleton_without_items_escape_hatch() -> None:
-    """Dataset registry should subclass CalibraX singleton storage without exposing .datasets."""
+    """Dataset registry should subclass Calibrax singleton storage without exposing .datasets."""
     payload = _run_python(
         "import json; "
         "from calibrax.core import SingletonRegistry; "
@@ -77,7 +77,7 @@ def test_dataset_loader_registry_reuses_the_shared_dataset_registry() -> None:
 
 
 def test_benchmark_protocol_exports_narrow_to_calibrax_protocols() -> None:
-    """The benchmark protocol package should export CalibraX protocol owners only."""
+    """The benchmark protocol package should export Calibrax protocol owners only."""
     payload = _run_python(
         "import json; "
         "import artifex.benchmarks.protocols as protocols; "

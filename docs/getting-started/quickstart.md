@@ -83,8 +83,7 @@ import jax
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import optax
-from datarax.sources import TFDSEagerSource
-from datarax.sources.tfds_source import TFDSEagerConfig
+from datarax.sources import from_tfds
 from flax import nnx
 
 from artifex.generative_models.core.configuration import (
@@ -96,10 +95,9 @@ from artifex.generative_models.models.vae import VAE
 from artifex.generative_models.training import train_epoch_staged
 from artifex.generative_models.training.trainers import VAETrainer, VAETrainingConfig
 
-# 1. Load MNIST with TFDSEagerSource (pure JAX, no TF during training)
+# 1. Load MNIST with the current Datarax TFDS factory in eager mode
 print("Loading MNIST...")
-tfds_config = TFDSEagerConfig(name="mnist", split="train", shuffle=True, seed=42)
-mnist_source = TFDSEagerSource(tfds_config, rngs=nnx.Rngs(0))
+mnist_source = from_tfds("mnist", "train", eager=True, shuffle=True, seed=42, rngs=nnx.Rngs(0))
 images = mnist_source.data["image"].astype(jnp.float32) / 255.0
 print(f"Loaded {len(mnist_source)} images, shape: {images.shape}")
 
@@ -252,7 +250,7 @@ The Jupyter notebook (`quickstart.ipynb`) is auto-generated from the
 
 ## What You Just Did
 
-1. Loaded data efficiently with `TFDSEagerSource`
+1. Loaded data efficiently with `from_tfds(..., eager=True)`
 2. Configured a CNN VAE with `VAEConfig`
 3. Used `VAETrainer` with linear KL annealing
 4. Trained with `train_epoch_staged`, where the entire epoch (the inner

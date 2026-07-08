@@ -1,6 +1,6 @@
 # Training System Overview
 
-Artifex provides a robust training system built on JAX/Flax NNX, working towards production-ready status. The training infrastructure handles the complete training lifecycle, from model initialization to checkpointing and evaluation.
+Artifex provides a training system built on JAX/Flax NNX. The training infrastructure handles the training lifecycle from model initialization to checkpointing and evaluation.
 
 <div class="grid cards" markdown>
 

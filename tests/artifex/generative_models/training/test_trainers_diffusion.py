@@ -1,7 +1,7 @@
 """TDD tests for Diffusion-specific trainer.
 
 These tests define the expected behavior for diffusion model training based on
-state-of-the-art techniques (2024-2025):
+advanced techniques (2024-2025):
 - Prediction types (epsilon, v-prediction, x-prediction)
 - Timestep sampling strategies (uniform, logit-normal, mode)
 - Loss weighting (uniform, SNR, min-SNR, EDM)

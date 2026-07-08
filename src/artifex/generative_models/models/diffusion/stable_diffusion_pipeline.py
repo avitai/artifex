@@ -1,6 +1,6 @@
 """Stable Diffusion Pipeline implementation.
 
-This module implements a production-ready Stable Diffusion pipeline that wraps
+This module implements a Stable Diffusion pipeline that wraps
 StableDiffusionModel and adds generation/inference capabilities:
 - DDPM scheduler for diffusion sampling
 - Full generation loop with classifier-free guidance

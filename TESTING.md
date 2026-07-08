@@ -56,16 +56,16 @@ uv run python scripts/verify_gpu_setup.py --json
 uv run pytest
 
 # Run a focused file
-uv run pytest tests/path/to/test_file.py -xvs
+uv run pytest tests/path/to/test_file.py -xvs --no-cov
 
 # Run a single test
-uv run pytest tests/path/to/test_file.py::TestClass::test_method -xvs
+uv run pytest tests/path/to/test_file.py::TestClass::test_method -xvs --no-cov
 
 # Run GPU-marked tests only
-uv run pytest -m gpu
+uv run pytest -m gpu --no-cov
 
 # Run BlackJAX tests only
-uv run pytest -m blackjax
+uv run pytest -m blackjax --no-cov
 ```
 
 ## Coverage

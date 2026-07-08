@@ -1,7 +1,7 @@
 """Retained benchmark foundation for Artifex.
 
 This module owns the framework-local benchmark config, result, and suite
-abstractions that remain on top of the CalibraX registry and protocol
+abstractions that remain on top of the Calibrax registry and protocol
 layer.
 """
 

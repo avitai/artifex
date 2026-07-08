@@ -345,6 +345,8 @@ Stable Diffusion's recipe ([Rombach et al., 2022](https://arxiv.org/abs/2112.107
 
 ADD / SDXL Turbo ([Sauer et al., 2023](https://arxiv.org/abs/2311.17042)) and DMD2 ([Yin et al., 2024 NeurIPS Oral](https://arxiv.org/abs/2405.14867)) put a GAN-style discriminator on top of a pretrained diffusion teacher to compress 50-step samplers down to 1–4 steps. The discriminator is a major component of several fast diffusion pipelines, alongside non-adversarial distillation families such as LCM and consistency models. **→ See [gan-explained.md](gan-explained.md#adversarial-training-in-20232026-modern-gans-and-diffusion-distillation).**
 
+<a id="5-energy-matching--flow-matching--ebm"></a>
+
 ### 5. Energy Matching = Flow Matching + EBM
 
 [Energy Matching (Balcerak et al., NeurIPS 2025)](https://arxiv.org/abs/2504.10612) parameterises a *single scalar potential* whose gradient is an OT vector field far from data and a Boltzmann equilibrium near data — unifying flow matching and EBMs in one objective. **Equilibrium Matching** ([Wang et al., 2025](https://arxiv.org/abs/2510.02300)) takes this further: time-invariant energy gradient, Adam-style sampling, FID 1.90 on ImageNet 256². **→ See [ebm-explained.md](ebm-explained.md#energy-matching-unifying-flows-and-ebms).**
@@ -528,7 +530,7 @@ A 2024–2026 thread that may end up reshaping the entire field: **figuring out 
 
 - **Universality of circuits** ([Olsson et al., 2022 — induction heads](https://transformer-circuits.pub/2022/in-context-learning-and-induction-heads/index.html); [Bridging the Black Box, ACM CSUR 2025](https://dl.acm.org/doi/10.1145/3787104)) — the same algorithmic motifs (induction heads, copy heads, summary heads) appear across LLMs of different sizes and seeds. **Same architecture → same circuits.**
 - **Diffusion semantic layout emerges early** ([Park et al., 2024 — *Emergence and Evolution of Interpretable Concepts in Diffusion Models*](https://arxiv.org/html/2504.15473)) — the global layout of a generated image is determined within the **first reverse-diffusion step**, even though the visual content is still pure noise. This is consistent with the [Platonic Representation Hypothesis](#the-platonic-representation-hypothesis): the model commits to a *semantic* representation early and refines it perceptually.
-- **Multi-hop reasoning has visible internal scratchpads** — Anthropic's 2024 work on Claude shows the model forming *intermediate latent representations* (e.g. "Dallas → Texas" before answering "what's the capital of Texas?") that match the structure of an explicit chain-of-thought. This connects directly to the [test-time compute scaling](#scaling-laws-across-families) story.
+- **Multi-hop reasoning has visible internal scratchpads** — 2024 mechanistic-interpretability work on transformer language models shows intermediate latent representations (e.g. "Dallas → Texas" before answering "what's the capital of Texas?") that match the structure of an explicit chain-of-thought. This connects directly to the [test-time compute scaling](#scaling-laws-across-families) story.
 - **Open Problems in Mechanistic Interpretability (Jan 2025)** — a 29-author consensus paper enumerated the field's current open problems: rigorous definitions of "feature", computational complexity barriers, practical methods that *underperform simple baselines* on safety-relevant tasks.
 
 ### Why It Matters for Generative Modelling
@@ -814,7 +816,7 @@ Pedagogical traps that catch most practitioners when they first move between fam
 
 ### "EBMs are obsolete"
 
-**Reality**: pre-2024 this was a reasonable practical view, but the [Modern Unifications → score-based diffusion as time-indexed EBMs](#1-score-based-diffusion-as-time-indexed-ebms) arrow shows that score-based diffusion can be read as a time-indexed energy model when the learned field is a true score. [Energy Matching, Equilibrium Matching, ARMs-as-EBMs](#5-energy-matching-flow-matching-ebm) restored EBMs to the centre of generative-model research between 2024 and 2026.
+**Reality**: pre-2024 this was a reasonable practical view, but the [Modern Unifications → score-based diffusion as time-indexed EBMs](#1-score-based-diffusion-as-time-indexed-ebms) arrow shows that score-based diffusion can be read as a time-indexed energy model when the learned field is a true score. [Energy Matching, Equilibrium Matching, ARMs-as-EBMs](#5-energy-matching--flow-matching--ebm) restored EBMs to the centre of generative-model research between 2024 and 2026.
 
 ### "FID is the standard metric for image generation"
 

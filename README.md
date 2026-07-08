@@ -34,7 +34,7 @@ From Latin "artifex": craftsman, artist, maker.
 
 ## Overview
 
-Artifex is a modular library for generative modeling research, providing implementations of various state-of-the-art generative models with a focus on modularity, type safety, and scientific reproducibility. Built on JAX and Flax NNX, it emphasizes clean abstractions and extensible design for research experimentation.
+Artifex is a modular library for generative modeling research, providing implementations of several generative model families with a focus on modularity, type safety, and scientific reproducibility. Built on JAX and Flax NNX, it emphasizes clean abstractions and extensible design for research experimentation.
 
 ### Why Artifex?
 
@@ -62,7 +62,7 @@ Artifex prioritizes:
 - **JAX Native**: Leverages JAX's functional programming paradigm
 - **Flax NNX**: Modern object-oriented API for neural networks
 - **Configuration Management**: Frozen dataclass configs with validation
-- **Testing**: Blocking CI enforces repository contracts and a 70% repo-wide coverage floor while new changes target 80% coverage
+- **Testing**: Blocking CI enforces repository contracts and an 80% repo-wide coverage floor
 
 See [Design Philosophy](docs/development/philosophy.md) for detailed discussion.
 
@@ -95,7 +95,7 @@ See [Design Philosophy](docs/development/philosophy.md) for detailed discussion.
 - **Modular Losses**: Composable loss functions (reconstruction, adversarial, perceptual)
 - **Flexible Sampling**: Multiple sampling strategies (ancestral, MCMC, ODE/SDE)
 - **Extension System**: Domain-specific constraints and functionality
-- **Evaluation Framework**: Standardized metrics and benchmarks with CalibraX-aligned composition
+- **Evaluation Framework**: Standardized metrics and benchmarks with Calibrax-aligned composition
 
 ## Quick Start
 
@@ -141,11 +141,10 @@ For detailed package-user and source-checkout options, see the [Installation Gui
 
 ### Start with the checked-in VAE quickstart
 
-The primary onboarding path is the live VAE quickstart under `docs/getting-started/quickstart.py` and `docs/getting-started/quickstart.ipynb`. It trains a VAE on MNIST with `TFDSEagerSource`, `VAETrainer`, and `train_epoch_staged`.
+The primary onboarding path is the live VAE quickstart under `docs/getting-started/quickstart.py` and `docs/getting-started/quickstart.ipynb`. It trains a VAE on MNIST with `from_tfds(..., eager=True)`, `VAETrainer`, and `train_epoch_staged`.
 
 ```python
-from datarax.sources import TFDSEagerSource
-from datarax.sources.tfds_source import TFDSEagerConfig
+from datarax.sources import from_tfds
 from artifex.generative_models.core.configuration import DecoderConfig, EncoderConfig, VAEConfig
 from artifex.generative_models.models.vae import VAE
 from artifex.generative_models.training import train_epoch_staged
@@ -225,7 +224,7 @@ See [Architecture Overview](docs/core/architecture.md) for more detail.
 uv run pytest
 
 # Focused contract checks
-uv run pytest tests/artifex/repo_contracts -q
+uv run pytest tests/artifex/repo_contracts -q --no-cov
 
 # Docs validation
 uv run python scripts/validate_docs.py --check-only --config-path mkdocs.yml --docs-path docs --src-path src
@@ -251,7 +250,8 @@ Artifex is in active alpha development.
 
 - Checked-in installation, onboarding, example, and contributor guides are maintained against the live runtime.
 - Blocking CI enforces repository contracts and build verification.
-- Quality and security workflows remain reviewed but informational while broader release hardening continues.
+- Quality reports remain reviewed while broader release hardening continues.
+- Security workflow checks are blocking for pull-request and push enforcement.
 - Package surfaces can still evolve between commits when a simpler or more truthful runtime design requires it.
 
 Use the [Installation Guide](docs/getting-started/installation.md), [Quickstart Guide](docs/getting-started/quickstart.md), [Testing Guide](TESTING.md), and [Planned Modules](docs/roadmap/planned-modules.md) as the current source of truth for supported workflows.
@@ -296,8 +296,8 @@ Artifex builds on several strong open-source projects:
 - [Optax](https://github.com/deepmind/optax) - Optimization utilities
 - [Orbax](https://github.com/google/orbax) - Checkpointing
 - [BlackJAX](https://github.com/blackjax-devs/blackjax) - MCMC and energy-based sampling
-- [CalibraX](https://github.com/avitai/calibrax) - Evaluation and benchmark composition
-- [DataRax](https://github.com/avitai/datarax) - Dataset and source adapters used in onboarding workflows
+- [Calibrax](https://github.com/avitai/calibrax) - Evaluation and benchmark composition
+- [Datarax](https://github.com/avitai/datarax) - Dataset and source adapters used in onboarding workflows
 
 ---
 

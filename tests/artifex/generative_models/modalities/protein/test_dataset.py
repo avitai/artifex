@@ -8,7 +8,10 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 import pytest
+from datarax import Pipeline
 from datarax.core.data_source import DataSourceModule
+from datarax.pipeline import PipelineIterator
+from flax import nnx
 
 from artifex.data.protein import (
     AA_TYPES,
@@ -204,14 +207,7 @@ def test_dataset_iteration():
 
 
 def test_protein_dataset_batched_collation():
-    """Test batched collation over a protein dataset.
-
-    The datarax 0.1.3 ``Pipeline`` contract requires ``get_batch_at(start,
-    size, key)`` for JIT-compiled batch fetches. Proteins use
-    variable-length collation via ``protein_collate_fn``, so batched access
-    is exercised through the dataset's own ``get_batch`` method rather than
-    through ``Pipeline.step``.
-    """
+    """Test fixed-shape batched collation over a protein dataset."""
     dataset = create_synthetic_protein_dataset(
         num_proteins=6,
         min_seq_length=5,
@@ -232,6 +228,96 @@ def test_protein_dataset_batched_collation():
         assert "atom_positions" in batch
         assert "atom_mask" in batch
         assert "aatype" in batch
+
+
+def test_protein_collate_fn_rejects_empty_examples():
+    """Standalone collation should fail clearly for empty input."""
+    with pytest.raises(ValueError, match="empty protein batch"):
+        protein_collate_fn([], max_seq_length=16)
+
+
+def test_protein_dataset_sequential_get_batch_returns_empty_after_exhaustion():
+    """Sequential Datarax get_batch convention should expose exhaustion explicitly."""
+    dataset = create_synthetic_protein_dataset(
+        num_proteins=2,
+        min_seq_length=5,
+        max_seq_length=8,
+        random_seed=42,
+    )
+
+    assert dataset.get_batch(2)["atom_positions"].shape[0] == 2
+    assert dataset.get_batch(2) == {}
+
+
+def test_protein_dataset_get_batch_at_static_padded_contract():
+    """Indexed access should return the same arrays as explicit padded collation."""
+    dataset = create_synthetic_protein_dataset(
+        num_proteins=6,
+        min_seq_length=5,
+        max_seq_length=10,
+        random_seed=42,
+    )
+
+    assert dataset.supports_indexed_access() is True
+    batch = dataset.get_batch_at(start=1, size=3, key=jax.random.key(0))
+    expected = dataset.get_batch([1, 2, 3], max_length=dataset.config.max_seq_length)
+
+    assert set(batch) == {"atom_positions", "atom_mask", "aatype", "residue_index"}
+    for key, value in batch.items():
+        assert value.shape == expected[key].shape
+        np.testing.assert_allclose(np.asarray(value), np.asarray(expected[key]))
+
+
+def test_protein_dataset_get_batch_at_wraps_at_end():
+    """Final fixed-size batches should wrap like Datarax eager sources."""
+    dataset = create_synthetic_protein_dataset(
+        num_proteins=5,
+        min_seq_length=5,
+        max_seq_length=10,
+        random_seed=42,
+    )
+
+    batch = dataset.get_batch_at(start=4, size=3, key=None)
+    expected = dataset.get_batch([4, 0, 1], max_length=dataset.config.max_seq_length)
+
+    np.testing.assert_allclose(
+        np.asarray(batch["atom_positions"]),
+        np.asarray(expected["atom_positions"]),
+    )
+    np.testing.assert_array_equal(np.asarray(batch["aatype"]), np.asarray(expected["aatype"]))
+
+
+def test_protein_dataset_get_batch_at_rejects_empty_dataset():
+    """Indexed access should fail clearly when step() is called on an empty dataset."""
+    dataset = ProteinDataset(ProteinDatasetConfig(max_seq_length=8))
+
+    with pytest.raises(ValueError, match="empty ProteinDataset"):
+        dataset.get_batch_at(start=0, size=1, key=None)
+
+
+def test_protein_dataset_pipeline_step_and_iteration_use_indexed_access():
+    """ProteinDataset should work through Datarax Pipeline.step and iterator paths."""
+    dataset = create_synthetic_protein_dataset(
+        num_proteins=5,
+        min_seq_length=5,
+        max_seq_length=10,
+        random_seed=42,
+    )
+    pipeline = Pipeline(source=dataset, stages=[], batch_size=3, rngs=nnx.Rngs(0))
+
+    step_batch = pipeline.step()
+    assert step_batch["atom_positions"].shape == (3, dataset.config.max_seq_length, 4, 3)
+    assert int(pipeline._position[...]) == 3
+
+    pipeline._position[...] = jnp.int32(0)
+    iterator = iter(pipeline)
+    assert isinstance(iterator, PipelineIterator)
+    iter_batches = list(iterator)
+    assert [batch["atom_positions"].shape for batch in iter_batches] == [
+        (3, dataset.config.max_seq_length, 4, 3),
+        (3, dataset.config.max_seq_length, 4, 3),
+    ]
+    assert int(pipeline._position[...]) == 6
 
 
 @pytest.fixture

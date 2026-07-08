@@ -1,10 +1,14 @@
 """Text-specific metrics for generative model evaluation."""
 
 import re
-from collections import Counter
 
 import flax.nnx as nnx
 import jax.numpy as jnp
+from calibrax.metrics.functional.text import (
+    bleu as calibrax_bleu,
+    rouge_l as calibrax_rouge_l,
+    rouge_n as calibrax_rouge_n,
+)
 
 from artifex.benchmarks.metrics.core import _init_metric_from_config, MetricBase
 from artifex.benchmarks.runtime_guards import demo_mode_from_mapping, require_demo_mode
@@ -33,7 +37,10 @@ class BLEUMetric(MetricBase):
         # BLEU parameters from config
         self.max_n = bleu_params.get("max_n", 4)
         self.smooth = bleu_params.get("smooth", True)
-        self.weights = bleu_params.get("weights", [0.25, 0.25, 0.25, 0.25])
+        weights = bleu_params.get("weights")
+        if weights is None:
+            weights = [1.0 / self.max_n for _ in range(self.max_n)]
+        self.weights = [float(weight) for weight in weights]
 
     def validate_inputs(self, real_data, generated_data) -> None:
         """Validate input data for BLEU computation.
@@ -75,57 +82,33 @@ class BLEUMetric(MetricBase):
 
     def _compute_bleu_score(self, reference: list[str], generated: list[str]) -> float:
         """Compute BLEU score for a single text pair."""
-        if len(generated) == 0:
-            return 0.0
-
-        # Compute n-gram precisions
-        precisions: list[float] = []
-
-        for n in range(1, self.max_n + 1):
-            ref_ngrams = self._get_ngrams(reference, n)
-            gen_ngrams = self._get_ngrams(generated, n)
-
-            if len(gen_ngrams) == 0:
-                precisions.append(0.0)
-                continue
-
-            # Count matches
-            matches = 0
-            for ngram in gen_ngrams:
-                if ngram in ref_ngrams:
-                    matches += min(gen_ngrams[ngram], ref_ngrams[ngram])
-
-            precision = matches / sum(gen_ngrams.values())
-            precisions.append(precision)
-
-        # Geometric mean of precisions
-        if 0.0 in precisions:
-            return 0.0
-
-        geometric_mean = jnp.exp(jnp.mean(jnp.log(jnp.array(precisions))))
-
-        # Brevity penalty
-        ref_len = len(reference)
-        gen_len = len(generated)
-
-        if gen_len > ref_len:
-            bp = 1.0
-        else:
-            bp = float(jnp.exp(1 - ref_len / gen_len)) if gen_len > 0 else 0.0
-
-        return float(bp * geometric_mean)
-
-    def _get_ngrams(self, tokens: list[str], n: int) -> Counter:
-        """Extract n-grams from tokens."""
-        ngrams: Counter[tuple[str, ...]] = Counter()
-        for i in range(len(tokens) - n + 1):
-            ngram = tuple(tokens[i : i + n])
-            ngrams[ngram] += 1
-        return ngrams
+        weights = tuple(self.weights[: self.max_n])
+        if len(weights) != self.max_n:
+            weights = tuple(1.0 / self.max_n for _ in range(self.max_n))
+        return float(
+            calibrax_bleu(
+                generated,
+                [reference],
+                max_n=self.max_n,
+                weights=weights,
+            )
+        )
 
 
 class ROUGEMetric(MetricBase):
     """ROUGE score metric for text summarization and generation."""
+
+    _ROUGE_ALIASES = {
+        "rouge1": ("n", 1),
+        "rouge-1": ("n", 1),
+        "rouge_1": ("n", 1),
+        "rouge2": ("n", 2),
+        "rouge-2": ("n", 2),
+        "rouge_2": ("n", 2),
+        "rougel": ("l", None),
+        "rouge-l": ("l", None),
+        "rouge_l": ("l", None),
+    }
 
     def __init__(self, *, config: EvaluationConfig, rngs: nnx.Rngs):
         """Initialize ROUGE metric.
@@ -183,15 +166,18 @@ class ROUGEMetric(MetricBase):
         """Compute specific ROUGE score for a text pair."""
         ref_tokens = self._tokenize(reference)
         gen_tokens = self._tokenize(generated)
+        rouge_kind, n = self._resolve_rouge_type(rouge_type)
 
-        if rouge_type == "rouge-1":
-            return self._rouge_n(ref_tokens, gen_tokens, 1)
-        elif rouge_type == "rouge-2":
-            return self._rouge_n(ref_tokens, gen_tokens, 2)
-        elif rouge_type == "rouge-l":
+        if rouge_kind == "n" and n is not None:
+            return self._rouge_n(ref_tokens, gen_tokens, n)
+        elif rouge_kind == "l":
             return self._rouge_l(ref_tokens, gen_tokens)
         else:
             return 0.0
+
+    def _resolve_rouge_type(self, rouge_type: str) -> tuple[str | None, int | None]:
+        """Return the Calibrax ROUGE primitive kind for a public type name."""
+        return self._ROUGE_ALIASES.get(rouge_type.lower(), (None, None))
 
     def _tokenize(self, text: str) -> list[str]:
         """Simple tokenization."""
@@ -199,51 +185,11 @@ class ROUGEMetric(MetricBase):
 
     def _rouge_n(self, reference: list[str], generated: list[str], n: int) -> float:
         """Compute ROUGE-N score."""
-        ref_ngrams = set(self._get_ngrams_list(reference, n))
-        gen_ngrams = set(self._get_ngrams_list(generated, n))
-
-        if len(ref_ngrams) == 0:
-            return 0.0
-
-        overlap = len(ref_ngrams.intersection(gen_ngrams))
-        return overlap / len(ref_ngrams)
+        return float(calibrax_rouge_n(generated, reference, n=n))
 
     def _rouge_l(self, reference: list[str], generated: list[str]) -> float:
         """Compute ROUGE-L score using longest common subsequence."""
-        lcs_length = self._lcs_length(reference, generated)
-
-        if len(reference) == 0 or len(generated) == 0:
-            return 0.0
-
-        precision = lcs_length / len(generated) if len(generated) > 0 else 0.0
-        recall = lcs_length / len(reference) if len(reference) > 0 else 0.0
-
-        if precision + recall == 0:
-            return 0.0
-
-        f1 = 2 * precision * recall / (precision + recall)
-        return f1
-
-    def _get_ngrams_list(self, tokens: list[str], n: int) -> list[tuple]:
-        """Extract n-grams as list of tuples."""
-        ngrams = []
-        for i in range(len(tokens) - n + 1):
-            ngrams.append(tuple(tokens[i : i + n]))
-        return ngrams
-
-    def _lcs_length(self, seq1: list[str], seq2: list[str]) -> int:
-        """Compute length of longest common subsequence."""
-        m, n = len(seq1), len(seq2)
-        dp = [[0] * (n + 1) for _ in range(m + 1)]
-
-        for i in range(1, m + 1):
-            for j in range(1, n + 1):
-                if seq1[i - 1] == seq2[j - 1]:
-                    dp[i][j] = dp[i - 1][j - 1] + 1
-                else:
-                    dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])
-
-        return dp[m][n]
+        return float(calibrax_rouge_l(generated, reference))
 
 
 class PerplexityMetric(MetricBase):
@@ -314,9 +260,7 @@ class PerplexityMetric(MetricBase):
             total_tokens += len(tokens)
 
         # Compute perplexity using centralized function
-        from artifex.generative_models.core.evaluation.metrics.information import (
-            compute_perplexity,
-        )
+        from artifex.generative_models.core.evaluation.metrics.information import compute_perplexity
 
         perplexity = compute_perplexity(total_log_prob, total_tokens)
 
@@ -454,7 +398,7 @@ def create_bleu_metric(
         Configured BLEUMetric instance
     """
     if weights is None:
-        weights = [0.25, 0.25, 0.25, 0.25]
+        weights = [1.0 / max_n for _ in range(max_n)]
 
     config = EvaluationConfig(
         name=config_name,

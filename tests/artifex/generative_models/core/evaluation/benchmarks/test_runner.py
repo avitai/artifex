@@ -200,7 +200,7 @@ class TestPerformanceTracker:
 
 
 class TestCalibraxMetricRegistry:
-    """Test CalibraX metric registry integration."""
+    """Test Calibrax metric registry integration."""
 
     def test_metric_registry_singleton(self):
         registry1 = MetricRegistry()
@@ -346,7 +346,7 @@ class TestBenchmarkIntegration:
         # Create benchmark
         benchmark = MockBenchmark(config=sample_config, rngs=rngs)
 
-        # Register a custom metric in the CalibraX registry
+        # Register a custom metric in the Calibrax registry
         registry = MetricRegistry()
 
         def custom_metric(data):

@@ -129,7 +129,7 @@ class TestImportFromTopLevel:
 
 
 class TestMetricLearningTransformCompatibility:
-    """Metric learning re-exports should preserve CalibraX transform behavior."""
+    """Metric learning re-exports should preserve Calibrax transform behavior."""
 
     @pytest.mark.parametrize(
         ("loss_cls", "kwargs"),

@@ -388,6 +388,8 @@ graph LR
 - **Fair AI** by removing sensitive attributes from representations
 - **Controllable generation** by manipulating specific latent factors
 
+<a id="β-tcvae-and-factorvae-targeting-total-correlation"></a>
+
 ### β-TCVAE and FactorVAE: Targeting Total Correlation
 
 β-VAE penalises the *full* KL term, which conflates two effects: pushing each posterior toward the prior, and pushing the *aggregated* posterior $q_\phi(z)=\mathbb{E}_{p_d(x)}q_\phi(z\mid x)$ toward a factorized distribution. Only the second effect actually drives disentanglement. Two variants isolate it:
@@ -764,7 +766,7 @@ graph TD
 **Achieving disentanglement:**
 
 - Train with β-VAE (β > 1) for a quick lever; expect a recon-vs-disentanglement trade-off.
-- Use [β-TCVAE or FactorVAE](#-tcvae-and-factorvae-targeting-total-correlation) when you want to reweight only the total-correlation component of the KL.
+- Use [β-TCVAE or FactorVAE](#β-tcvae-and-factorvae-targeting-total-correlation) when you want to reweight only the total-correlation component of the KL.
 - Use structured datasets (dSprites, 3D Shapes, MPI3D) — disentanglement is essentially impossible to evaluate on natural images.
 - Add supervision or weak supervision (paired examples, attribute labels): [Locatello et al., 2019](https://arxiv.org/abs/1811.12359) proves that *purely unsupervised* disentanglement is fundamentally identifiable only up to inductive biases.
 

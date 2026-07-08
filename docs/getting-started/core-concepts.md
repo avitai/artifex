@@ -421,7 +421,7 @@ graph TB
     style X0R fill:#e8f5e9
 ```
 
-**Pros**: state-of-the-art image / audio / video quality; stable training;
+**Pros**: high image / audio / video quality; stable training;
 strong support for classifier-free guidance
 ([Ho & Salimans, 2022](#ho-salimans-2022)) and conditional / text-to-image
 generation.

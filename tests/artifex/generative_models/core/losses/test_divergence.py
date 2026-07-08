@@ -60,7 +60,7 @@ class TestKLDivergence:
         np.testing.assert_allclose(result, expected)
 
     def test_default_array_path_matches_calibrax_kl(self):
-        """Default array KL should track the shared CalibraX primitive."""
+        """Default array KL should track the shared Calibrax primitive."""
         p = jnp.array([0.9, 0.1])
         q = jnp.array([0.1, 0.9])
 
@@ -95,7 +95,7 @@ class TestReverseKLDivergence:
         np.testing.assert_allclose(result, expected)
 
     def test_default_array_path_matches_calibrax_reverse_kl(self):
-        """Default array reverse KL should track the shared CalibraX primitive."""
+        """Default array reverse KL should track the shared Calibrax primitive."""
         p = jnp.array([0.9, 0.1])
         q = jnp.array([0.1, 0.9])
 
@@ -141,7 +141,7 @@ class TestJSDivergence:
             js_divergence(p, q)
 
     def test_default_array_path_matches_calibrax_js(self):
-        """Default array JS should track the shared CalibraX primitive."""
+        """Default array JS should track the shared Calibrax primitive."""
         p = jnp.array([0.9, 0.1])
         q = jnp.array([0.1, 0.9])
 
@@ -196,7 +196,7 @@ class TestWassersteinDistance:
         np.testing.assert_allclose(result, expected)
 
     def test_default_l1_path_matches_calibrax_wasserstein(self):
-        """Default 1D Wasserstein should track the shared CalibraX primitive."""
+        """Default 1D Wasserstein should track the shared Calibrax primitive."""
         p = jnp.array([1.0, 2.0, 3.0])
         q = jnp.array([2.0, 3.0, 4.0])
 
@@ -217,7 +217,7 @@ class TestMaximumMeanDiscrepancy:
     """Tests for MMD divergence paths."""
 
     def test_rbf_kernel_returns_per_batch_values(self):
-        """RBF MMD should delegate to the shared CalibraX estimator per batch."""
+        """RBF MMD should delegate to the shared Calibrax estimator per batch."""
         predictions = jnp.array([[[0.0], [1.0]], [[1.0], [2.0]]])
         targets = predictions + 0.25
 

@@ -158,7 +158,7 @@ $$
 
 ## Flow Model Architectures
 
-Artifex provides implementations of several state-of-the-art flow architectures, each with different trade-offs between expressiveness, computational efficiency, and ease of use.
+Artifex provides implementations of several flow architectures, each with different trade-offs between expressiveness, computational efficiency, and ease of use.
 
 ### 1. NICE: Pioneering Coupling Layers
 
@@ -763,7 +763,7 @@ Uses **minibatch optimal transport** to couple noise and data samples before int
 
 - Training continuous flows efficiently
 - Want simulation-free gradients
-- Need state-of-the-art likelihood
+- Need strong likelihood estimates
 - See [Recent Advances → Conditional Flow Matching](#conditional-flow-matching-and-optimal-transport-couplings) for OT-CFM, Stochastic Interpolants, and the 2024–2026 production picture.
 
 ### Rectified Flows: Learning Straight Trajectories

@@ -361,6 +361,8 @@ graph TD
     style T fill:#fff9c4
 ```
 
+<a id="adaln-adaln-zero-adaln-single-adaln-lora--conditioning-variants"></a>
+
 #### adaLN, adaLN-Zero, adaLN-single, adaLN-LoRA — Conditioning Variants
 
 How a transformer-style diffusion backbone is *conditioned* on the timestep (and optionally class label / text vector / pooled prompt) is itself a design axis with surprising consequences:
@@ -386,6 +388,8 @@ How a transformer-style diffusion backbone is *conditioned* on the timestep (and
 - Trained for ~675 A100-days — about 12 % of SD 1.5's compute budget — and matches SDXL on aesthetic FID.
 
 **PixArt-Σ** ([Chen et al., 2024](https://arxiv.org/abs/2403.04692)) scales to **direct 4K-resolution generation** via a *weak-to-strong* training schedule and a token-compression block that linearises attention over high-resolution patches.
+
+<a id="mmdit-sd3--multimodal-dual-stream-transformer"></a>
 
 #### MMDiT (SD3) — Multimodal Dual-Stream Transformer
 
@@ -584,7 +588,7 @@ For DiT-style backbones, the equivalent is **Adaptive Layer Normalisation**, whi
 - **adaLN-single** ([Chen et al., 2023 — PixArt-α](https://arxiv.org/abs/2310.00426)) — share one $(\gamma, \beta)$ projection across all blocks; ~20 % parameter savings.
 - **adaLN-LoRA** ([Lu et al., 2024 — FiTv2](https://arxiv.org/abs/2410.13925)) — factorise the per-block projection through a low-rank decomposition.
 
-See [Beyond U-Net → adaLN, adaLN-Zero, adaLN-single, adaLN-LoRA](#adaln-adaln-zero-adaln-single-adaln-lora-conditioning-variants) for the full discussion.
+See [Beyond U-Net → adaLN, adaLN-Zero, adaLN-single, adaLN-LoRA](#adaln-adaln-zero-adaln-single-adaln-lora--conditioning-variants) for the full discussion.
 
 ##### Concatenation as Extra Channels
 
@@ -685,7 +689,7 @@ Cross-attention is *also* how PixArt-α / -Σ inject text into a DiT, where it s
 
 Stable Diffusion 3, FLUX.1, Hunyuan-DiT, Lumina-Next, and most other 2024–2026 large-scale text-to-image models use **joint attention** instead of cross-attention: text and image tokens are *concatenated into a single sequence* and run through a single self-attention block, with each modality having its own QKV/MLP weights but a shared attention computation.
 
-This lets every text token attend to every image token *and* vice versa, in a single bidirectional operation. See the [MMDiT](#mmdit-sd3-multimodal-dual-stream-transformer) subsection above for the architecture diagram. Empirically, joint attention is the single biggest reason MMDiT-style models render text inside images so much better than cross-attention U-Nets.
+This lets every text token attend to every image token *and* vice versa, in a single bidirectional operation. See the [MMDiT](#mmdit-sd3--multimodal-dual-stream-transformer) subsection above for the architecture diagram. Empirically, joint attention is the single biggest reason MMDiT-style models render text inside images so much better than cross-attention U-Nets.
 
 #### Position Encodings: Sinusoidal → Learned → RoPE → 2-D RoPE
 
@@ -1271,6 +1275,8 @@ graph LR
 
 ## Diffusion Model Variants
 
+<a id="latent-diffusion-models-ldm--stable-diffusion"></a>
+
 ### Latent Diffusion Models (LDM / Stable Diffusion)
 
 **Latent Diffusion** ([Rombach et al., 2022 — CVPR](https://arxiv.org/abs/2112.10752)) introduced the most important architectural pattern in modern diffusion: **run diffusion in a VAE latent space, not in pixel space**.
@@ -1507,7 +1513,7 @@ Uses 2D text-to-image models as priors for 3D generation via **Score Distillatio
 
 #### Hybrid Approach: Latent Diffusion
 
-These two models are not competitors in 2026 — they are *complementary stages*. Stable Diffusion, SDXL, SD3, FLUX.1, and many leading open video models use an **autoencoder / VAE-like codec** to compress pixels before running diffusion or flow matching on the compressed latent. Sora's public technical report likewise describes a compressed latent representation decomposed into spacetime patches, but it does not expose enough implementation detail to call the codec a specific VAE variant. The full pattern is described in [Latent Diffusion Models](#latent-diffusion-models-ldm-stable-diffusion). The VAE gives a 2.7× speedup over pixel-space diffusion at matching quality and shrinks memory by an order of magnitude — see also the [VAE explainer's tokenizer-VAE section](vae-explained.md#vaes-inside-modern-generative-pipelines).
+These two models are not competitors in 2026 — they are *complementary stages*. Stable Diffusion, SDXL, SD3, FLUX.1, and many leading open video models use an **autoencoder / VAE-like codec** to compress pixels before running diffusion or flow matching on the compressed latent. Sora's public technical report likewise describes a compressed latent representation decomposed into spacetime patches, but it does not expose enough implementation detail to call the codec a specific VAE variant. The full pattern is described in [Latent Diffusion Models](#latent-diffusion-models-ldm--stable-diffusion). The VAE gives a 2.7× speedup over pixel-space diffusion at matching quality and shrinks memory by an order of magnitude — see also the [VAE explainer's tokenizer-VAE section](vae-explained.md#vaes-inside-modern-generative-pipelines).
 
 ### Diffusion vs. Autoregressive Models
 
@@ -1814,7 +1820,7 @@ Pre-deployment filters to prevent harmful content:
 
 ## Summary and Key Takeaways
 
-Diffusion models have revolutionized generative AI through an elegant approach: learning to reverse a gradual noising process. By systematically destroying data structure through fixed forward diffusion and learning the reverse process through neural networks, these models achieve state-of-the-art quality with remarkable training stability.
+Diffusion models use a direct recipe: learn to reverse a gradual noising process. By systematically destroying data structure through fixed forward diffusion and learning the reverse process through neural networks, these models can produce high-quality samples with stable training behavior.
 
 **Core Principles**:
 
@@ -1921,7 +1927,7 @@ Diffusion models in 2026 are no longer a single algorithmic family — they are 
 
     ---
 
-    Explore Stable Diffusion, video diffusion, and state-of-the-art architectures
+    Explore Stable Diffusion, video diffusion, and modern architectures
 
 </div>
 

@@ -1,7 +1,7 @@
 """TDD tests for Flow-specific trainer.
 
 These tests define the expected behavior for flow matching training based on
-state-of-the-art techniques (2024-2025):
+advanced techniques (2024-2025):
 - Conditional Flow Matching (CFM)
 - Optimal Transport CFM (OT-CFM)
 - Rectified Flow

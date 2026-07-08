@@ -194,7 +194,7 @@ class ProteinDataset(DataSourceModule):
             config = ProteinDatasetConfig()
             dataset = ProteinDataset(config, data_dir="/path/to/proteins")
 
-        With datarax pipeline::
+        With datarax pipeline fixed-shape batches::
 
             from datarax import Pipeline
             from flax import nnx
@@ -202,6 +202,11 @@ class ProteinDataset(DataSourceModule):
             pipeline = Pipeline(source=dataset, stages=[], batch_size=8, rngs=nnx.Rngs(0))
             for batch in pipeline:
                 train_step(batch)
+
+        ``get_batch(indices)`` keeps the local variable-length collation surface
+        unless ``max_length`` is supplied. ``get_batch_at(start, size, key)`` is
+        the Datarax Pipeline path: it gathers from a precomputed padded array
+        cache and returns only fixed-shape tensor fields.
     """
 
     # Narrow config type for pyright
@@ -209,6 +214,7 @@ class ProteinDataset(DataSourceModule):
 
     # NNX data annotation — structures stored as non-trainable data
     structures: list[ProteinStructure] = nnx.data()
+    _indexed_arrays: BatchType = nnx.data()
 
     def __init__(
         self,
@@ -231,6 +237,7 @@ class ProteinDataset(DataSourceModule):
         """
         super().__init__(config, rngs=rngs, name=name or "ProteinDataset")
         self.structures = _load_structures(data_or_path, data_dir)
+        self._indexed_arrays = _build_indexed_arrays(self)
 
     def __iter__(self) -> Iterator[dict[str, Any]]:
         """Iterate over processed protein structures.
@@ -381,12 +388,46 @@ class ProteinDataset(DataSourceModule):
         else:
             indices = batch_size_or_indices
 
+        if not indices:
+            return {}
+
         examples = [self[idx] for idx in indices]
         return protein_collate_fn(
             examples,
             max_seq_length=self.config.max_seq_length,
             pad_to=max_length,
         )
+
+    def supports_indexed_access(self) -> bool:
+        """Return whether Datarax can drive this source through ``get_batch_at``."""
+        return True
+
+    def get_batch_at(
+        self,
+        start: int | Any,
+        size: int,
+        key: Any | None = None,
+    ) -> dict[str, jax.Array]:
+        """Return a fixed-shape stateless batch for Datarax ``Pipeline.step``.
+
+        The public ``get_batch(indices)`` path preserves variable-length
+        collation unless a caller requests ``max_length``. Datarax's compiled
+        pipeline path needs static shapes and a traced ``start`` value, so this
+        method gathers from the precomputed padded tensor cache instead of
+        indexing the Python ``structures`` list.
+        """
+        del key  # ProteinDataset has deterministic sequential ordering.
+
+        if not self.structures:
+            raise ValueError("Cannot index an empty ProteinDataset")
+
+        indices = (
+            jnp.asarray(start, dtype=jnp.int32) + jnp.arange(size, dtype=jnp.int32)
+        ) % jnp.int32(len(self.structures))
+        return {
+            name: jnp.take(value, indices, axis=0, mode="wrap")
+            for name, value in self._indexed_arrays.items()
+        }
 
     def get_statistics(self) -> dict[str, float]:
         """Compute dataset statistics.
@@ -467,6 +508,9 @@ def protein_collate_fn(
         Batched data as JAX arrays with shape [batch, seq_len, ...].
     """
     batch_size = len(examples)
+    if batch_size == 0:
+        raise ValueError("Cannot collate an empty protein batch")
+
     if pad_to is not None:
         max_len = pad_to
     else:
@@ -501,6 +545,19 @@ def protein_collate_fn(
 # ---------------------------------------------------------------------------
 # Data loading helpers (module-level, not methods)
 # ---------------------------------------------------------------------------
+
+
+def _build_indexed_arrays(dataset: ProteinDataset) -> BatchType:
+    """Build the fixed-shape tensor cache used by Datarax indexed batching."""
+    if not dataset.structures:
+        return {}
+
+    examples = [dataset[idx] for idx in range(len(dataset.structures))]
+    return protein_collate_fn(
+        examples,
+        max_seq_length=dataset.config.max_seq_length,
+        pad_to=dataset.config.max_seq_length,
+    )
 
 
 def _load_structures(

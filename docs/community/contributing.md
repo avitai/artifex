@@ -41,7 +41,7 @@ uv run pre-commit run --all-files
 
 ```bash
 # Run tests to verify setup
-uv run pytest tests/ -v
+uv run pytest
 ```
 
 ### Development Workflow
@@ -59,7 +59,7 @@ git checkout -b feature/my-new-feature
 # ...
 
 # Run tests
-uv run pytest tests/path/to/test_file.py -xvs
+uv run pytest tests/path/to/test_file.py -xvs --no-cov
 
 # Run linting
 uv run ruff check src/
@@ -228,7 +228,7 @@ def test_gpu_training():
 uv run pytest
 
 # Run specific test file
-uv run pytest tests/artifex/generative_models/models/test_vae.py -xvs
+uv run pytest tests/artifex/generative_models/models/test_vae.py -xvs --no-cov
 
 # Run with coverage
 uv run pytest --cov=src/artifex --cov-report=html

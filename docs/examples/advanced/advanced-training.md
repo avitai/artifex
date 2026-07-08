@@ -4,7 +4,7 @@
 **Runtime:** ~2 minutes
 **Format:** Dual (.py script | .ipynb notebook)
 
-Production-ready training patterns including optimizer configuration, learning rate scheduling, metrics tracking, and checkpointing strategies.
+Training patterns including optimizer configuration, learning rate scheduling, metrics tracking, and checkpointing strategies.
 
 ## Files
 
@@ -23,7 +23,7 @@ jupyter notebook examples/generative_models/advanced_training_example.ipynb
 
 ## Overview
 
-This example demonstrates how to build a complete, production-ready training pipeline using the Artifex framework. You'll learn essential patterns for training deep learning models including configuration management, optimization strategies, metrics tracking, and model checkpointing.
+This example demonstrates how to build a runnable training pipeline using the Artifex framework. You'll learn essential patterns for training deep learning models including configuration management, optimization strategies, metrics tracking, and model checkpointing.
 
 ### Learning Objectives
 

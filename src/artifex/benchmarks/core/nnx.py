@@ -1,6 +1,6 @@
 """Artifex-specific NNX benchmark base classes.
 
-The CalibraX protocol layer owns the generic benchmark contract. This
+The Calibrax protocol layer owns the generic benchmark contract. This
 module keeps only the NNX-specific abstract base classes that Artifex
 still needs for local benchmark implementations.
 """

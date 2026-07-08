@@ -1,7 +1,7 @@
 """TDD tests for GAN-specific trainer.
 
 These tests define the expected behavior for GAN training based on
-state-of-the-art techniques (2024-2025):
+advanced techniques (2024-2025):
 - Multiple loss functions (vanilla, wasserstein, hinge, lsgan, relativistic)
 - Gradient penalties (WGAN-GP, R1, R2)
 - Label smoothing

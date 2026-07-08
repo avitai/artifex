@@ -47,15 +47,10 @@ import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
 import optax
-from datarax.sources import TFDSEagerSource
-from datarax.sources.tfds_source import TFDSEagerConfig
+from datarax.sources import from_tfds
 from flax import nnx
 
-from artifex.generative_models.core.configuration import (
-    DecoderConfig,
-    EncoderConfig,
-    VAEConfig,
-)
+from artifex.generative_models.core.configuration import DecoderConfig, EncoderConfig, VAEConfig
 from artifex.generative_models.models.vae import VAE
 from artifex.generative_models.training import train_epoch_staged
 from artifex.generative_models.training.trainers import VAETrainer, VAETrainingConfig
@@ -65,16 +60,15 @@ print(f"JAX backend: {jax.default_backend()}")
 
 
 # %% [markdown]
-# ## Step 1: Load Data with TFDSEagerSource.
+# ## Step 1: Load Data with from_tfds(..., eager=True).
 #
-# `TFDSEagerSource` loads the entire dataset into JAX arrays at initialization.
+# `from_tfds(..., eager=True)` loads the entire dataset into JAX arrays at initialization.
 # This eliminates TensorFlow overhead during training - pure JAX from start to finish.
 
 # %%
-# Load MNIST with TFDSEagerSource
+# Load MNIST with the current Datarax TFDS factory in eager mode
 print("Loading MNIST...")
-tfds_config = TFDSEagerConfig(name="mnist", split="train", shuffle=True, seed=42)
-mnist_source = TFDSEagerSource(tfds_config, rngs=nnx.Rngs(0))
+mnist_source = from_tfds("mnist", "train", eager=True, shuffle=True, seed=42, rngs=nnx.Rngs(0))
 
 # Get images as JAX array and normalize to [0, 1]
 images = mnist_source.data["image"].astype(jnp.float32) / 255.0
@@ -337,7 +331,7 @@ print("Success! You've trained your first VAE with Artifex!")
 # %% [markdown]
 # ## What You Just Did.
 #
-# 1. **Loaded MNIST efficiently** with `TFDSEagerSource` - pure JAX, no TF overhead
+# 1. **Loaded MNIST efficiently** with `from_tfds(..., eager=True)` - pure JAX, no TF overhead
 # 2. **Configured an MLP VAE** using Artifex's modular `VAEConfig`/`EncoderConfig`/`DecoderConfig`
 # 3. **Trained with `VAETrainer`** and linear KL annealing over the first ~10 epochs
 # 4. **Compiled the entire epoch with `@nnx.jit`** via `train_epoch_staged`

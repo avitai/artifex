@@ -2,7 +2,7 @@
 
 **Level:** Beginner | **Runtime:** ~50 minutes (GPU), ~4-5 hours (CPU) | **Format:** Python + Jupyter
 
-This tutorial demonstrates how to train a RealNVP normalizing flow model using Artifex's configuration-based API. Instead of implementing flow transformations from scratch, we use Artifex's `RealNVP` class with `RealNVPConfig` and `CouplingNetworkConfig` for clean, production-ready training. We also use `DataRax` for efficient GPU-accelerated data loading.
+This tutorial demonstrates how to train a RealNVP normalizing flow model using Artifex's configuration-based API. Instead of implementing flow transformations from scratch, we use Artifex's `RealNVP` class with `RealNVPConfig` and `CouplingNetworkConfig` for a concise training workflow. We also use `Datarax` for GPU-ready data loading.
 
 ## Files
 
@@ -36,7 +36,7 @@ jupyter lab examples/generative_models/image/flow/flow_mnist.ipynb
 
 - [ ] Understand why dequantization is critical for flow models
 - [ ] Use Artifex's `RealNVP` with `RealNVPConfig` and `CouplingNetworkConfig`
-- [ ] Use `DataRax` for efficient GPU-accelerated data loading
+- [ ] Use `Datarax` for efficient GPU-accelerated data loading
 - [ ] Configure learning rate warmup with cosine decay for stable training
 - [ ] Train using negative log-likelihood (maximum likelihood)
 - [ ] Generate samples from the trained flow model
@@ -120,7 +120,7 @@ Before diving into the code, let's understand why we use specific techniques:
 | **Gradient clipping** | Flow models can have exploding gradients | Global norm clipping to 1.0 ensures stability |
 | **Scale activation tanh** | Unbounded scale outputs cause numerical issues | Tanh bounds scale to [-1, 1] for stability |
 | **JIT compilation** | Python overhead slows training | `nnx.jit` compiles training step for GPU acceleration |
-| **DataRax** | Inefficient CPU-based data loading | GPU-accelerated batching with JIT compilation |
+| **Datarax** | Inefficient CPU-based data loading | GPU-accelerated batching with JIT compilation |
 
 ---
 
@@ -191,7 +191,7 @@ WARMUP_STEPS = 200  # Warmup steps
 Flow models require continuous data. MNIST is discrete (0-255), so we apply dequantization:
 
 ```python
-# DataRax source using the live TFDS helper
+# Datarax source using the live TFDS helper
 data_rngs = nnx.Rngs(default=jax.random.key(SEED + 1))
 train_source = from_tfds(
     "mnist",
@@ -201,6 +201,8 @@ train_source = from_tfds(
     seed=SEED + 1,
     rngs=data_rngs,
 )
+# Create an iterable training pipeline for the streaming source.
+# Consume it with `for batch in train_pipeline`, not direct `Pipeline.step()`.
 train_pipeline = Pipeline(source=train_source, stages=[], batch_size=BATCH_SIZE, rngs=data_rngs)
 n_batches = len(train_source) // BATCH_SIZE
 print(f"Train: {len(train_source)} samples, {n_batches} batches per epoch")

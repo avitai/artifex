@@ -1,7 +1,7 @@
 """Minimal shared loss utilities.
 
 This module intentionally stays small. Family-specific losses should be built
-from explicit JAX and CalibraX primitives rather than additional management
+from explicit JAX and Calibrax primitives rather than additional management
 frameworks or registries.
 """
 

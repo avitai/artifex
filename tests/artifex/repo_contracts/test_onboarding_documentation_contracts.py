@@ -52,8 +52,8 @@ def test_rendered_quickstart_tracks_executable_vae_first_contract() -> None:
     executable = (REPO_ROOT / "docs/getting-started/quickstart.py").read_text()
 
     shared_required_fragments = [
-        "TFDSEagerSource",
-        "TFDSEagerConfig",
+        "from_tfds",
+        "eager=True",
         "VAEConfig",
         "VAE",
         "train_epoch_staged",
@@ -71,6 +71,8 @@ def test_rendered_quickstart_tracks_executable_vae_first_contract() -> None:
     assert "`docs/getting-started/quickstart.ipynb`" in rendered
 
     banned_fragments = [
+        "TFDSEagerSource",
+        "TFDSEagerConfig",
         "TfdsDataSourceConfig",
         "TFDSSource",
         "FlowModel",
@@ -127,7 +129,7 @@ def test_homepage_routes_readers_to_live_vae_first_quickstart() -> None:
 
     required_fragments = [
         "Start with the VAE Quickstart",
-        "TFDSEagerSource",
+        "from_tfds(..., eager=True)",
         "VAEConfig",
         "VAETrainer",
         "train_epoch_staged",
@@ -143,7 +145,6 @@ def test_homepage_routes_readers_to_live_vae_first_quickstart() -> None:
         "from datarax import from_source",
         "ElementOperatorConfig",
         "OperatorNode",
-        "from_tfds",
         "DDPMModel",
         "NoiseScheduleConfig",
     ]
@@ -160,6 +161,7 @@ def test_root_readme_distinguishes_package_users_from_contributors() -> None:
         'pip install "avitai-artifex[cuda12]"',
         "The PyPI distribution is named `avitai-artifex`",
         "the Python import package remains",
+        "from_tfds(..., eager=True)",
         "./setup.sh",
         "source ./activate.sh",
     ]

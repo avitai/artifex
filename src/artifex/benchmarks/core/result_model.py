@@ -1,4 +1,4 @@
-"""Bridge between Artifex benchmark types and CalibraX types.
+"""Bridge between Artifex benchmark types and Calibrax types.
 
 Converts Artifex benchmark results and configs to and from
 `calibrax.core.BenchmarkResult` and `calibrax.core.Metric` for unified
@@ -39,7 +39,7 @@ def to_calibrax_result(
     *,
     domain: str = "",
 ) -> CalibraxResult:
-    """Convert an Artifex BenchmarkResult to a CalibraX BenchmarkResult."""
+    """Convert an Artifex BenchmarkResult to a Calibrax BenchmarkResult."""
     return CalibraxResult(
         name=result.benchmark_name,
         domain=domain,
@@ -50,7 +50,7 @@ def to_calibrax_result(
 
 
 def from_calibrax_result(result: CalibraxResult) -> ArtifexResult:
-    """Convert a CalibraX BenchmarkResult to an Artifex BenchmarkResult."""
+    """Convert a Calibrax BenchmarkResult to an Artifex BenchmarkResult."""
     return ArtifexResult(
         benchmark_name=result.name,
         model_name=result.tags.get("model_name", ""),

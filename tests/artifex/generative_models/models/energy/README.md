@@ -196,23 +196,23 @@ The test suite provides complete coverage of:
 ### Running All Tests
 
 ```bash
-python -m pytest tests/artifex/generative_models/models/energy/ -v
+python -m pytest tests/artifex/generative_models/models/energy/ -v --no-cov
 ```
 
 ### Running Specific Test Files
 
 ```bash
-python -m pytest tests/artifex/generative_models/models/energy/test_base.py -v
-python -m pytest tests/artifex/generative_models/models/energy/test_ebm.py -v
-python -m pytest tests/artifex/generative_models/models/energy/test_mcmc.py -v
-python -m pytest tests/artifex/generative_models/models/energy/test_integration.py -v
-python -m pytest tests/artifex/generative_models/models/energy/test_properties.py -v
+python -m pytest tests/artifex/generative_models/models/energy/test_base.py -v --no-cov
+python -m pytest tests/artifex/generative_models/models/energy/test_ebm.py -v --no-cov
+python -m pytest tests/artifex/generative_models/models/energy/test_mcmc.py -v --no-cov
+python -m pytest tests/artifex/generative_models/models/energy/test_integration.py -v --no-cov
+python -m pytest tests/artifex/generative_models/models/energy/test_properties.py -v --no-cov
 ```
 
 ### Running Tests with JAX Requirement
 
 ```bash
-python -m pytest tests/artifex/generative_models/models/energy/ -v -m "not skipif"
+python -m pytest tests/artifex/generative_models/models/energy/ -v -m "not skipif" --no-cov
 ```
 
 ## Notes

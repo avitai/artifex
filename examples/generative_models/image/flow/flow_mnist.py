@@ -23,7 +23,7 @@ from scratch, we use Artifex's `RealNVP` class with `RealNVPConfig` and
 - `RealNVP` - RealNVP flow model implementation
 - `RealNVPConfig` - Frozen dataclass configuration for RealNVP
 - `CouplingNetworkConfig` - Coupling network configuration
-- `DataRax` - Efficient GPU-accelerated data loading
+- `Datarax` - Efficient GPU-accelerated data loading
 
 ## Training Best Practices Applied
 
@@ -92,7 +92,7 @@ def echo(message: object = "") -> None:
 
 echo("=" * 70)
 echo("Artifex RealNVP Training - MNIST")
-echo("Using: RealNVP, RealNVPConfig, CouplingNetworkConfig, DataRax, nnx.jit")
+echo("Using: RealNVP, RealNVPConfig, CouplingNetworkConfig, Datarax, nnx.jit")
 echo("=" * 70)
 
 # %% [markdown]
@@ -115,21 +115,21 @@ echo(f"  Batch size: {BATCH_SIZE}")
 echo(f"  Learning rate: {BASE_LR} (with {WARMUP_STEPS} warmup steps)")
 
 # %% [markdown]
-r"""## Step 2: Data Loading with DataRax.
+r"""## Step 2: Data Loading with Datarax.
 
 Flow models require continuous data. MNIST is discrete (0-255), so we apply
-dequantization. We use DataRax for efficient GPU-accelerated data loading.
+dequantization. We use Datarax for efficient GPU-accelerated data loading.
 """
 
 
 # %%
-echo("\n📊 Loading MNIST data with DataRax...")
+echo("\n📊 Loading MNIST data with Datarax...")
 
 # Initialize data RNGs
 data_key = jax.random.key(SEED + 1)
 data_rngs = nnx.Rngs(default=data_key)
 
-# Create the MNIST training source with the live DataRax TFDS helper
+# Create the MNIST training source with the live Datarax TFDS helper
 train_source = from_tfds(
     "mnist",
     "train",
@@ -141,7 +141,8 @@ train_source = from_tfds(
 
 echo(f"  ✅ MNIST train dataset loaded: {len(train_source)} samples")
 
-# Create training pipeline with batching (Pipeline.step is @nnx.jit by default)
+# Create an iterable training pipeline for the streaming source.
+# Consume it with `for batch in train_pipeline`, not direct `Pipeline.step()`.
 train_pipeline = Pipeline(source=train_source, stages=[], batch_size=BATCH_SIZE, rngs=data_rngs)
 
 # Calculate number of batches per epoch
@@ -277,7 +278,7 @@ echo("   Training step JIT-compiled")
 # %% [markdown]
 r"""## Step 6: Training Loop.
 
-Train the model for multiple epochs using DataRax pipeline.
+Train the model for multiple epochs using Datarax pipeline.
 """
 
 # %%

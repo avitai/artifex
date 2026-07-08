@@ -63,6 +63,6 @@ pipeline = EvaluationPipeline(config, rngs=nnx.Rngs(0))
 ## Registry Ownership
 
 Registry-backed lookup, collections, and suites live in
-`calibrax.metrics.MetricRegistry` and the surrounding CalibraX metric
+`calibrax.metrics.MetricRegistry` and the surrounding Calibrax metric
 composition helpers. Artifex does not ship a parallel registry wrapper in the
 core evaluation package.

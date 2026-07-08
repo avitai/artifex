@@ -49,7 +49,7 @@ After completing this example, you will:
 ## What is BlackJAX?
 
 [BlackJAX](https://blackjax-devs.github.io/blackjax/) is a library of samplers for JAX that provides
-state-of-the-art MCMC algorithms. Artifex integrates BlackJAX to offer advanced sampling capabilities. Pass an explicit JAX key or `nnx.Rngs` to every sampling helper; the Artifex wrapper layer does not fabricate fallback RNG state.
+modern MCMC algorithms. Artifex integrates BlackJAX to offer advanced sampling capabilities. Pass an explicit JAX key or `nnx.Rngs` to every sampling helper; the Artifex wrapper layer does not fabricate fallback RNG state.
 
 ### Supported Algorithms
 

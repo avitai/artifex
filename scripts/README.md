@@ -42,10 +42,10 @@ Ad hoc test wrappers have been removed. Use direct `uv run pytest` commands so
 the test surface stays aligned with the central pytest configuration.
 
 ```bash
-uv run pytest tests/ -v
-uv run pytest -m gpu -v
-uv run pytest -m blackjax -v
-uv run pytest tests/artifex/generative_models/core/sampling/test_blackjax_samplers.py -v
+uv run pytest
+uv run pytest -m gpu -v --no-cov
+uv run pytest -m blackjax -v --no-cov
+uv run pytest tests/artifex/generative_models/core/sampling/test_blackjax_samplers.py -v --no-cov
 ```
 
 ## 🎮 GPU/Hardware Verification
@@ -188,7 +188,7 @@ the example-specific docs contracts.
 | Check environment | `uv run python scripts/setup_env.py show` |
 | Verify GPU setup | `uv run python scripts/verify_gpu_setup.py` |
 | Run critical GPU diagnostics | `uv run python scripts/gpu_utils.py --test-critical` |
-| Run all tests | `uv run pytest tests/ -v` |
+| Run all tests | `uv run pytest` |
 | Clean caches | `./scripts/clean_cache.sh` |
 | Check docs | `uv run python scripts/validate_docs.py --check-only` |
 | Build docs | `uv run python scripts/build_docs.py` |

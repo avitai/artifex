@@ -59,12 +59,7 @@ def test_pyproject_declares_reviewed_ci_roles_and_security_triage_policy() -> No
         ".github/workflows/quality-checks.yml",
     ]
     assert security["mode"] == "blocking"
-    assert [entry["id"] for entry in reviewed_ignores] == [
-        "CVE-2025-53000",
-        "CVE-2026-0994",
-        "CVE-2026-4539",
-        "CVE-2026-3219",
-    ]
+    assert reviewed_ignores == []
 
     for entry in reviewed_ignores:
         assert entry["owner"] == "repo-maintainers"
@@ -76,23 +71,30 @@ def test_lockfile_resolves_security_patch_floors_for_fixable_alerts() -> None:
     """Fixable audited vulnerabilities should resolve to patched lockfile versions."""
     packages = {pkg["name"].lower(): pkg["version"] for pkg in _load_uv_lock()["package"]}
 
+    assert _version_key(packages["aiohttp"]) >= (3, 14, 1)
+    assert _version_key(packages["bleach"]) >= (6, 4, 0)
+    assert _version_key(packages["cryptography"]) >= (48, 0, 1)
+    assert _version_key(packages["fastapi"]) >= (0, 139, 0)
+    assert _version_key(packages["gitpython"]) >= (3, 1, 50)
+    assert _version_key(packages["idna"]) >= (3, 15)
+    assert _version_key(packages["jupyter-server"]) >= (2, 20, 0)
+    assert _version_key(packages["jupyterlab"]) >= (4, 5, 9)
+    assert _version_key(packages["mako"]) >= (1, 3, 12)
+    assert _version_key(packages["mistune"]) >= (3, 3, 2)
+    assert _version_key(packages["mlflow"]) >= (3, 14, 0)
+    assert _version_key(packages["msgpack"]) >= (1, 2, 1)
+    assert _version_key(packages["nbconvert"]) >= (7, 17, 1)
+    assert _version_key(packages["notebook"]) >= (7, 6, 0)
+    assert _version_key(packages["pillow"]) >= (12, 3, 0)
+    assert _version_key(packages["pygments"]) >= (2, 20, 0)
+    assert _version_key(packages["pymdown-extensions"]) >= (10, 21, 3)
+    assert _version_key(packages["pytest"]) >= (9, 0, 3)
+    assert _version_key(packages["python-multipart"]) >= (0, 0, 31)
     assert _version_key(packages["requests"]) >= (2, 33, 0)
     assert _version_key(packages["pyasn1"]) >= (0, 6, 3)
-
-
-def test_reviewed_unpatched_pygments_ignore_matches_runtime_reality() -> None:
-    """The remaining Pygments exception should describe the real transitive runtime exposure."""
-    policy = _ci_policy()
-    entry = next(
-        ignore
-        for ignore in policy["security"]["reviewed_ignores"]
-        if ignore["id"] == "CVE-2026-4539"
-    )
-    rationale = entry["rationale"].lower()
-
-    assert "local-only" not in rationale
-    assert "no released upstream fix" in rationale
-    assert any(token in rationale for token in ("transitive", "flax", "typer"))
+    assert _version_key(packages["starlette"]) >= (1, 3, 1)
+    assert _version_key(packages["tornado"]) >= (6, 5, 7)
+    assert _version_key(packages["urllib3"]) >= (2, 7, 0)
 
 
 def test_policy_workflows_use_checked_in_setup_action_instead_of_inline_bootstrap() -> None:
@@ -110,6 +112,15 @@ def test_policy_workflows_use_checked_in_setup_action_instead_of_inline_bootstra
         for job in workflow["jobs"].values():
             setup_steps = [step for step in job["steps"] if step.get("uses") == SETUP_ACTION]
             assert len(setup_steps) == 1
+
+
+def test_shared_setup_action_uses_current_pinned_uv_toolchain() -> None:
+    """The shared setup action should not regress to an old uv that rejects uv.lock."""
+    action = _load_yaml(".github/actions/setup-artifex/action.yml")
+    install_uv = next(step for step in action["runs"]["steps"] if step.get("name") == "Install uv")
+
+    assert install_uv["uses"] == "astral-sh/setup-uv@v8.3.1"
+    assert install_uv["with"]["version"] == "0.11.25"
 
 
 def test_workflow_roles_and_blocking_quality_commands_are_explicit() -> None:
@@ -213,9 +224,13 @@ def test_security_workflow_reads_reviewed_ignores_from_pyproject_policy() -> Non
 
     assert "tomllib" in contents
     assert "reviewed_ignores" in contents
+    assert 'get("reviewed_ignores", [])' in contents
     assert "uv pip install pip-audit bandit" not in contents
-    assert "uv run --with pip-audit" in contents
-    assert "uv run --with bandit" in contents
+    assert "uv run --with pip-audit" not in contents
+    assert "uv run --with bandit" not in contents
+    assert "uv run --locked pip-audit" in contents
+    assert "uv run --locked bandit" in contents
+    assert "uv run --locked detect-secrets scan --baseline .secrets.baseline" in contents
 
     for entry in policy["security"]["reviewed_ignores"]:
         assert entry["id"] not in contents
@@ -229,8 +244,8 @@ def test_root_readme_claims_match_the_reviewed_ci_policy() -> None:
     required_references = [
         "Pyright basic-mode reports track the supported source surface",
         "blocking CI enforces repository contracts",
-        "70% repo-wide coverage floor",
-        "new changes target 80% coverage",
+        "80% repo-wide coverage floor",
+        "Security workflow checks are blocking",
     ]
     for reference in required_references:
         assert reference.lower() in readme_lower
@@ -239,7 +254,9 @@ def test_root_readme_claims_match_the_reviewed_ci_policy() -> None:
         "complete type annotations",
         "full type annotations",
         "Well Tested",
+        "70% repo-wide coverage floor",
         "coverage targets at 80% for new code",
+        "security workflows remain reviewed but informational",
     ]
     for reference in banned_references:
         assert reference not in readme

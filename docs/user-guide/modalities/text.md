@@ -596,7 +596,7 @@ print(embedded.shape)  # (1, 5, 512)
 
 ### Rotary Position Embeddings (RoPE)
 
-RoPE is the state-of-the-art positional encoding used in modern LLMs like Llama 2. It encodes position through rotation of embedding vectors:
+RoPE is a widely used positional encoding in modern LLMs such as Llama 2. It encodes position through rotation of embedding vectors:
 
 ```python
 # Embed with RoPE (Rotary Position Embeddings)

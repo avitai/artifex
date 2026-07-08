@@ -1,4 +1,4 @@
-"""Tests for the CalibraX-backed benchmark and suite registries."""
+"""Tests for the Calibrax-backed benchmark and suite registries."""
 
 import pytest
 from calibrax.core import (
@@ -13,11 +13,7 @@ from artifex.benchmarks.registry import (
     list_benchmarks,
     register_benchmark,
 )
-from artifex.benchmarks.suites.registry import (
-    get_suite,
-    list_suites,
-    register_suite,
-)
+from artifex.benchmarks.suites.registry import get_suite, list_suites, register_suite
 
 
 class _DummyBenchmark(Benchmark):
@@ -37,7 +33,7 @@ def _make_benchmark(name: str = "test") -> _DummyBenchmark:
 
 
 class TestBenchmarkRegistryCalibrax:
-    """Verify the benchmark registry surface reuses the CalibraX singleton."""
+    """Verify the benchmark registry surface reuses the Calibrax singleton."""
 
     def setup_method(self) -> None:
         BenchmarkRegistry.reset()
@@ -80,7 +76,7 @@ class TestBenchmarkRegistryCalibrax:
 
 
 class TestConvenienceFunctions:
-    """Verify Artifex convenience helpers sit on top of the CalibraX singleton."""
+    """Verify Artifex convenience helpers sit on top of the Calibrax singleton."""
 
     def setup_method(self) -> None:
         BenchmarkRegistry.reset()
@@ -127,7 +123,7 @@ class TestConvenienceFunctions:
 
 
 class TestSuiteRegistryCalibrax:
-    """Verify suite registry uses a direct CalibraX Registry instance."""
+    """Verify suite registry uses a direct Calibrax Registry instance."""
 
     def setup_method(self) -> None:
         from artifex.benchmarks.suites.registry import _suite_registry

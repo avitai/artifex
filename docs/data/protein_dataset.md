@@ -24,4 +24,9 @@ Use these current helpers from the canonical module:
 - `create_synthetic_protein_dataset`
 - `pdb_to_protein_example`
 
+`ProteinDataset` supports Datarax indexed batching through
+`get_batch_at(start, size, key)` and `Pipeline(...)`. Those batches are
+fixed-shape tensor dictionaries padded to `ProteinDatasetConfig.max_seq_length`;
+use `get_batch(...)` or `protein_collate_fn` for local protein collation.
+
 See [Protein Dataset Module](dataset.md) for the maintained reference page.

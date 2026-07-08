@@ -121,7 +121,7 @@ def test_core_docs_route_benchmark_readers_to_artifex_benchmarks_core() -> None:
 
 
 def test_evaluation_pipeline_and_docs_keep_registry_ownership_in_calibrax() -> None:
-    """Core evaluation should stay narrow and delegate registry ownership to CalibraX."""
+    """Core evaluation should stay narrow and delegate registry ownership to Calibrax."""
     payload = _run_python(
         textwrap.dedent(
             """

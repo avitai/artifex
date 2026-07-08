@@ -117,6 +117,13 @@ repos:
         language: system
         types: [python]
         exclude: &repo_non_source_and_tests_exclude ^(?:m[^/]*ry-bank|documents|custom_modes|\.[^/]*sor|notebooks|tests)/
+      - id: complexity-baseline
+        name: complexity-baseline
+        entry: uv run --locked python scripts/check_complexity_baseline.py
+        language: system
+        types: [python]
+        pass_filenames: false
+        always_run: true
 
   # Reuse the checked-in environment for typing so pre-commit stays hermetic.
   - repo: local

@@ -1,11 +1,11 @@
 # Registry
 
-Registry ownership for evaluation metrics lives in CalibraX.
+Registry ownership for evaluation metrics lives in Calibrax.
 
 ## Current Contract
 
 - use `calibrax.metrics.MetricRegistry` for registry-backed metric lookup
-- use CalibraX metric entries, collections, or suites when you need grouped
+- use Calibrax metric entries, collections, or suites when you need grouped
   metric execution
 - Artifex does not ship a second local registry in
   `core.evaluation.metrics`

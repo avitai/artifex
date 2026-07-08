@@ -768,7 +768,7 @@ class TestUNet2DConditionJITCompatibility:
         if not deterministic_enabled:
             pytest.skip(
                 "Test requires ARTIFEX_DETERMINISTIC=1 for strict gradient reproducibility. "
-                "Run: ARTIFEX_DETERMINISTIC=1 pytest tests/..."
+                "Run: ARTIFEX_DETERMINISTIC=1 pytest tests/... --no-cov"
             )
 
         rngs = nnx.Rngs(0)

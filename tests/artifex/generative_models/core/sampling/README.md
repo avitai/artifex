@@ -7,13 +7,13 @@ dependency in Artifex, so these tests belong to the normal pytest contract.
 
 ```bash
 # Run the full suite
-uv run pytest tests/
+uv run pytest
 
 # Run only the BlackJAX-marked tests
-uv run pytest tests/ -m blackjax
+uv run pytest -m blackjax --no-cov
 
 # Run this module only
-uv run pytest tests/artifex/generative_models/core/sampling/test_blackjax_samplers.py -v
+uv run pytest tests/artifex/generative_models/core/sampling/test_blackjax_samplers.py -v --no-cov
 ```
 
 ## Test Categories
@@ -31,5 +31,5 @@ The BlackJAX tests are organized into categories:
 If you need a focused local run that excludes these tests, use standard pytest selection:
 
 ```bash
-uv run pytest tests/ -m "not blackjax"
+uv run pytest -m "not blackjax" --no-cov
 ```

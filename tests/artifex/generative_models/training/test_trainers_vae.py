@@ -1,7 +1,7 @@
 """TDD tests for VAE-specific trainer.
 
 These tests define the expected behavior for VAE training based on
-state-of-the-art techniques (2024-2025):
+advanced techniques (2024-2025):
 - KL annealing schedules (linear, sigmoid, cyclical)
 - Free bits constraint for posterior collapse prevention
 - Beta-VAE weighting

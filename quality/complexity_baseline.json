@@ -1,0 +1,1040 @@
+{
+  "entries": {
+    "examples/generative_models/image/gan/advanced_gan.py:function:train_gan_model": {
+      "complexity": 14,
+      "endline": 499,
+      "kind": "function",
+      "lineno": 247,
+      "path": "examples/generative_models/image/gan/advanced_gan.py",
+      "qualname": "train_gan_model",
+      "rank": "C"
+    },
+    "examples/generative_models/sampling/blackjax_integration_examples.py:function:plot_samples": {
+      "complexity": 23,
+      "endline": 204,
+      "kind": "function",
+      "lineno": 91,
+      "path": "examples/generative_models/sampling/blackjax_integration_examples.py",
+      "qualname": "plot_samples",
+      "rank": "D"
+    },
+    "examples/utils/demo_utils.py:function:check_system_requirements": {
+      "complexity": 11,
+      "endline": 242,
+      "kind": "function",
+      "lineno": 162,
+      "path": "examples/utils/demo_utils.py",
+      "qualname": "check_system_requirements",
+      "rank": "C"
+    },
+    "src/artifex/benchmarks/datasets/base.py:method:DatasetValidator.validate_data_quality": {
+      "complexity": 13,
+      "endline": 96,
+      "kind": "method",
+      "lineno": 75,
+      "path": "src/artifex/benchmarks/datasets/base.py",
+      "qualname": "DatasetValidator.validate_data_quality",
+      "rank": "C"
+    },
+    "src/artifex/benchmarks/datasets/celeba.py:method:CelebADataset._load_celeba_data": {
+      "complexity": 20,
+      "endline": 229,
+      "kind": "method",
+      "lineno": 122,
+      "path": "src/artifex/benchmarks/datasets/celeba.py",
+      "qualname": "CelebADataset._load_celeba_data",
+      "rank": "C"
+    },
+    "src/artifex/benchmarks/datasets/geometric.py:method:ShapeNetDataset._create_synthetic_shape": {
+      "complexity": 11,
+      "endline": 534,
+      "kind": "method",
+      "lineno": 459,
+      "path": "src/artifex/benchmarks/datasets/geometric.py",
+      "qualname": "ShapeNetDataset._create_synthetic_shape",
+      "rank": "C"
+    },
+    "src/artifex/benchmarks/datasets/geometric.py:method:ShapeNetDataset._download_shapenet_core": {
+      "complexity": 13,
+      "endline": 283,
+      "kind": "method",
+      "lineno": 220,
+      "path": "src/artifex/benchmarks/datasets/geometric.py",
+      "qualname": "ShapeNetDataset._download_shapenet_core",
+      "rank": "C"
+    },
+    "src/artifex/benchmarks/metrics/molecular_flows.py:method:MolecularFlowsMetrics._check_bond_angles": {
+      "complexity": 11,
+      "endline": 177,
+      "kind": "method",
+      "lineno": 140,
+      "path": "src/artifex/benchmarks/metrics/molecular_flows.py",
+      "qualname": "MolecularFlowsMetrics._check_bond_angles",
+      "rank": "C"
+    },
+    "src/artifex/benchmarks/metrics/precision_recall.py:function:compute_precision_recall": {
+      "complexity": 13,
+      "endline": 237,
+      "kind": "function",
+      "lineno": 146,
+      "path": "src/artifex/benchmarks/metrics/precision_recall.py",
+      "qualname": "compute_precision_recall",
+      "rank": "C"
+    },
+    "src/artifex/benchmarks/metrics/precision_recall.py:function:is_well_separated_clusters": {
+      "complexity": 18,
+      "endline": 421,
+      "kind": "function",
+      "lineno": 341,
+      "path": "src/artifex/benchmarks/metrics/precision_recall.py",
+      "qualname": "is_well_separated_clusters",
+      "rank": "C"
+    },
+    "src/artifex/benchmarks/model_adapters/protein_adapters.py:method:ProteinPointCloudAdapter._convert_protein_output_to_benchmark_format": {
+      "complexity": 18,
+      "endline": 133,
+      "kind": "method",
+      "lineno": 84,
+      "path": "src/artifex/benchmarks/model_adapters/protein_adapters.py",
+      "qualname": "ProteinPointCloudAdapter._convert_protein_output_to_benchmark_format",
+      "rank": "C"
+    },
+    "src/artifex/benchmarks/performance/latency.py:function:measure_inference_latency": {
+      "complexity": 12,
+      "endline": 81,
+      "kind": "function",
+      "lineno": 24,
+      "path": "src/artifex/benchmarks/performance/latency.py",
+      "qualname": "measure_inference_latency",
+      "rank": "C"
+    },
+    "src/artifex/benchmarks/performance/optimization.py:class:OptimizationBenchmark": {
+      "complexity": 22,
+      "endline": 454,
+      "kind": "class",
+      "lineno": 130,
+      "path": "src/artifex/benchmarks/performance/optimization.py",
+      "qualname": "OptimizationBenchmark",
+      "rank": "D"
+    },
+    "src/artifex/benchmarks/performance/optimization.py:method:OptimizationBenchmark.run": {
+      "complexity": 38,
+      "endline": 454,
+      "kind": "method",
+      "lineno": 181,
+      "path": "src/artifex/benchmarks/performance/optimization.py",
+      "qualname": "OptimizationBenchmark.run",
+      "rank": "E"
+    },
+    "src/artifex/benchmarks/performance/optimization.py:method:OptimizerComparisonBenchmark.run": {
+      "complexity": 13,
+      "endline": 678,
+      "kind": "method",
+      "lineno": 572,
+      "path": "src/artifex/benchmarks/performance/optimization.py",
+      "qualname": "OptimizerComparisonBenchmark.run",
+      "rank": "C"
+    },
+    "src/artifex/benchmarks/suites/geometric_suite.py:method:GeometricBenchmarkSuite.get_suite_summary": {
+      "complexity": 13,
+      "endline": 569,
+      "kind": "method",
+      "lineno": 515,
+      "path": "src/artifex/benchmarks/suites/geometric_suite.py",
+      "qualname": "GeometricBenchmarkSuite.get_suite_summary",
+      "rank": "C"
+    },
+    "src/artifex/benchmarks/suites/multi_beta_vae_suite.py:method:MultiBetaVAEBenchmark.run": {
+      "complexity": 12,
+      "endline": 258,
+      "kind": "method",
+      "lineno": 161,
+      "path": "src/artifex/benchmarks/suites/multi_beta_vae_suite.py",
+      "qualname": "MultiBetaVAEBenchmark.run",
+      "rank": "C"
+    },
+    "src/artifex/benchmarks/suites/multi_beta_vae_suite.py:method:MultiBetaVAEBenchmarkSuite.run_all": {
+      "complexity": 13,
+      "endline": 508,
+      "kind": "method",
+      "lineno": 458,
+      "path": "src/artifex/benchmarks/suites/multi_beta_vae_suite.py",
+      "qualname": "MultiBetaVAEBenchmarkSuite.run_all",
+      "rank": "C"
+    },
+    "src/artifex/benchmarks/suites/protein_benchmarks.py:method:ProteinBenchmarkSuite.visualize_results": {
+      "complexity": 17,
+      "endline": 396,
+      "kind": "method",
+      "lineno": 315,
+      "path": "src/artifex/benchmarks/suites/protein_benchmarks.py",
+      "qualname": "ProteinBenchmarkSuite.visualize_results",
+      "rank": "C"
+    },
+    "src/artifex/benchmarks/suites/se3_molecular_flows_suite.py:method:SE3MolecularFlowsSuite.compare_models": {
+      "complexity": 13,
+      "endline": 473,
+      "kind": "method",
+      "lineno": 411,
+      "path": "src/artifex/benchmarks/suites/se3_molecular_flows_suite.py",
+      "qualname": "SE3MolecularFlowsSuite.compare_models",
+      "rank": "C"
+    },
+    "src/artifex/benchmarks/suites/stylegan3_suite.py:method:StyleGAN3BenchmarkConfig.__eq__": {
+      "complexity": 16,
+      "endline": 114,
+      "kind": "method",
+      "lineno": 95,
+      "path": "src/artifex/benchmarks/suites/stylegan3_suite.py",
+      "qualname": "StyleGAN3BenchmarkConfig.__eq__",
+      "rank": "C"
+    },
+    "src/artifex/benchmarks/visualization/optimization_plots.py:function:plot_convergence_speed": {
+      "complexity": 31,
+      "endline": 402,
+      "kind": "function",
+      "lineno": 240,
+      "path": "src/artifex/benchmarks/visualization/optimization_plots.py",
+      "qualname": "plot_convergence_speed",
+      "rank": "E"
+    },
+    "src/artifex/benchmarks/visualization/optimization_plots.py:function:plot_optimizer_comparison": {
+      "complexity": 14,
+      "endline": 237,
+      "kind": "function",
+      "lineno": 118,
+      "path": "src/artifex/benchmarks/visualization/optimization_plots.py",
+      "qualname": "plot_optimizer_comparison",
+      "rank": "C"
+    },
+    "src/artifex/benchmarks/visualization/optimization_plots.py:function:plot_training_curve": {
+      "complexity": 17,
+      "endline": 115,
+      "kind": "function",
+      "lineno": 11,
+      "path": "src/artifex/benchmarks/visualization/optimization_plots.py",
+      "qualname": "plot_training_curve",
+      "rank": "C"
+    },
+    "src/artifex/configs/utils/config_loader.py:function:get_config_path": {
+      "complexity": 14,
+      "endline": 108,
+      "kind": "function",
+      "lineno": 51,
+      "path": "src/artifex/configs/utils/config_loader.py",
+      "qualname": "get_config_path",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/core/base.py:method:MLP.get_num_params": {
+      "complexity": 14,
+      "endline": 647,
+      "kind": "method",
+      "lineno": 620,
+      "path": "src/artifex/generative_models/core/base.py",
+      "qualname": "MLP.get_num_params",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/core/cli/config_commands.py:function:_load_supported_typed_document": {
+      "complexity": 16,
+      "endline": 257,
+      "kind": "function",
+      "lineno": 190,
+      "path": "src/artifex/generative_models/core/cli/config_commands.py",
+      "qualname": "_load_supported_typed_document",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/core/cli/config_commands.py:function:_normalize_for_output": {
+      "complexity": 12,
+      "endline": 131,
+      "kind": "function",
+      "lineno": 115,
+      "path": "src/artifex/generative_models/core/cli/config_commands.py",
+      "qualname": "_normalize_for_output",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/core/configuration/distributed_config.py:method:DistributedConfig.__post_init__": {
+      "complexity": 14,
+      "endline": 177,
+      "kind": "method",
+      "lineno": 95,
+      "path": "src/artifex/generative_models/core/configuration/distributed_config.py",
+      "qualname": "DistributedConfig.__post_init__",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/core/configuration/gan_config.py:class:CycleGANConfig": {
+      "complexity": 12,
+      "endline": 651,
+      "kind": "class",
+      "lineno": 519,
+      "path": "src/artifex/generative_models/core/configuration/gan_config.py",
+      "qualname": "CycleGANConfig",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/core/configuration/gan_config.py:class:GANConfig": {
+      "complexity": 18,
+      "endline": 214,
+      "kind": "class",
+      "lineno": 25,
+      "path": "src/artifex/generative_models/core/configuration/gan_config.py",
+      "qualname": "GANConfig",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/core/configuration/gan_config.py:method:CycleGANConfig.__post_init__": {
+      "complexity": 11,
+      "endline": 651,
+      "kind": "method",
+      "lineno": 595,
+      "path": "src/artifex/generative_models/core/configuration/gan_config.py",
+      "qualname": "CycleGANConfig.__post_init__",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/core/configuration/gan_config.py:method:GANConfig.__post_init__": {
+      "complexity": 16,
+      "endline": 150,
+      "kind": "method",
+      "lineno": 88,
+      "path": "src/artifex/generative_models/core/configuration/gan_config.py",
+      "qualname": "GANConfig.__post_init__",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/core/configuration/gan_config.py:method:GANConfig.from_dict": {
+      "complexity": 17,
+      "endline": 214,
+      "kind": "method",
+      "lineno": 153,
+      "path": "src/artifex/generative_models/core/configuration/gan_config.py",
+      "qualname": "GANConfig.from_dict",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/core/configuration/management/templates.py:class:TrainingConfigTemplate": {
+      "complexity": 16,
+      "endline": 152,
+      "kind": "class",
+      "lineno": 93,
+      "path": "src/artifex/generative_models/core/configuration/management/templates.py",
+      "qualname": "TrainingConfigTemplate",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/core/configuration/management/templates.py:method:TrainingConfigTemplate.generate": {
+      "complexity": 15,
+      "endline": 152,
+      "kind": "method",
+      "lineno": 96,
+      "path": "src/artifex/generative_models/core/configuration/management/templates.py",
+      "qualname": "TrainingConfigTemplate.generate",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/core/configuration/network_configs.py:class:ConditionalDiscriminatorConfig": {
+      "complexity": 16,
+      "endline": 488,
+      "kind": "class",
+      "lineno": 422,
+      "path": "src/artifex/generative_models/core/configuration/network_configs.py",
+      "qualname": "ConditionalDiscriminatorConfig",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/core/configuration/network_configs.py:class:ConditionalGeneratorConfig": {
+      "complexity": 12,
+      "endline": 417,
+      "kind": "class",
+      "lineno": 358,
+      "path": "src/artifex/generative_models/core/configuration/network_configs.py",
+      "qualname": "ConditionalGeneratorConfig",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/core/configuration/network_configs.py:class:ConvDiscriminatorConfig": {
+      "complexity": 12,
+      "endline": 332,
+      "kind": "class",
+      "lineno": 262,
+      "path": "src/artifex/generative_models/core/configuration/network_configs.py",
+      "qualname": "ConvDiscriminatorConfig",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/core/configuration/network_configs.py:class:ConvGeneratorConfig": {
+      "complexity": 12,
+      "endline": 257,
+      "kind": "class",
+      "lineno": 198,
+      "path": "src/artifex/generative_models/core/configuration/network_configs.py",
+      "qualname": "ConvGeneratorConfig",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/core/configuration/network_configs.py:class:PatchGANDiscriminatorConfig": {
+      "complexity": 15,
+      "endline": 625,
+      "kind": "class",
+      "lineno": 555,
+      "path": "src/artifex/generative_models/core/configuration/network_configs.py",
+      "qualname": "PatchGANDiscriminatorConfig",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/core/configuration/network_configs.py:method:ConditionalDiscriminatorConfig.__post_init__": {
+      "complexity": 15,
+      "endline": 488,
+      "kind": "method",
+      "lineno": 459,
+      "path": "src/artifex/generative_models/core/configuration/network_configs.py",
+      "qualname": "ConditionalDiscriminatorConfig.__post_init__",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/core/configuration/network_configs.py:method:ConditionalGeneratorConfig.__post_init__": {
+      "complexity": 11,
+      "endline": 417,
+      "kind": "method",
+      "lineno": 394,
+      "path": "src/artifex/generative_models/core/configuration/network_configs.py",
+      "qualname": "ConditionalGeneratorConfig.__post_init__",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/core/configuration/network_configs.py:method:ConvDiscriminatorConfig.__post_init__": {
+      "complexity": 11,
+      "endline": 332,
+      "kind": "method",
+      "lineno": 300,
+      "path": "src/artifex/generative_models/core/configuration/network_configs.py",
+      "qualname": "ConvDiscriminatorConfig.__post_init__",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/core/configuration/network_configs.py:method:ConvGeneratorConfig.__post_init__": {
+      "complexity": 11,
+      "endline": 257,
+      "kind": "method",
+      "lineno": 229,
+      "path": "src/artifex/generative_models/core/configuration/network_configs.py",
+      "qualname": "ConvGeneratorConfig.__post_init__",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/core/configuration/network_configs.py:method:PatchGANDiscriminatorConfig.__post_init__": {
+      "complexity": 14,
+      "endline": 625,
+      "kind": "method",
+      "lineno": 590,
+      "path": "src/artifex/generative_models/core/configuration/network_configs.py",
+      "qualname": "PatchGANDiscriminatorConfig.__post_init__",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/core/device_manager.py:function:_collect_gpu_metadata": {
+      "complexity": 19,
+      "endline": 126,
+      "kind": "function",
+      "lineno": 75,
+      "path": "src/artifex/generative_models/core/device_manager.py",
+      "qualname": "_collect_gpu_metadata",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/core/device_manager.py:function:_collect_runtime_state": {
+      "complexity": 14,
+      "endline": 193,
+      "kind": "function",
+      "lineno": 139,
+      "path": "src/artifex/generative_models/core/device_manager.py",
+      "qualname": "_collect_runtime_state",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/core/distributions/base.py:method:Distribution._get_param_hash": {
+      "complexity": 13,
+      "endline": 85,
+      "kind": "method",
+      "lineno": 53,
+      "path": "src/artifex/generative_models/core/distributions/base.py",
+      "qualname": "Distribution._get_param_hash",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/core/distributions/base.py:method:Distribution._validate_parameters": {
+      "complexity": 11,
+      "endline": 227,
+      "kind": "method",
+      "lineno": 203,
+      "path": "src/artifex/generative_models/core/distributions/base.py",
+      "qualname": "Distribution._validate_parameters",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/core/distributions/discrete.py:method:Categorical.__init__": {
+      "complexity": 16,
+      "endline": 114,
+      "kind": "method",
+      "lineno": 73,
+      "path": "src/artifex/generative_models/core/distributions/discrete.py",
+      "qualname": "Categorical.__init__",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/core/layers/clifford/conv.py:method:_CliffordConvNd.__init__": {
+      "complexity": 14,
+      "endline": 118,
+      "kind": "method",
+      "lineno": 33,
+      "path": "src/artifex/generative_models/core/layers/clifford/conv.py",
+      "qualname": "_CliffordConvNd.__init__",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/core/layers/clifford/norm.py:method:CliffordBatchNorm.__call__": {
+      "complexity": 12,
+      "endline": 111,
+      "kind": "method",
+      "lineno": 74,
+      "path": "src/artifex/generative_models/core/layers/clifford/norm.py",
+      "qualname": "CliffordBatchNorm.__call__",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/core/layers/flash_attention.py:class:FlashMultiHeadAttention": {
+      "complexity": 11,
+      "endline": 871,
+      "kind": "class",
+      "lineno": 565,
+      "path": "src/artifex/generative_models/core/layers/flash_attention.py",
+      "qualname": "FlashMultiHeadAttention",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/core/layers/flash_attention.py:method:FlashMultiHeadAttention.__call__": {
+      "complexity": 23,
+      "endline": 842,
+      "kind": "method",
+      "lineno": 683,
+      "path": "src/artifex/generative_models/core/layers/flash_attention.py",
+      "qualname": "FlashMultiHeadAttention.__call__",
+      "rank": "D"
+    },
+    "src/artifex/generative_models/core/layers/flash_attention.py:method:FlashMultiHeadAttention.__init__": {
+      "complexity": 14,
+      "endline": 678,
+      "kind": "method",
+      "lineno": 568,
+      "path": "src/artifex/generative_models/core/layers/flash_attention.py",
+      "qualname": "FlashMultiHeadAttention.__init__",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/core/layers/kan/_utils.py:function:_initialize_kan_params": {
+      "complexity": 11,
+      "endline": 151,
+      "kind": "function",
+      "lineno": 52,
+      "path": "src/artifex/generative_models/core/layers/kan/_utils.py",
+      "qualname": "_initialize_kan_params",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/core/layers/resnet.py:method:BottleneckBlock.__init__": {
+      "complexity": 15,
+      "endline": 423,
+      "kind": "method",
+      "lineno": 249,
+      "path": "src/artifex/generative_models/core/layers/resnet.py",
+      "qualname": "BottleneckBlock.__init__",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/core/losses/divergence.py:function:wasserstein_distance": {
+      "complexity": 12,
+      "endline": 271,
+      "kind": "function",
+      "lineno": 207,
+      "path": "src/artifex/generative_models/core/losses/divergence.py",
+      "qualname": "wasserstein_distance",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/core/losses/perceptual.py:class:PerceptualLoss": {
+      "complexity": 11,
+      "endline": 393,
+      "kind": "class",
+      "lineno": 287,
+      "path": "src/artifex/generative_models/core/losses/perceptual.py",
+      "qualname": "PerceptualLoss",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/core/losses/perceptual.py:function:feature_reconstruction_loss": {
+      "complexity": 24,
+      "endline": 95,
+      "kind": "function",
+      "lineno": 18,
+      "path": "src/artifex/generative_models/core/losses/perceptual.py",
+      "qualname": "feature_reconstruction_loss",
+      "rank": "D"
+    },
+    "src/artifex/generative_models/core/losses/perceptual.py:function:style_loss": {
+      "complexity": 24,
+      "endline": 190,
+      "kind": "function",
+      "lineno": 98,
+      "path": "src/artifex/generative_models/core/losses/perceptual.py",
+      "qualname": "style_loss",
+      "rank": "D"
+    },
+    "src/artifex/generative_models/core/losses/perceptual.py:method:PerceptualLoss.__call__": {
+      "complexity": 17,
+      "endline": 393,
+      "kind": "method",
+      "lineno": 323,
+      "path": "src/artifex/generative_models/core/losses/perceptual.py",
+      "qualname": "PerceptualLoss.__call__",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/core/sampling/blackjax_samplers.py:function:hmc_sampling": {
+      "complexity": 12,
+      "endline": 535,
+      "kind": "function",
+      "lineno": 410,
+      "path": "src/artifex/generative_models/core/sampling/blackjax_samplers.py",
+      "qualname": "hmc_sampling",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/core/sampling/sde.py:function:sde_sampling": {
+      "complexity": 13,
+      "endline": 213,
+      "kind": "function",
+      "lineno": 130,
+      "path": "src/artifex/generative_models/core/sampling/sde.py",
+      "qualname": "sde_sampling",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/extensions/nlp/embeddings.py:method:TextEmbeddings.__call__": {
+      "complexity": 13,
+      "endline": 660,
+      "kind": "method",
+      "lineno": 588,
+      "path": "src/artifex/generative_models/extensions/nlp/embeddings.py",
+      "qualname": "TextEmbeddings.__call__",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/extensions/nlp/tokenization.py:method:AdvancedTokenization.__call__": {
+      "complexity": 14,
+      "endline": 423,
+      "kind": "method",
+      "lineno": 358,
+      "path": "src/artifex/generative_models/extensions/nlp/tokenization.py",
+      "qualname": "AdvancedTokenization.__call__",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/extensions/protein/constraints.py:function:_extract_protein_coordinates": {
+      "complexity": 12,
+      "endline": 94,
+      "kind": "function",
+      "lineno": 51,
+      "path": "src/artifex/generative_models/extensions/protein/constraints.py",
+      "qualname": "_extract_protein_coordinates",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/extensions/protein/constraints.py:function:calculate_dihedral_angles": {
+      "complexity": 14,
+      "endline": 1192,
+      "kind": "function",
+      "lineno": 1091,
+      "path": "src/artifex/generative_models/extensions/protein/constraints.py",
+      "qualname": "calculate_dihedral_angles",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/extensions/registry.py:method:ExtensionsRegistry.search_extensions": {
+      "complexity": 11,
+      "endline": 464,
+      "kind": "method",
+      "lineno": 419,
+      "path": "src/artifex/generative_models/extensions/registry.py",
+      "qualname": "ExtensionsRegistry.search_extensions",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/modalities/multi_modal/adapters.py:method:MultiModalAdapter.decode": {
+      "complexity": 15,
+      "endline": 394,
+      "kind": "method",
+      "lineno": 332,
+      "path": "src/artifex/generative_models/modalities/multi_modal/adapters.py",
+      "qualname": "MultiModalAdapter.decode",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/modalities/multi_modal/base.py:method:MultiModalModality._hierarchical_fusion": {
+      "complexity": 15,
+      "endline": 345,
+      "kind": "method",
+      "lineno": 295,
+      "path": "src/artifex/generative_models/modalities/multi_modal/base.py",
+      "qualname": "MultiModalModality._hierarchical_fusion",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/modalities/multi_modal/evaluation.py:function:compute_multi_modal_metrics": {
+      "complexity": 12,
+      "endline": 493,
+      "kind": "function",
+      "lineno": 438,
+      "path": "src/artifex/generative_models/modalities/multi_modal/evaluation.py",
+      "qualname": "compute_multi_modal_metrics",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/modalities/multi_modal/evaluation.py:method:MultiModalEvaluationSuite._compute_pairwise_alignment": {
+      "complexity": 21,
+      "endline": 380,
+      "kind": "method",
+      "lineno": 282,
+      "path": "src/artifex/generative_models/modalities/multi_modal/evaluation.py",
+      "qualname": "MultiModalEvaluationSuite._compute_pairwise_alignment",
+      "rank": "D"
+    },
+    "src/artifex/generative_models/modalities/multi_modal/evaluation.py:method:MultiModalEvaluationSuite._compute_quality_metrics": {
+      "complexity": 14,
+      "endline": 245,
+      "kind": "method",
+      "lineno": 196,
+      "path": "src/artifex/generative_models/modalities/multi_modal/evaluation.py",
+      "qualname": "MultiModalEvaluationSuite._compute_quality_metrics",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/modalities/protein/utils.py:function:get_protein_adapter": {
+      "complexity": 12,
+      "endline": 63,
+      "kind": "function",
+      "lineno": 15,
+      "path": "src/artifex/generative_models/modalities/protein/utils.py",
+      "qualname": "get_protein_adapter",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/modalities/tabular/datasets.py:function:create_synthetic_tabular_dataset": {
+      "complexity": 12,
+      "endline": 252,
+      "kind": "function",
+      "lineno": 159,
+      "path": "src/artifex/generative_models/modalities/tabular/datasets.py",
+      "qualname": "create_synthetic_tabular_dataset",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/modalities/tabular/datasets.py:function:generate_synthetic_tabular_data": {
+      "complexity": 12,
+      "endline": 88,
+      "kind": "function",
+      "lineno": 22,
+      "path": "src/artifex/generative_models/modalities/tabular/datasets.py",
+      "qualname": "generate_synthetic_tabular_data",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/modalities/tabular/evaluation.py:method:TabularEvaluationSuite._compute_overall_quality": {
+      "complexity": 11,
+      "endline": 131,
+      "kind": "method",
+      "lineno": 108,
+      "path": "src/artifex/generative_models/modalities/tabular/evaluation.py",
+      "qualname": "TabularEvaluationSuite._compute_overall_quality",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/modalities/tabular/representations.py:method:NumericalProcessor.inverse_transform": {
+      "complexity": 11,
+      "endline": 143,
+      "kind": "method",
+      "lineno": 115,
+      "path": "src/artifex/generative_models/modalities/tabular/representations.py",
+      "qualname": "NumericalProcessor.inverse_transform",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/modalities/tabular/representations.py:method:NumericalProcessor.transform": {
+      "complexity": 13,
+      "endline": 113,
+      "kind": "method",
+      "lineno": 77,
+      "path": "src/artifex/generative_models/modalities/tabular/representations.py",
+      "qualname": "NumericalProcessor.transform",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/modalities/timeseries/base.py:method:TimeseriesModalityConfig.__post_init__": {
+      "complexity": 21,
+      "endline": 136,
+      "kind": "method",
+      "lineno": 79,
+      "path": "src/artifex/generative_models/modalities/timeseries/base.py",
+      "qualname": "TimeseriesModalityConfig.__post_init__",
+      "rank": "D"
+    },
+    "src/artifex/generative_models/models/autoregressive/transformer.py:method:TransformerAutoregressiveModel.generate": {
+      "complexity": 12,
+      "endline": 305,
+      "kind": "method",
+      "lineno": 185,
+      "path": "src/artifex/generative_models/models/autoregressive/transformer.py",
+      "qualname": "TransformerAutoregressiveModel.generate",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/models/diffusion/latent.py:method:LDMModel._compute_latent_spatial_shape": {
+      "complexity": 13,
+      "endline": 328,
+      "kind": "method",
+      "lineno": 276,
+      "path": "src/artifex/generative_models/models/diffusion/latent.py",
+      "qualname": "LDMModel._compute_latent_spatial_shape",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/models/diffusion/latent.py:method:SimpleDecoder.__init__": {
+      "complexity": 13,
+      "endline": 172,
+      "kind": "method",
+      "lineno": 115,
+      "path": "src/artifex/generative_models/models/diffusion/latent.py",
+      "qualname": "SimpleDecoder.__init__",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/models/diffusion/latent.py:method:SimpleEncoder.__init__": {
+      "complexity": 12,
+      "endline": 84,
+      "kind": "method",
+      "lineno": 30,
+      "path": "src/artifex/generative_models/models/diffusion/latent.py",
+      "qualname": "SimpleEncoder.__init__",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/models/gan/cyclegan.py:class:CycleGANGenerator": {
+      "complexity": 11,
+      "endline": 213,
+      "kind": "class",
+      "lineno": 28,
+      "path": "src/artifex/generative_models/models/gan/cyclegan.py",
+      "qualname": "CycleGANGenerator",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/models/gan/cyclegan.py:method:CycleGANGenerator.__init__": {
+      "complexity": 12,
+      "endline": 167,
+      "kind": "method",
+      "lineno": 36,
+      "path": "src/artifex/generative_models/models/gan/cyclegan.py",
+      "qualname": "CycleGANGenerator.__init__",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/models/geometric/graph.py:method:GraphModel._forward_graph_core": {
+      "complexity": 16,
+      "endline": 296,
+      "kind": "method",
+      "lineno": 153,
+      "path": "src/artifex/generative_models/models/geometric/graph.py",
+      "qualname": "GraphModel._forward_graph_core",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/models/geometric/mesh.py:method:MeshModel.__call__": {
+      "complexity": 11,
+      "endline": 207,
+      "kind": "method",
+      "lineno": 140,
+      "path": "src/artifex/generative_models/models/geometric/mesh.py",
+      "qualname": "MeshModel.__call__",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/models/geometric/point_cloud.py:method:PointCloudModel.__call__": {
+      "complexity": 35,
+      "endline": 253,
+      "kind": "method",
+      "lineno": 92,
+      "path": "src/artifex/generative_models/models/geometric/point_cloud.py",
+      "qualname": "PointCloudModel.__call__",
+      "rank": "E"
+    },
+    "src/artifex/generative_models/models/geometric/protein_graph.py:method:ProteinGraphModel.__call__": {
+      "complexity": 11,
+      "endline": 156,
+      "kind": "method",
+      "lineno": 82,
+      "path": "src/artifex/generative_models/models/geometric/protein_graph.py",
+      "qualname": "ProteinGraphModel.__call__",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/models/geometric/protein_point_cloud.py:method:ProteinPointCloudModel.__call__": {
+      "complexity": 12,
+      "endline": 149,
+      "kind": "method",
+      "lineno": 71,
+      "path": "src/artifex/generative_models/models/geometric/protein_point_cloud.py",
+      "qualname": "ProteinPointCloudModel.__call__",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/models/vae/encoders.py:function:create_encoder": {
+      "complexity": 11,
+      "endline": 340,
+      "kind": "function",
+      "lineno": 276,
+      "path": "src/artifex/generative_models/models/vae/encoders.py",
+      "qualname": "create_encoder",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/scaling/sharding.py:method:MultiDimensionalStrategy._validate_strategies": {
+      "complexity": 12,
+      "endline": 445,
+      "kind": "method",
+      "lineno": 404,
+      "path": "src/artifex/generative_models/scaling/sharding.py",
+      "qualname": "MultiDimensionalStrategy._validate_strategies",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/training/callbacks/early_stopping.py:method:EarlyStopping.on_epoch_end": {
+      "complexity": 12,
+      "endline": 119,
+      "kind": "method",
+      "lineno": 70,
+      "path": "src/artifex/generative_models/training/callbacks/early_stopping.py",
+      "qualname": "EarlyStopping.on_epoch_end",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/training/callbacks/logging.py:method:ProgressBarCallback.on_batch_end": {
+      "complexity": 11,
+      "endline": 686,
+      "kind": "method",
+      "lineno": 648,
+      "path": "src/artifex/generative_models/training/callbacks/logging.py",
+      "qualname": "ProgressBarCallback.on_batch_end",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/training/distributed/device_placement.py:method:DevicePlacement._detect_hardware_type": {
+      "complexity": 14,
+      "endline": 186,
+      "kind": "method",
+      "lineno": 151,
+      "path": "src/artifex/generative_models/training/distributed/device_placement.py",
+      "qualname": "DevicePlacement._detect_hardware_type",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/training/distributed/metrics.py:method:DistributedMetrics.reduce_custom": {
+      "complexity": 11,
+      "endline": 246,
+      "kind": "method",
+      "lineno": 209,
+      "path": "src/artifex/generative_models/training/distributed/metrics.py",
+      "qualname": "DistributedMetrics.reduce_custom",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/training/distributed/metrics.py:method:DistributedMetrics.reduce_custom_static": {
+      "complexity": 11,
+      "endline": 290,
+      "kind": "method",
+      "lineno": 249,
+      "path": "src/artifex/generative_models/training/distributed/metrics.py",
+      "qualname": "DistributedMetrics.reduce_custom_static",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/training/schedulers/factory.py:function:create_scheduler": {
+      "complexity": 21,
+      "endline": 178,
+      "kind": "function",
+      "lineno": 8,
+      "path": "src/artifex/generative_models/training/schedulers/factory.py",
+      "qualname": "create_scheduler",
+      "rank": "D"
+    },
+    "src/artifex/generative_models/training/trainer.py:method:Trainer.__init__": {
+      "complexity": 12,
+      "endline": 153,
+      "kind": "method",
+      "lineno": 52,
+      "path": "src/artifex/generative_models/training/trainer.py",
+      "qualname": "Trainer.__init__",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/training/trainer.py:method:Trainer.train": {
+      "complexity": 27,
+      "endline": 528,
+      "kind": "method",
+      "lineno": 414,
+      "path": "src/artifex/generative_models/training/trainer.py",
+      "qualname": "Trainer.train",
+      "rank": "D"
+    },
+    "src/artifex/generative_models/utils/code_analysis/dependency_analyzer.py:function:_resolve_import_from_targets": {
+      "complexity": 19,
+      "endline": 96,
+      "kind": "function",
+      "lineno": 52,
+      "path": "src/artifex/generative_models/utils/code_analysis/dependency_analyzer.py",
+      "qualname": "_resolve_import_from_targets",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/utils/code_analysis/dependency_analyzer.py:function:detect_circular_dependencies": {
+      "complexity": 17,
+      "endline": 346,
+      "kind": "function",
+      "lineno": 268,
+      "path": "src/artifex/generative_models/utils/code_analysis/dependency_analyzer.py",
+      "qualname": "detect_circular_dependencies",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/utils/code_analysis/dependency_analyzer.py:function:get_module_dependencies": {
+      "complexity": 11,
+      "endline": 157,
+      "kind": "function",
+      "lineno": 99,
+      "path": "src/artifex/generative_models/utils/code_analysis/dependency_analyzer.py",
+      "qualname": "get_module_dependencies",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/utils/code_analysis/dependency_analyzer.py:method:DependencyAnalyzer.generate_graph": {
+      "complexity": 15,
+      "endline": 265,
+      "kind": "method",
+      "lineno": 206,
+      "path": "src/artifex/generative_models/utils/code_analysis/dependency_analyzer.py",
+      "qualname": "DependencyAnalyzer.generate_graph",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/utils/code_analysis/test_structure_analyzer.py:function:find_source_module_mappings": {
+      "complexity": 16,
+      "endline": 258,
+      "kind": "function",
+      "lineno": 204,
+      "path": "src/artifex/generative_models/utils/code_analysis/test_structure_analyzer.py",
+      "qualname": "find_source_module_mappings",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/utils/logging/logger.py:method:FileLogger.log_image": {
+      "complexity": 13,
+      "endline": 395,
+      "kind": "method",
+      "lineno": 327,
+      "path": "src/artifex/generative_models/utils/logging/logger.py",
+      "qualname": "FileLogger.log_image",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/utils/logging/metrics.py:method:MetricsLogger.compute_metrics": {
+      "complexity": 15,
+      "endline": 153,
+      "kind": "method",
+      "lineno": 79,
+      "path": "src/artifex/generative_models/utils/logging/metrics.py",
+      "qualname": "MetricsLogger.compute_metrics",
+      "rank": "C"
+    },
+    "src/artifex/generative_models/utils/logging/mlflow.py:method:MLFlowLogger.log_image": {
+      "complexity": 18,
+      "endline": 249,
+      "kind": "method",
+      "lineno": 148,
+      "path": "src/artifex/generative_models/utils/logging/mlflow.py",
+      "qualname": "MLFlowLogger.log_image",
+      "rank": "C"
+    },
+    "src/artifex/visualization/protein_viz.py:method:ProteinVisualizer.calculate_dihedral_angles": {
+      "complexity": 14,
+      "endline": 522,
+      "kind": "method",
+      "lineno": 456,
+      "path": "src/artifex/visualization/protein_viz.py",
+      "qualname": "ProteinVisualizer.calculate_dihedral_angles",
+      "rank": "C"
+    },
+    "src/artifex/visualization/protein_viz.py:method:ProteinVisualizer.plot_ramachandran": {
+      "complexity": 16,
+      "endline": 453,
+      "kind": "method",
+      "lineno": 330,
+      "path": "src/artifex/visualization/protein_viz.py",
+      "qualname": "ProteinVisualizer.plot_ramachandran",
+      "rank": "C"
+    },
+    "src/artifex/visualization/protein_viz.py:method:ProteinVisualizer.to_pdb_string": {
+      "complexity": 13,
+      "endline": 264,
+      "kind": "method",
+      "lineno": 139,
+      "path": "src/artifex/visualization/protein_viz.py",
+      "qualname": "ProteinVisualizer.to_pdb_string",
+      "rank": "C"
+    }
+  },
+  "example_enforced_kinds": [
+    "function",
+    "method"
+  ],
+  "minimum_rank": "C",
+  "scan_paths": [
+    "src",
+    "examples"
+  ],
+  "version": 1
+}

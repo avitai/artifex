@@ -105,7 +105,7 @@ class TestMSELoss:
         np.testing.assert_allclose(gradients, expected)
 
     def test_default_path_matches_calibrax_mse(self):
-        """Default MSE semantics should track the shared CalibraX primitive."""
+        """Default MSE semantics should track the shared Calibrax primitive."""
         predictions = jnp.array([[1.0, 2.0], [3.0, 4.0]])
         targets = jnp.array([[0.0, 1.0], [1.0, 0.0]])
 
@@ -146,7 +146,7 @@ class TestMAELoss:
         np.testing.assert_allclose(result, expected)
 
     def test_default_path_matches_calibrax_mae(self):
-        """Default MAE semantics should track the shared CalibraX primitive."""
+        """Default MAE semantics should track the shared Calibrax primitive."""
         predictions = jnp.array([[1.0, -2.0], [3.0, -4.0]])
         targets = jnp.array([[0.0, 0.0], [1.0, -1.0]])
 
@@ -196,7 +196,7 @@ class TestHuberLoss:
         np.testing.assert_allclose(result, expected)
 
     def test_default_path_matches_calibrax_huber(self):
-        """Default Huber semantics should track the shared CalibraX primitive."""
+        """Default Huber semantics should track the shared Calibrax primitive."""
         predictions = jnp.array([[0.5, 2.0], [-0.5, -2.0]])
         targets = jnp.zeros_like(predictions)
         delta = 1.0

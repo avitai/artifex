@@ -28,18 +28,24 @@ of the checked-in runtime:
 ```python
 from artifex.data import protein
 from artifex.data.protein import ProteinDataset, ProteinDatasetConfig
+from datarax import Pipeline
+from flax import nnx
 
 config = ProteinDatasetConfig(max_seq_length=128)
 dataset = ProteinDataset(config, data_dir="./protein-pickles")
 batch = dataset.get_batch(4)
+pipeline_batch = Pipeline(source=dataset, stages=[], batch_size=4, rngs=nnx.Rngs(0)).step()
 
 assert protein.ProteinDataset is ProteinDataset
 print(batch["atom_positions"].shape)
+print(pipeline_batch["atom_positions"].shape)
 ```
 
 `ProteinDataset` is backed by datarax's `DataSourceModule`, so it keeps the
 standard Datarax indexing, iteration, batching, and `Pipeline(...)`
-integration story.
+integration story. The local `get_batch(...)` helper can collate variable-length
+protein examples, while the Datarax `get_batch_at(...)` and `Pipeline.step()`
+path returns fixed-shape tensor fields padded to `ProteinDatasetConfig.max_seq_length`.
 
 ## Where The Broader Data Story Lives
 

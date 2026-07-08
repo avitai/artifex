@@ -45,10 +45,10 @@ The test suite covers:
 Run the tests using pytest:
 
 ```bash
-python -m pytest tests/artifex/generative_models/modalities
-python -m pytest tests/artifex/generative_models/extensions
-python -m pytest tests/artifex/generative_models/factories
-python -m pytest tests/artifex/generative_models/integration
+python -m pytest tests/artifex/generative_models/modalities --no-cov
+python -m pytest tests/artifex/generative_models/extensions --no-cov
+python -m pytest tests/artifex/generative_models/factories --no-cov
+python -m pytest tests/artifex/generative_models/integration --no-cov
 ```
 
 ## Adding New Modality Tests

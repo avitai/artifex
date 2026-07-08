@@ -6,7 +6,7 @@
 
 ## Overview
 
-This example provides a complete tour of the Artifex framework's core features and design patterns. Learn how to leverage the unified configuration system, factory pattern, composable losses, sampling methods, and modality adapters for building production-ready generative models.
+This example provides a tour of the Artifex framework's core features and design patterns. Learn how to leverage the unified configuration system, factory pattern, composable losses, sampling methods, and modality adapters for building generative model experiments.
 
 ## What You'll Learn
 

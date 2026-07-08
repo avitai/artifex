@@ -10,7 +10,7 @@ from artifex.benchmarks.suites.registry import list_suites
 
 UNSUPPORTED_BENCHMARK_CLI_MESSAGE = (
     "There is no supported public benchmark CLI runner. Use the retained "
-    "CalibraX-backed benchmark runtime from Python, or the explicit demo scripts "
+    "Calibrax-backed benchmark runtime from Python, or the explicit demo scripts "
     "under examples/ for demo-only workflows."
 )
 

@@ -2,7 +2,7 @@
 
 **Level:** Beginner | **Runtime:** ~30 minutes (GPU), ~2-3 hours (CPU) | **Format:** Python + Jupyter
 
-This tutorial provides a complete, production-ready example of training a DDPM (Denoising Diffusion Probabilistic Model) on the MNIST dataset. By the end, you'll have trained a diffusion model from scratch that generates realistic handwritten digits.
+This tutorial provides a runnable example of training a DDPM (Denoising Diffusion Probabilistic Model) on the MNIST dataset. By the end, you'll have trained a diffusion model from scratch that generates handwritten digit samples.
 
 ## Files
 
@@ -170,7 +170,7 @@ from artifex.generative_models.training.trainers.diffusion_trainer import (
     DiffusionTrainingConfig,
 )
 
-# DataRax imports for data loading
+# Datarax imports for data loading
 from datarax import Pipeline
 from datarax.sources import from_tfds
 
@@ -208,7 +208,7 @@ WARMUP_STEPS = 500   # ~2 epochs of warmup
 
 ## Step 3: Data Loading and Preprocessing
 
-We use [DataRax](https://github.com/avitai/datarax) for efficient data loading with built-in batching and shuffling.
+We use [Datarax](https://github.com/avitai/datarax) for efficient data loading with built-in batching and shuffling.
 
 ### Create MNIST Data Source
 
@@ -216,7 +216,7 @@ We use [DataRax](https://github.com/avitai/datarax) for efficient data loading w
 # Initialize RNG for data loading
 data_rngs = nnx.Rngs(SEED)
 
-# Create the MNIST training source with DataRax's live TFDS helper
+# Create the MNIST training source with Datarax's live TFDS helper
 train_source = from_tfds(
     "mnist",
     "train",
@@ -229,7 +229,7 @@ train_source = from_tfds(
 print(f"📊 MNIST train dataset loaded: {len(train_source)} samples")
 ```
 
-**DataRax Benefits:**
+**Datarax Benefits:**
 
 - **Automatic TF→JAX conversion**: No manual array conversion needed
 - **Built-in shuffling**: Configurable shuffle buffer
@@ -238,10 +238,11 @@ print(f"📊 MNIST train dataset loaded: {len(train_source)} samples")
 
 ### Create Training Pipeline
 
-DataRax's `Pipeline` builds a batched data pipeline directly from a source:
+Datarax's `Pipeline` builds a batched data pipeline directly from a source:
 
 ```python
-# Create training pipeline with batching (Pipeline.step is @nnx.jit by default)
+# Create an iterable training pipeline for the streaming source.
+# Consume it with `for batch in train_pipeline`, not direct `Pipeline.step()`.
 train_pipeline = Pipeline(source=train_source, stages=[], batch_size=BATCH_SIZE, rngs=data_rngs)
 
 # Calculate number of batches per epoch
@@ -302,8 +303,8 @@ for raw_batch in train_pipeline:
   Value range: [-1.00, 1.00]
 ```
 
-!!! tip "DataRax Pipeline Features"
-    The DataRax pipeline automatically handles:
+!!! tip "Datarax Pipeline Features"
+    The Datarax pipeline automatically handles:
 
     - **Batching**: Groups samples into batches of `BATCH_SIZE`
     - **Shuffling**: Randomizes order each epoch (configured in source)
@@ -464,7 +465,7 @@ print("-" * 60)
 for epoch in range(NUM_EPOCHS):
     epoch_losses = []
 
-    # DataRax pipeline automatically handles batching and shuffling
+    # Datarax pipeline automatically handles batching and shuffling
     pbar = tqdm(train_pipeline, desc=f"Epoch {epoch+1}/{NUM_EPOCHS}", total=n_batches)
     for raw_batch in pbar:
         train_key, step_key = jax.random.split(train_key)

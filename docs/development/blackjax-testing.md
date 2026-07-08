@@ -7,20 +7,20 @@ pytest surface and should run under the same contract as the rest of the suite.
 
 ```bash
 # Run the full suite, including BlackJAX tests
-uv run pytest tests/
+uv run pytest
 
 # Run only the BlackJAX-marked tests
-uv run pytest tests/ -m blackjax
+uv run pytest -m blackjax --no-cov
 
 # Run the BlackJAX sampler tests only
-uv run pytest tests/artifex/generative_models/core/sampling/test_blackjax_samplers.py -v
+uv run pytest tests/artifex/generative_models/core/sampling/test_blackjax_samplers.py -v --no-cov
 ```
 
 If you need a focused local run that excludes them, use standard pytest selection rather
 than hidden environment gates:
 
 ```bash
-uv run pytest tests/ -m "not blackjax"
+uv run pytest -m "not blackjax" --no-cov
 ```
 
 ## Notes

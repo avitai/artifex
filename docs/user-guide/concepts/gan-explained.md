@@ -1085,7 +1085,7 @@ GANs revolutionized generative modeling through adversarial training, achieving 
 
     ---
 
-    Explore StyleGAN, CycleGAN, and state-of-the-art architectures
+    Explore StyleGAN, CycleGAN, and modern architectures
 
 </div>
 

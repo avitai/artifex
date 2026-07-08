@@ -81,7 +81,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import optax
 
-# DataRax imports for data loading
+# Datarax imports for data loading
 from datarax import Pipeline
 from datarax.sources import from_tfds
 from flax import nnx
@@ -148,7 +148,7 @@ echo(f"  Learning rate: {BASE_LR} (with {WARMUP_STEPS} warmup steps)")
 # %% [markdown]
 r"""## 2. Data Loading and Preprocessing.
 
-Use DataRax to load MNIST and create a batched data pipeline.
+Use Datarax to load MNIST and create a batched data pipeline.
 Pad to 32x32 for optimal UNet downsampling (32 -> 16 -> 8 -> 4).
 """
 
@@ -157,7 +157,7 @@ Pad to 32x32 for optimal UNet downsampling (32 -> 16 -> 8 -> 4).
 # Initialize RNG for data loading
 data_rngs = nnx.Rngs(SEED)
 
-# Create the MNIST training source with the live DataRax TFDS helper
+# Create the MNIST training source with the live Datarax TFDS helper
 train_source = from_tfds(
     "mnist",
     "train",
@@ -170,7 +170,8 @@ train_source = from_tfds(
 echo()
 echo(f"MNIST train dataset loaded: {len(train_source)} samples")
 
-# Create training pipeline with batching (Pipeline.step is @nnx.jit by default)
+# Create an iterable training pipeline for the streaming source.
+# Consume it with `for batch in train_pipeline`, not direct `Pipeline.step()`.
 train_pipeline = Pipeline(source=train_source, stages=[], batch_size=BATCH_SIZE, rngs=data_rngs)
 
 # Calculate number of batches per epoch
@@ -360,7 +361,7 @@ echo_rule(60, char="-")
 for epoch in range(NUM_EPOCHS):
     epoch_losses = []
 
-    # DataRax pipeline handles batching and shuffling
+    # Datarax pipeline handles batching and shuffling
     pbar = tqdm(train_pipeline, desc=f"Epoch {epoch + 1}/{NUM_EPOCHS}", total=n_batches)
     for raw_batch in pbar:
         train_key, step_key = jax.random.split(train_key)

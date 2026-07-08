@@ -1,4 +1,4 @@
-"""Benchmark metrics built on CalibraX-compatible metric bases."""
+"""Benchmark metrics built on Calibrax-compatible metric bases."""
 
 from artifex.benchmarks.metrics.core import MetricBase
 from artifex.benchmarks.metrics.disentanglement import (

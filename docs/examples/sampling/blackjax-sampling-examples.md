@@ -48,7 +48,7 @@ After completing this example, you will:
 
 ## MCMC Algorithms Overview
 
-This example demonstrates three state-of-the-art MCMC algorithms from the BlackJAX library.
+This example demonstrates three advanced MCMC algorithms from the BlackJAX library.
 
 ### Hamiltonian Monte Carlo (HMC)
 

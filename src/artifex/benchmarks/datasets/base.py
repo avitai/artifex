@@ -1,4 +1,4 @@
-"""Benchmark dataset helpers backed by CalibraX primitives."""
+"""Benchmark dataset helpers backed by Calibrax primitives."""
 
 from typing import Any
 
@@ -8,7 +8,7 @@ from calibrax.core import SingletonRegistry
 
 
 class DatasetRegistry(SingletonRegistry[Any]):
-    """CalibraX-backed singleton registry for benchmark datasets.
+    """Calibrax-backed singleton registry for benchmark datasets.
 
     The canonical registry semantics come from `calibrax.core.SingletonRegistry`.
     Artifex keeps only narrow dataset-specific convenience helpers here.

@@ -11,16 +11,16 @@ Artifex uses the standard `uv run pytest` surface. Treat the root `TESTING.md` f
 uv run pytest
 
 # Run a focused file
-uv run pytest tests/path/to/test_file.py -xvs
+uv run pytest tests/path/to/test_file.py -xvs --no-cov
 
 # Run a single test
-uv run pytest tests/path/to/test_file.py::TestClass::test_method -xvs
+uv run pytest tests/path/to/test_file.py::TestClass::test_method -xvs --no-cov
 
 # Run GPU-only tests
-uv run pytest -m gpu
+uv run pytest -m gpu --no-cov
 
 # Run BlackJAX tests
-uv run pytest -m blackjax
+uv run pytest -m blackjax --no-cov
 ```
 
 ### Coverage Commands
@@ -36,7 +36,7 @@ uv run pytest \
   --cov-report=term-missing
 ```
 
-The repo-wide pytest fail-under is `70%`, and new code is still expected to meet the `80%` target recorded in `tool.artifex.repo_standards.coverage`.
+The repo-wide pytest fail-under is `80%`, matching the target recorded in `tool.artifex.repo_standards.coverage`.
 
 ## Current Test Layout
 

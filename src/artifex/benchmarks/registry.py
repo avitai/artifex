@@ -1,4 +1,4 @@
-"""CalibraX-first benchmark registry helpers.
+"""Calibrax-first benchmark registry helpers.
 
 Artifex keeps only thin convenience registration helpers here. The canonical
 singleton registry is `calibrax.core.BenchmarkRegistry`.
@@ -26,7 +26,7 @@ def register_benchmark(
     benchmark: Benchmark | None = None,
     config: BenchmarkConfig | None = None,
 ) -> Any:
-    """Register a benchmark with the CalibraX singleton registry."""
+    """Register a benchmark with the Calibrax singleton registry."""
     registry = BenchmarkRegistry()
 
     def decorator(cls_or_fn: Any) -> Any:

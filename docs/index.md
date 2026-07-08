@@ -6,13 +6,13 @@
 [![Flax](https://img.shields.io/badge/Flax-NNX-blue.svg)](https://flax.readthedocs.io/)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 
-A research-focused modular generative modeling library built on JAX/Flax NNX, providing implementations of state-of-the-art generative models with multi-modal support and scientific computing focus.
+A research-focused modular generative modeling library built on JAX/Flax NNX, providing implementations of several generative model families with multi-modal support and scientific computing focus.
 
 ## Why Artifex?
 
 <div class="grid cards" markdown>
 
-- :material-flask-outline:{ .lg .middle } __State-of-the-Art Models__
+- :material-flask-outline:{ .lg .middle } __Generative Model Families__
 
     ---
 
@@ -63,12 +63,11 @@ See the [Installation Guide](getting-started/installation.md) for detailed setup
 ### Start with the VAE Quickstart
 
 The primary onboarding path is the checked-in VAE quickstart. It uses
-`TFDSEagerSource`, `VAEConfig`, `VAETrainer`, and `train_epoch_staged` to train on
-MNIST while keeping the hot path in JAX.
+`from_tfds(..., eager=True)`, `VAEConfig`, `VAETrainer`, and
+`train_epoch_staged` to train on MNIST while keeping the hot path in JAX.
 
 ```python
-from datarax.sources import TFDSEagerSource
-from datarax.sources.tfds_source import TFDSEagerConfig
+from datarax.sources import from_tfds
 from artifex.generative_models.core.configuration import DecoderConfig, EncoderConfig, VAEConfig
 from artifex.generative_models.models.vae import VAE
 from artifex.generative_models.training import train_epoch_staged

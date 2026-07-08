@@ -1040,7 +1040,7 @@ The 2024–2026 LLM block looks substantially different from Vaswani's 2017 desi
 
 ### Post-Training: RLHF → DPO → RLVR
 
-- **RLHF** ([Ouyang et al., 2022 — InstructGPT](https://arxiv.org/abs/2203.02155)) — supervised fine-tuning + reward model + PPO; the recipe behind ChatGPT.
+- **RLHF** ([Ouyang et al., 2022 — InstructGPT](https://arxiv.org/abs/2203.02155)) — supervised fine-tuning + reward model + PPO; a common recipe for instruction-following chat systems.
 - **DPO** ([Rafailov et al., 2023 — NeurIPS](https://arxiv.org/abs/2305.18290)) — derives a closed-form reward from preferences; sidesteps the explicit reward model.
 - **RLVR** (Reinforcement Learning with Verifiable Rewards, 2024–2025) — used in o1 / R1; reward is a *verifier* (unit tests for code, ground-truth for math), not a learned model. The dominant 2025–2026 post-training paradigm for reasoning models.
 
@@ -1280,7 +1280,7 @@ For the broader unified picture and how AR fits alongside diffusion / VAE / GAN 
 
 ## Summary and Key Takeaways
 
-Autoregressive models decompose joint distributions via the chain rule, enabling exact likelihood computation and straightforward maximum likelihood training. Their sequential generation, while slower than one-shot methods, achieves state-of-the-art results across modalities.
+Autoregressive models decompose joint distributions via the chain rule, enabling exact likelihood computation and straightforward maximum likelihood training. Their sequential generation is slower than one-shot methods, but the approach has strong results across modalities.
 
 ### Core Principles
 
@@ -1550,7 +1550,7 @@ Autoregressive models decompose joint distributions via the chain rule, enabling
 
 :material-file-document: **Ouyang, L., et al. (2022).** "Training Language Models to Follow Instructions with Human Feedback" (InstructGPT)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2203.02155](https://arxiv.org/abs/2203.02155)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: RLHF — the recipe behind ChatGPT.
+&nbsp;&nbsp;&nbsp;&nbsp;:material-lightbulb-outline: RLHF — a common recipe for instruction-following chat systems.
 
 :material-file-document: **Rafailov, R., et al. (2023).** "Direct Preference Optimization" (DPO, NeurIPS)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;:material-link: [arXiv:2305.18290](https://arxiv.org/abs/2305.18290)<br>

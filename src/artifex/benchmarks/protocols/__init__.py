@@ -1,4 +1,4 @@
-"""CalibraX-first benchmark protocol re-exports."""
+"""Calibrax-first benchmark protocol re-exports."""
 
 from calibrax.core import (
     BatchableDatasetProtocol,

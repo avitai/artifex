@@ -39,9 +39,9 @@ _artifex_filter_cuda_library_path() {
     for entry in "${entries[@]}"; do
         [[ -n "$entry" ]] || continue
         case "$entry" in
-            *cuda*/lib|*cuda*/lib64|*cuda*/lib/*|*cuda*/lib64/*|\
             *cuda*/targets/*/lib|*cuda*/targets/*/lib64|\
             *cuda*/targets/*/lib/*|*cuda*/targets/*/lib64/*|\
+            *cuda*/lib|*cuda*/lib64|*cuda*/lib/*|*cuda*/lib64/*|\
             *cudnn*/lib|*cudnn*/lib64|*cudnn*/lib/*|*cudnn*/lib64/*)
                 continue
                 ;;
